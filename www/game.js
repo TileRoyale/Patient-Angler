@@ -1030,6 +1030,9 @@ function executePrestige() {
   if (_gsSpawnTimeout) { clearTimeout(_gsSpawnTimeout); _gsSpawnTimeout = null; }
   _gsRemoveAllDom();
 
+  // Reset sea comic so it shows again when Sea is re-unlocked after prestige
+  G.seaComicSeen = false;
+
   // Keep: fishdex, masteryData, manualFishdex, diamonds, blackPearls, prestigeCount, pearlUpgrades, quests, stats, records, unlockedBobberCosmetics, equippedBobberCosmetic, premiumBait, sunkenChests, sunkenTreasureUnlocked, sunkenTreasureStats
 
   saveState();
