@@ -681,14 +681,16 @@ const DEFAULT_STATE = {
   // ── Expansion save foundation (Phase 1 — all inactive until Maelstrom unlocks) ──
   currentWorld: 'overworld',   // overworld | maelstrom | abyss
   maelstrom: {
-    unlocked:              false,
-    entered:               false,
-    stabilized:            false,
-    abyssEntranceUnlocked: false,
-    crystals:              { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 },
-    crystalRequirements:   { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 }, // Phase 2 provisional: 0 = not yet set
-    crystalMissions:       [],
-    stats:                 { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 },
+    unlocked:                     false,
+    entered:                      false,
+    stabilized:                   false,
+    abyssEntranceUnlocked:        false,
+    crystals:                     { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 },
+    stabilizationProgress:        { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 },
+    stabilizationCompletionShown: false,
+    crystalMissions:              [],
+    stats:                        { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 },
+    // crystalRequirements removed — requirements live in MAELSTROM_STAB_REQUIREMENTS (abyss.js)
   },
   abyss: {
     unlocked:    false,
@@ -7493,12 +7495,24 @@ function init() {
   // Expansion fields — ensure old saves receive safe defaults
   if (!G.currentWorld)  G.currentWorld = 'overworld';
   if (!G.maelstrom) G.maelstrom = JSON.parse(JSON.stringify(DEFAULT_STATE.maelstrom));
-  // Phase 2: ensure maelstrom sub-fields exist in Phase 1 saves
-  if (!G.maelstrom.crystals)            G.maelstrom.crystals            = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  if (!G.maelstrom.crystalRequirements) G.maelstrom.crystalRequirements = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  if (!G.maelstrom.crystalMissions)     G.maelstrom.crystalMissions     = [];
-  if (!G.maelstrom.stats)               G.maelstrom.stats               = { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 };
-  if (!Array.isArray(G.maelstrom.crystalMissions)) G.maelstrom.crystalMissions = [];
+  // Phase 2/3: ensure maelstrom sub-fields exist in older saves
+  if (!G.maelstrom.crystals)                G.maelstrom.crystals                = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  if (!G.maelstrom.crystalMissions)         G.maelstrom.crystalMissions         = [];
+  if (!G.maelstrom.stats)                   G.maelstrom.stats                   = { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 };
+  if (!Array.isArray(G.maelstrom.crystalMissions)) G.maelstrom.crystalMissions  = [];
+  // Phase 3: stabilization fields
+  if (!G.maelstrom.stabilizationProgress)   G.maelstrom.stabilizationProgress   = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  if (G.maelstrom.stabilizationCompletionShown === undefined) G.maelstrom.stabilizationCompletionShown = false;
+  // Sanitize crystal counts and stabilization progress (clamp negatives; caps against requirements handled in abyss.js)
+  ['azure','emerald','amethyst','ruby','golden'].forEach(function(id) {
+    if (!isFinite(G.maelstrom.crystals[id])             || G.maelstrom.crystals[id]             < 0) G.maelstrom.crystals[id]             = 0;
+    if (!isFinite(G.maelstrom.stabilizationProgress[id]) || G.maelstrom.stabilizationProgress[id] < 0) G.maelstrom.stabilizationProgress[id] = 0;
+  });
+  // Phase 3: backfill mission fields added in Phase 3 (Phase 2 missions had pre-generated rewards)
+  G.maelstrom.crystalMissions.forEach(function(m) {
+    if (m.rewardGenerated === undefined) m.rewardGenerated = (m.crystalType != null);
+    if (m.completedAt     === undefined) m.completedAt     = (m.status !== 'active') ? (m.completesAt || 0) : 0;
+  });
   if (!G.abyss)     G.abyss     = { unlocked:false, currentZone:null, highestZone:0, zones:{}, automation:{}, tribes:{}, crystals:{}, geodes:{}, stats:{} };
   // Reset world to overworld on load — prevents stale debug state from affecting live saves
   if (typeof canAccessMaelstromAndAbyss === 'function' && !canAccessMaelstromAndAbyss()) {

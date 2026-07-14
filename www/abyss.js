@@ -2,14 +2,15 @@
 
 // ─── MAELSTROM & ABYSS EXPANSION FRAMEWORK ─────────────────────────────────
 // Phase 1: Architecture foundation.
-// Phase 2: Maelstrom crystal-mission shell (debug only, no live gameplay).
+// Phase 2: Maelstrom crystal-mission shell (debug only).
+// Phase 3: Full Maelstrom stabilization progression (debug only).
 // All expansion access controlled by canAccessMaelstromAndAbyss().
 // When local debug is disabled, nothing in this file affects live gameplay.
 
 // ─── ENVIRONMENT DETECTION ────────────────────────────────────────────────────
 
 function isLocalDevelopmentEnvironment() {
-  if (window.Capacitor) return false;          // Running inside Capacitor/Android — never local dev
+  if (window.Capacitor) return false;        // Capacitor/Android — never local dev
   const h = window.location.hostname;
   return h === 'localhost' || h === '127.0.0.1' || h === '';
 }
@@ -64,8 +65,7 @@ function getCurrentAbyssZone() {
 }
 
 // ─── WORLD REGISTRIES ─────────────────────────────────────────────────────────
-// Placeholder-only. No loot, fish, economy, or tribe data in Phase 1/2.
-// See ABYSS Missing Assets.md for all assets needed before production.
+// See ABYSS Missing Assets.md for all art assets required before production.
 
 const MAELSTROM_ZONE = {
   id:         'maelstrom',
@@ -83,36 +83,66 @@ const ABYSS_ZONES = [
 ];
 
 // ─── PLACEHOLDER COMPONENT ────────────────────────────────────────────────────
-// White box, thin dark border, large red question mark — no emoji, no broken-image icon.
+// White box, thin dark border, large red question mark. No emoji, no broken-image icon.
 // Only call when canAccessMaelstromAndAbyss() is true.
 // opts: { width, height, label }
 
 function expansionPlaceholder(opts) {
   if (!canAccessMaelstromAndAbyss()) return '';
-  const w = (opts && opts.width)  || '100%';
-  const h = (opts && opts.height) || '120px';
+  const w   = (opts && opts.width)  || '100%';
+  const h   = (opts && opts.height) || '120px';
   const lbl = (opts && opts.label) ? `<span class="exp-ph-label">${opts.label}</span>` : '';
   return `<div class="expansion-placeholder" style="width:${w};height:${h};">${lbl}<span class="exp-ph-mark">?</span></div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PHASE 2 — MAELSTROM CRYSTAL MISSIONS (DEBUG ONLY)
+// PHASE 3 — MAELSTROM STABILIZATION CONFIG
+// All numeric values in one place. Non-final; will be tuned in future phases.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── PROVISIONAL CONSTANTS (Phase 2 — non-final, will be tuned in future phase) ──
+const MAELSTROM_MISSION_CONFIG = {
+  // Base mission duration. Divided by permanentExpeditionSpeedMultiplier at runtime.
+  baseDurationMs: 6 * 60 * 60 * 1000,  // 6 real hours (Phase 3 provisional)
 
-const _MAEL_MISSION_DURATION_MS = 10 * 60 * 1000;  // 10 minutes in debug; production TBD
-const _MAEL_CRYSTAL_MIN         = 1;
-const _MAEL_CRYSTAL_MAX         = 3;
+  // Weighted probabilities for crystal type selection.
+  // Sum = 100; values are relative weights, not percentages.
+  crystalWeights: {
+    azure:    35,
+    emerald:  25,
+    amethyst: 20,
+    ruby:     15,
+    golden:   5,
+  },
+
+  // Crystal quantity range per completed mission, indexed by crystal type.
+  crystalAmounts: {
+    azure:    { min: 8,  max: 14 },
+    emerald:  { min: 6,  max: 11 },
+    amethyst: { min: 4,  max: 8  },
+    ruby:     { min: 3,  max: 6  },
+    golden:   { min: 1,  max: 3  },
+  },
+};
+
+// Stabilization requirements. Stored in code only — never in the player save.
+// Player save tracks contributed amounts in G.maelstrom.stabilizationProgress.
+const MAELSTROM_STAB_REQUIREMENTS = {
+  azure:    120,
+  emerald:  90,
+  amethyst: 65,
+  ruby:     40,
+  golden:   15,
+};
+// Total required: 330 crystals across all types.
 
 // ─── CRYSTAL REGISTRY ────────────────────────────────────────────────────────
 
 const MAELSTROM_CRYSTALS = [
-  { id: 'azure',    name: 'Azure Crystal',    color: '#1a8fd4', icon: null },  // icon: crystal_blue.png (Missing)
-  { id: 'emerald',  name: 'Emerald Crystal',  color: '#1aa352', icon: null },  // icon: crystal_green.png (Missing)
-  { id: 'amethyst', name: 'Amethyst Crystal', color: '#8b34c8', icon: null },  // icon: crystal_purple.png (Missing)
-  { id: 'ruby',     name: 'Ruby Crystal',     color: '#c43030', icon: null },  // icon: crystal_red.png (Missing)
-  { id: 'golden',   name: 'Golden Crystal',   color: '#c49a00', icon: null },  // icon: crystal_gold.png (Missing)
+  { id: 'azure',    name: 'Azure Crystal',    color: '#1a8fd4', icon: null },  // crystal_blue.png — Missing
+  { id: 'emerald',  name: 'Emerald Crystal',  color: '#1aa352', icon: null },  // crystal_green.png — Missing
+  { id: 'amethyst', name: 'Amethyst Crystal', color: '#8b34c8', icon: null },  // crystal_purple.png — Missing
+  { id: 'ruby',     name: 'Ruby Crystal',     color: '#c43030', icon: null },  // crystal_red.png — Missing
+  { id: 'golden',   name: 'Golden Crystal',   color: '#c49a00', icon: null },  // crystal_gold.png — Missing
 ];
 
 // ─── SMALL HELPERS ────────────────────────────────────────────────────────────
@@ -130,9 +160,12 @@ function _crystalColor(id) {
 function _formatMsCountdown(ms) {
   if (ms <= 0) return 'Ready';
   const totalSec = Math.ceil(ms / 1000);
-  const m = Math.floor(totalSec / 60);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
   const s = totalSec % 60;
-  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
 }
 
 function _evStatusLabel(v) {
@@ -146,23 +179,61 @@ function _missionId() {
   return 'mael_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
 }
 
-function _randomCrystalType() {
-  return MAELSTROM_CRYSTALS[Math.floor(Math.random() * MAELSTROM_CRYSTALS.length)].id;
+// ─── MISSION DURATION ─────────────────────────────────────────────────────────
+// Extension point for future Diamond Shop "Expedition Speed" upgrade.
+// Returns 1 until the upgrade is implemented — no code change needed here.
+
+function _getExpeditionSpeedMultiplier() {
+  return 1; // placeholder: future upgrade increases this value
 }
 
-function _randomCrystalAmount() {
-  return _MAEL_CRYSTAL_MIN + Math.floor(Math.random() * (_MAEL_CRYSTAL_MAX - _MAEL_CRYSTAL_MIN + 1));
+function _getMaelstromMissionDuration() {
+  return Math.round(MAELSTROM_MISSION_CONFIG.baseDurationMs / _getExpeditionSpeedMultiplier());
+}
+
+// ─── WEIGHTED CRYSTAL SELECTION ───────────────────────────────────────────────
+// Reward generated at mission completion — NOT at dispatch time.
+
+function _weightedCrystalType() {
+  const weights = MAELSTROM_MISSION_CONFIG.crystalWeights;
+  const ids = Object.keys(weights);
+  const total = ids.reduce(function(s, id) { return s + weights[id]; }, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < ids.length; i++) {
+    r -= weights[ids[i]];
+    if (r <= 0) return ids[i];
+  }
+  return ids[ids.length - 1]; // fallback
+}
+
+function _crystalAmountForType(type) {
+  const range = MAELSTROM_MISSION_CONFIG.crystalAmounts[type];
+  if (!range) return 1;
+  return range.min + Math.floor(Math.random() * (range.max - range.min + 1));
+}
+
+// Generates and assigns the crystal reward to a mission object exactly once.
+// Idempotent — safe to call on missions that already have rewardGenerated = true.
+
+function _generateMissionReward(mission) {
+  if (mission.rewardGenerated) return;
+  mission.crystalType     = _weightedCrystalType();
+  mission.crystalAmount   = _crystalAmountForType(mission.crystalType);
+  mission.rewardGenerated = true;
 }
 
 // ─── UI REFRESH TIMER ─────────────────────────────────────────────────────────
-// Runs only while Maelstrom screen is visible; stopped when leaving.
+// Runs only while Maelstrom screen is visible; stopped on leave.
 
 let _maelstromUIInterval = null;
 
 function _startMaelstromUITimer() {
   if (_maelstromUIInterval) return;
   _maelstromUIInterval = setInterval(function() {
-    if (isInMaelstrom()) renderMaelstromDebug();
+    if (isInMaelstrom()) {
+      _processMaelstromMissions(); // catch completions
+      renderMaelstromDebug();
+    }
   }, 5000);
 }
 
@@ -171,9 +242,9 @@ function _stopMaelstromUITimer() {
 }
 
 // ─── MISSION PROCESSING ──────────────────────────────────────────────────────
-// Idempotent: safe to call multiple times. Completes missions whose timer has
-// expired but have not yet been collected. Does NOT grant crystals automatically
-// — player must tap Collect. Sets status = 'complete' so UI shows the button.
+// Idempotent. Transitions active missions to complete when timer expires,
+// generating the reward at that moment. Does NOT grant crystals automatically.
+// Player must tap Collect.
 
 function _processMaelstromMissions() {
   if (!canAccessMaelstromAndAbyss()) return;
@@ -182,6 +253,8 @@ function _processMaelstromMissions() {
   let changed = false;
   G.maelstrom.crystalMissions.forEach(function(m) {
     if (m.status === 'active' && now >= m.completesAt) {
+      _generateMissionReward(m); // exactly once — idempotent
+      m.completedAt = now;
       m.status = 'complete';
       changed = true;
     }
@@ -197,26 +270,26 @@ function assignVesselToMaelstrom(vesselId) {
   const vessels = G.expeditionVessels || [];
   const v = vessels.find(x => x.id === vesselId);
   if (!v) { if (typeof showStatus === 'function') showStatus('Vessel not found.', 1500); return; }
-  if (v.maelstromMissionId) { if (typeof showStatus === 'function') showStatus('Already on a mission.', 1500); return; }
+  if (v.maelstromMissionId) { if (typeof showStatus === 'function') showStatus('Vessel already on a mission.', 1500); return; }
 
-  // Preserve remaining treasure timer
+  // Preserve remaining treasure timer so it resumes when mission ends
   const remaining = v.nextChestAt > Date.now() ? v.nextChestAt - Date.now() : 0;
   v.savedTreasureRemainingMs = remaining;
-  v.nextChestAt = 0; // sentinel — normal EV loops skip nextChestAt === 0
+  v.nextChestAt = 0; // sentinel — normal EV loops check maelstromMissionId before touching this
 
   const missionId = _missionId();
-  const crystalType = _randomCrystalType();
-  const crystalAmount = _randomCrystalAmount();
   const now = Date.now();
 
   const mission = {
-    id:           missionId,
-    vesselId:     vesselId,
-    crystalType:  crystalType,
-    crystalAmount:crystalAmount,
-    startedAt:    now,
-    completesAt:  now + _MAEL_MISSION_DURATION_MS,
-    status:       'active',   // 'active' | 'complete' | 'claimed'
+    id:             missionId,
+    vesselId:       vesselId,
+    crystalType:    null,   // generated at completion — not known yet
+    crystalAmount:  0,
+    rewardGenerated:false,
+    startedAt:      now,
+    completesAt:    now + _getMaelstromMissionDuration(),
+    completedAt:    0,
+    status:         'active',  // 'active' | 'complete' | 'claimed'
   };
 
   v.maelstromMissionId = missionId;
@@ -224,12 +297,14 @@ function assignVesselToMaelstrom(vesselId) {
   G.maelstrom.stats.missionsStarted = (G.maelstrom.stats.missionsStarted || 0) + 1;
 
   if (typeof saveState === 'function') saveState();
-  if (typeof showStatus === 'function') showStatus('Vessel dispatched on a crystal mission!', 2000);
+  if (typeof showStatus === 'function') showStatus('Vessel dispatched into the Maelstrom!', 2000);
   renderMaelstromDebug();
 }
 
 // ─── COLLECT MISSION REWARD ──────────────────────────────────────────────────
-// Idempotent: claim guard prevents double-collection even on rapid taps.
+// Idempotent via _collectingMission guard + status check.
+// Marks claimed before granting to prevent partial state on error.
+// Removes mission from array after collection to keep save clean.
 
 const _collectingMission = {};
 
@@ -239,8 +314,11 @@ function collectMaelstromMission(missionId) {
   _collectingMission[missionId] = true;
 
   if (typeof G === 'undefined') { delete _collectingMission[missionId]; return; }
-  const m = (G.maelstrom.crystalMissions || []).find(x => x.id === missionId);
-  if (!m || m.status === 'claimed') { delete _collectingMission[missionId]; return; }
+  const missions = G.maelstrom.crystalMissions || [];
+  const idx = missions.findIndex(x => x.id === missionId);
+  if (idx === -1 || missions[idx].status === 'claimed') { delete _collectingMission[missionId]; return; }
+  const m = missions[idx];
+  if (!m.rewardGenerated) { delete _collectingMission[missionId]; return; } // reward not ready
 
   // Mark claimed BEFORE granting — prevents partial state if anything throws
   m.status = 'claimed';
@@ -251,6 +329,10 @@ function collectMaelstromMission(missionId) {
   G.maelstrom.stats.crystalsRecovered = (G.maelstrom.stats.crystalsRecovered || 0) + m.crystalAmount;
 
   _restoreVesselFromMaelstrom(m.vesselId);
+
+  // Remove claimed mission from array to keep save clean
+  const currentIdx = G.maelstrom.crystalMissions.indexOf(m);
+  if (currentIdx !== -1) G.maelstrom.crystalMissions.splice(currentIdx, 1);
 
   if (typeof saveState === 'function') saveState();
   delete _collectingMission[missionId];
@@ -272,7 +354,7 @@ function recallMaelstromMission(missionId) {
   const m = missions[idx];
   if (m.status === 'claimed') return;
 
-  m.status = 'claimed'; // mark before removal to block concurrent collect taps
+  m.status = 'claimed'; // block concurrent collect taps before splice
   _restoreVesselFromMaelstrom(m.vesselId);
   G.maelstrom.crystalMissions.splice(idx, 1);
 
@@ -288,7 +370,6 @@ function _restoreVesselFromMaelstrom(vesselId) {
   const v = (G.expeditionVessels || []).find(x => x.id === vesselId);
   if (!v) return;
   v.maelstromMissionId = null;
-  // Restore remaining treasure countdown from when vessel was dispatched
   const saved = (v.savedTreasureRemainingMs != null && v.savedTreasureRemainingMs > 0)
     ? v.savedTreasureRemainingMs
     : (typeof EXPEDITION_VESSEL_INTERVAL !== 'undefined' ? EXPEDITION_VESSEL_INTERVAL : 30 * 60 * 60 * 1000);
@@ -296,41 +377,154 @@ function _restoreVesselFromMaelstrom(vesselId) {
   v.savedTreasureRemainingMs = null;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// PHASE 3 — STABILIZATION SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function _maelstromStabReq() {
+  return MAELSTROM_STAB_REQUIREMENTS;
+}
+
+function _isStabilizationComplete() {
+  if (typeof G === 'undefined' || !G.maelstrom) return false;
+  const prog = G.maelstrom.stabilizationProgress || {};
+  const req  = _maelstromStabReq();
+  return MAELSTROM_CRYSTALS.every(function(c) { return (prog[c.id] || 0) >= req[c.id]; });
+}
+
+// Guard against rapid Contribute taps
+let _contributingCrystals = false;
+
+function contributeCrystals() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (_contributingCrystals) return;
+  _contributingCrystals = true;
+
+  if (typeof G === 'undefined') { _contributingCrystals = false; return; }
+  if (G.maelstrom.stabilized) { _contributingCrystals = false; return; } // already done
+
+  const crystals = G.maelstrom.crystals;
+  const progress = G.maelstrom.stabilizationProgress;
+  const req      = _maelstromStabReq();
+  let anyContributed = false;
+
+  MAELSTROM_CRYSTALS.forEach(function(c) {
+    const contributed = progress[c.id] || 0;
+    const remaining   = Math.max(0, req[c.id] - contributed);
+    const available   = Math.max(0, crystals[c.id] || 0);
+    const amount      = Math.min(remaining, available);
+    if (amount > 0) {
+      crystals[c.id]  = available - amount;
+      progress[c.id]  = contributed + amount;
+      anyContributed  = true;
+    }
+  });
+
+  if (anyContributed) {
+    _checkStabilizationCompletion();
+    if (typeof saveState === 'function') saveState();
+  }
+
+  _contributingCrystals = false;
+  renderMaelstromDebug();
+}
+
+// Idempotent. G.maelstrom.stabilized guards against re-triggering.
+
+function _checkStabilizationCompletion() {
+  if (typeof G === 'undefined' || !G.maelstrom) return;
+  if (G.maelstrom.stabilized) return;      // already complete
+  if (!_isStabilizationComplete()) return; // requirements not met
+
+  G.maelstrom.stabilized                   = true;
+  G.maelstrom.abyssEntranceUnlocked        = true;
+  G.maelstrom.stabilizationCompletionShown = false; // cleared so render shows the banner once
+  if (typeof saveState === 'function') saveState();
+}
+
 // ─── PRESTIGE HOOK ────────────────────────────────────────────────────────────
 // Called from executePrestige() BEFORE G.expeditionVessels is cleared.
-// Cleans up crystal missions referencing vessels that are about to be wiped.
+// Vessels don't need restoring — prestige wipes them immediately after.
 
 function _clearMaelstromMissionsOnPrestige() {
   if (typeof G === 'undefined' || !G.maelstrom) return;
-  G.maelstrom.crystalMissions = [];
-  G.maelstrom.crystals        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  // Stats intentionally kept — they're a permanent record like fishdex
+  G.maelstrom.crystalMissions              = [];
+  G.maelstrom.crystals                     = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.stabilizationProgress        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.stabilized                   = false;
+  G.maelstrom.abyssEntranceUnlocked        = false;
+  G.maelstrom.stabilizationCompletionShown = false;
+  // Permanent stats kept — same principle as fishdex and pearl stats
 }
 
 // ─── DEBUG STATE RESET ────────────────────────────────────────────────────────
-// Wipes all Maelstrom mission state and restores all vessels.
-// Dev-only: called from Settings debug controls.
+// Clears all Maelstrom state including stabilization. Restores EV timers first.
+// Dev-only — called from Settings debug section.
 
 function _resetMaelstromDebugState() {
   if (!canAccessMaelstromAndAbyss()) return;
   if (typeof G === 'undefined') return;
-  // Restore all vessels before clearing missions
+
   (G.expeditionVessels || []).forEach(function(v) {
     if (v.maelstromMissionId) _restoreVesselFromMaelstrom(v.id);
   });
-  G.maelstrom.crystalMissions = [];
-  G.maelstrom.crystals        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+
+  G.maelstrom.crystalMissions              = [];
+  G.maelstrom.crystals                     = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.stabilizationProgress        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.stabilized                   = false;
+  G.maelstrom.abyssEntranceUnlocked        = false;
+  G.maelstrom.stabilizationCompletionShown = false;
+
   if (typeof saveState === 'function') saveState();
-  if (typeof showStatus === 'function') showStatus('Maelstrom debug state reset.', 1500);
+  if (typeof showStatus === 'function') showStatus('Expansion debug state reset.', 1500);
+}
+
+// ─── DEBUG HELPERS (local environment only) ───────────────────────────────────
+
+function _debugAddCrystals() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (typeof G === 'undefined' || !G.maelstrom) return;
+  MAELSTROM_CRYSTALS.forEach(function(c) {
+    G.maelstrom.crystals[c.id] = (G.maelstrom.crystals[c.id] || 0) + 10;
+  });
+  if (typeof saveState === 'function') saveState();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('+10 of each crystal added.', 1500);
+}
+
+function _debugCompleteStabilization() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (typeof G === 'undefined' || !G.maelstrom) return;
+  const req = _maelstromStabReq();
+  MAELSTROM_CRYSTALS.forEach(function(c) {
+    G.maelstrom.stabilizationProgress[c.id] = req[c.id];
+    if (!isFinite(G.maelstrom.crystals[c.id])) G.maelstrom.crystals[c.id] = 0;
+  });
+  _checkStabilizationCompletion();
+  if (typeof saveState === 'function') saveState();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('Stabilization completed instantly.', 1500);
+}
+
+function _debugClearStabilization() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (typeof G === 'undefined' || !G.maelstrom) return;
+  G.maelstrom.stabilizationProgress        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.stabilized                   = false;
+  G.maelstrom.abyssEntranceUnlocked        = false;
+  G.maelstrom.stabilizationCompletionShown = false;
+  if (typeof saveState === 'function') saveState();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('Stabilization progress cleared.', 1500);
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
-// Entering debug worlds must not spend coins, modify automation, trigger analytics,
-// trigger achievements, or change overworld state.
 
 function enterMaelstromDebug() {
   if (!canAccessMaelstromAndAbyss()) return;
   G.currentWorld = 'maelstrom';
+  _processMaelstromMissions(); // catch any that completed since last check
   _startMaelstromUITimer();
   if (typeof showScreen === 'function') showScreen('expansion-maelstrom');
 }
@@ -366,7 +560,7 @@ function selectAbyssZoneDebug(zoneId) {
   renderAbyssDebug();
 }
 
-// ─── RENDER: MAELSTROM DEBUG VIEW (Phase 2 functional shell) ─────────────────
+// ─── RENDER: MAELSTROM DEBUG VIEW ────────────────────────────────────────────
 
 function renderMaelstromDebug() {
   if (!canAccessMaelstromAndAbyss()) { if (typeof showScreen === 'function') showScreen('fishing'); return; }
@@ -374,15 +568,16 @@ function renderMaelstromDebug() {
   if (!el) return;
   el.innerHTML = `
     <div class="mael-screen">
-      <div class="mael-header" style="color:${MAELSTROM_ZONE.themeColor}">The Maelstrom <span class="mael-debug-tag">DEBUG</span></div>
-      ${expansionPlaceholder({ width: '100%', height: '100px', label: 'Maelstrom Background' })}
+      <div class="mael-header" style="color:${MAELSTROM_ZONE.themeColor}">
+        The Maelstrom <span class="mael-debug-tag">DEBUG</span>
+      </div>
+      ${expansionPlaceholder({ width: '100%', height: '90px', label: 'Maelstrom Background' })}
       ${_renderCrystalInventory()}
-      ${_renderStabilizationPanel()}
       ${_renderMissionPanel()}
+      ${_renderStabilizationPanel()}
+      ${_renderAbyssEntrance()}
       <div class="mael-controls">
-        <button class="btn-secondary expansion-return-btn" onclick="enterAbyssDebug(null)">Go to Abyss Debug</button>
         <button class="btn-secondary expansion-return-btn" onclick="leaveExpansionWorld()">Return to Overworld</button>
-        <button class="btn-secondary-sm mael-reset-btn" onclick="_resetMaelstromDebugState();renderMaelstromDebug();">Reset Missions</button>
       </div>
     </div>`;
 }
@@ -391,33 +586,24 @@ function _renderCrystalInventory() {
   if (typeof G === 'undefined' || !G.maelstrom) return '';
   const crystals = G.maelstrom.crystals || {};
   const rows = MAELSTROM_CRYSTALS.map(function(c) {
-    const amt = crystals[c.id] || 0;
     return `<div class="mael-crystal-row">
       <span class="mael-crystal-dot" style="background:${c.color};"></span>
       <span class="mael-crystal-name">${c.name}</span>
-      <span class="mael-crystal-amt">${amt}</span>
+      <span class="mael-crystal-amt">${crystals[c.id] || 0}</span>
     </div>`;
   }).join('');
   return `<div class="mael-panel">
     <div class="mael-panel-title">Crystal Inventory</div>
-    ${expansionPlaceholder({ width: '40px', height: '40px', label: 'Inv' })}
     ${rows}
-  </div>`;
-}
-
-function _renderStabilizationPanel() {
-  return `<div class="mael-panel">
-    <div class="mael-panel-title">Stabilization</div>
-    ${expansionPlaceholder({ width: '100%', height: '60px', label: 'Stabilization Meter — Phase 3' })}
-    <div class="mael-panel-note">Stabilization system not yet implemented.</div>
   </div>`;
 }
 
 function _renderMissionPanel() {
   if (typeof G === 'undefined') return '';
-  const vessels = G.expeditionVessels || [];
+  const vessels  = G.expeditionVessels || [];
   const missions = (G.maelstrom && G.maelstrom.crystalMissions) || [];
-  const now = Date.now();
+  const stats    = (G.maelstrom && G.maelstrom.stats) || {};
+  const now      = Date.now();
 
   if (vessels.length === 0) {
     return `<div class="mael-panel">
@@ -427,38 +613,118 @@ function _renderMissionPanel() {
   }
 
   const vesselRows = vessels.map(function(v) {
-    const mission = missions.find(function(m) { return m.vesselId === v.id && m.status !== 'claimed'; });
+    const mission = missions.find(function(m) { return m.vesselId === v.id; });
     if (mission) {
       const remaining = mission.completesAt - now;
-      const isReady   = remaining <= 0 || mission.status === 'complete';
-      return `<div class="mael-vessel-row">
-        <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
-        <span class="mael-vessel-status ${isReady ? 'ready' : ''}">
-          ${isReady ? 'READY' : _formatMsCountdown(remaining)} &mdash; ${_crystalName(mission.crystalType)} x${mission.crystalAmount}
-        </span>
-        ${isReady
-          ? `<button class="btn-sm mael-collect-btn" onclick="collectMaelstromMission('${mission.id}')">Collect</button>`
-          : `<button class="btn-sm-secondary mael-recall-btn" onclick="recallMaelstromMission('${mission.id}')">Recall</button>`
-        }
-      </div>`;
+      const complete  = mission.status === 'complete' || (remaining <= 0 && mission.rewardGenerated);
+
+      if (complete && mission.rewardGenerated) {
+        return `<div class="mael-vessel-row mael-vessel-complete">
+          <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
+          <span class="mael-vessel-status ready">Complete!</span>
+          <span class="mael-vessel-crystal" style="color:${_crystalColor(mission.crystalType)}">
+            ${_crystalName(mission.crystalType)} x${mission.crystalAmount}
+          </span>
+          <button class="mael-collect-btn" onclick="collectMaelstromMission('${mission.id}')">Collect</button>
+        </div>`;
+      } else {
+        return `<div class="mael-vessel-row">
+          <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
+          <span class="mael-vessel-status">Searching the Maelstrom...</span>
+          <span class="mael-vessel-countdown">${_formatMsCountdown(Math.max(0, remaining))}</span>
+          <button class="mael-recall-btn" onclick="recallMaelstromMission('${mission.id}')">Recall</button>
+        </div>`;
+      }
     } else {
-      const status = _evStatusLabel(v);
       return `<div class="mael-vessel-row">
         <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
-        <span class="mael-vessel-status">${status}</span>
-        <button class="btn-sm mael-dispatch-btn" onclick="assignVesselToMaelstrom('${v.id}')">Dispatch</button>
+        <span class="mael-vessel-status">${_evStatusLabel(v)}</span>
+        <button class="mael-dispatch-btn" onclick="assignVesselToMaelstrom('${v.id}')">Dispatch</button>
       </div>`;
     }
   }).join('');
 
-  const stats = G.maelstrom.stats || {};
   return `<div class="mael-panel">
     <div class="mael-panel-title">Expedition Vessel Missions</div>
     ${vesselRows}
     <div class="mael-panel-stats">
-      Missions: ${stats.missionsCompleted || 0} completed &bull;
-      ${stats.crystalsRecovered || 0} crystals recovered
+      ${stats.missionsCompleted || 0} missions completed &bull; ${stats.crystalsRecovered || 0} crystals recovered
     </div>
+  </div>`;
+}
+
+function _renderStabilizationPanel() {
+  if (typeof G === 'undefined' || !G.maelstrom) return '';
+  const req       = _maelstromStabReq();
+  const prog      = G.maelstrom.stabilizationProgress || {};
+  const crystals  = G.maelstrom.crystals || {};
+  const stabilized = G.maelstrom.stabilized;
+
+  // Overall progress
+  const totalReq  = MAELSTROM_CRYSTALS.reduce(function(s, c) { return s + req[c.id]; }, 0);
+  const totalProg = MAELSTROM_CRYSTALS.reduce(function(s, c) { return s + Math.min(prog[c.id] || 0, req[c.id]); }, 0);
+  const overallPct = totalReq > 0 ? Math.min(100, Math.round(totalProg / totalReq * 100)) : 0;
+
+  // Per-crystal rows
+  const crystalRows = MAELSTROM_CRYSTALS.map(function(c) {
+    const contributed = Math.min(prog[c.id] || 0, req[c.id]);
+    const pct         = Math.min(100, Math.round(contributed / req[c.id] * 100));
+    const complete    = contributed >= req[c.id];
+    const inInventory = crystals[c.id] || 0;
+    return `<div class="mael-stab-row">
+      <span class="mael-crystal-dot" style="background:${c.color};"></span>
+      <span class="mael-stab-label">${c.name.replace(' Crystal', '')}</span>
+      <span class="mael-stab-count${complete ? ' complete' : ''}">${contributed}/${req[c.id]}</span>
+      <div class="mael-stab-bar-wrap"><div class="mael-stab-bar" style="width:${pct}%;background:${c.color};"></div></div>
+      ${complete
+        ? '<span class="mael-stab-check">&#10003;</span>'
+        : `<span class="mael-stab-inv">(+${inInventory})</span>`
+      }
+    </div>`;
+  }).join('');
+
+  const btnDisabled = stabilized ? 'disabled' : '';
+  const btnLabel    = stabilized ? 'Fully Stabilized' : 'Contribute Crystals';
+
+  return `<div class="mael-panel">
+    <div class="mael-panel-title">Maelstrom Stabilization${stabilized ? ' — COMPLETE' : ''}</div>
+    <div class="mael-stab-overall">
+      <div class="mael-stab-overall-label">Overall: ${totalProg} / ${totalReq} (${overallPct}%)</div>
+      <div class="mael-stab-bar-wrap mael-stab-bar-overall">
+        <div class="mael-stab-bar" style="width:${overallPct}%;background:linear-gradient(90deg,#8b00ff,#1a8fd4);"></div>
+      </div>
+    </div>
+    ${crystalRows}
+    <button class="mael-contribute-btn" onclick="contributeCrystals()" ${btnDisabled}>${btnLabel}</button>
+  </div>`;
+}
+
+function _renderAbyssEntrance() {
+  if (typeof G === 'undefined' || !G.maelstrom) return '';
+  const stabilized = G.maelstrom.stabilized;
+
+  if (!stabilized) {
+    return `<div class="mael-panel mael-abyss-entrance locked">
+      <div class="mael-panel-title">Abyss Entrance</div>
+      ${expansionPlaceholder({ width: '100%', height: '70px', label: 'Locked Abyss Entrance' })}
+      <div class="mael-panel-note">Complete Maelstrom Stabilization to unlock the Abyss.</div>
+    </div>`;
+  }
+
+  // Show completion banner exactly once; persist the shown flag immediately
+  let completionBanner = '';
+  if (!G.maelstrom.stabilizationCompletionShown) {
+    completionBanner = `<div class="mael-stab-complete-banner">MAELSTROM STABILIZED — ABYSS UNLOCKED</div>`;
+    G.maelstrom.stabilizationCompletionShown = true;
+    if (typeof saveState === 'function') saveState();
+  }
+
+  return `<div class="mael-panel mael-abyss-entrance active">
+    <div class="mael-panel-title" style="color:#7ec8e3;">Abyss Entrance</div>
+    ${completionBanner}
+    ${expansionPlaceholder({ width: '100%', height: '90px', label: 'Active Abyss Entrance' })}
+    <div class="mael-panel-note mael-abyss-ready-note">The Abyss awaits. Depths are unstable — proceed with caution.</div>
+    <button class="mael-abyss-btn" onclick="enterAbyssDebug(null)">Enter the Abyss</button>
   </div>`;
 }
 
@@ -479,20 +745,22 @@ function renderAbyssDebug() {
   el.innerHTML = `
     <div class="expansion-debug-world">
       <div class="expansion-debug-label" style="color:#7ec8e3;">WORLD: ABYSS (Phase 1 Placeholder)</div>
-      ${currentZoneId ? `<div class="expansion-debug-zone">Selected Zone: <strong>${currentZoneId}</strong></div>` : '<div class="expansion-debug-zone">No zone selected</div>'}
-      ${expansionPlaceholder({ width: '100%', height: '100px', label: 'Abyss Zone Frame' })}
-      <div class="expansion-debug-desc">No gameplay in Phase 1. Architecture only.</div>
+      ${currentZoneId
+        ? `<div class="expansion-debug-zone">Selected Zone: <strong>${currentZoneId}</strong></div>`
+        : '<div class="expansion-debug-zone">No zone selected</div>'}
+      ${expansionPlaceholder({ width: '100%', height: '90px', label: 'Abyss Zone Frame' })}
+      <div class="expansion-debug-desc">No Abyss gameplay yet. Architecture only.</div>
       <div class="expansion-zone-grid">${zoneCards}</div>
       <div class="expansion-dev-controls">
-        <button class="btn-secondary expansion-return-btn" onclick="enterMaelstromDebug()">Go to Maelstrom Debug</button>
+        <button class="btn-secondary expansion-return-btn" onclick="enterMaelstromDebug()">Return to Maelstrom</button>
         <button class="btn-secondary expansion-return-btn" onclick="resetExpansionDebugState()">Reset &amp; Return to Overworld</button>
       </div>
     </div>`;
 }
 
 // ─── DEBUG CONTROLS (SETTINGS SECTION) ───────────────────────────────────────
-// Only shown when isLocalDevelopmentEnvironment() === true.
-// Never visible in public Android builds or to normal players.
+// Visible only when isLocalDevelopmentEnvironment() === true.
+// Never shown in production Android builds.
 
 function renderAbyssDebugSettings() {
   const el = document.getElementById('abyss-debug-settings');
@@ -502,7 +770,7 @@ function renderAbyssDebugSettings() {
   const enabled = isLocalAbyssDebugEnabled();
   const world   = getCurrentExpansionWorld();
   el.innerHTML = `
-    <div class="settings-section-title" style="color:#ff6b35;">Dev — Abyss Debug [LOCAL ONLY]</div>
+    <div class="settings-section-title" style="color:#ff6b35;">Dev — Maelstrom/Abyss Debug [LOCAL ONLY]</div>
     <div class="settings-row">
       <span class="settings-label">Enable Maelstrom / Abyss Debug</span>
       <button class="btn-toggle ${enabled ? '' : 'off'}" onclick="toggleAbyssDebugMode()">${enabled ? 'ON' : 'OFF'}</button>
@@ -512,7 +780,12 @@ function renderAbyssDebugSettings() {
     <div class="expansion-dev-controls">
       <button class="btn-secondary-sm" onclick="enterMaelstromDebug()">Enter Maelstrom</button>
       <button class="btn-secondary-sm" onclick="enterAbyssDebug(null)">Enter Abyss</button>
-      <button class="btn-secondary-sm" onclick="resetExpansionDebugState()">Reset State</button>
+      <button class="btn-secondary-sm" onclick="resetExpansionDebugState()">Reset All</button>
+    </div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="_debugAddCrystals()">+10 Each Crystal</button>
+      <button class="btn-secondary-sm" onclick="_debugCompleteStabilization()">Complete Stabilization</button>
+      <button class="btn-secondary-sm" onclick="_debugClearStabilization()">Clear Stabilization</button>
     </div>` : ''}`;
 }
 
@@ -523,30 +796,34 @@ function toggleAbyssDebugMode() {
 }
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────
-// Called from game.js init() after G is ready.
+// Called from game.js init() after G is ready and migrations are applied.
 
 function initAbyssFramework() {
   renderAbyssDebugSettings();
 
-  // Process any missions that completed while the app was closed
-  if (canAccessMaelstromAndAbyss()) {
-    _processMaelstromMissions();
+  if (!canAccessMaelstromAndAbyss()) return;
 
-    // Orphan cleanup: remove missions referencing vessels that no longer exist
-    if (typeof G !== 'undefined' && G.maelstrom && Array.isArray(G.maelstrom.crystalMissions)) {
-      const validVesselIds = new Set((G.expeditionVessels || []).map(function(v) { return v.id; }));
-      const before = G.maelstrom.crystalMissions.length;
-      G.maelstrom.crystalMissions = G.maelstrom.crystalMissions.filter(function(m) {
-        return validVesselIds.has(m.vesselId) || m.status === 'claimed';
-      });
-      // Also clear orphaned vessel mission pointers
-      (G.expeditionVessels || []).forEach(function(v) {
-        if (v.maelstromMissionId) {
-          const missionExists = G.maelstrom.crystalMissions.some(function(m) { return m.id === v.maelstromMissionId; });
-          if (!missionExists) _restoreVesselFromMaelstrom(v.id);
-        }
-      });
-      if (G.maelstrom.crystalMissions.length !== before && typeof saveState === 'function') saveState();
-    }
+  // Process missions that completed while the app was closed
+  _processMaelstromMissions();
+
+  // Sanity check: stabilize if requirements are met but flag was not set
+  // (handles crash-during-save or cross-save edge cases)
+  _checkStabilizationCompletion();
+
+  // Orphan cleanup: remove missions whose vessel no longer exists
+  if (typeof G !== 'undefined' && G.maelstrom && Array.isArray(G.maelstrom.crystalMissions)) {
+    const validVesselIds = new Set((G.expeditionVessels || []).map(function(v) { return v.id; }));
+    const before = G.maelstrom.crystalMissions.length;
+    G.maelstrom.crystalMissions = G.maelstrom.crystalMissions.filter(function(m) {
+      return validVesselIds.has(m.vesselId);
+    });
+    // Clear orphaned mission pointers on vessels
+    (G.expeditionVessels || []).forEach(function(v) {
+      if (v.maelstromMissionId) {
+        const missionExists = G.maelstrom.crystalMissions.some(function(m) { return m.id === v.maelstromMissionId; });
+        if (!missionExists) _restoreVesselFromMaelstrom(v.id);
+      }
+    });
+    if (G.maelstrom.crystalMissions.length !== before && typeof saveState === 'function') saveState();
   }
 }
