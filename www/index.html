@@ -462,6 +462,24 @@
     <div id="abyss-content" class="abyss-scroll"></div>
   </div>
 
+  <!-- SCREEN: EXPANSION — MAELSTROM (debug only, Phase 1) -->
+  <div id="screen-expansion-maelstrom" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" onclick="leaveExpansionWorld()"><img src="img/icons/Menu exit icon.png" alt="Back" class="exit-icon"></button>
+      <h2>Maelstrom</h2>
+    </div>
+    <div id="expansion-maelstrom-content" class="expansion-scroll"></div>
+  </div>
+
+  <!-- SCREEN: EXPANSION — ABYSS WORLD (debug only, Phase 1) -->
+  <div id="screen-expansion-abyss" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" onclick="leaveExpansionWorld()"><img src="img/icons/Menu exit icon.png" alt="Back" class="exit-icon"></button>
+      <h2>Abyss</h2>
+    </div>
+    <div id="expansion-abyss-content" class="expansion-scroll"></div>
+  </div>
+
   <!-- SCREEN: DIAMOND STORE -->
   <div id="screen-diamondstore" class="screen">
     <div class="panel-header">
@@ -580,6 +598,10 @@
           <span class="settings-label">Reset all progress</span>
           <button class="btn-danger" id="btn-reset-save">Reset</button>
         </div>
+      </div>
+
+      <!-- DEV: Abyss debug section — hidden by default; renderAbyssDebugSettings() shows it only on localhost -->
+      <div class="settings-section" id="abyss-debug-settings" style="display:none;border-color:rgba(255,107,53,0.3);">
       </div>
 
       <div class="settings-section">
@@ -793,5 +815,6 @@
   <script src="game.js?v=37"></script>
   <script src="tutorial.js?v=37"></script>
   <script src="dadjokes.js?v=37"></script>
+  <script src="abyss.js?v=37"></script>
 </body>
 </html>

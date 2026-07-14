@@ -678,6 +678,26 @@ const DEFAULT_STATE = {
   ghostShips: [],
   ghostShipNextSpawnAt: 0,
   usedCodes: [],
+  // ── Expansion save foundation (Phase 1 — all inactive until Maelstrom unlocks) ──
+  currentWorld: 'overworld',   // overworld | maelstrom | abyss
+  maelstrom: {
+    unlocked:              false,
+    entered:               false,
+    crystalProgress:       {},
+    stabilized:            false,
+    abyssEntranceUnlocked: false,
+  },
+  abyss: {
+    unlocked:    false,
+    currentZone: null,
+    highestZone: 0,
+    zones:       {},
+    automation:  {},
+    tribes:      {},
+    crystals:    {},
+    geodes:      {},
+    stats:       {},
+  },
 };
 
 let G = loadState();
@@ -3282,8 +3302,10 @@ function showScreen(id) {
   if (id === 'zones')       renderZones();
   if (id === 'competition') renderCompetition();
   if (id === 'halloffame')  renderStatistics();
-  if (id === 'abyss')         renderAbyss();
-  if (id === 'diamondstore')  renderDiamondStore();
+  if (id === 'abyss')                renderAbyss();
+  if (id === 'diamondstore')         renderDiamondStore();
+  if (id === 'expansion-maelstrom' && typeof renderMaelstromDebug === 'function') renderMaelstromDebug();
+  if (id === 'expansion-abyss'     && typeof renderAbyssDebug      === 'function') renderAbyssDebug();
   if (id === 'settings')    renderSettings();
   if (id === 'fishing')     updateHUD();
   if (typeof tutHook === 'function') tutHook('screen', id);
@@ -7246,6 +7268,7 @@ function renderSettings() {
       }
     };
   }
+  if (typeof renderAbyssDebugSettings === 'function') renderAbyssDebugSettings();
 }
 
 
@@ -7454,6 +7477,14 @@ function init() {
   // Ensure EV objects have awaitingDelivery field (old saves)
   if (G.expeditionVessels) G.expeditionVessels.forEach(v => { if (v.awaitingDelivery === undefined) v.awaitingDelivery = false; });
   if (!G.usedCodes)                       G.usedCodes            = [];
+  // Expansion fields — ensure old saves receive safe defaults
+  if (!G.currentWorld)  G.currentWorld = 'overworld';
+  if (!G.maelstrom) G.maelstrom = { unlocked:false, entered:false, crystalProgress:{}, stabilized:false, abyssEntranceUnlocked:false };
+  if (!G.abyss)     G.abyss     = { unlocked:false, currentZone:null, highestZone:0, zones:{}, automation:{}, tribes:{}, crystals:{}, geodes:{}, stats:{} };
+  // Reset world to overworld on load — prevents stale debug state from affecting live saves
+  if (typeof canAccessMaelstromAndAbyss === 'function' && !canAccessMaelstromAndAbyss()) {
+    G.currentWorld = 'overworld';
+  }
 
   isPremiumBaitActive(); // clears expired bait
   applyFontScale();
@@ -7510,6 +7541,7 @@ function init() {
   if (typeof initAuth      === 'function') initAuth();
   if (typeof initAnalytics === 'function') initAnalytics();
   loadDialogueData();
+  if (typeof initAbyssFramework === 'function') initAbyssFramework();
 }
 
 document.addEventListener('visibilitychange', () => {
