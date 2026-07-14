@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.3 — Build 40 (July 2026)
+
+### Fix
+- **Sea unlock comic** — Sea Discovery comic no longer gets permanently skipped after Prestige; it will now show again the next time the player unlocks the Sea zone
+
+---
+
 ## v0.8.2 — Build 39 (July 2026)
 
 ### New
