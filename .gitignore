@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Sensitive credentials — NEVER commit these
+android/app/google-services.json
+*.keystore
+*.jks
+AnglerKey
+*service-account*.json
+tile-royale-*.json
+create-iap-products.js
+
+# Android build output
+android/app/build/
+android/.gradle/
+android/build/
+
+# Capacitor generated
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+# Local
+local.properties
+*.log
+upload-release.js

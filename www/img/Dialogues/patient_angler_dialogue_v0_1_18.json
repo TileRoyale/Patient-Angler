@@ -1,0 +1,311 @@
+{
+  "version": "0.1.18",
+  "description": "Expanded short humorous shopkeeper and fisherman dialogue lines for Patient Angler, including player-name personalization and gameplay tips.",
+  "placeholders": {
+    "playerName": "{playerName}",
+    "timeAway": "{timeAway}",
+    "zone": "{zone}",
+    "rodName": "{rodName}",
+    "highestZone": "{highestZone}",
+    "fishCaught": "{fishCaught}",
+    "prestigeCount": "{prestigeCount}",
+    "blackPearls": "{blackPearls}"
+  },
+  "shopkeeper": {
+    "normalGreetings": [
+      "Fresh deals! Slightly fishy prices.",
+      "Welcome back, coin collector.",
+      "Need gear or just admiring my shelves?",
+      "Everything here is waterproof. Mostly.",
+      "Step right up! No refunds if it bites.",
+      "I polished the rods. The fish remain unimpressed.",
+      "Buy now before the crabs unionize.",
+      "I sell quality gear and questionable advice.",
+      "Looking for upgrades or emotional support?",
+      "The bait is fresh. The jokes are not.",
+      "Welcome! Try not to spend responsibly.",
+      "Coins in, fishing empire out.",
+      "I had a sale yesterday. You missed it. Maybe.",
+      "New stock! Same smell.",
+      "If it breaks, blame the lake.",
+      "I accept coins, diamonds, and compliments.",
+      "One rod upgrade away from greatness.",
+      "The fish asked me not to sell you this.",
+      "Careful, these prices are almost legal.",
+      "Welcome to the finest shop near this puddle.",
+      "I found these upgrades floating downstream.",
+      "Spend wisely. Or loudly. I enjoy both.",
+      "Every great angler starts by overpaying.",
+      "This shop is 90% wood and 10% ambition.",
+      "The nets are trained. The boats are moody.",
+      "I tested the bait myself. Bad idea.",
+      "Need something shiny for your fishing problem?",
+      "My gear catches fish. Eventually.",
+      "Step inside! The smell means quality.",
+      "Business is booming. Unlike that old naval mine.",
+      "Storage full again? That is a profitable problem.",
+      "A better rod means fewer taps and fewer regrets.",
+      "Automation never complains about overtime.",
+      "Targeted Lure helps when one Fishdex entry refuses to cooperate.",
+      "Premium Bait is expensive because the fish have standards.",
+      "Black Pearls work best when you decide whether to hoard or spend.",
+      "Prestige hurts briefly. The pearls remember forever.",
+      "Old zones keep producing. Never abandon a good pond.",
+      "Fishdex Mastery rewards patience more than luck.",
+      "Trophy fish are rare. Bragging about them is mandatory.",
+      "A full storage is just unsold ambition.",
+      "The market pays for fish, not excuses.",
+      "Upgrade automation before blaming the fish.",
+      "Targeted Lure increases weight, not certainty. Fish remain stubborn.",
+      "Competition prizes scale with your automation. Build first, boast later.",
+      "Seagulls pay better when your empire earns better.",
+      "Manual fishing is still the best way to find trophies.",
+      "Special fish follow the clock, not your schedule.",
+      "Some fish only appear when sensible anglers are asleep.",
+      "The Fishdex never forgets. Unlike me.",
+      "You can spend pearls on power or keep them for sell value.",
+      "The best upgrade is the one you can still afford afterward.",
+      "Offline progress stops eventually. Even fishermen need sleep.",
+      "A new zone is expensive because the fish demanded better scenery.",
+      "Rod tiers look harmless until the price gains extra zeroes.",
+      "Mastery bonuses are permanent. Your patience has receipts.",
+      "Sell before storage fills, unless you enjoy wasted catches.",
+      "Check Statistics when the multipliers start looking suspicious.",
+      "Competitions are short. The excuses can be shorter.",
+      "Grand Winners are made over ten competitions, not one lucky catch.",
+      "{playerName}, my shelves missed your coins.",
+      "Good to see you, {playerName}. The fish asked if you retired.",
+      "{playerName}, I saved the expensive items just for you.",
+      "Welcome, {playerName}. Let us pretend this is your last upgrade.",
+      "The fish are nervous again, {playerName}. You must be shopping.",
+      "{playerName}, your {rodName} is doing fine. Fine can always be improved.",
+      "Back in {zone}, {playerName}? Then buy like the locals are watching.",
+      "{playerName}, {fishCaught} catches is impressive. The smell is less so.",
+      "{playerName}, {blackPearls} Black Pearls can buy power or patience.",
+      "Prestige number {prestigeCount}, {playerName}? You really enjoy starting over."
+    ],
+    "quickReturnGreetings": [
+      {
+        "maxSecondsAway": 10,
+        "message": "Back already? Did the door hit you twice?"
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "That was fast. Forgot to buy half the shop?"
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "Missed me already? Understandable."
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "You barely left. The dust has not settled."
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "Fastest fishing trip ever. Catch anything?"
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "{playerName}, you forgot something... or missed my face."
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "Back already, {playerName}? New personal record."
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "Three seconds away, {playerName}. Very dramatic."
+      }
+    ],
+    "longAbsenceGreetings": [
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "Gone for {timeAway}? I was starting to blame a sea monster."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "{timeAway} away! I almost sold your usual bait to a gull."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "After {timeAway}, you return! The fish filed a missing angler report."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "You vanished for {timeAway}. I kept the shop open out of spite."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "{timeAway} without shopping? Your coins must have been terrified."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "{playerName}! Gone for {timeAway}. I almost printed missing posters."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "After {timeAway}, {playerName} returns. The sea monster must have lost."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "{playerName}, {timeAway} is a long fishing trip. At least bring a trophy."
+      }
+    ],
+    "tips": [
+      "Tip: Old zones keep producing after you unlock new ones.",
+      "Tip: Targeted Lure increases selected loot weight, but does not guarantee it.",
+      "Tip: Manual fishing is required for legendary and special time-window fish.",
+      "Tip: Trophy fish can only be fully claimed through manual fishing.",
+      "Tip: Black Pearls give passive sell value while unspent.",
+      "Tip: Pearl Shop upgrades are permanent through Prestige.",
+      "Tip: Fishdex Mastery progress is permanent through Prestige.",
+      "Tip: Prestige resets your economy, not your long-term knowledge.",
+      "Tip: Storage overflow can waste catches, so upgrade before it becomes a habit.",
+      "Tip: Competition rewards scale from your estimated automation income.",
+      "Tip: Ten competitions form one series with Grand Winners at the end.",
+      "Tip: Seagull rewards scale with your automation income.",
+      "Tip: Premium Bait improves rarity weights for a limited time.",
+      "Tip: Special fish only appear during their listed in-game time window.",
+      "Tip: Rod tiers improve permanent bonuses but become increasingly expensive.",
+      "Tip: Statistics Tab 8 explains where your active bonuses come from.",
+      "Tip: Targeted Lure slots increase as the lure is upgraded.",
+      "Tip: Offline progress has a cap, so checking in occasionally still matters.",
+      "Tip: Automation Fishdex and Manual Fishdex track different collections.",
+      "Tip: Overall Fishdex completion includes every unique fish, plant, and trash item."
+    ],
+    "implementationNotes": {
+      "timeAwayPlaceholder": "{timeAway}",
+      "namePlaceholder": "{playerName}",
+      "selectionRule": "When opening shop: if time since last shop visit < 10 seconds, randomly use quickReturnGreetings. Else if >= 5 real hours, randomly use longAbsenceGreetings and replace placeholders. Otherwise randomly use normalGreetings. Optionally use a tip instead of a greeting at a low rate such as 15%, but never show both at once.",
+      "personalizedLineRate": 0.2,
+      "tipRate": 0.15,
+      "fallbackPlayerName": "Angler"
+    }
+  },
+  "fishermen": {
+    "globalRules": {
+      "frequency": "At most once per in-game hour per visible fishing screen.",
+      "zones": [
+        "River",
+        "Lake",
+        "Bay"
+      ],
+      "style": "Short, humorous one-liners. Some lines may include player name or lightweight gameplay tips.",
+      "personalizedLineRate": 0.2,
+      "tipLineRate": 0.2,
+      "fallbackPlayerName": "Angler"
+    },
+    "river": [
+      "River fish are slippery. River socks are worse.",
+      "I asked the current for advice. It kept moving.",
+      "If you catch my lunch, please negotiate nicely.",
+      "This river knows secrets. Mostly where I dropped my hook.",
+      "I saw a boot swim by. Very suspicious.",
+      "The fish here respect patience and fear bread.",
+      "A calm river hides dramatic fish.",
+      "I named that ripple Kevin.",
+      "If the line pulls hard, pull harder. Unless it's a log.",
+      "The river paid me in splashes again.",
+      "Nets work slowly, but they never ask for lunch.",
+      "River automation keeps working even after you leave this zone.",
+      "A Targeted Lure helps when one species keeps hiding.",
+      "The Fishdex notices every unique catch. It is very judgmental.",
+      "Special fish obey the clock more than the angler.",
+      "Manual fishing is still your best chance at a trophy.",
+      "Upgrade storage before the river fills it for you.",
+      "A full net is good. A full storage is complicated.",
+      "River Rod tiers make Nets faster. The nets appreciate recognition.",
+      "Competition rewards like a strong automation empire.",
+      "That fish looked rare. Or expensive. Same thing, usually.",
+      "The current changes. My fishing spot does not.",
+      "Somewhere upstream, a fish is blaming you.",
+      "I lost a hook here once. It may be running the place now.",
+      "The river is free. The upgrades are not.",
+      "{playerName}, the river says hello. I think.",
+      "Try not to scare every fish today, {playerName}.",
+      "I have seen worse anglers than you, {playerName}. Not many.",
+      "{playerName}, your {rodName} looks less tired than mine.",
+      "{fishCaught} catches, {playerName}? The river remembers.",
+      "Tip: River Rod tiers improve Net automation speed.",
+      "Tip: Old-zone automation keeps producing after you move on.",
+      "Tip: Time-window fish require the correct in-game hour.",
+      "Tip: Targeted Lure affects automation catches only.",
+      "Tip: Manual Trophy catches count toward records and competitions."
+    ],
+    "lake": [
+      "The lake is calm. Too calm. Probably plotting.",
+      "I once fought a carp for three minutes. We are friends now.",
+      "Big fish live deep. My snacks do too.",
+      "If you hear bubbles, pretend it's wisdom.",
+      "The lake keeps everything. Especially bicycles.",
+      "I trust the bobber more than most people.",
+      "Some say there is a monster here. I say it owes me bait.",
+      "Quiet day. Loud fish.",
+      "The catfish blinked first. I think.",
+      "Never underestimate a fish with free time.",
+      "Fishermen automation improves with Lake Rod tiers.",
+      "The lake rewards patience and forgets nothing.",
+      "Targeted Lure is useful when the Fishdex has one stubborn gap.",
+      "Manual fish hide behind time windows and bad sleep schedules.",
+      "Trophy fish do not care how much automation you own.",
+      "Storage fills quietly. Then suddenly.",
+      "If the bobber moves, react. If I move, bring snacks.",
+      "A rare catch is luck. Repeating it is mastery.",
+      "Fishdex Mastery survives Prestige. Knowledge floats.",
+      "The deepest part of the lake is where my confidence went.",
+      "That bicycle has been down there longer than I have.",
+      "The fish are biting. My jokes are not.",
+      "A better rod means fewer taps and more dignity.",
+      "I caught nothing all morning. Very peaceful.",
+      "The lake is generous when it feels watched.",
+      "{playerName}, today feels like a legendary day. Or rain.",
+      "Even the lake knows your name now, {playerName}.",
+      "Do not let the fish outsmart you, {playerName}. Again.",
+      "{playerName}, your {rodName} has better posture than mine.",
+      "{highestZone} already, {playerName}? The lake feels abandoned.",
+      "Tip: Lake Rod tiers improve Fisherman automation speed.",
+      "Tip: Manual Fishdex entries do not count toward automation mastery.",
+      "Tip: Fishdex Mastery bonuses are permanent through Prestige.",
+      "Tip: Trophy fish must be caught manually for full rewards.",
+      "Tip: Check storage before long offline periods."
+    ],
+    "bay": [
+      "The bay smells like profit and questionable seaweed.",
+      "Saltwater fish act fancy until they meet a net.",
+      "I waved at a crab. It filed a complaint.",
+      "If the tide takes your bait, charge it rent.",
+      "Bay fishing: half skill, half arguing with waves.",
+      "A gull judged my technique. Fair, honestly.",
+      "Somewhere out there, a fish is making bad decisions.",
+      "I caught a rope once. Strong personality.",
+      "The wind says buy better gear. Convenient.",
+      "The bay gives, the bay takes, the bay splashes your boots.",
+      "Bay Rod tiers improve storage. The fish dislike organized anglers.",
+      "Boats catch faster than fishermen and complain less.",
+      "The tide rises. So do upgrade prices.",
+      "A full hold is profit waiting for a button press.",
+      "Competition series are won by consistency, not one lucky fish.",
+      "Grand Winners get remembered. Fourth place gets character.",
+      "Seagulls know exactly when your hands are busy.",
+      "The market loves fish and ignores emotional attachment.",
+      "Premium Bait makes rare catches less shy for a while.",
+      "Targeted Lure cannot target special manual-only fish.",
+      "That crab has been watching us for twenty minutes.",
+      "The bay keeps secrets badly. Everything washes ashore.",
+      "A boat is just a floating coin problem.",
+      "The wind changed direction. My plan did not.",
+      "Some fish are valuable. Some are educational trash.",
+      "The tide favors you today, {playerName}. Do not waste it.",
+      "{playerName}, even the seagulls are taking notes.",
+      "Let us see if the bay feels generous, {playerName}.",
+      "{playerName}, your {rodName} looks expensive from here.",
+      "{blackPearls} Black Pearls, {playerName}? The shopkeeper is smiling.",
+      "Tip: Bay Rod tiers increase storage capacity.",
+      "Tip: Boat automation speed can be improved by rod tiers and permanent bonuses.",
+      "Tip: Grand Winners are decided after ten competitions.",
+      "Tip: Seagull rewards scale with estimated hourly automation income.",
+      "Tip: Premium Bait changes rarity weights, not guaranteed outcomes."
+    ]
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "version": "1.0",
+  "fileNumber": 6,
+  "theme": "general",
+  "count": 50,
+  "description": "General dad jokes set #6.",
+  "jokes": [
+    {
+      "id": 1,
+      "category": "general",
+      "setup": "My ruler started giving motivational speeches.",
+      "punchline": "Everyone said it really measured its words."
+    },
+    {
+      "id": 2,
+      "category": "general",
+      "setup": "I bought my refrigerator a sweater.",
+      "punchline": "It said it finally felt cool on the inside."
+    },
+    {
+      "id": 3,
+      "category": "general",
+      "setup": "My backpack became a stand-up comedian.",
+      "punchline": "It always carried the show."
+    },
+    {
+      "id": 4,
+      "category": "general",
+      "setup": "I challenged my calculator to chess.",
+      "punchline": "It kept counting its moves."
+    },
+    {
+      "id": 5,
+      "category": "general",
+      "setup": "My desk got promoted.",
+      "punchline": "It finally had more office authority."
+    },
+    {
+      "id": 6,
+      "category": "general",
+      "setup": "I named my bicycle 'Homework'.",
+      "punchline": "I keep putting it off."
+    },
+    {
+      "id": 7,
+      "category": "general",
+      "setup": "My coffee maker started a dating service.",
+      "punchline": "It knows how to bring people together."
+    },
+    {
+      "id": 8,
+      "category": "general",
+      "setup": "I taught my curtains confidence.",
+      "punchline": "Now they always make a grand entrance."
+    },
+    {
+      "id": 9,
+      "category": "general",
+      "setup": "My tape measure became a singer.",
+      "punchline": "It always hit the right notes."
+    },
+    {
+      "id": 10,
+      "category": "general",
+      "setup": "I bought a tiny ladder.",
+      "punchline": "It's only for small steps."
+    },
+    {
+      "id": 11,
+      "category": "general",
+      "setup": "My teacup became a philosopher.",
+      "punchline": "It believes every problem can be steeped on."
+    },
+    {
+      "id": 12,
+      "category": "general",
+      "setup": "I gave my pillow a passport.",
+      "punchline": "It dreams of traveling."
+    },
+    {
+      "id": 13,
+      "category": "general",
+      "setup": "My wallet entered a marathon.",
+      "punchline": "It ran out of cash halfway."
+    },
+    {
+      "id": 14,
+      "category": "general",
+      "setup": "I adopted a calculator.",
+      "punchline": "It really adds to the family."
+    },
+    {
+      "id": 15,
+      "category": "general",
+      "setup": "My doorknob opened a podcast.",
+      "punchline": "It has a great handle on things."
+    },
+    {
+      "id": 16,
+      "category": "general",
+      "setup": "I bought scented pencils.",
+      "punchline": "Now my ideas smell fresh."
+    },
+    {
+      "id": 17,
+      "category": "general",
+      "setup": "My couch started yoga.",
+      "punchline": "It's becoming more flexible."
+    },
+    {
+      "id": 18,
+      "category": "general",
+      "setup": "I named my stapler 'Commitment'.",
+      "punchline": "It keeps everything together."
+    },
+    {
+      "id": 19,
+      "category": "general",
+      "setup": "My broom entered politics.",
+      "punchline": "It promised a clean campaign."
+    },
+    {
+      "id": 20,
+      "category": "general",
+      "setup": "My shoes started a bakery.",
+      "punchline": "They're famous for their rolls."
+    },
+    {
+      "id": 21,
+      "category": "general",
+      "setup": "I complimented my mailbox.",
+      "punchline": "It said my words meant a lot."
+    },
+    {
+      "id": 22,
+      "category": "general",
+      "setup": "My notebook learned karate.",
+      "punchline": "Its pages now have strong character."
+    },
+    {
+      "id": 23,
+      "category": "general",
+      "setup": "I bought my lamp sunglasses.",
+      "punchline": "It wanted to dim its public image."
+    },
+    {
+      "id": 24,
+      "category": "general",
+      "setup": "My toothbrush became a motivational coach.",
+      "punchline": "It always pushes me to brush off failure."
+    },
+    {
+      "id": 25,
+      "category": "general",
+      "setup": "My bookshelf started a book club.",
+      "punchline": "Attendance is through the roof."
+    },
+    {
+      "id": 26,
+      "category": "general",
+      "setup": "I taught my umbrella patience.",
+      "punchline": "It now waits for rainy opportunities."
+    },
+    {
+      "id": 27,
+      "category": "general",
+      "setup": "My scissors became a barber.",
+      "punchline": "Business is always cutting along."
+    },
+    {
+      "id": 28,
+      "category": "general",
+      "setup": "I bought a nervous pencil.",
+      "punchline": "It keeps drawing blanks."
+    },
+    {
+      "id": 29,
+      "category": "general",
+      "setup": "My socks opened a detective agency.",
+      "punchline": "They always work in pairs."
+    },
+    {
+      "id": 30,
+      "category": "general",
+      "setup": "My chair started exercising.",
+      "punchline": "It wanted stronger support."
+    },
+    {
+      "id": 31,
+      "category": "general",
+      "setup": "I named my kettle 'Drama'.",
+      "punchline": "It whistles over everything."
+    },
+    {
+      "id": 32,
+      "category": "general",
+      "setup": "My flashlight became an actor.",
+      "punchline": "It loves the spotlight."
+    },
+    {
+      "id": 33,
+      "category": "general",
+      "setup": "I bought a confident broom.",
+      "punchline": "It really sweeps with pride."
+    },
+    {
+      "id": 34,
+      "category": "general",
+      "setup": "My lunchbox became a motivational speaker.",
+      "punchline": "It packs a powerful message."
+    },
+    {
+      "id": 35,
+      "category": "general",
+      "setup": "My garden rake got promoted.",
+      "punchline": "It climbed through the ranks."
+    },
+    {
+      "id": 36,
+      "category": "general",
+      "setup": "I adopted a paper fan.",
+      "punchline": "It's very uplifting."
+    },
+    {
+      "id": 37,
+      "category": "general",
+      "setup": "My coat hanger became a therapist.",
+      "punchline": "It helps people let things go."
+    },
+    {
+      "id": 38,
+      "category": "general",
+      "setup": "I bought my clock a vacation.",
+      "punchline": "It deserved some time off."
+    },
+    {
+      "id": 39,
+      "category": "general",
+      "setup": "My toolbox started a school.",
+      "punchline": "It teaches practical solutions."
+    },
+    {
+      "id": 40,
+      "category": "general",
+      "setup": "My slippers entered a race.",
+      "punchline": "They took it one step at a time."
+    },
+    {
+      "id": 41,
+      "category": "general",
+      "setup": "My bookmark became a detective.",
+      "punchline": "It always knows where the story stops."
+    },
+    {
+      "id": 42,
+      "category": "general",
+      "setup": "I taught my coffee mug patience.",
+      "punchline": "Now it handles pressure without spilling."
+    },
+    {
+      "id": 43,
+      "category": "general",
+      "setup": "My mirror opened a gym.",
+      "punchline": "It focuses on self-improvement."
+    },
+    {
+      "id": 44,
+      "category": "general",
+      "setup": "I named my toaster 'Sunrise'.",
+      "punchline": "It always starts the day warm."
+    },
+    {
+      "id": 45,
+      "category": "general",
+      "setup": "My pencil case became a hotel.",
+      "punchline": "It has excellent stationery."
+    },
+    {
+      "id": 46,
+      "category": "general",
+      "setup": "I bought a shy megaphone.",
+      "punchline": "It prefers indoor voices."
+    },
+    {
+      "id": 47,
+      "category": "general",
+      "setup": "My watering can became a life coach.",
+      "punchline": "It helps everyone grow."
+    },
+    {
+      "id": 48,
+      "category": "general",
+      "setup": "My whiteboard started painting.",
+      "punchline": "It loves clean canvases."
+    },
+    {
+      "id": 49,
+      "category": "general",
+      "setup": "I challenged my ceiling to a debate.",
+      "punchline": "It stayed above the argument."
+    },
+    {
+      "id": 50,
+      "category": "general",
+      "setup": "My backpack bought a diary.",
+      "punchline": "It finally unpacked its feelings."
+    }
+  ]
+}

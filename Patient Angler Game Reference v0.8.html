@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Angler — Game Reference v0.8</title>
+<style>
+:root {
+  --bg:#fdf6e3; --s:#f5ead0; --s2:#ede0bc; --ink:#1a1208; --ink2:#3a2a10;
+  --rule:#c8a96e; --gold:#b8820a; --gold2:#d4a020;
+  --teal:#2a5a6a; --green:#2a7a2a; --red:#8a2010; --pur:#5a2a7a;
+  --muted:#7a6040;
+  --body:Georgia,'Times New Roman',serif;
+  --head:'Trebuchet MS','Segoe UI',sans-serif;
+  --mono:'Courier New',monospace;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1a1408; --s:#221c0c; --s2:#2c2410; --ink:#e8d8b0; --ink2:#c8a860;
+  --rule:#4a3820; --gold:#d4a020; --gold2:#f0c040;
+  --teal:#3a7a8a; --green:#40a040; --red:#c04030; --pur:#9040c0;
+  --muted:#907050;
+}}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.72;padding:28px 14px 80px;}
+.pg{max-width:900px;margin:0 auto;}
+
+.cv{text-align:center;padding:38px 0 34px;border-bottom:3px double var(--rule);margin-bottom:36px;}
+.cv-ey{font-family:var(--head);font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.cv-ti{font-family:var(--head);font-size:36px;font-weight:900;color:var(--gold);line-height:1.1;}
+.cv-su{font-size:16px;color:var(--ink2);margin-top:6px;font-style:italic;}
+.cv-me{margin-top:14px;font-size:12px;color:var(--muted);font-family:var(--head);letter-spacing:.12em;}
+.bdg{display:inline-block;background:var(--gold);color:var(--bg);font-family:var(--head);font-size:10px;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;padding:3px 14px;border-radius:20px;margin-top:12px;}
+
+.toc{background:var(--s);border:1px solid var(--rule);border-radius:7px;padding:22px 26px;margin-bottom:36px;}
+.toc-h{font-family:var(--head);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;font-weight:bold;}
+.toc-g{display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;}
+.toc-i{font-size:12px;color:var(--ink2);border-bottom:1px dotted var(--rule);padding:3px 0;}
+.toc-i a{color:var(--teal);text-decoration:none;}
+.toc-i a:hover{color:var(--gold);}
+.tn{color:var(--muted);font-family:var(--mono);font-size:10px;margin-right:5px;}
+
+.sc{margin-bottom:46px;}
+.sc-h{font-family:var(--head);font-size:20px;font-weight:900;color:var(--gold);border-bottom:2px solid var(--rule);padding-bottom:5px;margin-bottom:16px;display:flex;align-items:baseline;gap:10px;}
+.sc-n{font-size:12px;color:var(--muted);font-family:var(--mono);font-weight:normal;}
+.sb{margin-bottom:24px;}
+.sb-h{font-family:var(--head);font-size:14px;font-weight:bold;color:var(--teal);border-left:3px solid var(--teal);padding-left:9px;margin-bottom:9px;}
+p{margin-bottom:9px;}p:last-child{margin-bottom:0;}
+ul,ol{padding-left:18px;margin-bottom:9px;}
+li{margin-bottom:3px;}
+
+.tw{overflow-x:auto;margin-bottom:12px;}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;}
+th{background:var(--s2);border:1px solid var(--rule);padding:5px 9px;font-family:var(--head);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2);text-align:left;white-space:nowrap;}
+td{border:1px solid var(--rule);padding:4px 9px;vertical-align:top;}
+tr:nth-child(even) td{background:var(--s);}
+.tc{text-align:center;}
+
+.rc{color:#777;font-weight:bold;}
+.ru{color:#2a8a2a;font-weight:bold;}
+.rr{color:#1850b0;font-weight:bold;}
+.re{color:#6a10a0;font-weight:bold;}
+.rl{color:#b07000;font-weight:bold;}
+
+.nt{border-left:4px solid var(--gold);background:var(--s);padding:10px 14px;border-radius:0 5px 5px 0;margin:12px 0;font-size:13px;}
+.nt.tip{border-color:var(--green);}
+.nt.warn{border-color:var(--red);}
+.nt-h{font-family:var(--head);font-size:9px;letter-spacing:.22em;text-transform:uppercase;font-weight:bold;margin-bottom:3px;}
+.nt .nt-h{color:var(--gold);}
+.nt.tip .nt-h{color:var(--green);}
+.nt.warn .nt-h{color:var(--red);}
+
+.nw{display:inline-block;font-family:var(--head);font-size:8px;font-weight:bold;letter-spacing:.15em;text-transform:uppercase;background:var(--pur);color:#fff;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:5px;position:relative;top:-1px;}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+hr{border:none;border-top:1px solid var(--rule);margin:22px 0;}
+@media(max-width:560px){.two,.toc-g{grid-template-columns:1fr;}}
+
+.ft{margin-top:52px;padding-top:14px;border-top:2px double var(--rule);font-size:11px;color:var(--muted);text-align:center;font-family:var(--head);letter-spacing:.1em;}
+</style>
+</head>
+<body>
+<div class="pg">
+
+<div class="cv">
+  <div class="cv-ey">Recapsa OÜ / Henly Games — Internal Document</div>
+  <div class="cv-ti">Patient Angler</div>
+  <div class="cv-su">Idle Fishing — Game Reference</div>
+  <div class="cv-me">Version 0.8 · Build 37 · July 2026</div>
+  <div class="bdg">Based on Live game.js Source</div>
+</div>
+
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-g">
+    <div class="toc-i"><span class="tn">01</span><a href="#s1">Overview & Design Pillars</a></div>
+    <div class="toc-i"><span class="tn">02</span><a href="#s2">Core Gameplay Loop</a></div>
+    <div class="toc-i"><span class="tn">03</span><a href="#s3">Tutorial System</a></div>
+    <div class="toc-i"><span class="tn">04</span><a href="#s4">Game Time & Clock</a></div>
+    <div class="toc-i"><span class="tn">05</span><a href="#s5">Water Bodies — All 6 Zones</a></div>
+    <div class="toc-i"><span class="tn">06</span><a href="#s6">Fish Database (all zones)</a></div>
+    <div class="toc-i"><span class="tn">07</span><a href="#s7">Loot Tables</a></div>
+    <div class="toc-i"><span class="tn">08</span><a href="#s8">Rarity & Size System</a></div>
+    <div class="toc-i"><span class="tn">09</span><a href="#s9">Rods & Rod Tier Upgrades</a></div>
+    <div class="toc-i"><span class="tn">10</span><a href="#s10">Bobbers & Cosmetics</a></div>
+    <div class="toc-i"><span class="tn">11</span><a href="#s11">Storage</a></div>
+    <div class="toc-i"><span class="tn">12</span><a href="#s12">Transport Vehicles</a></div>
+    <div class="toc-i"><span class="tn">13</span><a href="#s13">Automation Empire</a></div>
+    <div class="toc-i"><span class="tn">14</span><a href="#s14">Fish Market & Economy</a></div>
+    <div class="toc-i"><span class="tn">15</span><a href="#s15">Special Events</a></div>
+    <div class="toc-i"><span class="tn">16</span><a href="#s16">Diamonds & Premium Bait</a></div>
+    <div class="toc-i"><span class="tn">17</span><a href="#s17">Quests & Achievements</a></div>
+    <div class="toc-i"><span class="tn">18</span><a href="#s18">Daily Competition & HoF</a></div>
+    <div class="toc-i"><span class="tn">19</span><a href="#s19">Fish Encyclopedia (Fishdex)</a></div>
+    <div class="toc-i"><span class="tn">20</span><a href="#s20">Prestige & Black Pearls</a></div>
+    <div class="toc-i"><span class="tn">21</span><a href="#s21">Monetisation</a></div>
+    <div class="toc-i"><span class="tn">22</span><a href="#s22">UI & Navigation</a></div>
+    <div class="toc-i"><span class="tn">23</span><a href="#s23">Settings</a></div>
+    <div class="toc-i"><span class="tn">24</span><a href="#s24">Progression Timeline</a></div>
+  </div>
+</div>
+
+<div class="sc" id="s1">
+  <div class="sc-h"><span class="sc-n">01</span> Overview & Design Pillars</div>
+  <p>Patient Angler is a 2D idle/incremental fishing empire game for Android (Google Play). The player begins alone at the Pond with a Basic Rod and builds a layered fishing empire across six water bodies. Active fishing and idle automation (Nets → Fishermen → Boats → Fleets) run permanently side by side in every unlocked zone.</p>
+  <p><strong>Engine:</strong> HTML5/JS (no framework) wrapped in <strong>Capacitor 7</strong> for Android. · <strong>Developer:</strong> Recapsa OÜ / Henly Games.</p>
+  <div class="sb">
+    <div class="sb-h">Design Pillars</div>
+    <ol>
+      <li><strong>Variable reward loop</strong> — players never know what they'll catch; rarity is the core addiction mechanic.</li>
+      <li><strong>Visible progress</strong> — each rod tier directly reduces taps-to-catch; upgrades feel immediate, not hidden in percentages.</li>
+      <li><strong>Active + idle balance</strong> — active fishing gives rarer catches and Trophy chances; automation keeps every owned zone earning permanently.</li>
+      <li><strong>Time-of-day mechanics</strong> — some species only appear during specific in-game hours, creating daily check-in motivation.</li>
+      <li><strong>Competitions</strong> — scheduled daily tournaments create retention and social hooks.</li>
+      <li><strong>Collection drive</strong> — the 180-entry Fishdex drives completion motivation.</li>
+      <li><strong>Empire growth, not zone replacement</strong> — all unlocked zones produce simultaneously; players stack income, never migrate.</li>
+      <li><strong>Offline rewards</strong> — every owned zone earns while the player is away, capped at storage capacity.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="sc" id="s2">
+  <div class="sc-h"><span class="sc-n">02</span> Core Gameplay Loop</div>
+  <div class="sb">
+    <p><strong>Active loop:</strong> Tap water → cast animation + sound → bobber floats → bobber dips → tap bobber N times within window → catch revealed → sell / store → upgrade → repeat.</p>
+    <p>N (taps required) is set by the equipped rod: 20 taps for the Basic Rod, decreasing to 4 taps for the Abyss Rod. Missing the tap window lets the fish escape. Sound effects play on cast, bobber dip, and successful catch.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Fish Fight Events <span class="nw">Active</span></div>
+    <p>During active fishing there is a <strong>0.5% chance</strong> per eligible catch (non-trash, non-plant, non-trophy) of triggering a Fish Fight. A competing fish tries to steal the catch — the player must tap a depleting bar (25 taps, 10-second window). <strong>Win = catch at ×5 base value. Lose = catch forfeited.</strong> A 3-minute cooldown (180 000 ms) prevents back-to-back triggers.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Sea & Ocean Bobber View <span class="nw">v0.8</span></div>
+    <p>In the Sea and Ocean zones only, casting overlays a dedicated background image (boat-eye ocean view) behind the bobber animation, positioned at the bobber area. The image closes automatically when fishing ends or is reset. All other mechanics are identical to other zones.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Auto-Sell</div>
+    <p>When active (permanent via Diamond purchase or temporary via a special event), every caught fish sells immediately at current market price. Trophy fish are always exempt — they always go to storage regardless of Auto-Sell state.</p>
+  </div>
+</div>
+
+<div class="sc" id="s3">
+  <div class="sc-h"><span class="sc-n">03</span> Tutorial System <span class="nw">Active</span></div>
+  <p>First-launch players go through a 13-step interactive tutorial using a spotlight overlay and info cards. Returning players who already own any automation skip it automatically.</p>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Step</th></tr>
+    <tr><td class="tc">1</td><td>Welcome intro</td></tr>
+    <tr><td class="tc">2</td><td>Tap the water to cast</td></tr>
+    <tr><td class="tc">3</td><td>Wait for bobber to dip</td></tr>
+    <tr><td class="tc">4</td><td>Tap the bobber to catch</td></tr>
+    <tr><td class="tc">5</td><td>Catch result shown</td></tr>
+    <tr><td class="tc">6</td><td>Tap OK, open Market</td></tr>
+    <tr><td class="tc">7</td><td>Free-fish — catch 3 fish (no overlay)</td></tr>
+    <tr><td class="tc">8</td><td>Seagull flies by — tap for bonus coins (tutSeagullSpawned / Claimed flags)</td></tr>
+    <tr><td class="tc">9</td><td>Market screen walkthrough (Continue button)</td></tr>
+    <tr><td class="tc">10</td><td>Sell fish in Market</td></tr>
+    <tr><td class="tc">11</td><td>Shop → buy first Fishing Net (costs 10c, discounted firstCost)</td></tr>
+    <tr><td class="tc">12</td><td>Automation confirmed (Continue button)</td></tr>
+    <tr><td class="tc">13</td><td>Tutorial complete — Finish button. Sets tutorialDone:true in state.</td></tr>
+  </table></div>
+</div>
+
+<div class="sc" id="s4">
+  <div class="sc-h"><span class="sc-n">04</span> Game Time & Clock</div>
+  <p><strong>1 real hour = 1 in-game day.</strong> The in-game clock is derived from the real device clock (real minutes/seconds map to in-game hours/minutes). It runs at 24× real speed and is always displayed in the HUD below the zone name.</p>
+  <div class="tw"><table>
+    <tr><th>Period</th><th>In-game hours</th><th>Time-window species active</th></tr>
+    <tr><td>Dawn</td><td>04:00–07:00</td><td>Dawn Trout (River 04–07) · Morning Perch (Pond 07–10 starts here)</td></tr>
+    <tr><td>Morning</td><td>07:00–12:00</td><td>Morning Perch (Pond 07–10)</td></tr>
+    <tr><td>Afternoon</td><td>12:00–18:00</td><td>Afternoon Roach (Pond 12–15)</td></tr>
+    <tr><td>Evening</td><td>18:00–22:00</td><td>Evening Catfish (Lake 18–22)</td></tr>
+    <tr><td>Night</td><td>22:00–04:00</td><td>Night Pike (Lake 22–02) · Midnight Eel (River 00–03) · Pre-dawn Zander (Lake 03–05) · Giant Squid (Ocean 00–02) · Coelacanth (Ocean 01–03)</td></tr>
+  </table></div>
+</div>
+
+<div class="sc" id="s5">
+  <div class="sc-h"><span class="sc-n">05</span> Water Bodies — All 6 Zones</div>
+  <div class="tw"><table>
+    <tr><th>Zone</th><th>Depth</th><th>Required rod</th><th>Required transport</th><th>Rod cost</th><th>Transport cost</th></tr>
+    <tr><td><strong>Pond</strong></td><td>Shallow</td><td>Basic Rod</td><td>None</td><td>Free</td><td>—</td></tr>
+    <tr><td><strong>River</strong></td><td>Medium</td><td>River Rod</td><td>Waders</td><td>9,000c</td><td>6,000c</td></tr>
+    <tr><td><strong>Lake</strong></td><td>Medium-deep</td><td>Lake Rod</td><td>Rowing Boat</td><td>90,000c</td><td>60,000c</td></tr>
+    <tr><td><strong>Bay</strong></td><td>Medium-deep</td><td>Bay Rod</td><td>Speedboat</td><td>900,000c</td><td>600,000c</td></tr>
+    <tr><td><strong>Sea</strong></td><td>Deep</td><td>Sea Rod</td><td>Fishing Vessel</td><td>25,000,000c</td><td>20,000,000c</td></tr>
+    <tr><td><strong>Ocean</strong></td><td>Extreme</td><td>Ocean Rod</td><td>Research Vessel</td><td>250,000,000c</td><td>200,000,000c</td></tr>
+  </table></div>
+  <p>Each zone has a bespoke background image and a separate automation background. Unlocking a zone never disables automation in older zones — all produce simultaneously.</p>
+  <div class="nt tip"><div class="nt-h">Empire Principle</div>Old zones never become obsolete. The Pond a player started on day one is still earning coins via its automation months later while they actively fish the Ocean.</div>
+</div>
+
+<div class="sc" id="s6">
+  <div class="sc-h"><span class="sc-n">06</span> Fish Database (all zones)</div>
+
+  <div class="sb">
+    <div class="sb-h">Pond</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Rarity</th><th>Base value</th><th>Weight range</th></tr>
+      <tr><td>Crucian Carp</td><td class="rc">Common</td><td>2c</td><td>100–4,500 g</td></tr>
+      <tr><td>Roach*</td><td class="rc">Common</td><td>2c</td><td>50–1,800 g</td></tr>
+      <tr><td>Small Perch*</td><td class="rc">Common</td><td>2c</td><td>30–800 g</td></tr>
+      <tr><td>Stickleback</td><td class="rc">Common</td><td>1c</td><td>2–10 g</td></tr>
+      <tr><td>Common Bream*</td><td class="rc">Common</td><td>3c</td><td>200–8,000 g</td></tr>
+      <tr><td>Tench*</td><td class="ru">Uncommon</td><td>7c</td><td>200–5,000 g</td></tr>
+      <tr><td>Goldfish</td><td class="ru">Uncommon</td><td>8c</td><td>50–2,000 g</td></tr>
+      <tr><td>Stone Loach</td><td class="ru">Uncommon</td><td>6c</td><td>5–50 g</td></tr>
+      <tr><td>Pumpkinseed</td><td class="rr">Rare</td><td>11c</td><td>20–300 g</td></tr>
+      <tr><td>Weatherfish</td><td class="rr">Rare</td><td>13c</td><td>10–150 g</td></tr>
+      <tr><td>Giant Crucian Carp</td><td class="re">Epic</td><td>39c</td><td>500–6,000 g</td></tr>
+    </table></div>
+    <p style="font-size:12px">* = also appears in later zones</p>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">River</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Rarity</th><th>Base value</th><th>Weight range</th></tr>
+      <tr><td>Chub</td><td class="rc">Common</td><td>4c</td><td>100–4,000 g</td></tr>
+      <tr><td>Grayling</td><td class="ru">Uncommon</td><td>13c</td><td>50–2,500 g</td></tr>
+      <tr><td>Barbel</td><td class="ru">Uncommon</td><td>9c</td><td>200–10,000 g</td></tr>
+      <tr><td>Brown Trout*</td><td class="rr">Rare</td><td>32c</td><td>100–10,000 g</td></tr>
+      <tr><td>Pike*</td><td class="rr">Rare</td><td>35c</td><td>500–25,000 g</td></tr>
+      <tr><td>Burbot</td><td class="re">Epic</td><td>112c</td><td>100–7,000 g</td></tr>
+      <tr><td colspan="4" style="font-size:12px;font-style:italic">Also from Pond pool: Roach, Tench, Small Perch, Common Bream</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Lake</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Rarity</th><th>Base value</th><th>Weight range</th></tr>
+      <tr><td>Large Perch</td><td class="rc">Common</td><td>8c</td><td>100–3,000 g</td></tr>
+      <tr><td>Carp</td><td class="rc">Common</td><td>10c</td><td>500–20,000 g</td></tr>
+      <tr><td>Zander</td><td class="ru">Uncommon</td><td>25c</td><td>200–12,000 g</td></tr>
+      <tr><td>Whitefish*</td><td class="ru">Uncommon</td><td>27c</td><td>100–3,000 g</td></tr>
+      <tr><td>Vendace</td><td class="ru">Uncommon</td><td>20c</td><td>20–400 g</td></tr>
+      <tr><td>Eel*</td><td class="rr">Rare</td><td>53c</td><td>100–3,000 g</td></tr>
+      <tr><td>European Catfish</td><td class="re">Epic</td><td>140c</td><td>2,000–80,000 g</td></tr>
+      <tr><td colspan="4" style="font-size:12px;font-style:italic">Also: Tench, Brown Trout, Pike (cross-zone)</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Bay</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Rarity</th><th>Base value</th><th>Weight range</th></tr>
+      <tr><td>Baltic Herring*</td><td class="rc">Common</td><td>11c</td><td>20–100 g</td></tr>
+      <tr><td>Smelt</td><td class="rc">Common</td><td>8c</td><td>10–80 g</td></tr>
+      <tr><td>Sprat</td><td class="rc">Common</td><td>6c</td><td>10–50 g</td></tr>
+      <tr><td>Flounder</td><td class="ru">Uncommon</td><td>32c</td><td>100–3,000 g</td></tr>
+      <tr><td>Mackerel*</td><td class="ru">Uncommon</td><td>25c</td><td>100–2,000 g</td></tr>
+      <tr><td>Garfish</td><td class="rr">Rare</td><td>77c</td><td>100–1,200 g</td></tr>
+      <tr><td>Seabass*</td><td class="rr">Rare</td><td>84c</td><td>200–10,000 g</td></tr>
+      <tr><td>Sea Trout*</td><td class="re">Epic</td><td>224c</td><td>200–15,000 g</td></tr>
+      <tr><td colspan="4" style="font-size:12px;font-style:italic">Also: Whitefish, Eel (cross-zone)</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Sea</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Rarity</th><th>Base value</th><th>Weight range</th></tr>
+      <tr><td>Cod*</td><td class="ru">Uncommon</td><td>56c</td><td>500–40,000 g</td></tr>
+      <tr><td>Haddock</td><td class="ru">Uncommon</td><td>53c</td><td>200–10,000 g</td></tr>
+      <tr><td>Redfish</td><td class="ru">Uncommon</td><td>55c</td><td>100–5,000 g</td></tr>
+      <tr><td>Salmon</td><td class="rr">Rare</td><td>133c</td><td>500–30,000 g</td></tr>
+      <tr><td>Halibut*</td><td class="re">Epic</td><td>385c</td><td>2,000–300,000 g</td></tr>
+      <tr><td>Wolffish</td><td class="re">Epic</td><td>350c</td><td>500–20,000 g</td></tr>
+      <tr><td colspan="4" style="font-size:12px;font-style:italic">Also: Baltic Herring, Sea Trout, Seabass, Mackerel, Cod, Halibut (cross-zone)</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Ocean</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Rarity</th><th>Base value</th><th>Weight range</th></tr>
+      <tr><td>Atlantic Mackerel</td><td class="rc">Common</td><td>46c</td><td>100–1,800 g</td></tr>
+      <tr><td>Tuna</td><td class="rc">Common</td><td>56c</td><td>10,000–600,000 g</td></tr>
+      <tr><td>Mahi-Mahi</td><td class="rc">Common</td><td>46c</td><td>1,000–40,000 g</td></tr>
+      <tr><td>Swordfish</td><td class="ru">Uncommon</td><td>154c</td><td>10,000–500,000 g</td></tr>
+      <tr><td>Oarfish</td><td class="rr">Rare</td><td>294c</td><td>50,000–270,000 g</td></tr>
+      <tr><td>Marlin</td><td class="rr">Rare</td><td>336c</td><td>20,000–800,000 g</td></tr>
+      <tr><td>Giant Squid ⏰</td><td class="rl">Legendary</td><td>392c</td><td>100,000–300,000 g</td></tr>
+      <tr><td>Coelacanth ⏰</td><td class="rl">Legendary</td><td>1,260c</td><td>30,000–95,000 g</td></tr>
+      <tr><td colspan="4" style="font-size:12px">⏰ Giant Squid: 00:00–02:00 only · Coelacanth: 01:00–03:00 only</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Time-Window Special Fish (all zones)</div>
+    <div class="tw"><table>
+      <tr><th>Fish</th><th>Zone</th><th>Window (in-game)</th><th>Rarity</th><th>Base value</th></tr>
+      <tr><td>Morning Perch</td><td>Pond</td><td>07:00–10:00</td><td class="ru">Uncommon</td><td>4c</td></tr>
+      <tr><td>Afternoon Roach</td><td>Pond</td><td>12:00–15:00</td><td class="rc">Common</td><td>3c</td></tr>
+      <tr><td>Dawn Trout</td><td>River</td><td>04:00–07:00</td><td class="rr">Rare</td><td>35c</td></tr>
+      <tr><td>Midnight Eel</td><td>River</td><td>00:00–03:00</td><td class="re">Epic</td><td>112c</td></tr>
+      <tr><td>Evening Catfish</td><td>Lake</td><td>18:00–22:00</td><td class="ru">Uncommon</td><td>25c</td></tr>
+      <tr><td>Night Pike</td><td>Lake</td><td>22:00–02:00</td><td class="rr">Rare</td><td>42c</td></tr>
+      <tr><td>Pre-dawn Zander</td><td>Lake</td><td>03:00–05:00</td><td class="rr">Rare</td><td>28c</td></tr>
+      <tr><td>Giant Squid</td><td>Ocean</td><td>00:00–02:00</td><td class="rl">Legendary</td><td>392c</td></tr>
+      <tr><td>Coelacanth</td><td>Ocean</td><td>01:00–03:00</td><td class="rl">Legendary</td><td>1,260c</td></tr>
+    </table></div>
+    <p style="font-size:12px">Time-window fish have their own "Special" section in the Fishdex and are not counted in the regular 30-item zone totals.</p>
+  </div>
+</div>
+
+<div class="sc" id="s7">
+  <div class="sc-h"><span class="sc-n">07</span> Loot Tables</div>
+  <p>Weights are used in a weighted random draw; they are not percentages. Each zone has its own table. Deeper zones shift weight toward rarer entries.</p>
+  <div class="tw"><table>
+    <tr><th>Zone</th><th>Trash</th><th>Plant</th><th class="rc">Common</th><th class="ru">Uncommon</th><th class="rr">Rare</th><th class="re">Epic</th><th class="rl">Legendary</th></tr>
+    <tr><td>Pond</td><td class="tc">30</td><td class="tc">20</td><td class="tc">35</td><td class="tc">10</td><td class="tc">4</td><td class="tc">1</td><td class="tc">—</td></tr>
+    <tr><td>River</td><td class="tc">25</td><td class="tc">18</td><td class="tc">36</td><td class="tc">13</td><td class="tc">6</td><td class="tc">2</td><td class="tc">—</td></tr>
+    <tr><td>Lake</td><td class="tc">20</td><td class="tc">15</td><td class="tc">37</td><td class="tc">16</td><td class="tc">9</td><td class="tc">3</td><td class="tc">—</td></tr>
+    <tr><td>Bay</td><td class="tc">18</td><td class="tc">12</td><td class="tc">35</td><td class="tc">20</td><td class="tc">12</td><td class="tc">3</td><td class="tc">—</td></tr>
+    <tr><td>Sea</td><td class="tc">15</td><td class="tc">10</td><td class="tc">33</td><td class="tc">22</td><td class="tc">15</td><td class="tc">5</td><td class="tc">—</td></tr>
+    <tr><td>Ocean</td><td class="tc">12</td><td class="tc">8</td><td class="tc">28</td><td class="tc">22</td><td class="tc">18</td><td class="tc">8</td><td class="tc">4</td></tr>
+  </table></div>
+  <p>Trash auto-sells for 1c on catch. Plants are discarded at 0c but tracked in Fishdex. Automation catches up to Epic — Legendary requires <strong>active manual fishing only</strong> and is only in Ocean.</p>
+</div>
+
+<div class="sc" id="s8">
+  <div class="sc-h"><span class="sc-n">08</span> Rarity & Size System</div>
+  <div class="two">
+    <div class="sb">
+      <div class="sb-h">Size Classes</div>
+      <div class="tw"><table>
+        <tr><th>Size</th><th>Weight</th><th>Price mult</th></tr>
+        <tr><td>Tiny</td><td class="tc">200</td><td>0.5×</td></tr>
+        <tr><td>Small</td><td class="tc">300</td><td>0.8×</td></tr>
+        <tr><td>Medium</td><td class="tc">340</td><td>1.0×</td></tr>
+        <tr><td>Large</td><td class="tc">150</td><td>1.5×</td></tr>
+        <tr><td><strong>Trophy</strong></td><td class="tc">1</td><td>3.0×</td></tr>
+      </table></div>
+      <p style="font-size:12px">Weights sum to 991. Trophy probability ≈ <strong>0.1%</strong> (1/991). "Weight" here is the random draw weight, not the fish's physical weight.</p>
+    </div>
+    <div class="sb">
+      <div class="sb-h">Trophy Fish</div>
+      <ul>
+        <li>Special catch fanfare animation</li>
+        <li>Awards <strong>+1 Diamond</strong> on catch</li>
+        <li>Physical weight recorded in Fishdex as personal record</li>
+        <li>Counts toward Competition leaderboard</li>
+        <li>Triggers share button (screenshot sharing)</li>
+        <li>Exempt from Auto-Sell — always goes to storage</li>
+      </ul>
+    </div>
+  </div>
+  <p>Sell price formula: <code>baseValue × sizeMult × demandMult</code>. Rod-tier bonuses and Pearl bonuses apply on top of this.</p>
+</div>
+
+<div class="sc" id="s9">
+  <div class="sc-h"><span class="sc-n">09</span> Rods & Rod Tier Upgrades</div>
+  <div class="sb">
+    <div class="sb-h">Rod Unlock</div>
+    <div class="tw"><table>
+      <tr><th>Rod</th><th>Taps</th><th>Unlock cost</th><th>Zone access</th></tr>
+      <tr><td>Basic Rod</td><td class="tc">20</td><td>Free</td><td>Pond</td></tr>
+      <tr><td>River Rod</td><td class="tc">18</td><td>9,000c</td><td>River</td></tr>
+      <tr><td>Lake Rod</td><td class="tc">16</td><td>90,000c</td><td>Lake</td></tr>
+      <tr><td>Bay Rod</td><td class="tc">14</td><td>900,000c</td><td>Bay</td></tr>
+      <tr><td>Sea Rod</td><td class="tc">12</td><td>25,000,000c</td><td>Sea</td></tr>
+      <tr><td>Ocean Rod</td><td class="tc">10</td><td>250,000,000c</td><td>Ocean</td></tr>
+      <tr><td>Carbon Rod</td><td class="tc">8</td><td>200,000,000c</td><td>All zones</td></tr>
+      <tr><td>Mythic Rod</td><td class="tc">6</td><td>500,000,000c</td><td>Abyss</td></tr>
+      <tr><td>Abyss Rod</td><td class="tc">4</td><td>1,500,000,000c</td><td>Abyss (endgame)</td></tr>
+    </table></div>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Rod Tier Upgrades (paid separately, coin cost)</div>
+    <div class="tw"><table>
+      <tr><th>Rod</th><th>Base tier cost</th><th>Bonus per tier</th></tr>
+      <tr><td>Basic Rod</td><td>1,000c</td><td>+5% fish sell price</td></tr>
+      <tr><td>River Rod</td><td>5,000c</td><td>+10% Net automation speed</td></tr>
+      <tr><td>Lake Rod</td><td>25,000c</td><td>+10% Fisherman speed</td></tr>
+      <tr><td>Bay Rod</td><td>100,000c</td><td>+12% storage capacity</td></tr>
+      <tr><td>Sea Rod</td><td>500,000c</td><td>+10% Boat automation speed</td></tr>
+      <tr><td>Ocean Rod</td><td>2,500,000c</td><td>+10% Fleet speed</td></tr>
+      <tr><td>Carbon Rod</td><td>10,000,000c</td><td>+3% Legendary catch chance</td></tr>
+      <tr><td>Mythic Rod</td><td>50,000,000c</td><td>+8% Diamond earnings</td></tr>
+      <tr><td>Abyss Rod</td><td>200,000,000c</td><td>+8% Abyss fish sell value</td></tr>
+    </table></div>
+    <p>Tier upgrades are tracked in <code>G.rodTiers</code> per rod ID. The cost escalates by a multiplier with each tier level purchased.</p>
+  </div>
+</div>
+
+<div class="sc" id="s10">
+  <div class="sc-h"><span class="sc-n">10</span> Bobbers & Cosmetics</div>
+  <div class="sb">
+    <div class="sb-h">Bobber Upgrades (stackable tiers, coin-purchased)</div>
+    <div class="tw"><table>
+      <tr><th>Bobber</th><th>Base tier cost</th><th>Bonus per tier</th></tr>
+      <tr><td>Basic Bobber</td><td>800c</td><td>+1% fishing speed (all methods)</td></tr>
+      <tr><td>Sensitive Bobber</td><td>1,200c</td><td>+1% rare fish chance</td></tr>
+      <tr><td>Heavy Bobber</td><td>2,000c</td><td>+1 fish size tier</td></tr>
+      <tr><td>Electronic Bobber</td><td>5,000c</td><td>+1 extra fish caught per catch</td></tr>
+    </table></div>
+    <p>Premium Bait is listed in the same Bait shop tab (5 Diamonds per activation, 30 min).</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Bobber Cosmetics (visual only, Diamond-purchased)</div>
+    <div class="tw"><table>
+      <tr><th>Cosmetic</th><th>Cost (◆)</th></tr>
+      <tr><td>Basic Bobber</td><td>Free</td></tr>
+      <tr><td>Sensitive Bobber skin</td><td>5</td></tr>
+      <tr><td>Heavy Bobber skin</td><td>10</td></tr>
+      <tr><td>Electronic Bobber skin</td><td>15</td></tr>
+      <tr><td>Banana Bobber</td><td>15</td></tr>
+      <tr><td>Target Bobber</td><td>30</td></tr>
+      <tr><td>Worm Bobber</td><td>35</td></tr>
+      <tr><td>Finger of C'thulu Bobber</td><td>250</td></tr>
+    </table></div>
+    <p>The equipped cosmetic bobber image shows live in the fishing view and in the catch popup.</p>
+  </div>
+</div>
+
+<div class="sc" id="s11">
+  <div class="sc-h"><span class="sc-n">11</span> Storage</div>
+  <div class="tw"><table>
+    <tr><th>Storage</th><th>Cost</th><th>Capacity (base)</th><th>Unlocks at zone</th></tr>
+    <tr><td>Bucket</td><td>50c</td><td>5 slots</td><td>Pond</td></tr>
+    <tr><td>Ice Box</td><td>200c</td><td>20 slots</td><td>Pond</td></tr>
+    <tr><td>Cooler Box</td><td>600c</td><td>50 slots</td><td>River</td></tr>
+    <tr><td>Portable Fridge</td><td>2,000c</td><td>150 slots</td><td>River</td></tr>
+    <tr><td>Chest Freezer</td><td>10,000c</td><td>500 slots</td><td>Bay</td></tr>
+    <tr><td>Walk-in Freezer</td><td>50,000c</td><td>2,000 slots</td><td>Sea</td></tr>
+    <tr><td>Harbor Cold Storage</td><td>250,000c</td><td>10,000 slots</td><td>Sea</td></tr>
+  </table></div>
+  <p>Storage is stackable — <code>ownedStorage</code> is an array; all purchased tiers add their capacity together. Bay Rod tier upgrade gives +12% storage per tier. Pearl Expanded Holds gives +50% per Pearl upgrade level. Both stack multiplicatively with base capacity.</p>
+  <div class="nt warn"><div class="nt-h">Storage cap</div>When full, automation pauses and offline progress stops being recorded. New catches cannot be added until space is freed. There is no fish spoilage or expiry — fish stored indefinitely.</div>
+  <p>Fish are stored in a pile system (<code>G.fishPile</code> keyed by <code>fishId|size</code>) — stacked by species+size, not individual items. Trophy fish go to a separate <code>G.trophyPile</code> array with full individual metadata.</p>
+</div>
+
+<div class="sc" id="s12">
+  <div class="sc-h"><span class="sc-n">12</span> Transport Vehicles</div>
+  <p>One-time coin purchases that unlock access to a zone. Separate from automation boats (which produce fish inside an already-unlocked zone).</p>
+  <div class="tw"><table>
+    <tr><th>Vehicle</th><th>Cost</th><th>Unlocks</th></tr>
+    <tr><td>Waders</td><td>6,000c</td><td>River</td></tr>
+    <tr><td>Rowing Boat</td><td>60,000c</td><td>Lake</td></tr>
+    <tr><td>Speedboat</td><td>600,000c</td><td>Bay</td></tr>
+    <tr><td>Fishing Vessel</td><td>20,000,000c</td><td>Sea</td></tr>
+    <tr><td>Research Vessel</td><td>200,000,000c</td><td>Ocean</td></tr>
+  </table></div>
+  <p>Purchasing Waders triggers checks for two hidden achievements (No Waste, Perfect Pond). Purchasing Research Vessel triggers the "The Long Journey" achievement.</p>
+</div>
+
+<div class="sc" id="s13">
+  <div class="sc-h"><span class="sc-n">13</span> Automation Empire</div>
+  <p>Automation is purchased per zone. Each unit is stackable — any unit can be bought as many times as desired. Price per additional unit: <code>baseCost × 1.15^ownedCount</code>. An owned-count badge (×2, ×3…) displays on the item. The HUD shows a live catch/s rate summing all active automation. Offline progress applies all automation catches for time away (capped at storage).</p>
+
+  <div class="sb">
+    <div class="sb-h">Nets — available from Pond</div>
+    <div class="tw"><table>
+      <tr><th>Unit</th><th>Base cost</th><th>First-buy cost</th><th>Catch interval</th></tr>
+      <tr><td>Fishing Net</td><td>100c</td><td>10c (tutorial price)</td><td>60 s</td></tr>
+      <tr><td>Reinforced Net</td><td>3,000c</td><td>—</td><td>45 s</td></tr>
+      <tr><td>River Net</td><td>15,000c</td><td>—</td><td>30 s</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Fishermen — available from River</div>
+    <div class="tw"><table>
+      <tr><th>Unit</th><th>Base cost</th><th>Catch interval</th></tr>
+      <tr><td>Local Fisher</td><td>3,000c</td><td>30 s</td></tr>
+      <tr><td>Skilled Fisher</td><td>30,000c</td><td>15 s</td></tr>
+      <tr><td>Veteran Fisher</td><td>300,000c</td><td>8 s</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Boats — available from Bay</div>
+    <div class="tw"><table>
+      <tr><th>Unit</th><th>Base cost</th><th>Catch interval</th></tr>
+      <tr><td>Row Boat</td><td>350,000c</td><td>8 s</td></tr>
+      <tr><td>Motor Boat</td><td>1,200,000c</td><td>3 s</td></tr>
+      <tr><td>Fishing Boat</td><td>4,000,000c</td><td>1.5 s</td></tr>
+    </table></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-h">Fleets — available from Sea</div>
+    <div class="tw"><table>
+      <tr><th>Unit</th><th>Base cost</th><th>Catch interval (rate value)</th></tr>
+      <tr><td>Small Fleet</td><td>15,000,000c</td><td>0.5 s (= 2 catches/s)</td></tr>
+      <tr><td>Large Fleet</td><td>75,000,000c</td><td>0.25 s (= 4 catches/s)</td></tr>
+      <tr><td>Deep Sea Fleet</td><td>500,000,000c</td><td>0.1 s (= 10 catches/s)</td></tr>
+    </table></div>
+  </div>
+
+  <div class="nt tip"><div class="nt-h">Pearl speed bonus</div>Empire Boost pearl upgrade multiplies all automation rates: +25%/level (first 8 levels), then +10%/level. River Rod tiers also boost Net speed; Sea Rod tiers boost Boat speed; Ocean Rod tiers boost Fleet speed.</div>
+</div>
+
+<div class="sc" id="s14">
+  <div class="sc-h"><span class="sc-n">14</span> Fish Market & Economy</div>
+  <div class="sb">
+    <div class="sb-h">Dynamic Demand</div>
+    <p>Each fish species cycles through demand states independently. Demand badges and current coin value are shown <strong>inline on every item</strong> in the Market inventory. A trend arrow shows if prices are rising or falling.</p>
+    <div class="tw"><table>
+      <tr><th>Demand level</th><th>Multiplier</th><th>Badge</th></tr>
+      <tr><td>Crashed</td><td>0.1×</td><td>Skull — market flooded</td></tr>
+      <tr><td>Low</td><td>0.5×</td><td>Down arrow</td></tr>
+      <tr><td>Normal</td><td>1×</td><td>Right arrow</td></tr>
+      <tr><td>High</td><td>1.5×</td><td>Up arrow</td></tr>
+      <tr><td>Surge</td><td>2.5×</td><td>Fire — sell now</td></tr>
+    </table></div>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Sell mechanics</div>
+    <ul>
+      <li><strong>Sell All</strong> button at the top of the inventory, above the fish list.</li>
+      <li>Individual sell buttons per fish in the list.</li>
+      <li>Competition rewards scale with estimated hourly income: 1st place = 500c + 5% of hourly income; 2nd = 250c + 3%; 3rd = 100c + 1%.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sc" id="s15">
+  <div class="sc-h"><span class="sc-n">15</span> Special Events</div>
+  <p>Events fire every <strong>15–30 minutes</strong> while the app is in the foreground. An icon animates in from the screen edge. The player taps to open a claim popup. Unclaimed events expire after ~90 seconds, then the next event is scheduled. Multiple buffs can be active simultaneously.</p>
+  <div class="tw"><table>
+    <tr><th>Event</th><th>Effect</th><th>Duration / amount</th></tr>
+    <tr><td>Care Package</td><td>Instant coins = ~30 min automation income (max 12,000c)</td><td>Instant</td></tr>
+    <tr><td>Rapid Waters</td><td>Fishing speed ×1.5</td><td>20 min</td></tr>
+    <tr><td>Lost Treasure</td><td>+3 Diamonds</td><td>Instant</td></tr>
+    <tr><td>Fishing Frenzy</td><td>+25% fishing (bite) speed</td><td>30 min</td></tr>
+    <tr><td>Lucky Hook</td><td>All manual catches are Rare+ (loot table filtered)</td><td>3 min</td></tr>
+  </table></div>
+  <p>Events that are already active are excluded from the pool when the next event fires (no stacking of the same buff). Active buff timers are shown in the HUD buff bar.</p>
+  <p><strong>Seagull:</strong> Spawns periodically with its own timer. Tapping it within its flight window awards bonus coins. Daily quest "Bird Hunter" counts 1 seagull tap; weekly "Bird Watcher" counts 5. Achievements track up to 100 total seagull taps.</p>
+  <div class="nt"><div class="nt-h">Remove Ads perk</div>Players who purchased Remove Ads get Lucky Hook auto-triggered every 10 minutes and Fishing Frenzy (+25%) permanently active.</div>
+</div>
+
+<div class="sc" id="s16">
+  <div class="sc-h"><span class="sc-n">16</span> Diamonds & Premium Bait</div>
+  <p><strong>Diamonds (◆)</strong> are the premium currency. Players start with 5 Diamonds. Earned via Trophy catches (+1 each), Lost Treasure events (+3 each), quests, and IAP. Spent on Premium Bait (5 ◆) and bobber cosmetics.</p>
+  <div class="sb">
+    <div class="sb-h">Premium Bait — 5 ◆ / activation, 30 min</div>
+    <p>Doubles the weight of all non-trash, non-plant, non-common entries in the loot table. Common probability drops proportionally. Does <strong>not</strong> guarantee rare catches — improves expected value.</p>
+    <div class="tw"><table>
+      <tr><th>Zone (Pond example)</th><th>Base weight</th><th>With Premium Bait</th></tr>
+      <tr><td class="rc">Common fish</td><td>35</td><td>35 (unchanged)</td></tr>
+      <tr><td class="ru">Uncommon fish</td><td>10</td><td>20</td></tr>
+      <tr><td class="rr">Rare fish</td><td>4</td><td>8</td></tr>
+      <tr><td class="re">Epic fish</td><td>1</td><td>2</td></tr>
+      <tr><td>Trash + Plants</td><td>50</td><td>50 (unchanged)</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<div class="sc" id="s17">
+  <div class="sc-h"><span class="sc-n">17</span> Quests & Achievements</div>
+  <div class="sb">
+    <div class="sb-h">Daily Quests — 3 random per day, reset midnight</div>
+    <div class="tw"><table>
+      <tr><th>Quest</th><th>Goal</th><th>Reward</th></tr>
+      <tr><td>Morning Catch</td><td>Catch 10 fish</td><td>20c</td></tr>
+      <tr><td>Market Day</td><td>Sell 5 fish</td><td>15c</td></tr>
+      <tr><td>Lucky Cast</td><td>Catch 1 Rare+ fish</td><td>50c</td></tr>
+      <tr><td>Pond Cleaner</td><td>Catch 5 trash items</td><td>10c</td></tr>
+      <tr><td>Bird Hunter</td><td>Click the seagull once</td><td>40c</td></tr>
+      <tr><td>Variety Fisher</td><td>Catch 3 different species today</td><td>25c</td></tr>
+      <tr><td>Dawn Fisher</td><td>Catch a fish during Dawn 04:00–07:00</td><td>35c</td></tr>
+      <tr><td>Full House</td><td>Fill storage to capacity</td><td>20c</td></tr>
+    </table></div>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Weekly Quests — 1 per week, reset Monday</div>
+    <div class="tw"><table>
+      <tr><th>Quest</th><th>Goal</th><th>Reward</th></tr>
+      <tr><td>Pond Master</td><td>Catch 100 fish this week</td><td>200c</td></tr>
+      <tr><td>Trash Hauler</td><td>Catch 50 trash items</td><td>150c</td></tr>
+      <tr><td>Market Mogul</td><td>Sell fish worth 500c total</td><td>250c</td></tr>
+      <tr><td>Dex Complete</td><td>Catch all 10 pond fish species</td><td>500c</td></tr>
+      <tr><td>Bird Watcher</td><td>Click the seagull 5 times</td><td>300c</td></tr>
+    </table></div>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Achievements — 40+ permanent (7 hidden)</div>
+    <p>A red pulsing badge appears on the Quests nav button when any reward is unclaimed. Selected highlights:</p>
+    <div class="tw"><table>
+      <tr><th>Achievement</th><th>Condition</th><th>Reward</th></tr>
+      <tr><td>First Cast</td><td>Catch first fish</td><td>10c</td></tr>
+      <tr><td>Pond Complete</td><td>Catch all 30 pond items</td><td>500c</td></tr>
+      <tr><td>Patient Angler</td><td>Log in 7 days in a row</td><td>300c</td></tr>
+      <tr><td>Monster Hunter</td><td>Catch Trophy fish &gt;100 kg</td><td>500c</td></tr>
+      <tr><td>Millionaire</td><td>Hold 1,000,000c at once</td><td>500c</td></tr>
+      <tr><td>The Long Journey</td><td>Reach Ocean</td><td>600c</td></tr>
+      <tr><td>Empire Builder</td><td>Unlock all 6 zones</td><td>800c</td></tr>
+      <tr><td>World Explorer</td><td>Complete Fishdex for every zone</td><td>1,500c</td></tr>
+      <tr><td>Master Collector</td><td>Complete entire Fishdex (180 entries)</td><td>2,000c</td></tr>
+      <tr><td>Patient Indeed</td><td>Play on 365 different days</td><td>2,000c</td></tr>
+    </table></div>
+    <p style="font-size:12px"><strong>Hidden achievements:</strong> Perfect Pond, No Waste, Night Hunter, Restless, Hello There (fisherman NPC), Money Obsessed, Window Shopper.</p>
+  </div>
+</div>
+
+<div class="sc" id="s18">
+  <div class="sc-h"><span class="sc-n">18</span> Daily Competition & Hall of Fame</div>
+  <div class="sb">
+    <div class="sb-h">Competition Format</div>
+    <p>Players compete to catch the <strong>largest single fish</strong> (by Trophy value). Active fishing only — automation disabled during competition. Player must own the required gear for the competition zone. 9 AI bots populate the leaderboard.</p>
+    <p><strong>Production duration:</strong> 60 minutes. <strong>Prototype duration (current build):</strong> 5 minutes (COMP_DURATION_MS = 300 000 ms).</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Series System</div>
+    <p>Every 10 competitions form a named Series. Points are awarded per placement: 10/7/5/3/2/1 (rank 1–6; rank 7–10 get 1 point; beyond 10 get 0). After 10 competitions, a Grand Series winners screen is shown.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Rewards (scales with player income)</div>
+    <div class="tw"><table>
+      <tr><th>Place</th><th>Base coins</th><th>Income bonus</th></tr>
+      <tr><td>1st</td><td>500c</td><td>+5% of estimated hourly income</td></tr>
+      <tr><td>2nd</td><td>250c</td><td>+3% of estimated hourly income</td></tr>
+      <tr><td>3rd</td><td>100c</td><td>+1% of estimated hourly income</td></tr>
+    </table></div>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Hall of Fame</div>
+    <p>1st-place wins are recorded in the Hall of Fame for that zone. Tapping the cottage icon at each water body opens the HoF. Pre-seeded with placeholder winners for all 6 zones. Winning grants a permanent zone title.</p>
+    <div class="tw"><table>
+      <tr><th>Zone</th><th>Title</th></tr>
+      <tr><td>Pond</td><td>Master Angler of the Pond</td></tr>
+      <tr><td>River</td><td>Master Angler of the River</td></tr>
+      <tr><td>Lake</td><td>Master Angler of the Lake</td></tr>
+      <tr><td>Bay</td><td>Master Angler of the Bay</td></tr>
+      <tr><td>Sea</td><td>Master Angler of the Sea</td></tr>
+      <tr><td>Ocean</td><td>Master Angler of the Ocean</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<div class="sc" id="s19">
+  <div class="sc-h"><span class="sc-n">19</span> Fish Encyclopedia (Fishdex)</div>
+  <p>Every catchable item — fish, plant, trash — has a Fishdex entry. <strong>Total: 180 entries</strong> (6 zones × 30 items) plus the time-window Special fish in a separate section. Entries are preserved across prestige resets.</p>
+  <p>The Fishdex screen has <strong>zone tabs</strong>. Caught entries show the species image and a rarity dot; uncaught entries show a silhouette. A progress counter (X / 30) appears per zone. Plants and trash are recorded automatically on catch even though they are discarded.</p>
+  <p>Each entry tracks: firstCaughtDate, totalCatches, largestWeight (physical grams), bestSize, trophyCount. Personal record weight is shown on the entry card and updated whenever a heavier specimen is caught.</p>
+  <div class="nt tip"><div class="nt-h">Mastery data</div>Per-fish mastery is stored in <code>G.masteryData</code> and <code>G.manualFishdex</code>. These accumulate across all prestige resets and are never cleared.</div>
+</div>
+
+<div class="sc" id="s20">
+  <div class="sc-h"><span class="sc-n">20</span> Prestige & Black Pearls</div>
+  <div class="sb">
+    <div class="sb-h">Prestige Reset</div>
+    <p><strong>Resets:</strong> Coins · All automation · Storage tier · Transport vehicles · Zone access (back to Pond only) · Rod tier levels · Bobber tier levels · Active buffs.</p>
+    <p><strong>Preserved:</strong> Fishdex entries · Mastery data · Diamonds · Black Pearls · Pearl upgrade levels · Prestige count · Cosmetics · Competition history · Quest/achievement progress.</p>
+    <p><strong>Pearl reward formula:</strong> <code>floor(sqrt(coins / 2000))</code>. Examples: 15,000c → 2 Pearls · 50,000c → 5 Pearls · 200,000c → 10 Pearls · 1,000,000c → 22 Pearls. Minimum 1 Pearl.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Pearl Shop Upgrades (spent at Prestige screen)</div>
+    <div class="tw"><table>
+      <tr><th>Upgrade</th><th>Effect</th><th>First 5 costs (◆)</th><th>Cap</th></tr>
+      <tr><td>Market Discount</td><td>Shop prices −10%/tier (first 5 tiers), then −2%/tier</td><td>4, 7, 11, 17, 26</td><td>None listed</td></tr>
+      <tr><td>Empire Boost</td><td>Automation speed +25%/tier (first 8), then +10%/tier</td><td>5, 8, 12, 18, 27</td><td>None listed</td></tr>
+      <tr><td>Expanded Holds</td><td>Storage capacity +50% per tier</td><td>3, 5, 7, 10, 14</td><td>None listed</td></tr>
+      <tr><td>Hauling Nets</td><td>+1 extra item per automation cycle per tier</td><td>50, 75, 110, 160, 230</td><td>None listed</td></tr>
+      <tr><td>Lucky Waters</td><td>+1% Rare+Epic catch chance per tier</td><td>5, 8, 12, 18, 26</td><td>None listed</td></tr>
+      <tr><td>Master Angler</td><td>−1 tap required per tier (minimum 4 taps)</td><td>12, 20, 35, 60</td><td>Level 4</td></tr>
+      <tr><td>Treasure Hunter</td><td>Lost Treasure more frequent (+5%/tier, then +1%/tier after Lv10)</td><td>5, 8, 12, 18, 27</td><td>None listed</td></tr>
+      <tr><td>Offline Expert</td><td>+10%/tier chance for extra catch per automation tick (then +2%/tier)</td><td>4, 6, 9, 13, 19</td><td>None listed</td></tr>
+      <tr><td>Competition Spirit</td><td>+10%/tier coins from competitions (then +2%/tier after Lv10)</td><td>4, 6, 9, 13, 19</td><td>None listed</td></tr>
+      <tr><td>Fish Whisperer</td><td>+0.5%/tier Trophy fish catch chance</td><td>6, 10, 16, 25, 38</td><td>None listed</td></tr>
+    </table></div>
+    <p>Costs beyond the listed table extrapolate by each upgrade's <code>growthRate</code> multiplier. All Pearl upgrades persist across all future prestige resets.</p>
+  </div>
+</div>
+
+<div class="sc" id="s21">
+  <div class="sc-h"><span class="sc-n">21</span> Monetisation</div>
+  <div class="sb">
+    <div class="sb-h">Rewarded Ads (opt-in, never forced)</div>
+    <ul>
+      <li><strong>Fishing Frenzy Boost</strong> — every 30 min: watch ad → +25% fish speed for 30 min.</li>
+      <li><strong>Lucky Hook</strong> — every 10 min: watch ad → next catch guaranteed Rare+ for 3 min.</li>
+    </ul>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Remove Ads — 16.99€ (one-time)</div>
+    <p>Removes all ads. Grants +25% fish speed permanently (always active). Lucky Hook triggers automatically every 10 min without an ad. IAP integrated via Google Play Billing; receipts validated via server.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">IAP — Diamond Packs</div>
+    <div class="tw"><table>
+      <tr><th>Pack</th><th>Price</th><th>Diamonds</th></tr>
+      <tr><td>Single</td><td>2.99€</td><td>5 ◆</td></tr>
+      <tr><td>Pack of 5</td><td>9.99€</td><td>25 ◆</td></tr>
+      <tr><td>Pack of 15</td><td>24.99€</td><td>75 ◆</td></tr>
+    </table></div>
+  </div>
+  <div class="nt tip"><div class="nt-h">Non-pay-to-win principle</div>All gameplay power (rods, automation, storage, zones) is purchased with Coins only. Diamonds buy Premium Bait and cosmetics. A F2P player watching ads but spending no money should reach Ocean in ~8 months.</div>
+</div>
+
+<div class="sc" id="s22">
+  <div class="sc-h"><span class="sc-n">22</span> UI & Navigation</div>
+  <div class="sb">
+    <div class="sb-h">HUD (always visible)</div>
+    <ul>
+      <li><strong>Top-left:</strong> Coin counter (gold) · Fish storage (count / max) · Live catch/s rate · In-game clock + period label · Diamond counter (◆)</li>
+      <li><strong>Top-center:</strong> Zone name · Quests · Stats · Abyss · Store · Settings icon buttons</li>
+    </ul>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Bottom Navigation (5 icons)</div>
+    <p>Shop · Market · Zones · Competition · Fishdex</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Shop Layout</div>
+    <p>Opens showing only 4 tab icons. Tapping a tab slides in the item panel. Same tab again closes it (toggle). Exit button always visible. All items show a description line. Automation items show owned-count badge and escalating next-purchase price.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Info Windows <span class="nw">Active</span></div>
+    <p>Every major screen has a <strong>? help button</strong> that opens a scrollable info popup. Content scrolls; close button stays fixed. Covers: Market, Shop (per tab), Competition, Fishdex, Quests, Hall of Fame, Abyss, Settings.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Dad Jokes <span class="nw">v0.8</span></div>
+    <p>When enabled in Settings (off by default), a dad joke appears in the catch popup after every <strong>manual</strong> fish catch. 700 jokes cycle in a shuffle-bag — the full set completes before any joke repeats. No jokes on trash, plants, auto-catches, or Fish Fight catches.</p>
+  </div>
+  <div class="sb">
+    <div class="sb-h">Background Music & SFX</div>
+    <p>Background music: "Fishing in the Mist.mp3" (looping). SFX: seagull_caw, cast, bobber_dip, fish_caught. All individually controllable via Settings.</p>
+  </div>
+</div>
+
+<div class="sc" id="s23">
+  <div class="sc-h"><span class="sc-n">23</span> Settings</div>
+  <div class="tw"><table>
+    <tr><th>Setting</th><th>State key</th><th>Options</th></tr>
+    <tr><td>Music</td><td>musicMuted / musicVolume</td><td>Mute toggle + volume slider (0–100)</td></tr>
+    <tr><td>Sound Effects</td><td>soundEnabled</td><td>ON / OFF</td></tr>
+    <tr><td>Font Size</td><td>fontScale</td><td>Slider (% of base, applied globally)</td></tr>
+    <tr><td>Bobber Size</td><td>bobberScale</td><td>Slider (% of base, resizes bobber in fishing view)</td></tr>
+    <tr><td>Catch Tickers</td><td>tickersEnabled</td><td>ON / OFF (floating +coins text on automation catches)</td></tr>
+    <tr><td>Dad Jokes</td><td>dadJokesEnabled</td><td>ON / OFF + ? info button</td></tr>
+    <tr><td>Hide Completed Quests</td><td>hideCompletedQuests</td><td>ON / OFF</td></tr>
+    <tr><td>Player Name</td><td>playerName</td><td>Text input (shown in competition &amp; HoF)</td></tr>
+    <tr><td>Account</td><td>—</td><td>Google sign-in / sign-out</td></tr>
+    <tr><td>Restore Purchases</td><td>—</td><td>IAP restore button</td></tr>
+    <tr><td>Redeem Code</td><td>—</td><td>Text input + Redeem button</td></tr>
+    <tr><td>Reset All Progress</td><td>—</td><td>Danger button — clears localStorage, reloads</td></tr>
+  </table></div>
+</div>
+
+<div class="sc" id="s24">
+  <div class="sc-h"><span class="sc-n">24</span> Progression Timeline</div>
+  <div class="tw"><table>
+    <tr><th>Milestone</th><th>Approx. total cost</th><th>F2P (ads only)</th><th>Active buyer</th></tr>
+    <tr><td>First Fishing Net</td><td>10c (tutorial)</td><td>5 min</td><td>5 min</td></tr>
+    <tr><td>Unlock River</td><td>15,000c total</td><td>1–2 days</td><td>3–5 hours</td></tr>
+    <tr><td>Unlock Lake</td><td>150,000c total</td><td>3–5 days</td><td>1–2 days</td></tr>
+    <tr><td>Unlock Bay</td><td>1,500,000c total</td><td>1–2 weeks</td><td>3–5 days</td></tr>
+    <tr><td>First Fisherman</td><td>3,000c</td><td>1–2 weeks</td><td>3–5 days</td></tr>
+    <tr><td>First Boat (Row Boat)</td><td>350,000c</td><td>1–2 months</td><td>2–4 weeks</td></tr>
+    <tr><td>Unlock Sea</td><td>45,000,000c total</td><td>2–3 months</td><td>1–2 months</td></tr>
+    <tr><td>First Fleet (Small)</td><td>15,000,000c</td><td>3–4 months</td><td>1–2 months</td></tr>
+    <tr><td>Unlock Ocean</td><td>450,000,000c total</td><td>~8 months</td><td>4–5 months</td></tr>
+    <tr><td>First Prestige</td><td>≥15,000c coins at prestige</td><td>10+ months</td><td>6+ months</td></tr>
+  </table></div>
+  <div class="nt warn"><div class="nt-h">Economy constraint</div>The game must never allow a F2P player to skip multiple zones in a single week through normal play. Automation supplements income — it does not replace active fishing. These timelines assume the player watches rewarded ads but makes no IAP purchases.</div>
+</div>
+
+<div class="ft">
+  Patient Angler: Idle Fishing · Game Reference v0.8 · Build 37 · July 2026 · Recapsa OÜ / Henly Games · Source: live game.js
+</div>
+</div>
+</body>
+</html>

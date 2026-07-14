@@ -1,0 +1,27 @@
+{
+  "appId": "com.henlygames.patientangler",
+  "appName": "Patient Angler",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#0a1628",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
+      "backgroundColor": "#0a1628",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    },
+    "Keyboard": {
+      "resize": "none"
+    },
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": [
+        "google.com"
+      ]
+    }
+  }
+}

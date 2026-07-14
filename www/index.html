@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Patient Angler</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a1628">
+  <link rel="stylesheet" href="styles.css?v=37">
+</head>
+<body>
+
+  <div id="version-badge" style="position:fixed;bottom:6px;right:8px;font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.22);z-index:9999;pointer-events:none;font-family:monospace;"></div>
+
+  <!-- UPDATE REQUIRED OVERLAY -->
+  <div id="update-required-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:99999;align-items:center;justify-content:center;">
+    <div style="text-align:center;padding:36px 28px;background:#1a2a1a;border-radius:20px;border:1px solid #2a4a2a;width:300px;max-width:88vw;">
+      <div style="font-size:52px;margin-bottom:12px;">🔄</div>
+      <div style="font-size:22px;letter-spacing:2px;color:#4caf50;margin-bottom:8px;font-weight:bold;">UPDATE REQUIRED</div>
+      <div style="font-size:13px;color:#aaa;margin-bottom:6px;">A new version of Patient Angler is available.</div>
+      <div style="font-size:11px;color:#777;margin-bottom:22px;" id="update-version-info"></div>
+      <button onclick="openPlayStorePage()"
+        style="width:100%;padding:16px;background:linear-gradient(135deg,#2e7d32,#43a047);border:none;border-radius:12px;font-size:18px;letter-spacing:2px;color:#fff;cursor:pointer;font-weight:bold;">
+        UPDATE NOW
+      </button>
+    </div>
+  </div>
+
+  <!-- SOFT UPDATE BANNER -->
+  <div id="update-available-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a3a1a;border-top:2px solid #4caf50;padding:10px 16px;align-items:center;justify-content:space-between;gap:10px;">
+    <span style="color:#ccc;font-size:13px;">New update available!</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button onclick="openPlayStorePage()" style="background:#4caf50;border:none;border-radius:8px;color:#fff;font-size:13px;padding:7px 14px;cursor:pointer;font-weight:bold;">Update</button>
+      <button onclick="document.getElementById('update-available-banner').style.display='none'" style="background:transparent;border:none;color:#888;font-size:20px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+    </div>
+  </div>
+
+  <!-- ROTATE OVERLAY -->
+  <div id="rotate-overlay">
+    <div class="rotate-content">
+      <div class="rotate-icon">&#8635;</div>
+      <div class="rotate-text">Rotate your device</div>
+      <div class="rotate-sub">Patient Angler plays in landscape</div>
+    </div>
+  </div>
+
+  <!-- SCREEN: LOADING -->
+  <div id="screen-loading" class="screen active">
+    <img src="img/Patient angler loading screen landscape.png" class="loading-fullscreen-img" alt="Patient Angler">
+    <div class="loading-bottom">
+      <button class="loading-start-btn" id="btn-press-to-start">Press to Start</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: FISHING -->
+  <div id="screen-fishing" class="screen">
+
+    <!-- Top HUD -->
+    <div class="hud-top">
+      <div class="hud-left">
+        <div class="hud-zone" id="hud-zone">Pond</div>
+        <div class="hud-clock" id="hud-clock">00:00</div>
+        <div class="hud-period" id="hud-period">Morning</div>
+      </div>
+      <nav class="hud-nav-center">
+        <button class="float-btn hud-nav-btn" data-screen="quests">
+          <img src="img/icons/Game screen icons/quests.png" alt="">
+          <span>Quests</span>
+        </button>
+        <button class="float-btn hud-nav-btn" data-screen="halloffame">
+          <img src="img/icons/Game screen icons/hallOfFame.png" alt="">
+          <span>Stats</span>
+        </button>
+        <button class="float-btn hud-nav-btn" data-screen="abyss">
+          <img src="img/icons/Game screen icons/abyss.png" alt="">
+          <span>Abyss</span>
+        </button>
+        <button class="float-btn hud-nav-btn" data-screen="diamondstore">
+          <img src="img/icons/Diamond store icon.png" alt="">
+          <span>Store</span>
+        </button>
+        <button class="float-btn hud-nav-btn" data-screen="settings">
+          <img src="img/icons/Game screen icons/settings.png" alt="">
+          <span>Settings</span>
+        </button>
+      </nav>
+      <div class="hud-right">
+        <div class="hud-right-row">
+          <div class="hud-stat">
+            <img src="img/icons/Game screen icons/coin_icon.png" alt="coins" class="hud-icon">
+            <span id="hud-coins">0</span>
+          </div>
+          <div class="hud-stat hud-diamond-stat">
+            <img src="img/icons/Diamond icon.png" alt="diamonds" class="hud-icon hud-diamond-icon">
+            <span id="hud-diamonds">0</span>
+          </div>
+          <div class="hud-stat hud-pearl-stat" id="hud-pearl-stat" style="display:none">
+            <img src="img/icons/Black pearl icon.png" alt="pearls" class="hud-icon">
+            <span id="hud-pearls" style="color:#d4a0ff">0</span>
+          </div>
+        </div>
+        <div class="hud-stat-group" style="position:relative;">
+          <div class="hud-stat" id="hud-storage-btn" onclick="toggleAutoRateDropdown()" style="cursor:pointer;">
+            <img src="img/icons/Game screen icons/fish_counter_icon.png" alt="storage" class="hud-icon">
+            <span id="hud-storage">0/5</span>
+          </div>
+          <div class="hud-fishrate" id="hud-fishrate"></div>
+          <!-- Automation rate dropdown -->
+          <div id="auto-rate-dropdown" class="auto-rate-dropdown hidden">
+            <div id="auto-rate-dropdown-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Water / Fishing Area -->
+    <div class="water-area" id="water-area">
+      <img src="img/backgrounds/pond.png" alt="Pond" class="zone-bg" id="zone-bg">
+
+      <!-- DEBUG: Ghost Ship spawn button (local only) -->
+      <button onclick="_gsDebugSpawn()" style="position:absolute;bottom:8px;left:8px;z-index:50;background:rgba(0,0,0,0.7);border:1px solid #f5c842;color:#f5c842;font-size:11px;padding:4px 8px;border-radius:6px;cursor:pointer;font-family:monospace;">👻 Spawn GS</button>
+
+      <!-- Water surface overlay with ripple -->
+      <div class="water-surface">
+        <div class="water-ripple-ambient"></div>
+      </div>
+
+      <!-- Ambient fish shadows (clipped to water area) -->
+      <div class="fish-shadow-area">
+        <div class="fish-shadow fish-shadow-1"></div>
+        <div class="fish-shadow fish-shadow-2"></div>
+        <div class="fish-shadow fish-shadow-3"></div>
+        <div class="fish-shadow fish-shadow-4"></div>
+        <div class="fish-shadow fish-shadow-5"></div>
+      </div>
+
+      <!-- Water automation layer -->
+      <div id="water-automation-layer"></div>
+
+<!-- Seagull (spawns once per minute, tap for coin reward) -->
+      <div class="seagull hidden" id="seagull"></div>
+
+      <!-- NPC fisherman hotspot — visible only on lake zone, hidden easter egg -->
+      <div id="npc-fisher-hotspot" class="npc-fisher-hotspot hidden"></div>
+
+      <!-- Sea / Ocean bobber view background (visible only while casting in sea/ocean zones) -->
+      <div id="sea-view-bg"></div>
+
+      <!-- Fishing line + bobber (hidden until cast) -->
+      <div class="fishing-rig" id="fishing-rig">
+        <div class="fishing-line"></div>
+        <div class="bobber-wrap" id="bobber-wrap">
+          <img class="bobber" id="bobber" src="img/icons/Shop/Bait/Basic bobber.png" alt="">
+          <div class="bobber-ripple" id="bobber-ripple"></div>
+          <div class="splash-ring" id="splash-ring"></div>
+        </div>
+      </div>
+
+      <!-- Left-side buff icon bar -->
+      <div class="buff-bar" id="buff-bar">
+        <div class="buff-chip hidden" id="buff-bait">
+          <img src="img/icons/Shop/Bait/Premium Bait.png" alt="" class="buff-icon-img">
+          <span class="buff-timer" id="buff-bait-timer">30m</span>
+        </div>
+        <div class="buff-chip hidden" id="buff-adboost">
+          <img src="img/icons/Speed Boost.png" alt="" class="buff-icon-img">
+          <span class="buff-timer" id="buff-adboost-timer">30m</span>
+        </div>
+        <div class="buff-chip hidden" id="buff-rapid">
+          <img src="img/icons/Rapid waters.png" alt="" class="buff-icon-img">
+          <span class="buff-timer" id="buff-rapid-timer">60m</span>
+        </div>
+        <div class="buff-chip hidden" id="buff-autosell">
+          <img src="img/icons/Auto sell.png" alt="" class="buff-icon-img">
+          <span class="buff-timer" id="buff-autosell-timer">ON</span>
+        </div>
+        <div class="buff-chip hidden" id="buff-luckyhook">
+          <img src="img/icons/Lucky Hook.png" alt="" class="buff-icon-img">
+          <span class="buff-timer" id="buff-luckyhook-timer">3m</span>
+        </div>
+      </div>
+
+      <!-- Special event side icon (appears when event is ready) -->
+      <div class="event-side-icon hidden" id="event-side-icon" onclick="onEventIconClick()">
+        <img class="event-side-img" src="" alt="">
+        <div class="event-side-label">Event!</div>
+      </div>
+
+      <!-- Right-side overlays: stacked above nav (guild on top, competition below) -->
+      <div id="right-overlays">
+        <!-- Guild Order Overlay -->
+        <div id="guild-overlay" class="guild-overlay hidden">
+          <div class="go-header">GUILD ORDER</div>
+          <div class="go-items" id="go-items"></div>
+        </div>
+        <!-- Competition Overlay -->
+        <div id="comp-overlay" class="comp-overlay hidden">
+          <div class="co-header">COMPETITION</div>
+          <div class="co-timer" id="co-timer">⏳ 0:00</div>
+          <div class="co-board" id="co-board"></div>
+        </div>
+      </div>
+
+      <!-- Tap prompt -->
+      <div class="cast-prompt" id="cast-prompt">
+        <span class="cast-text" id="cast-main-text">Tap to Cast</span>
+        <span class="cast-sub-text hidden" id="cast-sub-text">Waiting for bite...</span>
+        <div class="cast-arrow" id="cast-arrow"></div>
+      </div>
+
+      <!-- Bite prompt (tap bobber!) -->
+      <div class="bite-prompt hidden" id="bite-prompt">TAP!</div>
+
+      <!-- Tap counter (shows X/20 while catching) -->
+      <div class="tap-counter hidden" id="tap-counter">0 / 20</div>
+
+      <!-- Bottom nav icons -->
+      <nav class="float-nav" id="float-nav">
+        <button class="float-btn" data-screen="shop">
+          <img src="img/icons/Game screen icons/Shop.png" alt="">
+          <span>Shop</span>
+        </button>
+        <button class="float-btn" data-screen="market">
+          <img src="img/icons/Shop/Shop Sell.png" alt="">
+          <span>Market</span>
+        </button>
+        <button class="float-btn" data-screen="zones">
+          <img src="img/icons/Game screen icons/zones.png" alt="">
+          <span>Zones</span>
+        </button>
+        <button class="float-btn" data-screen="competition">
+          <img src="img/icons/Game screen icons/competition.png" alt="">
+          <span>Contest</span>
+        </button>
+        <button class="float-btn" data-screen="fishdex">
+          <img src="img/icons/Game screen icons/fishdex.png" alt="">
+          <span>Fishdex</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- First Run Tutorial Overlay -->
+    <div class="tutorial-overlay hidden" id="tutorial-overlay">
+      <div class="tutorial-card" id="tutorial-card">
+        <div class="tutorial-step-dots" id="tutorial-dots"></div>
+        <div class="tutorial-icon" id="tutorial-icon"></div>
+        <div class="tutorial-title" id="tutorial-title"></div>
+        <div class="tutorial-desc" id="tutorial-desc"></div>
+        <button class="btn-primary tutorial-btn" id="tutorial-btn">Next</button>
+      </div>
+    </div>
+
+    <!-- Catch Result Popup -->
+    <div class="catch-popup hidden" id="catch-popup">
+      <div class="catch-popup-inner">
+        <div class="catch-rarity-badge" id="catch-rarity-badge">COMMON</div>
+        <img class="catch-fish-img" id="catch-fish-img" src="" alt="">
+        <div class="catch-fish-name" id="catch-fish-name">Roach</div>
+        <div class="catch-fish-size" id="catch-fish-size">Medium</div>
+        <div class="catch-fish-value" id="catch-fish-value">+8c</div>
+        <button class="btn-catch-ok" id="btn-catch-ok">Nice!</button>
+      </div>
+    </div>
+
+    <!-- Series Complete Popup -->
+    <div class="series-complete-popup hidden" id="series-complete-popup">
+      <div class="series-complete-inner">
+        <div class="series-complete-title">Series Complete!</div>
+        <div class="series-complete-rank" id="scp-rank">You finished 1st in the series</div>
+        <div class="series-complete-reward" id="scp-reward">Grand Prize: +0c</div>
+        <div class="series-complete-buttons">
+          <button class="btn-scp-winners" id="btn-scp-winners">View Grand Winners</button>
+          <button class="btn-scp-continue" id="btn-scp-continue">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fisherman speech bubble (positioned dynamically by JS) -->
+    <div id="fisherman-speech-bubble" class="speech-bubble fisherman-bubble hidden"></div>
+
+    <!-- Status message -->
+    <div class="status-msg" id="status-msg"></div>
+
+  </div><!-- /screen-fishing -->
+
+
+  <!-- SCREEN: SHOP -->
+  <div id="screen-shop" class="screen">
+
+    <!-- Shop interior background -->
+    <img src="img/backgrounds/Shop UI.png" class="screen-bg" alt="">
+
+    <!-- Top-right exit button -->
+    <button class="shop-screen-exit btn-back" data-screen="fishing">
+      <img src="img/icons/Menu exit icon.png" alt="Close">
+    </button>
+
+    <!-- Shopkeeper speech bubble -->
+    <div id="shop-speech-bubble" class="speech-bubble hidden"></div>
+
+    <!-- Overlay: tabs + panel -->
+    <div class="shop-overlay">
+
+      <div class="shop-tab-row" id="shop-tab-row">
+        <button class="shop-tab-icon" data-tab="rods">
+          <img src="img/icons/Shop/Shop Rods.png" alt="Rods">
+        </button>
+        <button class="shop-tab-icon" data-tab="bait">
+          <img src="img/icons/Shop/Shop Bait.png" alt="Bait">
+        </button>
+        <button class="shop-tab-icon" data-tab="automation">
+          <img src="img/icons/Shop/Shop Automation.png" alt="Automation">
+        </button>
+        <button class="shop-tab-icon" data-tab="storage">
+          <img src="img/icons/Shop/Shop Storage.png" alt="Storage">
+        </button>
+        <button class="shop-tab-icon" data-tab="jeweler">
+          <img src="img/icons/Shop/Jeweler.png" alt="Jeweler">
+        </button>
+      </div>
+
+      <div class="shop-panel" id="shop-panel">
+        <div class="shop-panel-header">
+          <span class="shop-panel-title" id="shop-panel-title">RODS</span>
+          <button class="guild-help-btn" onclick="openShopHelp()" aria-label="How it works" style="margin-left:6px;">?</button>
+          <div class="shop-panel-coins">
+            <img src="img/icons/Game screen icons/coin_icon.png" class="shop-coin-icon" alt="">
+            <span id="shop-coins">0</span>
+          </div>
+          <button class="shop-exit-btn" id="shop-panel-close-btn">
+            <img src="img/icons/Menu exit icon.png" alt="Close">
+          </button>
+        </div>
+        <div class="shop-content" id="shop-content">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /screen-shop -->
+
+
+  <!-- SCREEN: MARKET (includes storage/sell + guild orders) -->
+  <div id="screen-market" class="screen">
+
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Market</h2>
+      <button class="guild-help-btn" onclick="openMarketHelp()" aria-label="How it works" style="margin-left:6px;">?</button>
+      <div class="header-coins">
+        <img src="img/icons/Game screen icons/coin_icon.png" class="hud-icon" alt="">
+        <span id="market-coins">0</span>
+      </div>
+    </div>
+
+    <!-- Market tab bar -->
+    <div class="market-tab-bar">
+      <button class="market-tab-btn active" id="market-tab-catch" onclick="switchMarketTab('catch')">
+        <img src="img/icons/Shop/Shop Sell.png" class="market-tab-icon" alt=""> Your Catch
+      </button>
+      <button class="market-tab-btn" id="market-tab-guild" onclick="switchMarketTab('guild')" style="position:relative">
+        <img src="img/icons/Game screen icons/quests.png" class="market-tab-icon" alt=""> Guild Orders
+      </button>
+    </div>
+
+    <!-- YOUR CATCH panel -->
+    <div id="market-catch-panel">
+      <div class="market-section-label">
+        <img src="img/icons/Shop/Shop Sell.png" class="market-section-icon" alt="">
+        <span>Your Catch</span>
+        <span id="market-storage-label" class="market-storage-count">0 / 5</span>
+      </div>
+      <div class="market-sell-bar">
+        <button class="btn-primary" id="btn-sell-all">Sell All</button>
+      </div>
+      <div class="market-inventory" id="market-inventory">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- GUILD ORDERS panel -->
+    <div id="market-guild-panel" class="hidden">
+      <!-- Populated by renderGuild() -->
+    </div>
+
+  </div><!-- /screen-market -->
+
+
+  <!-- SCREEN: ZONES -->
+  <div id="screen-zones" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Zones</h2>
+      <button class="guild-help-btn" onclick="openZonesHelp()" aria-label="How automation zones work" style="margin-left:6px;">?</button>
+    </div>
+    <div id="zones-content" class="zones-scroll"></div>
+  </div>
+
+  <!-- Zones help popup -->
+  <div class="special-event-overlay hidden" id="zones-help-overlay" onclick="if(event.target===this)closeZonesHelp()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" style="margin-bottom:12px;">Automation Zones</div>
+      <div class="guild-help-body">
+        <p>Choose <strong>up to 2 zones</strong> where your automation (nets, fishermen, boats, fleets) will catch fish.</p>
+        <p>Only fish from the selected zones will be caught automatically. Pick higher-level zones for more valuable catches.</p>
+        <p>When you unlock a new zone it automatically becomes active, replacing the oldest selection.</p>
+        <p>Active fishing is never restricted — you can always fish in any zone you own.</p>
+      </div>
+      <div class="pc-btn-row" style="margin-top:14px;">
+        <button class="btn-primary pc-ok-btn" onclick="closeZonesHelp()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: COMPETITION -->
+  <div id="screen-competition" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Competition</h2>
+      <button class="guild-help-btn" onclick="openCompHelp()" aria-label="How competitions work" style="margin-right:4px;">?</button>
+    </div>
+    <div id="competition-content" class="comp-scroll"></div>
+  </div>
+
+  <!-- SCREEN: QUESTS -->
+  <div id="screen-quests" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Quests</h2>
+    </div>
+    <div id="quests-content" class="quests-scroll"></div>
+  </div>
+
+  <!-- SCREEN: STATISTICS -->
+  <div id="screen-halloffame" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Statistics</h2>
+    </div>
+    <div class="stats-tab-bar" id="stats-tab-bar">
+      <button class="stats-tab active" onclick="switchStatsTab(1)">1</button>
+      <button class="stats-tab" onclick="switchStatsTab(2)">2</button>
+      <button class="stats-tab" onclick="switchStatsTab(3)">3</button>
+      <button class="stats-tab" onclick="switchStatsTab(4)">4</button>
+      <button class="stats-tab" onclick="switchStatsTab(5)">5</button>
+      <button class="stats-tab" onclick="switchStatsTab(6)">6</button>
+      <button class="stats-tab" onclick="switchStatsTab(7)">7</button>
+      <button class="stats-tab" onclick="switchStatsTab(8)">8</button>
+    </div>
+    <div class="stats-scroll" id="stats-content"></div>
+  </div>
+
+  <!-- SCREEN: ABYSS -->
+  <div id="screen-abyss" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>The Abyss</h2>
+    </div>
+    <div id="abyss-content" class="abyss-scroll"></div>
+  </div>
+
+  <!-- SCREEN: DIAMOND STORE -->
+  <div id="screen-diamondstore" class="screen">
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Diamond Store</h2>
+    </div>
+    <div id="diamondstore-content" class="ds-scroll"></div>
+  </div>
+
+  <!-- SCREEN: FISHDEX -->
+  <div id="screen-fishdex" class="screen">
+
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Fishdex</h2>
+      <button class="guild-help-btn" onclick="openFishdexHelp()" aria-label="How it works" style="margin-left:6px;">?</button>
+      <button class="fishdex-reset-lure-btn" id="fishdex-reset-lure-btn" onclick="resetLureTargets()" title="Reset Targeted Lure targets">&#8635; Reset Targets</button>
+      <span class="fishdex-progress-inline" id="fishdex-progress">0 / 31</span>
+    </div>
+
+    <div class="fishdex-tab-row" id="fishdex-tab-row"></div>
+    <div class="fishdex-content" id="fishdex-content"></div>
+
+  </div><!-- /screen-fishdex -->
+
+
+  <!-- SCREEN: SETTINGS -->
+  <div id="screen-settings" class="screen">
+
+    <div class="panel-header">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <h2>Settings</h2>
+    </div>
+
+    <div class="settings-scroll">
+
+      <div class="settings-section">
+        <div class="settings-section-title">Audio</div>
+        <div class="settings-row">
+          <span class="settings-label">Music</span>
+          <button class="btn-toggle" id="btn-music-mute">ON</button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Volume</span>
+          <input type="range" id="music-volume-slider" min="0" max="100" value="50" class="volume-slider">
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Sound Effects</span>
+          <button class="btn-toggle" id="btn-sfx-toggle">ON</button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Haptic Feedback</span>
+          <button class="btn-toggle" id="btn-haptics-toggle">ON</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Display</div>
+        <div class="settings-row">
+          <span class="settings-label">Font Size <span id="font-size-value" class="dim">100%</span></span>
+          <input type="range" id="font-size-slider" min="70" max="100" value="100" class="volume-slider">
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Bobber Size <span id="bobber-size-value" class="dim">100%</span></span>
+          <input type="range" id="bobber-size-slider" min="50" max="200" value="100" class="volume-slider">
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Catch Tickers</span>
+          <button class="btn-toggle" id="btn-tickers-toggle">ON</button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Dad Jokes <button class="btn-help-sm" id="btn-dadjokes-help">?</button></span>
+          <button class="btn-toggle off" id="btn-dadjokes-toggle">OFF</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Player</div>
+        <div class="settings-row" style="gap:8px">
+          <input type="text" id="player-name-input" placeholder="Your name" class="redeem-input" maxlength="10" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="btn-primary" id="btn-save-name">Save</button>
+        </div>
+      </div>
+
+
+
+      <div class="settings-section" id="auth-section">
+        <div class="settings-section-title">Account</div>
+        <div id="auth-row">
+          <button class="btn-primary auth-login-btn" id="btn-google-login" onclick="signInWithGoogle()">
+            Sign in with Google
+          </button>
+          <div class="auth-user-info" id="auth-user-info" style="display:none">
+            <span class="auth-user-name" id="auth-user-name">Player</span>
+            <button class="btn-secondary-sm" onclick="signOut()">Sign out</button>
+          </div>
+        </div>
+        <div class="settings-row" style="margin-top:10px">
+          <span class="settings-label">Restore purchases</span>
+          <button class="btn-secondary-sm" onclick="restorePurchases()">Restore</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Redeem Code</div>
+        <div class="settings-row" style="gap:8px">
+          <input type="text" id="redeem-code-input" placeholder="Enter code" class="redeem-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button class="btn-primary" id="btn-redeem-code" onclick="redeemCode()">Redeem</button>
+        </div>
+        <div id="redeem-result" class="redeem-result"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Data</div>
+        <div class="settings-row">
+          <span class="settings-label">Reset all progress</span>
+          <button class="btn-danger" id="btn-reset-save">Reset</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">About</div>
+        <div class="settings-info-row">Patient Angler: Idle Fishing</div>
+        <div class="settings-info-row dim" id="about-version-text">v0.1.5 · Build 8</div>
+        <div class="settings-info-row dim">Developer: Henly Games</div>
+      </div>
+
+    </div>
+
+  </div><!-- /screen-settings -->
+
+
+
+  <!-- Special Event Overlay -->
+  <div class="special-event-overlay hidden" id="special-event-overlay">
+    <div class="special-event-card">
+      <img class="se-icon" id="se-icon" src="" alt="">
+      <div class="se-title" id="se-title">Event</div>
+      <div class="se-desc" id="se-desc"></div>
+      <div class="se-ad-note" id="se-ad-note">Watch a short ad to claim your reward</div>
+      <button class="btn-primary se-claim-btn" id="se-claim-btn">Claim</button>
+      <button class="se-skip-btn" id="se-skip-btn">Skip</button>
+    </div>
+  </div>
+
+  <!-- Fish Fight overlays (fixed, outside all screens) -->
+  <div id="ff-pulse" class="ff-pulse hidden"></div>
+  <div id="ff-ui" class="ff-ui hidden">
+    <div class="ff-title">FISH FIGHT!</div>
+    <div id="ff-countdown" class="ff-countdown">20s</div>
+    <div class="ff-bar-track"><div id="ff-bar-fill" class="ff-bar-fill"></div></div>
+  </div>
+
+  <!-- Prestige confirm dialog -->
+  <div class="special-event-overlay hidden" id="prestige-confirm-overlay">
+    <div class="special-event-card prestige-confirm-card">
+      <div class="se-title">Prestige?</div>
+      <div class="pc-pearl-line">You will earn <span id="pc-pearls" class="pc-pearl-count"></span></div>
+      <div class="pc-section">
+        <span class="pc-label-reset">Resets:</span> coins, automation, storage, transport, zones, rod &amp; bobber tiers, lure, active buffs, guild order
+      </div>
+      <div class="pc-section">
+        <span class="pc-label-keep">Kept:</span> Fishdex, mastery, diamonds, pearls, pearl upgrades, cosmetics
+      </div>
+      <div class="pc-btn-row">
+        <button class="se-skip-btn" onclick="closePrestigeConfirm()">CANCEL</button>
+        <button class="btn-primary pc-ok-btn" onclick="executePrestige()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market help popup -->
+  <div class="special-event-overlay hidden" id="market-help-overlay" onclick="if(event.target===this)closeMarketHelp()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" style="margin-bottom:12px;">Market</div>
+      <div class="guild-help-body">
+        <p>Sell your caught fish here.</p>
+        <p>Only <strong>fish</strong> take up storage space. Plants and trash are discarded automatically and do not count toward your storage limit.</p>
+        <hr style="border:none;border-top:1px solid #333;margin:12px 0;">
+        <p><strong>Guild Orders</strong> — each week the Fishermen's Guild posts a supply order for specific fish.</p>
+        <p>Catch the required fish and sell them on the Market. Progress updates automatically as you sell.</p>
+        <p>Complete the full order before the week ends to earn a <strong>coin bonus reward</strong>.</p>
+        <p><span style="color:#f5c842;">★ Golden Contracts</span> appear occasionally and offer a larger reward for rarer fish.</p>
+        <p style="color:var(--color-text-dim);font-size:12px;">1 real-life hour = 1 in-game day, so a guild week lasts 7 real hours. Only manually caught fish count toward orders — automation does not contribute.</p>
+        <div id="market-help-treasure" style="display:none">
+          <hr style="border:none;border-top:1px solid #333;margin:12px 0;">
+          <p><strong>Sunken Treasure Chests</strong> appear in your Market when discovered.</p>
+          <p>Chests can be found by: manual fishing (rare chance), your automation fleet, or Expedition Vessels (guaranteed 1 chest per 30 in-game days each).</p>
+          <p>Each chest contains <strong>Diamonds</strong> and a large coin reward based on your current automation income. Ocean-tier chests offer bigger rewards.</p>
+          <p style="color:var(--color-text-dim);font-size:12px;">Sell All does not open chests — tap Open on each chest individually. Chest capacity starts at 1 and can be expanded via the Treasure Hold upgrade in the Pearl Shop.</p>
+        </div>
+      </div>
+      <div class="pc-btn-row" style="margin-top:14px;">
+        <button class="btn-primary pc-ok-btn" onclick="closeMarketHelp()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sunken Treasure Chest opening popup -->
+  <div class="special-event-overlay hidden" id="chest-open-overlay" onclick="if(event.target===this)closeChestOpenPopup()">
+    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:280px">
+      <div class="se-title" style="color:#f5c842;margin-bottom:12px">Sunken Treasure</div>
+      <img id="chest-open-gif" src="" alt="Opening chest..."
+        style="width:160px;height:auto;display:block;margin:0 auto 12px;border-radius:8px">
+      <div id="chest-reward-wrap" class="hidden">
+        <div id="chest-open-reward" style="margin-bottom:12px"></div>
+        <button class="btn-primary pc-ok-btn" onclick="closeChestOpenPopup()">Collect!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ghost Ship reward popup -->
+  <div class="special-event-overlay hidden" id="ghost-ship-reward-overlay" onclick="if(event.target===this)gsClaimReward()">
+    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px">
+      <div class="se-title" style="color:#c8e8ff;margin-bottom:6px">Ghost Ship</div>
+      <div style="font-size:13px;color:var(--color-text-dim);margin-bottom:14px">Expedition returned with salvage and a Treasure Chest!</div>
+      <img src="img/icons/Ghost ship animation2.gif" id="ghost-ship-reward-img" style="width:221px;display:block;margin:0 auto 14px;image-rendering:pixelated;" alt="">
+      <div id="ghost-ship-reward-body" style="margin-bottom:16px"></div>
+      <button class="btn-primary pc-ok-btn" onclick="gsClaimReward()">Claim Salvage</button>
+    </div>
+  </div>
+
+  <!-- Sea zone unlock comic popup -->
+  <div class="sea-comic-overlay hidden" id="sea-comic-overlay">
+    <div class="sea-comic-scroll">
+      <div class="sea-comic-wrap">
+        <img src="img/icons/comic pages/Sea unlock.png" class="sea-comic-img" alt="Sea Zone Unlocked">
+        <button class="sea-comic-close" onclick="closeSeaComicPopup()">
+          <img src="img/icons/Menu exit icon.png" alt="Close">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competition help popup -->
+  <div class="special-event-overlay hidden" id="comp-help-overlay" onclick="if(event.target===this)closeCompHelp()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" style="margin-bottom:12px;">How Competitions Work</div>
+      <div class="guild-help-body">
+        <p>Join a competition and catch the highest-value fish within 5 minutes. You compete against 9 other anglers.</p>
+        <p>Your best single catch is your score — only that fish counts, not total catches.</p>
+        <p>Earn coin rewards based on your final rank. Top 3 earn the biggest prizes.</p>
+        <p>Competitions run in a series of 10 rounds. After all 10, a <span style="color:#8b5cf6;font-weight:bold;">Grand Winner</span> is crowned based on total series performance.</p>
+        <p style="color:var(--color-text-dim);font-size:12px;">Only manually caught fish count — automation does not contribute.</p>
+      </div>
+      <div class="pc-btn-row" style="margin-top:14px;">
+        <button class="btn-primary pc-ok-btn" onclick="closeCompHelp()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diamond purchase confirmation dialog -->
+  <div class="special-event-overlay hidden" id="diamond-confirm-overlay">
+    <div class="special-event-card prestige-confirm-card">
+      <div class="se-title">Confirm Purchase</div>
+      <div id="diamond-confirm-item" style="font-size:15px;margin:6px 0 2px;color:var(--color-text)"></div>
+      <div id="diamond-confirm-cost" style="font-size:14px;color:#a0c8ff;margin-bottom:14px"></div>
+      <div class="pc-btn-row">
+        <button class="btn-cancel pc-ok-btn" onclick="closeDiamondConfirm()">Cancel</button>
+        <button class="btn-primary pc-ok-btn" id="diamond-confirm-ok-btn">Buy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fishdex help popup -->
+  <div class="special-event-overlay hidden" id="fishdex-help-overlay" onclick="if(event.target===this)closeFishdexHelp()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" style="margin-bottom:12px;">Fishdex &amp; Mastery</div>
+      <div class="guild-help-body">
+        <p>Catch each fish, plant, or trash item to unlock its Fishdex entry. Catching the same species repeatedly builds up its <strong>Mastery</strong>.</p>
+        <p>Mastery tiers per species:</p>
+        <div style="font-size:12px;line-height:1.8;margin:6px 0 10px;">
+          <div>Bronze — 100 catches (1 pt)</div>
+          <div>Silver — 1,000 catches (2 pts)</div>
+          <div>Gold — 10,000 catches (3 pts)</div>
+          <div>Platinum — 100,000 catches (4 pts)</div>
+          <div>Diamond — 1,000,000 catches (5 pts)</div>
+        </div>
+        <p>Mastery points accumulate per zone. Reaching point thresholds unlocks permanent zone bonuses — better sell prices, faster automation, higher rare fish chances, and more.</p>
+        <p style="color:var(--color-text-dim);font-size:12px;">Mastery is never reset, even after Prestige.</p>
+        <hr style="border:none;border-top:1px solid #333;margin:12px 0;">
+        <p><strong>Targeted Lure</strong> (available in Bait shop) lets you mark specific fish as targets. Targeted fish appear more often in your catches.</p>
+        <p>Each Targeted Lure level gives you one extra target slot. Open any caught fish in the Fishdex and tap <em>Target</em> to add it. Tap again to remove it.</p>
+        <p style="color:var(--color-text-dim);font-size:12px;"><em>Limit reached</em> means all your target slots are full — remove a target first to add a new one.</p>
+      </div>
+      <div class="pc-btn-row" style="margin-top:14px;">
+        <button class="btn-primary pc-ok-btn" onclick="closeFishdexHelp()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop tab help popup -->
+  <div class="special-event-overlay hidden" id="shop-help-overlay" onclick="if(event.target===this)closeShopHelp()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" id="shop-help-title" style="margin-bottom:12px;">Shop</div>
+      <div class="guild-help-body" id="shop-help-body"></div>
+      <div class="pc-btn-row" style="margin-top:14px;">
+        <button class="btn-primary pc-ok-btn" onclick="closeShopHelp()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fishdex detail popup (global overlay) -->
+  <div id="fishdex-detail-overlay" class="fishdex-detail-overlay hidden" onclick="closeFishdexDetail()">
+    <div class="fdp-panel" onclick="event.stopPropagation()">
+      <!-- populated by openFishdexDetail() -->
+    </div>
+  </div>
+
+  <!-- Dad Jokes help popup -->
+  <div class="special-event-overlay hidden" id="dadjokes-help-overlay" onclick="if(event.target===this)closeDadJokesHelp()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" style="margin-bottom:12px;">Dad Jokes</div>
+      <div class="guild-help-body">
+        <p>When enabled, a dad joke appears in the catch popup after every manual fish catch.</p>
+        <p>Turn this on or off anytime from Settings.</p>
+      </div>
+      <div class="pc-btn-row" style="margin-top:14px;">
+        <button class="btn-primary" onclick="closeDadJokesHelp()">Got it!</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="version.js?v=37"></script>
+  <script src="admob.js?v=37"></script>
+  <script src="iap.js?v=37"></script>
+  <script src="auth.js?v=37"></script>
+  <script src="analytics.js?v=37"></script>
+  <script src="game.js?v=37"></script>
+  <script src="tutorial.js?v=37"></script>
+  <script src="dadjokes.js?v=37"></script>
+</body>
+</html>

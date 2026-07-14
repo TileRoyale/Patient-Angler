@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Angler — Economy & Progression Audit</title>
+<style>
+:root {
+  --ink: #0c1921;
+  --surface: #14273a;
+  --surface2: #1c3348;
+  --border: #233d54;
+  --accent: #2b9e87;
+  --text: #dce8f0;
+  --text-dim: #7a9ab2;
+  --text-faint: #4a6a82;
+  --critical: #c94040;
+  --major: #c97c25;
+  --medium: #b89327;
+  --minor: #4e8c60;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --ink: #f2f6fa;
+    --surface: #ffffff;
+    --surface2: #edf2f7;
+    --border: #c8d8e8;
+    --text: #0e2233;
+    --text-dim: #4a6a82;
+    --text-faint: #8aabbf;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #0c1921; --surface: #14273a; --surface2: #1c3348;
+  --border: #233d54; --text: #dce8f0; --text-dim: #7a9ab2; --text-faint: #4a6a82;
+}
+:root[data-theme="light"] {
+  --ink: #f2f6fa; --surface: #ffffff; --surface2: #edf2f7;
+  --border: #c8d8e8; --text: #0e2233; --text-dim: #4a6a82; --text-faint: #8aabbf;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  padding: 32px 20px 80px;
+}
+.doc { max-width: 900px; margin: 0 auto; }
+
+/* Header */
+.doc-header { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 36px; }
+.doc-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.doc-title { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 10px; }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 20px; font-size: 12px; color: var(--text-dim); }
+
+/* Sections */
+.section { margin-bottom: 48px; }
+.section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Executive summary */
+.exec-summary { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 24px 28px; }
+.exec-summary p { color: var(--text-dim); font-size: 14px; line-height: 1.75; margin-bottom: 14px; }
+.exec-summary p:last-child { margin-bottom: 0; }
+.exec-summary strong { color: var(--text); }
+
+/* Finding cards */
+.findings { display: flex; flex-direction: column; gap: 14px; }
+.finding { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; border-left: 4px solid var(--border); padding: 18px 20px; }
+.finding.sev-critical { border-left-color: var(--critical); }
+.finding.sev-major    { border-left-color: var(--major); }
+.finding.sev-medium   { border-left-color: var(--medium); }
+.finding.sev-minor    { border-left-color: var(--minor); }
+.finding-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.finding-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; min-width: 200px; }
+.badge { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
+.badge-critical { background: #3d1414; color: var(--critical); }
+.badge-major    { background: #3d2510; color: var(--major); }
+.badge-medium   { background: #2e2710; color: var(--medium); }
+.badge-minor    { background: #112214; color: var(--minor); }
+.badge-note     { background: var(--surface2); color: var(--text-dim); }
+.finding-body { color: var(--text-dim); font-size: 13px; line-height: 1.7; }
+.finding-body p { margin-bottom: 8px; }
+.finding-body p:last-child { margin-bottom: 0; }
+.finding-body strong { color: var(--text); }
+.finding-blocks { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.finding-block { background: var(--surface2); border-radius: 4px; padding: 8px 12px; font-size: 12px; color: var(--text-dim); }
+.finding-block strong { color: var(--text); font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; margin-right: 6px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 0 -4px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+thead th { text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); padding: 8px 14px; border-bottom: 1px solid var(--border); background: var(--surface2); white-space: nowrap; }
+tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+td.em { color: var(--text); font-weight: 600; }
+td.good { color: var(--minor); }
+td.warn { color: var(--medium); }
+td.bad  { color: var(--major); }
+td.crit { color: var(--critical); }
+
+/* Income grid */
+.income-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 16px 0; }
+.income-card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 14px 16px; }
+.income-card .unit { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.income-card .rate { font-size: 20px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.income-card .note { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+/* Timeline */
+.timeline-grid { display: flex; flex-direction: column; gap: 12px; }
+.timeline-block { display: grid; grid-template-columns: 90px 1fr; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.timeline-block .time-label { background: var(--surface2); padding: 14px 12px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--accent); text-align: center; border-right: 1px solid var(--border); }
+.timeline-block .time-content { padding: 14px 18px; font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+.timeline-block .time-content strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+/* Feature relevance */
+.relevance-grid { display: flex; flex-direction: column; gap: 8px; }
+.relevance-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; }
+.relevance-feature { font-size: 13px; font-weight: 600; color: var(--text); min-width: 180px; }
+.relevance-bars { display: flex; gap: 6px; flex: 1; }
+.rel-bar { flex: 1; height: 6px; border-radius: 2px; background: var(--border); position: relative; overflow: hidden; }
+.rel-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; }
+.rel-note { font-size: 11px; color: var(--text-dim); min-width: 140px; text-align: right; }
+
+/* Exploit list */
+.exploit-list { display: flex; flex-direction: column; gap: 10px; }
+.exploit-item { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start; }
+.exploit-status { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+.exploit-status.exists { background: #2e1514; color: #d97070; }
+.exploit-status.low    { background: #1e2a14; color: #88b070; }
+.exploit-status.none   { background: var(--surface2); color: var(--text-dim); }
+.exploit-text { font-size: 13px; color: var(--text-dim); }
+.exploit-text strong { color: var(--text); }
+
+/* Scores */
+.scores-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 540px) { .scores-grid { grid-template-columns: 1fr 1fr; } }
+.score-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; text-align: center; }
+.score-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+.score-number { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.score-5 { color: var(--critical); }
+.score-6 { color: var(--major); }
+.score-7 { color: var(--medium); }
+.score-8 { color: var(--minor); }
+.score-sub { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+
+/* Top 5 */
+.top5-list { display: flex; flex-direction: column; gap: 12px; }
+.top5-item { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; overflow: hidden; }
+.top5-rank { background: var(--surface2); border-right: 1px solid var(--border); padding: 16px 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: var(--text-faint); min-width: 56px; }
+.top5-item:first-child .top5-rank { color: var(--accent); }
+.top5-content { padding: 16px 18px; flex: 1; }
+.top5-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.top5-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 8px; }
+.top5-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+.top5-chip { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; }
+.chip-impact-high { background: #1e3028; color: #5ecba0; }
+.chip-impact-med  { background: #1e2814; color: #8cc070; }
+.chip-scope { background: var(--surface2); color: var(--text-dim); }
+
+/* Verdict */
+.verdict-box { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 6px; padding: 24px 28px; }
+.verdict-answer { font-size: 16px; font-weight: 700; color: var(--medium); margin-bottom: 16px; }
+.verdict-box p { font-size: 14px; color: var(--text-dim); line-height: 1.75; margin-bottom: 12px; }
+.verdict-box p:last-child { margin-bottom: 0; }
+.verdict-box strong { color: var(--text); }
+
+/* Utility */
+.gap-note { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+.hl      { color: var(--text); font-weight: 600; }
+.hl-crit { color: var(--critical); font-weight: 600; }
+.hl-major{ color: var(--major); font-weight: 600; }
+.hl-med  { color: var(--medium); font-weight: 600; }
+.hl-good { color: var(--minor); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-eyebrow">Recapsa OÜ / Henly Games — Internal Design Document</div>
+    <h1 class="doc-title">Patient Angler: Idle Fishing<br>Economy &amp; Progression Audit</h1>
+    <div class="doc-meta">
+      <span>Game version v0.1.15</span>
+      <span>Scope: all economy systems as implemented in code</span>
+      <span>Target: 9–12 months F2P to Abyss</span>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-label">Executive Summary</div>
+    <div class="exec-summary">
+      <p>The Patient Angler economy has a <strong>well-structured income ramp</strong> from Pond through Ocean. Zone unlock costs, automation rate pacing, and the 12-hour offline cap work together to create a natural progression arc that broadly matches the intended 9–12 month casual timeline. The automation empire model — all zones producing simultaneously — is correctly implemented and creates a genuinely satisfying scaling sensation.</p>
+      <p>The most critical structural issue is the <strong>prestige zone cost scaling formula</strong>: <code>cost × (1 + prestigeCount)</code> applies to every rod and transport purchase. By prestige 10, Ocean unlock costs 4.95 billion coins while the prestige threshold at that point is only 77,600 — a 63,000× gap. The prestige loop becomes non-functional for the most engaged players at exactly the point when it should feel most rewarding.</p>
+      <p>The <strong>Black Pearl passive bonus</strong> (+1% fish sell per held pearl) creates a dominant "never spend pearls" strategy that undermines the Pearl Shop's role as a progression system. At 500 pearls the passive yields 6× sell multiplier — spending those pearls on shop upgrades permanently removes that multiplier, making the spend decision almost always mathematically wrong.</p>
+      <p>The <strong>competition system runs for 5 minutes</strong> against a design intent of 60 minutes, awards zero diamonds, and pays nothing to ranks 4–10. The <strong>rod tier system</strong> uses a base-25 exponent that makes tiers 4+ practically unreachable — 15 tiers on paper, 3 in practice. The <strong>Treasure Hunter pearl upgrade</strong> is purchased by players but its bonus is never applied (dead code path).</p>
+      <p>Fixing the prestige scaling and pearl passive structure would be <strong>launch-blocking work</strong>. The remaining issues are significant but survivable post-launch. The Fishdex Mastery system is one of the strongest long-term progression mechanics in the genre and carries the endgame effectively on its own.</p>
+    </div>
+  </div>
+
+  <!-- CRITICAL & MAJOR FINDINGS -->
+  <div class="section">
+    <div class="section-label">Critical &amp; Major Findings</div>
+    <div class="findings">
+
+      <div class="finding sev-critical">
+        <div class="finding-header">
+          <div class="finding-title">Prestige Zone Cost Scaling Creates an Unreachable Re-Progression Wall</div>
+          <span class="badge badge-critical">Critical</span>
+        </div>
+        <div class="finding-body">
+          <p><code>applyZoneCostScaling(cost) = Math.floor(cost × (1 + prestigeCount))</code> multiplies every rod and transport purchase linearly, while the prestige threshold only grows 20% per loop. The gap between them widens exponentially from the player's perspective.</p>
+          <p><strong>At prestige 10:</strong> Ocean Rod (250M) × 11 = <span class="hl-crit">2.75B coins</span>. Research Vessel (200M) × 11 = <span class="hl-crit">2.2B coins</span>. Total Ocean re-unlock: <span class="hl-crit">4.95 billion coins</span> — while the prestige threshold at that same point is only 77,600 coins. The game asks you to prestige for 77,600c then demands 63,000× that amount to return to Ocean.</p>
+          <p><strong>At prestige 15:</strong> Ocean re-unlock = 7.2B. At prestige 25: 12.6B. Even with maximum Black Pearl passive (500 pearls = 6× sell) and full Fishdex Mastery (+30% sell), an ocean player earns ~7.92M/hour per Deep Sea Fleet. Saving 7.2B from scratch: <span class="hl-crit">~38 days of uninterrupted play</span> — with the 12h offline cap, real-time would be 76+ days between each prestige.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Root Cause:</strong> Linear multiplier against a 20%-per-loop threshold is mismatched from the start. By prestige 5 the gap is noticeable; by prestige 8 it's severe; by prestige 12 re-progression is effectively impossible.</div>
+            <div class="finding-block"><strong>Fix:</strong> Cap scaling at a maximum (e.g., max 3× at prestige 5+), or use a logarithmic curve. A Pearl Shop "Zone Memory" upgrade that lets players skip re-unlocking previously-reached zones would also solve this elegantly while creating a valuable pearl sink.</div>
+            <div class="finding-block"><strong>Who this hurts:</strong> The most engaged, long-term players — the exact audience most likely to spend on IAP and generate word-of-mouth. This is the worst possible group to lock out.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-major">
+        <div class="finding-header">
+          <div class="finding-title">Black Pearl Passive Bonus Creates a "Never Spend" Dominant Strategy</div>
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="finding-body">
+          <p><code>getBlackPearlBonus() = 1 + (blackPearls × 0.01)</code> — every unspent pearl adds +1% to all fish sell values, applied multiplicatively to every catch, every sale, every automation tick. With 500 pearls: <span class="hl-major">6× fish sell value</span> simply by holding.</p>
+          <p>Pearl Shop upgrades cost pearls. Spending 100 pearls on shop upgrades <strong>permanently removes 100% sell bonus</strong> (dropping from e.g. 6× to 5× — a 16.7% total income cut). In return the player gets, for example, Empire Boost level 5 (+125% automation speed). Whether that trade is worth it depends on how much income comes from automation vs. manual fishing — but for players with significant pearl reserves, the passive is almost always winning.</p>
+          <p>The dominant strategy becomes: <strong>hoard pearls, never spend them</strong>. This reduces the Pearl Shop from a meaningful investment tree to a trap. Players who discover this feel smart for not spending; players who spend early feel punished for doing what the UI implies.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix Option A:</strong> Reduce passive to 0.3% per pearl. 500 pearls = 2.5× sell bonus instead of 6×. Pearl Shop upgrades become competitive again.</div>
+            <div class="finding-block"><strong>Fix Option B:</strong> Base passive on "total pearls ever earned" (not current balance), so Pearl Shop spending doesn't reduce it. Spend freely without penalty.</div>
+            <div class="finding-block"><strong>Fix Option C:</strong> Split the income stream — passive applies to manual fishing only, Pearl Shop bonuses apply to automation only. Each pearl is worth spending on the shop if you're primarily an automation player.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-major">
+        <div class="finding-header">
+          <div class="finding-title">Competition Duration: 5 Minutes, Not 60 — and No Diamond Reward</div>
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="finding-body">
+          <p><code>COMP_DURATION_MS = 5 × 60 × 1000</code> — competitions last 5 minutes. The implementation suggests competitions should last 60 minutes (CET/CST scheduled sessions). A 5-minute window is easy to miss, creates no meaningful narrative tension, and removes the "appointment mechanic" that drives daily retention.</p>
+          <p>Additionally: <strong>ranks 4–10 receive 0 coins</strong>. With 9 bots + 1 player (10 total), only 3 of 10 get rewarded. A player who participates and places 4th by a slim margin receives nothing for their time. <strong>Competitions award zero diamonds</strong> for any placement, making them the only major recurring activity with no premium currency path.</p>
+          <p>The series system (10 competitions → grand finale, SERIES_LENGTH = 10) is a genuinely good design — the problem is the foundation it sits on.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Restore to 60-minute duration with fixed daily schedule + push notification. Add 1–3 diamonds for first place to make it the premium daily activity. Add 10–25c participation reward for any rank to avoid punishing effort.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-major">
+        <div class="finding-header">
+          <div class="finding-title">Treasure Hunter Pearl Upgrade — Dead Code, Players Pay for Nothing</div>
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="finding-body">
+          <p>The Pearl Shop "Treasure Hunter" upgrade claims "+5% Lost Treasure event chance per level" and costs 4 pearls at L1, scaling at 1.45× per level. Players can spend up to ~60 pearls across 10 levels on this upgrade.</p>
+          <p><strong><code>getPearlTreasureBonus()</code> is never called in <code>triggerSpecialEvent()</code>.</strong> Events are selected from an equal-weight random array with no weighting applied. The bonus has zero live effect. Players spend real pearls — a scarce resource earned through prestige — on an upgrade that does nothing.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Wire getPearlTreasureBonus() into the lost_treasure event weight calculation, or replace this upgrade entirely (e.g., "+10% diamonds from Lost Treasure events" which is a one-line change and meaningful).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-medium">
+        <div class="finding-header">
+          <div class="finding-title">Rod Tier System: Effectively 3 Tiers in Practice, Not 15</div>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="finding-body">
+          <p>Rod tier cost formula: <code>Math.floor(baseTierCost × 25^currentTier)</code>. The base-25 exponent causes costs to explode immediately. Ocean Rod (baseTierCost 2,500,000):</p>
+          <p>T1 = 2.5M — T2 = 62.5M — T3 = 1.56B — T4 = 39B — T5 = <span class="hl-crit">977B coins</span>. The "all rods must reach T5 before T6–15 unlock" band system means tier 6+ is unreachable unless all rods including ocean_rod are at T5 simultaneously — a combined cost measured in quadrillions. The visual promise of 15 tiers per rod delivers 3 functional tiers for most players.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Replace base 25 with base 6–8. At base 7: Ocean Rod T3 = 2.5M × 343 = 857M (expensive but reachable at Ocean). T5 = 2.5M × 16,807 = 42B (a genuine late-endgame goal). T10 = ~3.4T (post-Abyss territory). Adjust band thresholds to T3/T6/T10 to match the new cost curve.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-medium">
+        <div class="finding-header">
+          <div class="finding-title">Competition Bots Scale Only for Early-Game Players</div>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="finding-body">
+          <p>Bots use raw <code>fish.baseValue × sizeRow.mult</code> with no player multipliers applied. A player with 200 Black Pearls (+200% sell = 3×), Fishdex Mastery (+30%), and rod tier bonuses (+15%) is comparing inflated values against flat bot values. Competitions become trivially easy from mid-game onward — not because the player is skilled, but because their multipliers are invisible to the bot scoring system.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Scale bot "catch quality" (their effective fish values) with the player's prestige count, highest zone reached, or a smoothed multiplier derived from their progression. Add a distinct "veteran bot pool" for high-prestige players.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-medium">
+        <div class="finding-header">
+          <div class="finding-title">Care Package Reward Capped at Value Trivial for Ocean Players</div>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="finding-body">
+          <p><code>Math.min(12000, Math.max(50, Math.round(calcFishRate() × 10 × 1800)))</code> — the hardcoded value of "10" is a fixed average coin value, and the cap of 12,000 coins means any player with meaningful ocean automation always hits the ceiling. A Deep Sea Fleet generates 2,200c/s — calcFishRate() × 10 × 1,800 = 39.6M, capped at 12,000c. For an ocean player, the Care Package delivers <strong>roughly 0.5 seconds of their own income</strong>. It reads as a rounding error.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Replace the hardcoded "10" with actual per-zone average coin values. Raise or remove the hard cap, replacing it with a soft cap of e.g. 30 minutes of automation income. This makes Care Package always feel meaningful without breaking economy.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-medium">
+        <div class="finding-header">
+          <div class="finding-title">Organic Diamond Earn Rate Too Low for F2P Players</div>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="finding-body">
+          <p>Free players earn diamonds from: trophy fish (1–2 per trophy at base mythic rod tier), Lost Treasure events (+3 per event, ~1 every 22 minutes), and first legendary catch bonus (+3). A casual F2P player without Remove Ads earns roughly <strong>10–20 diamonds per week</strong>, or 40–80 per month. Premium Bait costs 5 diamonds and lasts 30 minutes. That's one Premium Bait activation every 3–7 days — not enough for the mechanic to feel like a meaningful part of play.</p>
+          <p>Competitions — the primary daily engagement activity — award zero diamonds for any placement.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Add 1–3 diamonds to first-place competition wins. Increase Lost Treasure to +5 diamonds. This brings F2P organic earn to ~60–100/month (2–3 activations per month) — meaningful without threatening IAP revenue.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-minor">
+        <div class="finding-header">
+          <div class="finding-title">Prestige Threshold Too Low Relative to Mid-Game Income</div>
+          <span class="badge badge-minor">Minor</span>
+        </div>
+        <div class="finding-body">
+          <p>The prestige threshold (<code>Math.floor(15000 × 1.20^prestigeCount)</code>) starts at 15,000 coins and grows 20% per loop. By prestige 10 it's 77,600c. But once a player has River automation, they're earning 15,000 coins every few minutes. The threshold never keeps pace with income growth — players could prestige many times per day if they chose to, before ever reaching Lake.</p>
+          <p>Combined with the zone cost scaling problem, early-prestige cycling (prestige at River for 2 pearls, reset, repeat) is technically better than progressing — an unintended dominant strategy for min-maxers who discover it.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Consider tying the first prestige to reaching Ocean (or completing a significant milestone) rather than a coin threshold. This ensures prestige represents genuine accomplishment, not a shortcut. Alternatively, raise the threshold formula significantly: e.g., <code>500000 × 1.5^prestigeCount</code>.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-minor">
+        <div class="finding-header">
+          <div class="finding-title">Targeted Lure Resets on Prestige — Disproportionate Loss</div>
+          <span class="badge badge-minor">Minor</span>
+        </div>
+        <div class="finding-body">
+          <p>Targeted Lure levels (costs: 25K → 250K → 2.5M → 25M → 250M per slot) reset to 0 on prestige. The economic loss is technically the same as losing all coins on prestige — but Targeted Lure is a qualitative system (it shapes which species automation catches, critical for late Fishdex completion) and losing it means re-grinding through the same functional states repeatedly. Unlike coins, the utility of re-earning it doesn't improve with prestige.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Preserve Targeted Lure level across prestige but reset the selected targets. Player keeps the slots, re-chooses species after reset — feels fair, reduces grind without removing the fresh-start feel.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding sev-minor">
+        <div class="finding-header">
+          <div class="finding-title">Quest Pool Too Small — Rapid Repetition</div>
+          <span class="badge badge-minor">Minor</span>
+        </div>
+        <div class="finding-body">
+          <p>Daily quests draw from 8 items; weekly quests from 5. Players will see the full daily pool within 3–4 days and the weekly pool within 5 weeks. The calcQuestBonus formula (income over 30–120 seconds) ensures rewards scale with player power, which is well-designed. But the repetition makes quests feel like a routine rather than a daily discovery.</p>
+          <div class="finding-blocks">
+            <div class="finding-block"><strong>Fix:</strong> Expand pools to 20+ entries including zone-specific variants. "Catch all 10 River fish this week" as a weekly is more engaging than a repeated generic task. The infrastructure already supports this — just needs more entries.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PLAYER SIMULATION -->
+  <div class="section">
+    <div class="section-label">Player Progression Simulation</div>
+    <p class="gap-note">Based on automation income formulas, zone unlock costs, 12-hour offline cap behavior, and manual fishing rates (~50c/min at Pond). Assumes no IAP, no Remove Ads.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Milestone</th>
+            <th>Player A — 30 min/day</th>
+            <th>Player B — 1 hr/day</th>
+            <th>Player C — 3+ hr/day</th>
+            <th>Design Target</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="em">First Fishing Net (100c)</td>
+            <td class="good">Day 1 — ~5 min</td>
+            <td class="good">Day 1 — ~5 min</td>
+            <td class="good">Day 1 — ~5 min</td>
+            <td>5 minutes</td>
+          </tr>
+          <tr>
+            <td class="em">Unlock River (15,000c)</td>
+            <td>Days 7–10</td>
+            <td>Days 3–5</td>
+            <td>Days 1–2</td>
+            <td>1–2 weeks</td>
+          </tr>
+          <tr>
+            <td class="em">Unlock Lake (150,000c)</td>
+            <td>Days 35–45</td>
+            <td>Days 18–25</td>
+            <td>Days 8–12</td>
+            <td>2–4 weeks</td>
+          </tr>
+          <tr>
+            <td class="em">Unlock Bay (1,500,000c)</td>
+            <td>Days 90–110</td>
+            <td>Days 50–65</td>
+            <td>Days 22–28</td>
+            <td>1–2 months</td>
+          </tr>
+          <tr>
+            <td class="em">Unlock Sea (45,000,000c)</td>
+            <td class="warn">Days 165–195</td>
+            <td>Days 100–130</td>
+            <td>Days 55–70</td>
+            <td>2–3 months</td>
+          </tr>
+          <tr>
+            <td class="em">Unlock Ocean (450,000,000c)</td>
+            <td class="warn">Days 270–320</td>
+            <td>Days 165–200</td>
+            <td>Days 105–130</td>
+            <td>4–6 months</td>
+          </tr>
+          <tr>
+            <td class="em">First Prestige</td>
+            <td>Days 290–350</td>
+            <td>Days 180–220</td>
+            <td>Days 115–140</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="em">50 Black Pearls</td>
+            <td>~6–8 months</td>
+            <td>~4–5 months</td>
+            <td>~2–3 months</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="em">100 Black Pearls</td>
+            <td>~9–11 months</td>
+            <td>~6–8 months</td>
+            <td>~4–5 months</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="em">10 Prestiges</td>
+            <td class="bad">3–4+ years *</td>
+            <td class="bad">2–3+ years *</td>
+            <td class="bad">1.5–2+ years *</td>
+            <td>* Zone cost wall applies — see Critical Finding</td>
+          </tr>
+          <tr>
+            <td class="em">Ocean Fishdex 100%</td>
+            <td class="warn">~13–16 months</td>
+            <td>~9–12 months</td>
+            <td>~6–8 months</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="em">Abyss Unlock</td>
+            <td class="warn">~14–18 months</td>
+            <td class="good">~10–13 months</td>
+            <td class="good">~7–9 months</td>
+            <td>9–12 months (casual)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="gap-note" style="margin-top:14px"><strong>Primary bottleneck: Sea gate (45M coins).</strong> This is the largest relative cost jump (30× vs Bay). Bay→Sea takes roughly 60–90 days for Player A with offline automation fully utilized. Player A's Abyss timeline (~14–18 months) runs over the 9–12 month casual target. The fix is not reducing the Sea cost but reducing Bay→Sea time by improving the income curve at Bay (Fishing Boat production), or adding a mid-point milestone that rewards persistence.</p>
+  </div>
+
+  <!-- INCOME REFERENCE -->
+  <div class="section">
+    <div class="section-label">Automation Income Reference (No Multipliers)</div>
+    <p class="gap-note">Per unit per hour using ZONE_AVG_COIN values. All units in all zones run simultaneously in the empire model.</p>
+    <div class="income-grid">
+      <div class="income-card">
+        <div class="unit">Fishing Net — Pond</div>
+        <div class="rate">241c/hr</div>
+        <div class="note">0.0167/s × 4c avg</div>
+      </div>
+      <div class="income-card">
+        <div class="unit">Skilled Fisher — River</div>
+        <div class="rate">2,400c/hr</div>
+        <div class="note">0.0667/s × 10c avg</div>
+      </div>
+      <div class="income-card">
+        <div class="unit">Motor Boat — Bay</div>
+        <div class="rate">60,000c/hr</div>
+        <div class="note">0.333/s × 50c avg</div>
+      </div>
+      <div class="income-card">
+        <div class="unit">Fishing Boat — Bay</div>
+        <div class="rate">120,000c/hr</div>
+        <div class="note">0.667/s × 50c avg</div>
+      </div>
+      <div class="income-card">
+        <div class="unit">Small Fleet — Sea</div>
+        <div class="rate">792,000c/hr</div>
+        <div class="note">2.0/s × 110c avg</div>
+      </div>
+      <div class="income-card">
+        <div class="unit">Deep Sea Fleet — Ocean</div>
+        <div class="rate">7,920,000c/hr</div>
+        <div class="note">10.0/s × 220c avg</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM AUDIT TABLE -->
+  <div class="section">
+    <div class="section-label">System-by-System Audit</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>Current State</th>
+            <th>Assessment</th>
+            <th>Status</th>
+            <th>Suggested Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="em">Zone Unlock Costs</td>
+            <td>15K → 150K → 1.5M → 45M → 450M</td>
+            <td>Well-structured ramp. Each gate is reachable with prior-zone automation. Sea wall is the longest stretch and the primary Player A bottleneck.</td>
+            <td class="good">Healthy</td>
+            <td>Monitor Sea→Ocean pacing post-launch. Consider a mid-Bay milestone.</td>
+          </tr>
+          <tr>
+            <td class="em">Base Rod Progression</td>
+            <td>Free → 9K → 90K → 900K → 25M → 250M</td>
+            <td>Proportional to zone costs, clearly gated per zone. Clicks-per-catch reduction (20→4 across rod tiers) is visible and satisfying progression.</td>
+            <td class="good">Healthy</td>
+            <td>No changes needed.</td>
+          </tr>
+          <tr>
+            <td class="em">Rod Tier System</td>
+            <td>baseCost × 25^tier, up to 15 tiers</td>
+            <td>Base-25 exponent makes T4+ unreachable. Ocean Rod T3 = 1.56B coins. Players see a 15-tier upgrade tree and get 3 functional tiers. See Medium Finding.</td>
+            <td class="warn">Medium</td>
+            <td>Reduce exponent from 25 to 6–8. Adjust tier band thresholds.</td>
+          </tr>
+          <tr>
+            <td class="em">Storage Progression</td>
+            <td>5 → 20 → 50 → 150 → 500 → 2,000 → 10,000 capacity</td>
+            <td>Good progression curve. Bucket (5 slots) correctly pressures early players. Storage as a bottleneck for automation overflow works as designed.</td>
+            <td class="good">Healthy</td>
+            <td>No changes needed.</td>
+          </tr>
+          <tr>
+            <td class="em">Market / Selling</td>
+            <td>Static prices. fishPileValue() returns fixed amount based on fish stats + player multipliers.</td>
+            <td>Works as implemented. The market is a sell screen — straightforward and readable. Decision-making comes from fish rarity and when to sell based on storage capacity, not price timing.</td>
+            <td class="good">Working as designed</td>
+            <td>No changes needed.</td>
+          </tr>
+          <tr>
+            <td class="em">Automation Costs &amp; Rates</td>
+            <td>Fishing Net 100c (locked) through Deep Sea Fleet 500M. Rates 1/60s to 10/s. Escalating price: baseCost × 1.15^count.</td>
+            <td>Excellent. Cost-to-rate ratios are well-calibrated. Escalating purchase price for multiples is elegant. Empire model (all zones simultaneous) creates the intended scaling sensation.</td>
+            <td class="good">Healthy</td>
+            <td>Small Fleet (2/s, 5M) may be slightly slow vs its cost — minor tweak candidate.</td>
+          </tr>
+          <tr>
+            <td class="em">Black Pearl Passive Bonus</td>
+            <td>+1% fish sell per held pearl. 500 pearls = 6× sell.</td>
+            <td>Creates dominant "never spend" strategy. See Major Finding.</td>
+            <td class="bad">Major</td>
+            <td>Reduce to 0.3–0.5% per pearl, or decouple from Pearl Shop spending.</td>
+          </tr>
+          <tr>
+            <td class="em">Pearl Shop Upgrades</td>
+            <td>10 upgrades, baseCost 2–5 pearls, growth 1.35–1.60×. Most provide meaningful bonuses.</td>
+            <td>Speed (3×), storage (unlimited scaling), offline expert (1.2×) are strong. Treasure Hunter is dead code. Master Angler (-taps per 2 levels) and Competition Spirit are niche. Overall well-designed; undermined by passive bonus incentive structure.</td>
+            <td class="warn">Medium (1 dead upgrade)</td>
+            <td>Fix Treasure Hunter. Consider a "Zone Memory" upgrade as a pearl sink for endgame players.</td>
+          </tr>
+          <tr>
+            <td class="em">Prestige Threshold</td>
+            <td>15,000c × 1.20^prestigeCount per loop</td>
+            <td>Threshold is trivially low vs mid-game income. River earners can prestige every few minutes. Enables early-loop cycling as a dominant strategy before ocean progression. See Minor Finding.</td>
+            <td class="warn">Minor–Medium</td>
+            <td>Raise base threshold significantly or tie first prestige to a zone milestone.</td>
+          </tr>
+          <tr>
+            <td class="em">Prestige Zone Cost Scaling</td>
+            <td>All rod + transport costs × (1 + prestigeCount)</td>
+            <td>Creates an unescapable re-progression wall above prestige 8. See Critical Finding.</td>
+            <td class="bad">Critical</td>
+            <td>Cap at 3× max or use logarithmic curve. Add Pearl Shop zone bypass option.</td>
+          </tr>
+          <tr>
+            <td class="em">Pearl Formula (earn rate)</td>
+            <td>√(coins / 2000) per prestige. First prestige (15K coins) = 2 pearls.</td>
+            <td>Formula rewards larger coin hoards at prestige time. First prestige gives only 2 pearls — slightly underwhelming for a major milestone. Scales well at higher coin totals.</td>
+            <td class="warn">Minor</td>
+            <td>Consider a first-prestige bonus (guaranteed 5 pearls minimum) to make the first reset feel rewarding.</td>
+          </tr>
+          <tr>
+            <td class="em">Competition System</td>
+            <td>5-min duration, top 3 only rewarded, 0 diamonds, series of 10.</td>
+            <td>Wrong duration. 0c for ranks 4+. No diamonds. Bot scaling doesn't match player power at mid/late game. See Major Finding. The series structure is well-designed — just needs the foundation fixed.</td>
+            <td class="bad">Major</td>
+            <td>Fix duration; add participation reward; add diamonds for rank 1.</td>
+          </tr>
+          <tr>
+            <td class="em">Competition Rewards (formula)</td>
+            <td>500c + 5% hourly income (rank 1), scaled by pearl/mastery multipliers.</td>
+            <td>Income-proportional formula is elegant and scales well. The percentage (5% of hourly) is appropriate early-game but trivial at ocean level. Grand finale (5× normal) is a nice milestone reward.</td>
+            <td class="warn">Minor</td>
+            <td>Add diamond reward for rank 1 (1–3 diamonds). Otherwise formula is fine.</td>
+          </tr>
+          <tr>
+            <td class="em">Daily Quests</td>
+            <td>3 random/day from 8-item pool. Reward: base + 30s automation income.</td>
+            <td>Elegant scaling formula — rewards are always proportional to player power. Pool of 8 creates rapid repetition. "Surge Seller" quest can never complete (no demand states exist). Quest variety is thin for the entire game lifecycle.</td>
+            <td class="warn">Minor</td>
+            <td>Expand pool to 20+ entries. Add zone-specific quests. Remove or repurpose "Surge Seller".</td>
+          </tr>
+          <tr>
+            <td class="em">Weekly Quests</td>
+            <td>1 random/week from 5-item pool. Reward: base + 120s automation income.</td>
+            <td>Very small pool means players see all 5 within 5 weeks. "Dex Complete" (all 10 pond fish) is excellent. Formula scaling is correct.</td>
+            <td class="warn">Minor</td>
+            <td>Expand to 20+ entries with zone-specific variants.</td>
+          </tr>
+          <tr>
+            <td class="em">Achievements (~40 total)</td>
+            <td>One-time unlocks. Coin rewards (10c–5,000c) + 60s automation bonus.</td>
+            <td>Good breadth. Hidden achievements add discovery motivation. "The Patient Angler" (complete all others) is a strong meta-goal. 60s automation bonus scales rewards with player power cleanly.</td>
+            <td class="good">Healthy</td>
+            <td>Add prestige milestone achievements beyond "1 prestige" and "10 prestiges".</td>
+          </tr>
+          <tr>
+            <td class="em">Fishdex Mastery</td>
+            <td>100→1K→10K→100K→1M catches per species. Unlocks sell/speed/storage/offline/trophy bonuses per zone.</td>
+            <td>Best long-term system in the game. Bonuses are meaningful. Bronze (100 catches) is achievable; Diamond (1M) is a genuine multi-year goal. All six zones provide distinct bonus sets — completing all zones gives: +30% sell, +50% offline, +32% auto speed, +40% storage, +18% rare chance, +10% trophy chance.</td>
+            <td class="good">Excellent</td>
+            <td>Add visual indicator on legendary/special fish explaining why they're excluded from mastery.</td>
+          </tr>
+          <tr>
+            <td class="em">Manual Fishdex</td>
+            <td>Tracks legendary + special fish. First legendary catch = +3 diamonds. Display-only otherwise.</td>
+            <td>Solid collector's archive. First-catch diamond bonus is a nice moment. No ongoing bonus for repeated catches beyond first — a missed opportunity for engagement.</td>
+            <td class="good">Healthy (could expand)</td>
+            <td>Consider: every 5 legendary catches of same species = +1 diamond. Rewards dedicated manual fishing.</td>
+          </tr>
+          <tr>
+            <td class="em">Targeted Lure</td>
+            <td>1–5 slots (25K→250M). Targeted species get 3× weight in automation catch pool. Resets on prestige.</td>
+            <td>Well-designed mechanism. 3× weight is impactful without being dominant. Critical for Fishdex completion grinding. Prestige reset is harsh — see Minor Finding.</td>
+            <td class="good">Healthy</td>
+            <td>Preserve level on prestige; reset targets only.</td>
+          </tr>
+          <tr>
+            <td class="em">Diamond Economy</td>
+            <td>Earned from trophies (1–2/each), Lost Treasure (+3), first legendary (+3). Spent on Premium Bait (5d), Auto-Seller (10d).</td>
+            <td>F2P earn rate too low (~10–20/week without Remove Ads). Competitions award 0 diamonds. See Medium Finding.</td>
+            <td class="warn">Medium</td>
+            <td>Add diamonds to competition 1st place. Raise Lost Treasure to +5d.</td>
+          </tr>
+          <tr>
+            <td class="em">Seagull System</td>
+            <td>Every 60s base (min 27s at tier 15 Seagull Bait). Reward = 1% hourly automation × multiplier. Bait cost: 10K × 5^tier.</td>
+            <td>Clean, tactile engagement mechanic. Income-proportional reward scales naturally. Seagull Bait cost curve is steep (tier 15 = 6.1B) but appropriate as a very late sink. At high automation (7.92M/hr), seagull at base = 79,200c per click — a satisfying pop.</td>
+            <td class="good">Healthy</td>
+            <td>No changes. Works exactly as intended.</td>
+          </tr>
+          <tr>
+            <td class="em">Special Events</td>
+            <td>5 events, triggers every 15–30 min, 90-second claim window. Lucky Hook / Rapid Waters / Care Package / Lost Treasure / Fishing Frenzy.</td>
+            <td>Lucky Hook (3-min Rare+ guaranteed) is excellent premium-feeling moment. Rapid Waters (1.5× speed) is satisfying. Care Package cap problem (see Medium Finding). Treasure Hunter bonus dead code (see Major Finding). Overall frequency is well-tuned.</td>
+            <td class="warn">Medium</td>
+            <td>Fix Care Package cap. Wire Treasure Hunter bonus. Otherwise events are well-designed.</td>
+          </tr>
+          <tr>
+            <td class="em">Offline Progression</td>
+            <td>12-hour cap. Per-unit 2,000 catch cap. No trophies offline. All speed multipliers applied.</td>
+            <td>12-hour cap is a strong design choice: rewards two check-ins per day without punishing single-session players. 2,000 catch cap prevents overflow. No offline trophies keeps the trophy moment manual and special. Excellent overall.</td>
+            <td class="good">Healthy</td>
+            <td>Show "you hit the offline cap" indicator if player returns after 12h+.</td>
+          </tr>
+          <tr>
+            <td class="em">Loot Tables (per zone)</td>
+            <td>Pond: 30% trash / 20% plant / 50% fish. Ocean: 12% / 8% / 80% with 4% legendary weight.</td>
+            <td>Good progression — trash and plant percentages decrease, fish rarity increases per zone. Premium Bait doubling non-common weights is cleanly implemented. rarBonus additive stacking (bobber + mastery + pearl Lucky Waters + premium bait) is controllable.</td>
+            <td class="good">Healthy</td>
+            <td>Monitor premium bait power stacked with full mastery — could become too predictable.</td>
+          </tr>
+          <tr>
+            <td class="em">Trophy System</td>
+            <td>Weight 1 of ~991 in SIZE_TABLE (~0.1%). Sell for diamonds. Species-specific weight from FISH_WEIGHTS.</td>
+            <td>Trophy as diamond source for manual fishing is excellent design. Very low probability (0.1%) keeps it genuinely rare and exciting. Per-species weight ranges create meaningful size records. Strong.</td>
+            <td class="good">Healthy</td>
+            <td>Surface trophy leaderboard in Hall of Fame — the data is already tracked (trophyRecords).</td>
+          </tr>
+          <tr>
+            <td class="em">Remove Ads</td>
+            <td>€16.99 one-time. Lucky Hook auto-fires every 10 min. +25% fishing speed permanent.</td>
+            <td>Lucky Hook every 10 min = Rare+ guaranteed window 3 min out of every 10, so 30% of all active fishing time is at Rare+ floor. Over 6 months this creates a significant diamond accumulation advantage. Not an exploit, but the value differential between Remove Ads and F2P is substantial at high play hours.</td>
+            <td class="warn">Minor</td>
+            <td>Monitor diamond accumulation gap between Remove Ads and F2P at 6-month mark. Adjust Lucky Hook cadence or Remove Ads diamond soft-cap if needed.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LONG-TERM SCALING -->
+  <div class="section">
+    <div class="section-label">Long-Term Scaling Analysis</div>
+    <div class="timeline-grid">
+      <div class="timeline-block">
+        <div class="time-label">50 hrs</div>
+        <div class="time-content">
+          <strong>River → Mid-Lake. First automation empire forming.</strong>
+          Quests and achievements are the primary daily loop. Rod tier upgrades (T1–T2) feel impactful and affordable. Competition system engaging — player competitive vs bots. Seagull clicks satisfying. Fishdex is motivating. <span class="hl-good">Healthiest part of the experience.</span>
+        </div>
+      </div>
+      <div class="timeline-block">
+        <div class="time-label">100 hrs</div>
+        <div class="time-content">
+          <strong>Bay zone. Multiple zones producing. Motor Boats generating meaningful passive income.</strong>
+          Empire model becomes tangible — all zones running simultaneously. First Black Pearls from 1–2 prestiges. Competition rewards still relatively meaningful vs income. Fishdex Mastery Bronze achievable for common species. <span class="hl-med">Pearl passive bonus beginning to compete with Pearl Shop spending decision.</span> Rod T3 is affordable; T4 starts to feel out of reach.
+        </div>
+      </div>
+      <div class="timeline-block">
+        <div class="time-label">250 hrs</div>
+        <div class="time-content">
+          <strong>Sea / early Ocean. Fleets running. 5–10 prestiges. 50–100 Black Pearls.</strong>
+          <span class="hl-major">Prestige loop starting to degrade</span> — zone costs scaling to 5–10× base. Competition rewards trivial vs Fleet income (rank 1 = ~0.5 seconds of income). Bot strength mismatch visible. Pearl passive dominant (~100%+ sell bonus from pearls alone). <span class="hl-good">Fishdex Mastery is the standout motivation.</span> Seagull rewards feel great at this scale. Rod tiers beyond T2–T3 feel unreachable.
+        </div>
+      </div>
+      <div class="timeline-block">
+        <div class="time-label">500 hrs</div>
+        <div class="time-content">
+          <strong>Deep endgame. Large fleet empire. Many prestiges. Deep pearl investment.</strong>
+          <span class="hl-crit">Prestige loop severely degraded</span> without the scaling fix. Competitions decorative only — rewards are noise vs income. Manual fishing matters for diamonds (trophies) and Mastery Silver/Gold targets. Targeted Lure critical for Fishdex completion. Mastery system alone carries long-term engagement. <span class="hl-med">Game needs post-Abyss content hooks at this point</span> — a new zone, fleet company tier, or seasonal content to retain 500+ hour players.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE RELEVANCE -->
+  <div class="section">
+    <div class="section-label">Feature Relevance Across Game Lifecycle</div>
+    <p class="gap-note">Approximate relative importance at each stage. Bars: Early (Pond–Bay) · Mid (Sea–Ocean) · Late (Post-Ocean, deep prestige). Color: teal = strong, amber = moderate, orange = fading, red = broken.</p>
+    <div class="relevance-grid">
+      <div class="relevance-row">
+        <div class="relevance-feature">Manual Fishing</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:95%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:55%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:40%;background:var(--medium)"></div></div>
+        </div>
+        <div class="rel-note">Diamonds + Fishdex keep it alive</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Automation Empire</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:30%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:90%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:95%;background:var(--accent)"></div></div>
+        </div>
+        <div class="rel-note">Grows into the primary loop</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Market / Selling</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:70%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:50%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:35%;background:var(--medium)"></div></div>
+        </div>
+        <div class="rel-note">Fades as automation dominates</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Competitions</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:80%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:50%;background:var(--medium)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:15%;background:var(--major)"></div></div>
+        </div>
+        <div class="rel-note">Trivial vs late-game income</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Fishdex Mastery</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:40%;background:var(--minor)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:75%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:95%;background:var(--accent)"></div></div>
+        </div>
+        <div class="rel-note">Best long-term system in game</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Prestige Loop</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:15%;background:var(--minor)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:70%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:20%;background:var(--critical)"></div></div>
+        </div>
+        <div class="rel-note">Breaks late without zone fix</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Pearl Shop</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:20%;background:var(--minor)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:65%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:50%;background:var(--medium)"></div></div>
+        </div>
+        <div class="rel-note">Passive bonus competes with spending</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Quests &amp; Achievements</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:90%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:60%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:30%;background:var(--medium)"></div></div>
+        </div>
+        <div class="rel-note">Strong early; fades as % of income</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Targeted Lure</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:10%;background:var(--minor)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:55%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:80%;background:var(--accent)"></div></div>
+        </div>
+        <div class="rel-note">Most useful for Fishdex grind</div>
+      </div>
+      <div class="relevance-row">
+        <div class="relevance-feature">Seagull System</div>
+        <div class="relevance-bars">
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:40%;background:var(--minor)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:65%;background:var(--accent)"></div></div>
+          <div class="rel-bar"><div class="rel-bar-fill" style="width:75%;background:var(--accent)"></div></div>
+        </div>
+        <div class="rel-note">Scales well; stays satisfying</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLOIT ANALYSIS -->
+  <div class="section">
+    <div class="section-label">Exploit Analysis</div>
+    <div class="exploit-list">
+      <div class="exploit-item">
+        <span class="exploit-status exists">Exists</span>
+        <div class="exploit-text">
+          <strong>Pearl Passive Hoard Strategy.</strong> Never spending pearls yields +1%/pearl sell bonus on everything. With 500 pearls: 6× sell value. Pearl Shop spending reduces this permanently. The mathematically dominant strategy is to hoard pearls and ignore the shop until you have a very large reserve. Not a hard exploit, but it undermines a core upgrade system.
+        </div>
+      </div>
+      <div class="exploit-item">
+        <span class="exploit-status exists">Exists</span>
+        <div class="exploit-text">
+          <strong>Early Prestige Cycling.</strong> Players can prestige at River zone (15,000–18,000 coins, achievable in minutes) for 2 pearls, reset to Pond, repeat. 50 cycles = 100 pearls in ~8–10 hours of tedious play. The passive bonus (100 pearls = +100% sell = 2× all income) is arguably better than spending those same hours progressing normally. This is a direct consequence of the threshold being too low.
+        </div>
+      </div>
+      <div class="exploit-item">
+        <span class="exploit-status low">Low Risk</span>
+        <div class="exploit-text">
+          <strong>Competition Bot Weakness.</strong> Bots use raw fish values with no player multipliers. A player with 300 Black Pearls (+300% sell = 4×) wins competitions effortlessly — not because of skill, but because the comparison is unfair. Not exploitable in an economy sense, but it makes competitions feel hollow for mid/late-game players.
+        </div>
+      </div>
+      <div class="exploit-item">
+        <span class="exploit-status none">Not Found</span>
+        <div class="exploit-text">
+          <strong>Offline income exploit.</strong> Per-unit 2,000 catch cap and 12-hour total cap prevent any meaningful offline overflow. No infinite money loop via offline mechanics.
+        </div>
+      </div>
+      <div class="exploit-item">
+        <span class="exploit-status none">Not Found</span>
+        <div class="exploit-text">
+          <strong>Quest / Achievement abuse.</strong> Quests reset on proper calendar logic. Achievements are one-time. No farming loop identified. Server-side loot table validation described in architecture would catch economic manipulation.
+        </div>
+      </div>
+      <div class="exploit-item">
+        <span class="exploit-status none">Not Found</span>
+        <div class="exploit-text">
+          <strong>Diamond farming.</strong> Auto-Seller trophy conversion costs 10 diamonds and returns 1–2 diamonds per trophy — net negative unless you have a large trophy stockpile and very high mythic_rod tiers (which are themselves unreachable). No profitable loop exists.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENDGAME HEALTH -->
+  <div class="section">
+    <div class="section-label">Endgame Health Check</div>
+    <p class="gap-note">Assumed state: all 6 zones unlocked, Pearl Shop L3–5 most upgrades, 5+ Fleets in Ocean, 10+ prestiges, 200+ Black Pearls, Hall of Fame wins across multiple zones.</p>
+    <div class="findings">
+      <div class="finding sev-minor">
+        <div class="finding-header">
+          <div class="finding-title">Pre-Abyss Goals That Remain</div>
+          <span class="badge badge-note">Endgame Analysis</span>
+        </div>
+        <div class="finding-body">
+          <p><span class="hl-good">Strong remaining goals:</span> Fishdex Mastery Silver/Gold tiers (1K–10K catches per species across up to 150 eligible items — years of content). Ocean legendary Fishdex entries (coelacanth, giant squid require dedicated manual sessions). Hall of Fame wins across all 6 zones. Seagull Bait tiers (expensive, deeply satisfying at high automation). Pearl Shop deep investment once passive vs. spend math is corrected. Rod tiers T2–T3 on all rods.</p>
+          <p><span class="hl-major">Weak or hollow at this stage:</span> Competition system (rank 1 reward = ~0.5 seconds of income). Rod tiers T4+ (costs in the billions per tier). Quest rewards (negligible % of income). Market selling (no strategic element).</p>
+          <p>The endgame has <strong>one excellent long-term system</strong> (Mastery), several systems that have faded, and needs 1–2 additional endgame sinks to hold 500+ hour players. Seasonal content, a fleet company upgrade tier, or additional ocean research paths would extend the ceiling meaningfully.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORES -->
+  <div class="section">
+    <div class="section-label">System Scores</div>
+    <div class="scores-grid">
+      <div class="score-card">
+        <div class="score-label">Economy</div>
+        <div class="score-number score-7">7</div>
+        <div class="score-sub">Solid income ramp; pearl passive issue</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Progression</div>
+        <div class="score-number score-7">7</div>
+        <div class="score-sub">Good arc; Sea wall too long for Player A</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Upgrade Balance</div>
+        <div class="score-number score-5">5</div>
+        <div class="score-sub">Rod tiers unusable past T3; dead pearl upgrade</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Prestige System</div>
+        <div class="score-number score-5">5</div>
+        <div class="score-sub">Zone cost wall breaks loop above prestige 8</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Competition System</div>
+        <div class="score-number score-5">5</div>
+        <div class="score-sub">Wrong duration; 0c for rank 4+; no diamonds</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Quest System</div>
+        <div class="score-number score-7">7</div>
+        <div class="score-sub">Elegant formula; pool needs expanding</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Retention</div>
+        <div class="score-number score-7">7</div>
+        <div class="score-sub">Mastery strong; competitions weaken over time</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Long-Term Motivation</div>
+        <div class="score-number score-6">6</div>
+        <div class="score-sub">Mastery + Abyss carry; prestige loop breaks</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Overall Economy Health</div>
+        <div class="score-number score-7">7/10</div>
+        <div class="score-sub">Fixable before launch</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 5 -->
+  <div class="section">
+    <div class="section-label">Five Highest-Impact Balance Improvements</div>
+    <div class="top5-list">
+
+      <div class="top5-item">
+        <div class="top5-rank">1</div>
+        <div class="top5-content">
+          <div class="top5-title">Fix Prestige Zone Cost Scaling</div>
+          <div class="top5-desc">Replace <code>cost × (1 + prestigeCount)</code> with a capped or logarithmic formula. Recommended: <code>cost × (1 + min(prestigeCount, 4))</code> so costs cap at 5× base from prestige 4 onward. Optionally add a Pearl Shop "Zone Memory" upgrade (e.g., 50 pearls: previously-reached zones cost 50% less to re-unlock). This single change makes the prestige loop sustainable for the entire game lifecycle and protects the most invested players — the exact audience most likely to spend on IAP and generate word-of-mouth. Without this fix, the game's primary long-term engagement engine breaks at exactly the wrong time.</div>
+          <div class="top5-meta">
+            <span class="top5-chip chip-impact-high">Impact: High</span>
+            <span class="top5-chip chip-scope">Scope: Small — formula change + optional Pearl Shop entry</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="top5-item">
+        <div class="top5-rank">2</div>
+        <div class="top5-content">
+          <div class="top5-title">Restructure Black Pearl Passive vs. Pearl Shop Spending</div>
+          <div class="top5-desc">The passive bonus (+1%/pearl held) makes spending pearls mathematically wrong once you have a meaningful reserve. Reduce passive to 0.3–0.5% per pearl, or — cleaner — base the passive on total pearls ever earned rather than currently held. This way Pearl Shop spending never costs you passive income, making every upgrade a genuine choice rather than a sacrifice. This change transforms the Pearl Shop from a trap into a meaningful progression tree. Player power stays similar overall (they just spend pearls instead of hoarding), but the decision-making becomes interesting.</div>
+          <div class="top5-meta">
+            <span class="top5-chip chip-impact-high">Impact: High</span>
+            <span class="top5-chip chip-scope">Scope: Small — formula + data model change</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="top5-item">
+        <div class="top5-rank">3</div>
+        <div class="top5-content">
+          <div class="top5-title">Fix Competition Duration, Add Diamond Reward, Add Participation Pay</div>
+          <div class="top5-desc">Restore competition to 60-minute sessions at fixed daily CET/CST windows with advance push notification. Add 1–3 diamonds for first place — making competitions the one daily activity that reliably grows the diamond wallet. Add a small participation reward (10–25c) for all ranks so showing up never feels pointless. Wire the scheduled notification system described in the architecture. This converts competitions from a side distraction into a genuine daily appointment and gives F2P players a meaningful organic diamond income source.</div>
+          <div class="top5-meta">
+            <span class="top5-chip chip-impact-high">Impact: High</span>
+            <span class="top5-chip chip-scope">Scope: Medium — timer, reward logic, notifications</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="top5-item">
+        <div class="top5-rank">4</div>
+        <div class="top5-content">
+          <div class="top5-title">Reduce Rod Tier Exponent from 25 to 6–8</div>
+          <div class="top5-desc">Change rod tier cost formula from <code>baseTierCost × 25^tier</code> to <code>baseTierCost × 7^tier</code>. At base 7: Ocean Rod reaches T3 at 857M coins (expensive but achievable post-Ocean), T5 at 42B (a late-endgame goal), T10 at ~3.4T (post-Abyss territory). This transforms a 3-tier system in practice into a genuine 5–7 tier system for dedicated players, creating meaningful upgrade goals at every stage of the endgame. Adjust tier band thresholds from T5/T10 to T3/T6/T10 to match the new curve.</div>
+          <div class="top5-meta">
+            <span class="top5-chip chip-impact-med">Impact: Medium</span>
+            <span class="top5-chip chip-scope">Scope: Small — constant change</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="top5-item">
+        <div class="top5-rank">5</div>
+        <div class="top5-content">
+          <div class="top5-title">Fix Treasure Hunter + Care Package Cap + Raise Prestige Threshold</div>
+          <div class="top5-desc">Three small fixes bundled: (1) Wire <code>getPearlTreasureBonus()</code> into the Lost Treasure event weight so the upgrade actually does what it says. (2) Replace hardcoded "10" average value in Care Package formula with zone-appropriate values and raise the 12,000c cap to scale with player power (e.g., 30 minutes of current automation income). (3) Raise prestige threshold from <code>15,000 × 1.20^n</code> to something that prevents trivial prestige cycling at River — e.g., require reaching Bay or Sea before first prestige is available. Together these eliminate the most glaring "the game lied to me" moments: a paid upgrade that does nothing, an event reward that's irrelevant, and a prestige incentive that rewards skipping the game's content.</div>
+          <div class="top5-meta">
+            <span class="top5-chip chip-impact-med">Impact: Medium</span>
+            <span class="top5-chip chip-scope">Scope: Small — three independent fixes</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="section">
+    <div class="section-label">Final Verdict</div>
+    <div class="verdict-box">
+      <div class="verdict-answer">If this game launched today, would the economy comfortably support 6–12 months of progression without major balance changes? Conditionally — for moderate players yes, for the most engaged players no.</div>
+      <p>The income ramp from Pond through Ocean is well-calibrated. Player B (1 hour/day) reaches Abyss in roughly 10–13 months, landing inside the casual target. Player C (3+ hours) reaches it in 7–9 months. The automation empire model delivers exactly the "fishing empire" fantasy the game promises. The Fishdex Mastery system provides a genuinely excellent multi-year goal. The bones are strong.</p>
+      <p>Player A (30 min/day) overshoots the target at 14–18 months to Abyss, primarily due to the Sea gate. This can be addressed through income improvements at Bay without touching zone costs — adding a second Fishing Boat automation tier or reducing the Fishing Boat price slightly would pull the Player A timeline inside the 12-month target.</p>
+      <p>The <strong>prestige zone cost scaling</strong> is the only launch-blocking issue by modern mobile game standards. It doesn't affect the first 9–12 months of casual play, but it guarantees that players who reach prestige 8–10 — the most invested 5–10% of the playerbase — hit a hard wall and stop progressing. These are the players most likely to spend on IAP, write reviews, and recommend the game. Losing them to a formula bug is an expensive mistake to make after launch when save data must be preserved.</p>
+      <p>The <strong>Black Pearl passive vs. spend incentive issue</strong> is the second most important fix. It doesn't block progression but it silently undermines a major upgrade system, making the Pearl Shop feel like a trick once players figure out the math. This erodes trust in the game's economy and tends to surface in reviews.</p>
+      <p><strong>With the prestige scaling capped and the pearl passive restructured</strong>, Patient Angler's economy would comfortably support 9–12 months of F2P progression and a multi-year path for engaged players. The Fishdex Mastery system alone — Bronze through Diamond at 100K–1M catches per species — is one of the deepest long-term progression mechanics in the genre. The game is close. Two formula changes and a competition duration fix would take it from "conditionally ready" to "ready."</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

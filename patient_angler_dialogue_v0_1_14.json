@@ -1,0 +1,122 @@
+{
+  "version": "0.1.14",
+  "description": "Short humorous shopkeeper and fisherman dialogue lines for Patient Angler.",
+  "shopkeeper": {
+    "normalGreetings": [
+      "Fresh deals! Slightly fishy prices.",
+      "Welcome back, coin collector.",
+      "Need gear or just admiring my shelves?",
+      "Everything here is waterproof. Mostly.",
+      "Step right up! No refunds if it bites.",
+      "I polished the rods. The fish remain unimpressed.",
+      "Buy now before the crabs unionize.",
+      "I sell quality gear and questionable advice.",
+      "Looking for upgrades or emotional support?",
+      "The bait is fresh. The jokes are not.",
+      "Welcome! Try not to spend responsibly.",
+      "Coins in, fishing empire out.",
+      "I had a sale yesterday. You missed it. Maybe.",
+      "New stock! Same smell.",
+      "If it breaks, blame the lake.",
+      "I accept coins, diamonds, and compliments.",
+      "One rod upgrade away from greatness.",
+      "The fish asked me not to sell you this.",
+      "Careful, these prices are almost legal.",
+      "Welcome to the finest shop near this puddle.",
+      "I found these upgrades floating downstream.",
+      "Spend wisely. Or loudly. I enjoy both.",
+      "Every great angler starts by overpaying.",
+      "This shop is 90% wood and 10% ambition.",
+      "The nets are trained. The boats are moody.",
+      "I tested the bait myself. Bad idea.",
+      "Need something shiny for your fishing problem?",
+      "My gear catches fish. Eventually.",
+      "Step inside! The smell means quality.",
+      "Business is booming. Unlike that old naval mine."
+    ],
+    "quickReturnGreetings": [
+      {
+        "maxSecondsAway": 10,
+        "message": "Back already? Did the door hit you twice?"
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "That was fast. Forgot to buy half the shop?"
+      },
+      {
+        "maxSecondsAway": 10,
+        "message": "Missed me already? Understandable."
+      }
+    ],
+    "longAbsenceGreetings": [
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "Gone for {timeAway}? I was starting to blame a sea monster."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "{timeAway} away! I almost sold your usual bait to a gull."
+      },
+      {
+        "minRealHoursAway": 5,
+        "messageTemplate": "After {timeAway}, you return! The fish filed a missing angler report."
+      }
+    ],
+    "implementationNotes": {
+      "timeAwayPlaceholder": "{timeAway}",
+      "examples": [
+        "5h 12m",
+        "1d 3h",
+        "6 hours"
+      ],
+      "selectionRule": "When opening shop: if time since last shop visit < 10 seconds, randomly use quickReturnGreetings. Else if >= 5 real hours, randomly use longAbsenceGreetings and replace {timeAway}. Otherwise randomly use normalGreetings."
+    }
+  },
+  "fishermen": {
+    "globalRules": {
+      "frequency": "At most once per in-game hour per visible fishing screen.",
+      "zones": [
+        "River",
+        "Lake",
+        "Bay"
+      ],
+      "style": "Short, humorous one-liners from the fisherman NPC."
+    },
+    "river": [
+      "River fish are slippery. River socks are worse.",
+      "I asked the current for advice. It kept moving.",
+      "If you catch my lunch, please negotiate nicely.",
+      "This river knows secrets. Mostly where I dropped my hook.",
+      "I saw a boot swim by. Very suspicious.",
+      "The fish here respect patience and fear bread.",
+      "A calm river hides dramatic fish.",
+      "I named that ripple Kevin.",
+      "If the line pulls hard, pull harder. Unless it's a log.",
+      "The river paid me in splashes again."
+    ],
+    "lake": [
+      "The lake is calm. Too calm. Probably plotting.",
+      "I once fought a carp for three minutes. We are friends now.",
+      "Big fish live deep. My snacks do too.",
+      "If you hear bubbles, pretend it's wisdom.",
+      "The lake keeps everything. Especially bicycles.",
+      "I trust the bobber more than most people.",
+      "Some say there is a monster here. I say it owes me bait.",
+      "Quiet day. Loud fish.",
+      "The catfish blinked first. I think.",
+      "Never underestimate a fish with free time."
+    ],
+    "bay": [
+      "The bay smells like profit and questionable seaweed.",
+      "Saltwater fish act fancy until they meet a net.",
+      "I waved at a crab. It filed a complaint.",
+      "If the tide takes your bait, charge it rent.",
+      "Bay fishing: half skill, half arguing with waves.",
+      "A gull judged my technique. Fair, honestly.",
+      "Somewhere out there, a fish is making bad decisions.",
+      "I caught a rope once. Strong personality.",
+      "The wind says buy better gear. Convenient.",
+      "The bay gives, the bay takes, the bay splashes your boots."
+    ]
+  }
+}

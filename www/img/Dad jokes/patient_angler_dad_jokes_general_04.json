@@ -1,0 +1,309 @@
+{
+  "version": "1.0",
+  "fileNumber": 4,
+  "theme": "general",
+  "count": 50,
+  "description": "General dad jokes set #4. Hand-written, less templated.",
+  "jokes": [
+    {
+      "id": 1,
+      "category": "general",
+      "setup": "I tried writing jokes with a broken pencil.",
+      "punchline": "There was no point to any of them."
+    },
+    {
+      "id": 2,
+      "category": "general",
+      "setup": "My suitcase keeps telling travel stories.",
+      "punchline": "Most of them are just baggage."
+    },
+    {
+      "id": 3,
+      "category": "general",
+      "setup": "I bought a waterproof tea bag.",
+      "punchline": "Now my tea is emotionally prepared."
+    },
+    {
+      "id": 4,
+      "category": "general",
+      "setup": "I asked my calendar for advice.",
+      "punchline": "It told me to take things one day at a time."
+    },
+    {
+      "id": 5,
+      "category": "general",
+      "setup": "My lamp started giving life coaching.",
+      "punchline": "It really helped me see things differently."
+    },
+    {
+      "id": 6,
+      "category": "general",
+      "setup": "I opened a bakery for insomniacs.",
+      "punchline": "Business rises overnight."
+    },
+    {
+      "id": 7,
+      "category": "general",
+      "setup": "I challenged a mirror to a staring contest.",
+      "punchline": "It reflected on the experience."
+    },
+    {
+      "id": 8,
+      "category": "general",
+      "setup": "My chair asked for a vacation.",
+      "punchline": "It was tired of supporting everyone."
+    },
+    {
+      "id": 9,
+      "category": "general",
+      "setup": "I gave my broom a promotion.",
+      "punchline": "It swept the competition."
+    },
+    {
+      "id": 10,
+      "category": "general",
+      "setup": "I started a support group for ladders.",
+      "punchline": "We're all trying to get to the next level."
+    },
+    {
+      "id": 11,
+      "category": "general",
+      "setup": "My notebook became a comedian.",
+      "punchline": "Every page was a fresh delivery."
+    },
+    {
+      "id": 12,
+      "category": "general",
+      "setup": "I taught my toaster optimism.",
+      "punchline": "Now every morning starts on a brighter note."
+    },
+    {
+      "id": 13,
+      "category": "general",
+      "setup": "My umbrella loves compliments.",
+      "punchline": "They really make it open up."
+    },
+    {
+      "id": 14,
+      "category": "general",
+      "setup": "I bought a tiny vacuum.",
+      "punchline": "It still sucks."
+    },
+    {
+      "id": 15,
+      "category": "general",
+      "setup": "My backpack quit its job.",
+      "punchline": "It couldn't carry the workload anymore."
+    },
+    {
+      "id": 16,
+      "category": "general",
+      "setup": "I started a band with office supplies.",
+      "punchline": "We're called The Paper Clips."
+    },
+    {
+      "id": 17,
+      "category": "general",
+      "setup": "I complimented my ruler.",
+      "punchline": "It really measured up."
+    },
+    {
+      "id": 18,
+      "category": "general",
+      "setup": "My coffee mug became a therapist.",
+      "punchline": "It always had warm advice."
+    },
+    {
+      "id": 19,
+      "category": "general",
+      "setup": "I gave my pillow a raise.",
+      "punchline": "It was doing overtime every night."
+    },
+    {
+      "id": 20,
+      "category": "general",
+      "setup": "My flashlight got stage fright.",
+      "punchline": "It couldn't handle the spotlight."
+    },
+    {
+      "id": 21,
+      "category": "general",
+      "setup": "I named my Wi-Fi 'Grandma'.",
+      "punchline": "Now everyone says Grandma's connection is strong."
+    },
+    {
+      "id": 22,
+      "category": "general",
+      "setup": "I tried to fold a cloud.",
+      "punchline": "The instructions were a little fuzzy."
+    },
+    {
+      "id": 23,
+      "category": "general",
+      "setup": "My socks entered a talent show.",
+      "punchline": "They knocked everyone's feet off."
+    },
+    {
+      "id": 24,
+      "category": "general",
+      "setup": "I bought a transparent wallet.",
+      "punchline": "Now everyone can see I'm broke."
+    },
+    {
+      "id": 25,
+      "category": "general",
+      "setup": "I became friends with an elevator.",
+      "punchline": "It always lifts my spirits."
+    },
+    {
+      "id": 26,
+      "category": "general",
+      "setup": "My pencil wrote me a thank-you note.",
+      "punchline": "It was a touching point."
+    },
+    {
+      "id": 27,
+      "category": "general",
+      "setup": "I hired a snowman in summer.",
+      "punchline": "He totally melted under pressure."
+    },
+    {
+      "id": 28,
+      "category": "general",
+      "setup": "My broom won employee of the month.",
+      "punchline": "It always cleaned up."
+    },
+    {
+      "id": 29,
+      "category": "general",
+      "setup": "I put a hat on my cactus.",
+      "punchline": "Now it's extra sharp."
+    },
+    {
+      "id": 30,
+      "category": "general",
+      "setup": "My sandwich told me a secret.",
+      "punchline": "It was hard to digest."
+    },
+    {
+      "id": 31,
+      "category": "general",
+      "setup": "I took my calculator on vacation.",
+      "punchline": "It needed to unwind the numbers."
+    },
+    {
+      "id": 32,
+      "category": "general",
+      "setup": "My blanket got jealous.",
+      "punchline": "It thought I was seeing someone under the covers."
+    },
+    {
+      "id": 33,
+      "category": "general",
+      "setup": "I bought a dictionary for my parrot.",
+      "punchline": "Its vocabulary is still bird-brained."
+    },
+    {
+      "id": 34,
+      "category": "general",
+      "setup": "My doormat is an optimist.",
+      "punchline": "It always welcomes new opportunities."
+    },
+    {
+      "id": 35,
+      "category": "general",
+      "setup": "I gave my clock a pep talk.",
+      "punchline": "Now it's running with confidence."
+    },
+    {
+      "id": 36,
+      "category": "general",
+      "setup": "My stapler joined the gym.",
+      "punchline": "It's working on its attachment issues."
+    },
+    {
+      "id": 37,
+      "category": "general",
+      "setup": "I taught my refrigerator mindfulness.",
+      "punchline": "Now it chills on purpose."
+    },
+    {
+      "id": 38,
+      "category": "general",
+      "setup": "My bookshelf started singing.",
+      "punchline": "It has great shelf-esteem."
+    },
+    {
+      "id": 39,
+      "category": "general",
+      "setup": "I tried to interview my echo.",
+      "punchline": "Every answer sounded familiar."
+    },
+    {
+      "id": 40,
+      "category": "general",
+      "setup": "My bicycle writes poetry.",
+      "punchline": "Most of it has good cadence."
+    },
+    {
+      "id": 41,
+      "category": "general",
+      "setup": "I named my plant 'Wi-Fi'.",
+      "punchline": "Everyone asks how the connection is growing."
+    },
+    {
+      "id": 42,
+      "category": "general",
+      "setup": "My kettle became a motivational speaker.",
+      "punchline": "It knows exactly when to let off steam."
+    },
+    {
+      "id": 43,
+      "category": "general",
+      "setup": "My scissors took dance lessons.",
+      "punchline": "Now they really know how to cut a rug."
+    },
+    {
+      "id": 44,
+      "category": "general",
+      "setup": "I complimented my window.",
+      "punchline": "It said I gave it a fresh outlook."
+    },
+    {
+      "id": 45,
+      "category": "general",
+      "setup": "My mailbox loves birthdays.",
+      "punchline": "It's always hoping for more presents."
+    },
+    {
+      "id": 46,
+      "category": "general",
+      "setup": "I bought a lazy boomerang.",
+      "punchline": "It never came back to me."
+    },
+    {
+      "id": 47,
+      "category": "general",
+      "setup": "My alarm clock became a comedian.",
+      "punchline": "Its timing is perfect."
+    },
+    {
+      "id": 48,
+      "category": "general",
+      "setup": "I adopted a paper airplane.",
+      "punchline": "It has lofty ambitions."
+    },
+    {
+      "id": 49,
+      "category": "general",
+      "setup": "My toothbrush became a lawyer.",
+      "punchline": "It always argues its case with plaque facts."
+    },
+    {
+      "id": 50,
+      "category": "general",
+      "setup": "I entered my shadow in a marathon.",
+      "punchline": "It stayed right behind me the whole time."
+    }
+  ]
+}

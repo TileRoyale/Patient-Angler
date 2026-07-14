@@ -1,0 +1,607 @@
+{
+  "version": "1.0",
+  "fileNumber": 3,
+  "count": 100,
+  "jokes": [
+    {
+      "id": 1,
+      "category": "general",
+      "setup": "I told my suitcase we wouldn't be traveling this year.",
+      "punchline": "Now it's dealing with emotional baggage."
+    },
+    {
+      "id": 2,
+      "category": "general",
+      "setup": "I tried to organize a hide-and-seek tournament.",
+      "punchline": "Good players are really hard to find."
+    },
+    {
+      "id": 3,
+      "category": "general",
+      "setup": "I bought invisible ink.",
+      "punchline": "Now I can't find where I put it."
+    },
+    {
+      "id": 4,
+      "category": "general",
+      "setup": "My ceiling isn't the best.",
+      "punchline": "But it's definitely up there."
+    },
+    {
+      "id": 5,
+      "category": "general",
+      "setup": "I started a band called '999 Megabytes'.",
+      "punchline": "We still haven't gotten a gig."
+    },
+    {
+      "id": 6,
+      "category": "general",
+      "setup": "I gave away all my dead batteries.",
+      "punchline": "Free of charge."
+    },
+    {
+      "id": 7,
+      "category": "general",
+      "setup": "I wanted to tell a joke about construction.",
+      "punchline": "I'm still working on it."
+    },
+    {
+      "id": 8,
+      "category": "general",
+      "setup": "I accidentally swallowed some food coloring.",
+      "punchline": "The doctor says I'm okay, but I feel like I've dyed a little inside."
+    },
+    {
+      "id": 9,
+      "category": "general",
+      "setup": "I used to hate facial hair.",
+      "punchline": "Then it grew on me."
+    },
+    {
+      "id": 10,
+      "category": "general",
+      "setup": "I made a belt out of watches.",
+      "punchline": "It was a waist of time."
+    },
+    {
+      "id": 11,
+      "category": "general",
+      "setup": "I told my dog to fetch a stick.",
+      "punchline": "He came back with my Wi-Fi antenna."
+    },
+    {
+      "id": 12,
+      "category": "general",
+      "setup": "I opened a bakery for pessimists.",
+      "punchline": "Everything is half-baked."
+    },
+    {
+      "id": 13,
+      "category": "general",
+      "setup": "I named my horse Mayo.",
+      "punchline": "Sometimes Mayo neighs."
+    },
+    {
+      "id": 14,
+      "category": "general",
+      "setup": "I got fired from the keyboard factory.",
+      "punchline": "I wasn't putting in enough shifts."
+    },
+    {
+      "id": 15,
+      "category": "general",
+      "setup": "I tried to catch fog.",
+      "punchline": "I mist."
+    },
+    {
+      "id": 16,
+      "category": "general",
+      "setup": "I wanted to become a baker.",
+      "punchline": "But I couldn't make enough dough."
+    },
+    {
+      "id": 17,
+      "category": "general",
+      "setup": "My pencil broke.",
+      "punchline": "It had no point anymore."
+    },
+    {
+      "id": 18,
+      "category": "general",
+      "setup": "I bought shoes from a drug dealer.",
+      "punchline": "I don't know what he laced them with."
+    },
+    {
+      "id": 19,
+      "category": "general",
+      "setup": "I entered ten puns in a contest.",
+      "punchline": "No pun in ten did."
+    },
+    {
+      "id": 20,
+      "category": "general",
+      "setup": "My friend stole my thesaurus.",
+      "punchline": "I have no words."
+    },
+    {
+      "id": 21,
+      "category": "general",
+      "setup": "I used to be addicted to soap.",
+      "punchline": "I'm clean now."
+    },
+    {
+      "id": 22,
+      "category": "general",
+      "setup": "I sold my vacuum cleaner.",
+      "punchline": "It was just gathering dust."
+    },
+    {
+      "id": 23,
+      "category": "general",
+      "setup": "I wrote a song about tortillas.",
+      "punchline": "It's more of a wrap."
+    },
+    {
+      "id": 24,
+      "category": "general",
+      "setup": "I got locked inside a stationery store.",
+      "punchline": "I couldn't draw my way out."
+    },
+    {
+      "id": 25,
+      "category": "general",
+      "setup": "I only eat clock-shaped cookies.",
+      "punchline": "It's about time."
+    },
+    {
+      "id": 26,
+      "category": "general",
+      "setup": "I became a gardener.",
+      "punchline": "Business is blooming."
+    },
+    {
+      "id": 27,
+      "category": "general",
+      "setup": "I tried sleeping on a pile of money.",
+      "punchline": "I couldn't make any interest."
+    },
+    {
+      "id": 28,
+      "category": "general",
+      "setup": "I adopted a cloud.",
+      "punchline": "It's always hanging around."
+    },
+    {
+      "id": 29,
+      "category": "general",
+      "setup": "I told my plants a joke.",
+      "punchline": "They rooted for me."
+    },
+    {
+      "id": 30,
+      "category": "general",
+      "setup": "I became friends with a ladder.",
+      "punchline": "It always lifts me up."
+    },
+    {
+      "id": 31,
+      "category": "general",
+      "setup": "I opened a silent disco for librarians.",
+      "punchline": "It was overdue."
+    },
+    {
+      "id": 32,
+      "category": "general",
+      "setup": "I started exercising with scissors.",
+      "punchline": "Now I do cutbacks."
+    },
+    {
+      "id": 33,
+      "category": "general",
+      "setup": "I bought a boomerang.",
+      "punchline": "Now I can't get rid of it."
+    },
+    {
+      "id": 34,
+      "category": "general",
+      "setup": "I made tea with an electric kettle.",
+      "punchline": "It was a shocking experience."
+    },
+    {
+      "id": 35,
+      "category": "general",
+      "setup": "I took my calendar to therapy.",
+      "punchline": "It had too many dates."
+    },
+    {
+      "id": 36,
+      "category": "general",
+      "setup": "I started writing with broken pencils.",
+      "punchline": "Pointless idea."
+    },
+    {
+      "id": 37,
+      "category": "general",
+      "setup": "I painted my laptop green.",
+      "punchline": "Now it has Windows and grass."
+    },
+    {
+      "id": 38,
+      "category": "general",
+      "setup": "I opened a gym for chickens.",
+      "punchline": "It's all about egg-sercise."
+    },
+    {
+      "id": 39,
+      "category": "general",
+      "setup": "I named my alarm clock 'Maybe'.",
+      "punchline": "It never gets taken seriously."
+    },
+    {
+      "id": 40,
+      "category": "general",
+      "setup": "I got into a fight with my blanket.",
+      "punchline": "It kept covering everything."
+    },
+    {
+      "id": 41,
+      "category": "general",
+      "setup": "I bought camouflage pants.",
+      "punchline": "I can't find them."
+    },
+    {
+      "id": 42,
+      "category": "general",
+      "setup": "I became a photographer.",
+      "punchline": "I developed naturally."
+    },
+    {
+      "id": 43,
+      "category": "general",
+      "setup": "I put my money in the freezer.",
+      "punchline": "Now I have cold cash."
+    },
+    {
+      "id": 44,
+      "category": "general",
+      "setup": "I gave my goldfish a treadmill.",
+      "punchline": "It's going nowhere fast."
+    },
+    {
+      "id": 45,
+      "category": "general",
+      "setup": "I tried to read a book about anti-gravity.",
+      "punchline": "I couldn't put it down."
+    },
+    {
+      "id": 46,
+      "category": "general",
+      "setup": "I hired a clown to paint my house.",
+      "punchline": "The results were funny."
+    },
+    {
+      "id": 47,
+      "category": "general",
+      "setup": "I taught my calculator sarcasm.",
+      "punchline": "Now every answer feels personal."
+    },
+    {
+      "id": 48,
+      "category": "general",
+      "setup": "I became a beekeeper.",
+      "punchline": "The job has a lot of buzz."
+    },
+    {
+      "id": 49,
+      "category": "general",
+      "setup": "I dropped my dictionary.",
+      "punchline": "I was lost for words."
+    },
+    {
+      "id": 50,
+      "category": "general",
+      "setup": "I made a chair out of rulers.",
+      "punchline": "It measures up."
+    },
+    {
+      "id": 51,
+      "category": "general",
+      "setup": "I became a tailor.",
+      "punchline": "Everything fit together."
+    },
+    {
+      "id": 52,
+      "category": "general",
+      "setup": "I bought a pencil sharpener.",
+      "punchline": "It really made the point."
+    },
+    {
+      "id": 53,
+      "category": "general",
+      "setup": "I told my mirror a compliment.",
+      "punchline": "It reflected well on me."
+    },
+    {
+      "id": 54,
+      "category": "general",
+      "setup": "I started collecting broken clocks.",
+      "punchline": "I have all the time in the world."
+    },
+    {
+      "id": 55,
+      "category": "general",
+      "setup": "I bought a paper map.",
+      "punchline": "It unfolded nicely."
+    },
+    {
+      "id": 56,
+      "category": "general",
+      "setup": "I named my cactus 'Huggy'.",
+      "punchline": "Nobody visits anymore."
+    },
+    {
+      "id": 57,
+      "category": "general",
+      "setup": "I tried juggling eggs.",
+      "punchline": "That plan cracked quickly."
+    },
+    {
+      "id": 58,
+      "category": "general",
+      "setup": "I took my wallet to the gym.",
+      "punchline": "It needed more cash flow."
+    },
+    {
+      "id": 59,
+      "category": "general",
+      "setup": "I became an electrician.",
+      "punchline": "The work was enlightening."
+    },
+    {
+      "id": 60,
+      "category": "general",
+      "setup": "I adopted a snail.",
+      "punchline": "Life finally slowed down."
+    },
+    {
+      "id": 61,
+      "category": "general",
+      "setup": "I put wheels on my couch.",
+      "punchline": "Now it's a moving experience."
+    },
+    {
+      "id": 62,
+      "category": "general",
+      "setup": "I made a sandwich with alphabet soup.",
+      "punchline": "It spelled lunch."
+    },
+    {
+      "id": 63,
+      "category": "general",
+      "setup": "I challenged the echo to a debate.",
+      "punchline": "It kept repeating me."
+    },
+    {
+      "id": 64,
+      "category": "general",
+      "setup": "I opened a bakery for vampires.",
+      "punchline": "Everything came with fresh rolls."
+    },
+    {
+      "id": 65,
+      "category": "general",
+      "setup": "I bought glow-in-the-dark socks.",
+      "punchline": "They really shine at night."
+    },
+    {
+      "id": 66,
+      "category": "general",
+      "setup": "I started ironing maps.",
+      "punchline": "Now every trip is wrinkle-free."
+    },
+    {
+      "id": 67,
+      "category": "general",
+      "setup": "I named my broom 'Harry'.",
+      "punchline": "It swept me off my feet."
+    },
+    {
+      "id": 68,
+      "category": "general",
+      "setup": "I got a pet rock.",
+      "punchline": "It's my most grounded friend."
+    },
+    {
+      "id": 69,
+      "category": "general",
+      "setup": "I filled my pillow with popcorn.",
+      "punchline": "My dreams keep popping."
+    },
+    {
+      "id": 70,
+      "category": "general",
+      "setup": "I bought waterproof towels.",
+      "punchline": "Ironically useless."
+    },
+    {
+      "id": 71,
+      "category": "general",
+      "setup": "I started collecting magnets.",
+      "punchline": "I'm really attracted to the hobby."
+    },
+    {
+      "id": 72,
+      "category": "general",
+      "setup": "I taught my fridge optimism.",
+      "punchline": "It's finally looking cool."
+    },
+    {
+      "id": 73,
+      "category": "general",
+      "setup": "I became a barber.",
+      "punchline": "It was a close shave."
+    },
+    {
+      "id": 74,
+      "category": "general",
+      "setup": "I opened a zoo for invisible animals.",
+      "punchline": "The attendance was imaginary."
+    },
+    {
+      "id": 75,
+      "category": "general",
+      "setup": "I took my spoon to the doctor.",
+      "punchline": "It was feeling stirred."
+    },
+    {
+      "id": 76,
+      "category": "general",
+      "setup": "I named my socks Left and Right.",
+      "punchline": "They've never switched sides."
+    },
+    {
+      "id": 77,
+      "category": "general",
+      "setup": "I started racing turtles.",
+      "punchline": "It's a slow sport."
+    },
+    {
+      "id": 78,
+      "category": "general",
+      "setup": "I became a locksmith.",
+      "punchline": "Opportunities keep opening."
+    },
+    {
+      "id": 79,
+      "category": "general",
+      "setup": "I installed mirrors on my ceiling.",
+      "punchline": "Self-reflection is unavoidable."
+    },
+    {
+      "id": 80,
+      "category": "general",
+      "setup": "I bought square balloons.",
+      "punchline": "They came with corners."
+    },
+    {
+      "id": 81,
+      "category": "general",
+      "setup": "I taught my toaster to sing.",
+      "punchline": "Breakfast has better jams."
+    },
+    {
+      "id": 82,
+      "category": "general",
+      "setup": "I got a job making donuts.",
+      "punchline": "The work goes full circle."
+    },
+    {
+      "id": 83,
+      "category": "general",
+      "setup": "I bought scented bookmarks.",
+      "punchline": "Every chapter smells like success."
+    },
+    {
+      "id": 84,
+      "category": "general",
+      "setup": "I challenged my shadow to a race.",
+      "punchline": "It stayed close behind."
+    },
+    {
+      "id": 85,
+      "category": "general",
+      "setup": "I opened a school for ducks.",
+      "punchline": "Everyone graduated with flying colors."
+    },
+    {
+      "id": 86,
+      "category": "general",
+      "setup": "I named my broomstick 'Taxi'.",
+      "punchline": "It always sweeps by."
+    },
+    {
+      "id": 87,
+      "category": "general",
+      "setup": "I made a parachute for ants.",
+      "punchline": "Safety first."
+    },
+    {
+      "id": 88,
+      "category": "general",
+      "setup": "I became a locksmith's assistant.",
+      "punchline": "I found the key to success."
+    },
+    {
+      "id": 89,
+      "category": "general",
+      "setup": "I glued my keyboard to the desk.",
+      "punchline": "Now I'm committed."
+    },
+    {
+      "id": 90,
+      "category": "general",
+      "setup": "I bought transparent curtains.",
+      "punchline": "Privacy is complicated."
+    },
+    {
+      "id": 91,
+      "category": "general",
+      "setup": "I started writing jokes in pencil.",
+      "punchline": "They're easy to erase."
+    },
+    {
+      "id": 92,
+      "category": "general",
+      "setup": "I taught my shoes manners.",
+      "punchline": "They always toe the line."
+    },
+    {
+      "id": 93,
+      "category": "general",
+      "setup": "I made a pillow from marshmallows.",
+      "punchline": "Sweet dreams."
+    },
+    {
+      "id": 94,
+      "category": "general",
+      "setup": "I adopted a scarecrow.",
+      "punchline": "He's outstanding in his field."
+    },
+    {
+      "id": 95,
+      "category": "general",
+      "setup": "I became a roofer.",
+      "punchline": "Things are looking up."
+    },
+    {
+      "id": 96,
+      "category": "general",
+      "setup": "I named my printer 'Drama'.",
+      "punchline": "It always makes a scene."
+    },
+    {
+      "id": 97,
+      "category": "general",
+      "setup": "I bought a reversible jacket.",
+      "punchline": "I'm torn about it."
+    },
+    {
+      "id": 98,
+      "category": "general",
+      "setup": "I challenged my coffee to wake me up.",
+      "punchline": "It rose to the occasion."
+    },
+    {
+      "id": 99,
+      "category": "general",
+      "setup": "I put sunglasses on my lamp.",
+      "punchline": "It looked pretty shady."
+    },
+    {
+      "id": 100,
+      "category": "general",
+      "setup": "I became a sculptor.",
+      "punchline": "I carved out a career."
+    }
+  ]
+}

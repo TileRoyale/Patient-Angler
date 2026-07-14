@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patient Angler — Full Regression Test · 2026-07-09</title>
+<style>
+/* ── Tokens ──────────────────────────────────────────────────────────────── */
+:root {
+  --bg:           #0d1117;
+  --surface:      #161b22;
+  --surface-hi:   #1c2128;
+  --border:       #21262d;
+  --border-hi:    #30363d;
+  --text:         #e6edf3;
+  --text-muted:   #8b949e;
+  --text-dim:     #484f58;
+  --pass:         #3fb950;
+  --warn:         #d29922;
+  --fail:         #f85149;
+  --note:         #58a6ff;
+  --pass-bg:      rgba(63,185,80,.09);
+  --warn-bg:      rgba(210,153,34,.09);
+  --fail-bg:      rgba(248,81,73,.09);
+  --note-bg:      rgba(88,166,255,.09);
+  --font-sans:    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    ui-monospace, 'Cascadia Code', 'SF Mono', 'Fira Code', Consolas, monospace;
+  --radius:       4px;
+  --radius-lg:    8px;
+}
+
+/* ── Reset & Base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--note); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, .mono {
+  font-family: var(--font-mono);
+  font-size: .85em;
+  background: var(--surface-hi);
+  padding: 1px 5px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.page { max-width: 960px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── Sticky header ───────────────────────────────────────────────────────── */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: 100%;
+}
+.sticky-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.score-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: .02em;
+}
+.pill-fail { background: var(--fail-bg); color: var(--fail); border: 1px solid rgba(248,81,73,.25); }
+.pill-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid rgba(210,153,34,.25); }
+.pill-pass { background: var(--pass-bg); color: var(--pass); border: 1px solid rgba(63,185,80,.25); }
+.pill-note { background: var(--note-bg); color: var(--note); border: 1px solid rgba(88,166,255,.25); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.page-header {
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.01em;
+  margin-bottom: 6px;
+}
+.page-header .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.meta-item { display: flex; align-items: center; gap: 6px; }
+.meta-label { color: var(--text-dim); }
+
+/* ── Score bar ───────────────────────────────────────────────────────────── */
+.score-bar-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.score-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.score-card .count {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.score-card .label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.sc-fail .count { color: var(--fail); }
+.sc-fail .label { color: rgba(248,81,73,.7); }
+.sc-fail { border-color: rgba(248,81,73,.2); background: var(--fail-bg); }
+.sc-warn .count { color: var(--warn); }
+.sc-warn .label { color: rgba(210,153,34,.7); }
+.sc-warn { border-color: rgba(210,153,34,.2); background: var(--warn-bg); }
+.sc-pass .count { color: var(--pass); }
+.sc-pass .label { color: rgba(63,185,80,.7); }
+.sc-pass { border-color: rgba(63,185,80,.15); }
+.sc-total .count { color: var(--text); }
+.sc-total .label { color: var(--text-muted); }
+
+/* ── Category sections ───────────────────────────────────────────────────── */
+.category {
+  margin-bottom: 40px;
+}
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.category-header h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-muted);
+}
+.category-tally {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.mini-pill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+.mp-fail { color: var(--fail); background: var(--fail-bg); }
+.mp-warn { color: var(--warn); background: var(--warn-bg); }
+.mp-pass { color: var(--pass); background: var(--pass-bg); }
+
+/* ── Result rows ─────────────────────────────────────────────────────────── */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.result-table thead th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  background: var(--surface);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.result-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.result-table tbody tr:last-child { border-bottom: none; }
+.result-table tbody tr:hover { background: var(--surface-hi); }
+.result-table td {
+  padding: 9px 12px;
+  vertical-align: top;
+  font-size: 13px;
+}
+.td-status { width: 72px; }
+.td-system { width: 220px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.td-detail { color: var(--text-muted); font-size: 13px; }
+
+.status-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.sb-pass { background: var(--pass-bg); color: var(--pass); }
+.sb-warn { background: var(--warn-bg); color: var(--warn); }
+.sb-fail { background: var(--fail-bg); color: var(--fail); }
+.sb-note { background: var(--note-bg); color: var(--note); }
+
+/* Fail rows get a left stripe */
+.row-fail td:first-child { box-shadow: inset 3px 0 0 var(--fail); }
+.row-warn td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+
+/* ── Finding boxes ───────────────────────────────────────────────────────── */
+.findings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.finding {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.finding-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+}
+.finding-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.finding-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.finding-loc {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.finding-fail { border-color: rgba(248,81,73,.3); background: var(--fail-bg); }
+.finding-warn { border-color: rgba(210,153,34,.3); background: var(--warn-bg); }
+.finding-body {
+  padding: 0 16px 14px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.finding-body p { margin-top: 10px; }
+.finding-body p:first-child { margin-top: 10px; }
+.finding-body strong { color: var(--text); font-weight: 600; }
+.finding-body .fix {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--surface-hi);
+  border-left: 3px solid var(--note);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* ── Section divider ─────────────────────────────────────────────────────── */
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-dim);
+  margin: 40px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Notes ───────────────────────────────────────────────────────────────── */
+.note-box {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--note);
+  border-radius: var(--radius);
+  background: var(--note-bg);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.note-box strong { color: var(--text); }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Scroll tables ───────────────────────────────────────────────────────── */
+.table-scroll { overflow-x: auto; }
+
+@media (max-width: 640px) {
+  .td-system { width: 140px; }
+  .score-bar-section { grid-template-columns: 1fr 1fr; }
+  .sticky-header { gap: 12px; flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sticky header -->
+<div class="sticky-header">
+  <span class="sticky-title">Patient Angler · Regression Test</span>
+  <div class="score-pills">
+    <span class="pill pill-fail"><span class="dot"></span>4 FAIL</span>
+    <span class="pill pill-warn"><span class="dot"></span>5 WARN</span>
+    <span class="pill pill-pass"><span class="dot"></span>46 PASS</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <h1>Full Regression Test — Patient Angler</h1>
+    <div class="meta">
+      <span class="meta-item"><span class="meta-label">Date</span> 2026-07-09</span>
+      <span class="meta-item"><span class="meta-label">Version</span> v0.1.15 · Build 21</span>
+      <span class="meta-item"><span class="meta-label">Method</span> Static code analysis</span>
+      <span class="meta-item"><span class="meta-label">Scope</span> 55 systems across all game layers</span>
+      <span class="meta-item"><span class="meta-label">Files</span> game.js · admob.js · iap.js · auth.js · version.js · index.html · styles.css</span>
+    </div>
+  </div>
+
+  <!-- Score cards -->
+  <div class="score-bar-section">
+    <div class="score-card sc-fail">
+      <span class="count">4</span>
+      <span class="label">Fail</span>
+    </div>
+    <div class="score-card sc-warn">
+      <span class="count">5</span>
+      <span class="label">Warning</span>
+    </div>
+    <div class="score-card sc-pass">
+      <span class="count">46</span>
+      <span class="label">Pass</span>
+    </div>
+    <div class="score-card sc-total">
+      <span class="count">55</span>
+      <span class="label">Systems</span>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Scope note:</strong> Static analysis only — runtime behavior, console output, live device performance, and missing asset verification require on-device testing. All function references are cited as found in source; line numbers are approximate and may shift with edits.
+  </div>
+
+  <!-- ── FAILURES ──────────────────────────────────────────────────────── -->
+  <div class="section-label">Failures — require fixes before shipping</div>
+
+  <div class="findings">
+
+    <div class="finding finding-fail">
+      <div class="finding-header">
+        <span class="status-badge sb-fail">FAIL</span>
+        <div class="finding-meta">
+          <span class="finding-title">Fish rate HUD understates real catch rate when mastery is active</span>
+          <span class="finding-loc">calcFishRate() · game.js ~line 3514</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p><code>calcFishRate()</code> computes displayed fish/s as <code>sum((getSpeedMult() × typeMult × getPearlSpeedMult() × getMultiCatch()) / aDef.rate)</code> — but it does <strong>not</strong> include <code>getMasteryAutoSpeedMult()</code>.</p>
+        <p>The actual <code>autoTick()</code> speedBase (line ~2585) correctly multiplies <code>getSpeedMult() × getPearlSpeedMult() × getMasteryAutoSpeedMult()</code>. The Fishdex Mastery auto-speed bonus (up to ~+24% total across zones) is applied to real catches but invisible in the HUD counter. Players with high mastery will see a lower fish/s number than they are actually producing.</p>
+        <div class="fix">Fix: add getMasteryAutoSpeedMult() to the calcFishRate() product chain.</div>
+      </div>
+    </div>
+
+    <div class="finding finding-fail">
+      <div class="finding-header">
+        <span class="status-badge sb-fail">FAIL</span>
+        <div class="finding-meta">
+          <span class="finding-title">renderHallOfFame() is dead code — never called, element ID wrong</span>
+          <span class="finding-loc">renderHallOfFame() · game.js ~line 4588</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p><code>renderHallOfFame()</code> queries <code>document.getElementById('halloffame-content')</code> which does not exist in index.html. The Hall of Fame screen uses <code>id="stats-content"</code> instead.</p>
+        <p>Additionally, <code>renderHallOfFame()</code> has zero call sites — the screen navigation for <code>showScreen('halloffame')</code> calls <code>renderStatistics()</code>, not this function. The trophy/zone/title rendering inside <code>renderHallOfFame()</code> is entirely inaccessible. Zone competition records in <code>G.hofActive</code> are partially shown in the stats tab 5 via <code>_renderStatsContent()</code>, not through this dedicated function.</p>
+        <div class="fix">Fix: wire renderHallOfFame() into showScreen('halloffame'), or merge its content into renderStatistics() and delete the dead function.</div>
+      </div>
+    </div>
+
+    <div class="finding finding-fail">
+      <div class="finding-header">
+        <span class="status-badge sb-fail">FAIL</span>
+        <div class="finding-meta">
+          <span class="finding-title">Redeem code diamond reward displays wrong currency name</span>
+          <span class="finding-loc">redeemCode() success handler · game.js ~line 4963</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p>When a redeem code grants diamonds (<code>r.rewardType === 'diamonds'</code>), the success message appends <strong>"Black Pearls!"</strong> instead of <strong>"Diamonds!"</strong>. The diamonds are correctly credited to <code>G.diamonds</code>, but players see the wrong currency name in the confirmation toast.</p>
+        <div class="fix">Fix: change the string literal from 'Black Pearls!' to 'Diamonds!' in the diamonds reward branch of redeemCode().</div>
+      </div>
+    </div>
+
+    <div class="finding finding-fail">
+      <div class="finding-header">
+        <span class="status-badge sb-fail">FAIL</span>
+        <div class="finding-meta">
+          <span class="finding-title">Competition duration still at 5-minute prototype value</span>
+          <span class="finding-loc">COMP_DURATION_MS · game.js ~line 410</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p><code>const COMP_DURATION_MS = 5 * 60 * 1000;</code> — the inline comment reads <em>"5 min prototype (60 min production)"</em>. The production value has never been applied. Competition join screens also display "5 minutes."</p>
+        <p>A 5-minute competition window significantly reduces the appointment-gaming value of competitions and makes the Hall of Fame feel low-stakes. This was flagged in previous audits as a known gap but remains unresolved.</p>
+        <div class="fix">Fix: change to 60 * 60 * 1000 before shipping. Update any UI strings that display the duration.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── WARNINGS ──────────────────────────────────────────────────────── -->
+  <div class="section-label">Warnings — non-blocking but worth addressing</div>
+
+  <div class="findings">
+
+    <div class="finding finding-warn">
+      <div class="finding-header">
+        <span class="status-badge sb-warn">WARN</span>
+        <div class="finding-meta">
+          <span class="finding-title">getEstimatedHourlyIncome() missing speed multipliers — seagull and competition rewards scale too low</span>
+          <span class="finding-loc">getEstimatedHourlyIncome() · game.js ~line 3527</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p><code>getEstimatedHourlyIncome()</code> computes <code>sum(count / aDef.rate)</code> using raw rates with no speed bonuses. The real catch rate in <code>autoTick()</code> multiplies by <code>getSpeedMult() × getPearlSpeedMult() × getMasteryAutoSpeedMult()</code>.</p>
+        <p>This function is used for two payout calculations: <strong>seagull tap reward</strong> (1% of hourly income) and <strong>base competition reward</strong> via <code>getCompBaseReward()</code>. A player with maximum Speed, Pearl Speed, and Mastery bonuses (potentially 4–6× combined) receives seagull and competition rewards calculated as if they had no upgrades. The reward gap grows with progression.</p>
+        <div class="fix">Verify whether intentional (a cap mechanism) or a bug. If a bug: add getSpeedMult() × getPearlSpeedMult() × getMasteryAutoSpeedMult() to the rate denominator.</div>
+      </div>
+    </div>
+
+    <div class="finding finding-warn">
+      <div class="finding-header">
+        <span class="status-badge sb-warn">WARN</span>
+        <div class="finding-meta">
+          <span class="finding-title">G.currentBobber missing from DEFAULT_STATE — no bobber equip mechanic exists</span>
+          <span class="finding-loc">DEFAULT_STATE · game.js</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p><code>G.currentBobber</code> is referenced in <code>getBobberSrc()</code> and reset in <code>doPrestige()</code>, but the field is absent from <code>DEFAULT_STATE</code>. New players start with <code>G.currentBobber = undefined</code>. <code>getBobberSrc()</code> gracefully falls back to the basic bobber image, so there is no crash — but the field is never written during normal gameplay. No "equip bobber" mechanic exists anywhere in the shop or inventory UI.</p>
+        <p>The bobber shop shows unlocked bobbers and upgrades their stats, but equipping is unimplemented. The bobber visual is always the default.</p>
+        <div class="fix">Either add G.currentBobber to DEFAULT_STATE and implement the equip flow, or remove the field references if the bobber visual system is deferred.</div>
+      </div>
+    </div>
+
+    <div class="finding finding-warn">
+      <div class="finding-header">
+        <span class="status-badge sb-warn">WARN</span>
+        <div class="finding-meta">
+          <span class="finding-title">G.records (personal fishing records) tracked but never displayed</span>
+          <span class="finding-loc">updateRecord() · G.records · game.js</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p><code>G.records</code> is populated by <code>updateRecord()</code> to track best fish per zone per species. It is distinct from <code>G.trophyRecords</code> (heaviest per species) and the new <code>G.stats.rec*</code> fields (Records tab 7). The <code>G.records</code> data is never rendered anywhere in the current UI — it is written on every catch and saved to localStorage but is dead data from the player's perspective.</p>
+        <p>The Hall of Fame zone records section in <code>renderStatistics()</code> displays <code>G.hofActive</code> (competition wins), not <code>G.records</code>.</p>
+        <div class="fix">Either surface G.records in a UI panel, or remove the tracking to reduce storage writes.</div>
+      </div>
+    </div>
+
+    <div class="finding finding-warn">
+      <div class="finding-header">
+        <span class="status-badge sb-warn">WARN</span>
+        <div class="finding-meta">
+          <span class="finding-title">rapid_waters and bite_speed_boost claim handlers double-call scheduleNextSpecialEvent()</span>
+          <span class="finding-loc">rapid_waters.claim(), bite_speed_boost.claim() · game.js ~line 5180, 5196</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p>Both <code>rapid_waters.claim()</code> and <code>bite_speed_boost.claim()</code> explicitly call <code>scheduleNextSpecialEvent()</code> at the end of their handlers. <code>closeSpecialEventPopup()</code> — which runs after every claim — also calls <code>scheduleNextSpecialEvent()</code>. This means the next-event timer is started twice in sequence for these two events.</p>
+        <p>The last write wins, so the 15–30 min countdown is reset to a fresh value on the second call. Net effect: the timer works correctly but starts slightly later than intended. The other three events (<code>care_package</code>, <code>lost_treasure</code>, <code>special_catch</code>) delegate entirely to <code>closeSpecialEventPopup()</code> without this redundancy.</p>
+        <div class="fix">Remove the scheduleNextSpecialEvent() calls from rapid_waters.claim() and bite_speed_boost.claim().</div>
+      </div>
+    </div>
+
+    <div class="finding finding-warn">
+      <div class="finding-header">
+        <span class="status-badge sb-warn">WARN</span>
+        <div class="finding-meta">
+          <span class="finding-title">fishdexPct divisor /180 — verify this matches actual reachable item count</span>
+          <span class="finding-loc">_renderStatsContent() tab 4 · game.js</span>
+        </div>
+      </div>
+      <div class="finding-body">
+        <p>Stats tab 4 computes completion as <code>Math.round((G.fishdex.length / 180) * 100)</code>. Both <code>autoTick</code> and the manual <code>btn-catch-ok</code> handler push to <code>G.fishdex</code>, so in principle all 180 items (6 zones × 30) are reachable. However, 10 fish in <code>FISH_DB</code> are marked manual-only (automation cannot catch them). If those 10 manual-only fish are in <code>G.fishdex</code> scope, the total is still 180 and the divisor is correct.</p>
+        <p>Verify: confirm that <code>G.fishdex</code> entries are pushed for manual-only fish on catch, and that the complete reachable set is exactly 180. If the actual reachable set differs, the percentage cap will be wrong.</p>
+        <div class="fix">Audit FISH_DB count + all plant/trash entries vs. 180. Add a computed constant (FISHDEX_TOTAL) rather than the hardcoded literal so the number stays in sync automatically.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SYSTEM PASS TABLE ──────────────────────────────────────────────── -->
+  <div class="section-label">All systems — full results</div>
+
+  <!-- Economy & Progression -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Economy &amp; Progression</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">7 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Zone unlocking</td><td class="td-detail"><code>isZoneUnlocked()</code> checks rod ownership + transport ownership against <code>ZONE_DATA</code> requirements. <code>buyTransport()</code> chains <code>applyDiscount(applyZoneCostScaling(...))</code> correctly. All 5 transport items wired. <code>carbon_rod</code> costs less than <code>ocean_rod</code> — not a gating issue since zone requires <code>ocean_rod</code> by ID, not price.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Rod shop</td><td class="td-detail"><code>getRodNextCost()</code> formula: <code>Math.floor(r.baseTierCost × Math.pow(10, tier))</code> — 10× scaling confirmed. <code>buyRod()</code> applies discount + zone scaling. Players can purchase higher rods without unlocking the zone, but zone access still requires the specific rod ID.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Rod tiers (band gates)</td><td class="td-detail"><code>getRodMaxUnlockedTier()</code>: Band 1 T1–5 open at start; Band 2 T6–10 unlocked when all rods at T5; Band 3 T11–15 unlocked when all rods at T8. Band 3 gate change (from T10→T8) applied only to <code>getRodMaxUnlockedTier()</code>, not <code>getBobberMaxUnlockedTier()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Bobber shop</td><td class="td-detail"><code>getBobberMaxUnlockedTier()</code> uses thresholds 5/10 (distinct from rod bands at 5/8). Tier costs: <code>Math.floor(b.baseCost × Math.pow(10, tier))</code>. Effects (window bonus, false bobs, vibration) all wired.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Storage</td><td class="td-detail"><code>storageCapacity()</code> multiplies base × <code>getRodStorageCapacityMult × getPearlStorageMult × getMasteryStorageMult × devSupportBonus</code>. <code>buyStorage()</code> uses 1.22 exponential bulk scaling. Storage is the single source of truth for spoilage duration (matching spec).</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Automation</td><td class="td-detail"><code>autoTick()</code> aggregates per zone+id, applies full speed chain, MAX_PER_TICK=150 guard. Escalating cost formula (<code>baseCost × 1.15^count</code>) correct. All four tiers (Nets/Fishermen/Boats/Fleets) confirmed. <em>Note: calcFishRate HUD display is a separate FAIL.</em></td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Transport</td><td class="td-detail">5 transport items (Waders → Research Vessel). Purchase applies sqrt zone-cost scaling. <code>recHighestZone</code> updated on purchase. One-time per zone, distinct from automation boats.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Fishing -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Fishing</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">7 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Active fishing</td><td class="td-detail">State machine: idle → waiting → bite → result. <code>startCast → startBite → tapBobber → rollCatch → presentCatch → btn-catch-ok</code>. 3s bite timeout. Tap count vs <code>Math.max(4, rod.clicks - getPearlMasterAnglerReduce())</code> correct.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Loot tables</td><td class="td-detail"><code>LOOT_TABLES</code> covers all 6 live zones (pond→ocean). Each successive zone has lower trash/plant %, higher rare/epic/legendary %. No abyss loot table exists, matching the abyss stub status.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Fish size / weight</td><td class="td-detail"><code>SIZE_TABLE</code> 5 entries (Tiny→Trophy). <code>FISH_WEIGHTS</code> covers all fish including time-specific species. <code>formatWeight()</code> correct g/kg display.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Trophy catches</td><td class="td-detail"><code>isTrophy</code> flag set on Trophy size roll. <code>weightG</code> randomly sampled within <code>FISH_WEIGHTS</code> range. Written to <code>G.trophyPile</code> (separate from <code>G.fishPile</code>). <code>G.trophyRecords</code> updated for heaviest per species.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Lucky Hook</td><td class="td-detail"><code>isLuckyHookActive()</code> checks <code>Date.now() &lt; G.specialCatchEnd</code>. When active, <code>rollCatch()</code> narrows pool to rare/epic/legendary only. Both fields in DEFAULT_STATE.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Premium Bait</td><td class="td-detail"><code>isPremiumBaitActive()</code> checks flag + expiry, auto-clears expired bait. Adds +1 to <code>rarBonus</code> in <code>rollCatch()</code> — effectively doubles non-common weights proportionally. HUD banner shows remaining time.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Seagull</td><td class="td-detail">Click handler → <code>Math.max(10, getEstimatedHourlyIncome() × 0.01 × getSeagullRewardMultiplier())</code>. <code>seagullBaitCount</code> drives both spawn interval (<code>0.95^count</code>) and reward multiplier (<code>1 + count × 0.10</code>). <em>Note: underlying income estimate missing speed mults — see WARN.</em></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Market -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Market</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">5 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">sellFish()</td><td class="td-detail">Calls <code>_earnCoins()</code>, updates <code>bestFishSold</code>, calls <code>_updateSaleRecords()</code>, updates <code>fishPile</code>. <code>onSellEvent()</code> fired per sell for quest tracking.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Sell All handler</td><td class="td-detail">Sells trash (1c each), discards plants, sells fish with <code>_updateSaleRecords()</code> per key. <code>_storageFull = false</code> reset. Harbor achievement check included. <code>onSellEvent()</code> fired per fish species.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Auto-sell</td><td class="td-detail"><code>doAutoSell()</code> polls every 60s, fires every 3 real hours. Mirrors sell-all logic including <code>_updateSaleRecords()</code>. Trophies converted to diamonds (no <code>onSellEvent</code> for trophy path — correct by design). <code>startAutoSellTimer()</code> has clearInterval guard.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Market UI</td><td class="td-detail"><code>renderMarket()</code> renders trophy, fish, trash, plant sections with sell/discard buttons. Sell-all label updates with estimated total value. Static prices shown correctly.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">fishPileValue() formula</td><td class="td-detail">Static pricing (no demand states — confirmed intentional design). Formula: <code>baseValue × sizeMult × getRodSellBonus() × abyssBonus × getBlackPearlBonus() × getMasteryFishSellMult() × devSupportBonus</code>. All multipliers wired correctly.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Automation -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Automation</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-fail">1 FAIL</span>
+        <span class="mini-pill mp-pass">3 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">autoTick() firing</td><td class="td-detail"><code>setInterval(autoTick, 1000)</code> in <code>startAutomation()</code> with <code>clearInterval</code> guard. Dirty-save flush every 15s. MAX_PER_TICK=150 burst guard correct.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Per-zone automation</td><td class="td-detail">Each automation item zone-tagged at purchase to <code>G.currentZone</code>. <code>autoTick()</code> aggregates by zone+id pair. <code>getAutoCount(type, zone)</code> and <code>_calcZoneAutoRate(zone)</code> correct. Old zones keep producing when new zone unlocked.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Offline progress</td><td class="td-detail">12h cap (43200s). Applies <code>getPearlOfflineExpertMult() × getMasteryOfflineMult()</code>. Fish above storage cap dropped. Trophies silently downgraded to Large (intentional). Minor: <code>floor()</code> applied before <code>getMultiCatch()</code> — slightly pessimistic vs. online tick but acceptable.</td></tr>
+        <tr class="row-fail"><td class="td-status"><span class="status-badge sb-fail">FAIL</span></td><td class="td-system">calcFishRate() HUD</td><td class="td-detail">Missing <code>getMasteryAutoSpeedMult()</code> — displayed fish/s understates real rate when mastery bonuses active. See detailed finding above.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Competitions -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Competitions</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-fail">2 FAIL</span>
+        <span class="mini-pill mp-pass">4 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr class="row-fail"><td class="td-status"><span class="status-badge sb-fail">FAIL</span></td><td class="td-system">COMP_DURATION_MS</td><td class="td-detail">5 min (300s). Comment: "5 min prototype (60 min production)". Never updated. See detailed finding above.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Bot generation</td><td class="td-detail"><code>tickCompetitionBots()</code> fires every 10s, 35% per-bot catch probability. Uses zone loot tables including legendary for ocean bots. Produces plausible competition scores.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Result calculation</td><td class="td-detail"><code>finishCompetition()</code> merges player + bots, sorts by value descending, finds player rank. Reward: <code>getCompBaseReward(rank) × getPearlCompSpiritMult() × getMasteryCompMult()</code>. Streak and pure-skill achievement tracked.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Competition series</td><td class="td-detail"><code>SERIES_LENGTH = 10</code>. <code>SERIES_POINTS = [0,10,7,5,3,2,1,1,1,1,1]</code> (ranks 1–10). <code>_getSeriesRanking()</code> sorts by points then wins. Grand finale triggers when <code>competitionNumber >= SERIES_LENGTH</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Grand finale</td><td class="td-detail"><code>_calcGrandReward(rank)</code> = <code>getCompBaseReward(rank) × 5 × getPearlCompSpiritMult() × getMasteryCompMult()</code>. Paid in <code>finishCompetition()</code> on series completion. <code>recGrandTitles</code> incremented for rank 1 only.</td></tr>
+        <tr class="row-fail"><td class="td-status"><span class="status-badge sb-fail">FAIL</span></td><td class="td-system">renderHallOfFame()</td><td class="td-detail">Dead code — element ID wrong, zero call sites. Zone trophy/title data inaccessible. See detailed finding above.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Prestige & Pearls -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Prestige &amp; Pearl Shop</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">12 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">doPrestige()</td><td class="td-detail"><code>canPrestige()</code> gates on <code>coins >= prestigeThreshold()</code>. Confirmation dialog shows pearl count. Reset scope correct (coins, zone, rods, storage, transport, automation, fish piles, rod/bobber tiers, lure). Persistent: fishdex, mastery, diamonds, pearls, pearlUpgrades, quests, stats.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Pearl formula</td><td class="td-detail"><code>Math.max(1, Math.floor(Math.sqrt(coins / 2000)))</code>. Threshold: <code>Math.floor(15000 × 1.20^prestigeCount)</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Zone cost scaling</td><td class="td-detail"><code>applyZoneCostScaling(cost)</code> = <code>Math.floor(cost × (1 + Math.sqrt(prestigeCount) × 0.35))</code>. Sqrt formula correctly applied. Applied in both <code>buyTransport()</code> and zone shop UI display.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Pearl upgrades array</td><td class="td-detail">10 upgrades: discount, speed, storage, multicatch, luckywaters, masterangler, treasure, offline, compspirit, fishwhisperer. All in <code>G.pearlUpgrades</code> DEFAULT_STATE with keys initialized to 0.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">buyPearlUpgrade()</td><td class="td-detail">Max level check, cost = <code>Math.ceil(upg.baseCost × Math.pow(upg.growthRate, lvl))</code>, deducts pearls, increments level. Correct.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">getPearlSpeedMult()</td><td class="td-detail"><code>1 + lvl × 0.25</code>, capped at 3.00. Wired into <code>autoTick()</code> speedBase.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">getPearlStorageMult()</td><td class="td-detail"><code>1 + lvl × 0.50</code>. Wired into <code>storageCapacity()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">getPearlTreasureBonus()</td><td class="td-detail"><code>lvl × 0.05</code>. Wired into <code>triggerSpecialEvent()</code> weighted selection — <code>lost_treasure</code> weight = <code>1 + getPearlTreasureBonus()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">getPearlOfflineExpertMult()</td><td class="td-detail"><code>1 + lvl × 0.10</code>. Applied in <code>calculateOfflineProgress()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">getPearlCompSpiritMult()</td><td class="td-detail"><code>1 + lvl × 0.10</code>. Applied in <code>finishCompetition()</code> and <code>_calcGrandReward()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">getPearlMasterAnglerReduce()</td><td class="td-detail"><code>Math.floor(lvl / 2)</code>. Applied in tap count: <code>Math.max(4, rod.clicks - reduce)</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Multicatch (pearl)</td><td class="td-detail">Pearl multicatch inlined in <code>getMultiCatch()</code>: <code>bobberTier + 1 + Math.floor(pearlUpgrades.multicatch / 5)</code>. Applied in <code>autoTick()</code>, <code>presentCatch()</code>, <code>calculateOfflineProgress()</code>. No separate getter function — inlined correctly.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Fishdex & Mastery -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Fishdex &amp; Mastery</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-warn">1 WARN</span>
+        <span class="mini-pill mp-pass">4 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Manual Fishdex</td><td class="td-detail"><code>G.manualFishdex</code> tracks per-fish: discovered, firstCaughtDate, totalCatches, largestWeight, bestSize, trophyCount. <code>trackManualFishdexEntry()</code> updates it. Migration path for old saves. Legendary first-catch awards +3 diamonds.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Fishdex tracking</td><td class="td-detail"><code>G.fishdex</code> flat array pushed by both <code>autoTick()</code> and manual <code>btn-catch-ok</code> handler on first catch per item ID.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Fishdex UI</td><td class="td-detail">6 zone tabs, automation/manual mode toggle, mastery panels, lure target buttons. <code>renderFishdexTabs()</code> and <code>renderFishdex()</code> correct. <code>_fishdexZone</code> session variable remembers last tab.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Mastery system</td><td class="td-detail"><code>MASTERY_TIERS</code> = [100, 1K, 10K, 100K, 1M]. <code>MASTERY_THRESHOLDS</code> = [25, 50, 75, 100, 125, 150] points for zone bonuses. <code>_computeMasteryBonuses()</code> cache correctly invalidated on increment.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Mastery bonuses wired</td><td class="td-detail">fishSell → <code>fishPileValue()</code>. autoSpeed → <code>autoTick()</code> + <code>calculateOfflineProgress()</code> (<em>but not <code>calcFishRate()</code> — separate FAIL</em>). storage → <code>storageCapacity()</code>. offline → <code>calculateOfflineProgress()</code>. trophyChance → <code>rollCatch()</code> trophyMult. rareChance → <code>rollCatch()</code> rarBonus. questReward → <code>claimQuestReward()</code>. compReward → <code>finishCompetition()</code>.</td></tr>
+        <tr class="row-warn"><td class="td-status"><span class="status-badge sb-warn">WARN</span></td><td class="td-system">fishdexPct divisor</td><td class="td-detail">Hardcoded <code>/180</code> — verify actual reachable item count. See detailed warning above.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Targeted Lure -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Targeted Lure</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">4 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">State fields</td><td class="td-detail"><code>targetedLureLevel</code> and <code>targetedLureTargets</code> both in DEFAULT_STATE (initialized 0 and []). Persist across sessions.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">buyTargetedLure()</td><td class="td-detail">Costs: <code>[25K, 250K, 2.5M, 25M, 250M]</code>. Max level 5. Correct coin deduction and level increment.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Effect in autoTick</td><td class="td-detail">Targeted items receive 3× weight in <code>rollCatch()</code> when <code>!isManual &amp;&amp; targetedLureTargets.length > 0</code>. Automation-only by design — manual fishing intentionally excluded.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Prestige reset</td><td class="td-detail"><code>doPrestige()</code> sets <code>G.targetedLureLevel = 0; G.targetedLureTargets = []</code>.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Quests & Achievements -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Quests &amp; Achievements</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">6 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Daily quests</td><td class="td-detail">Pool of 8, 3 selected per day. Reset on calendar day change. <code>dailySpecies</code> reset for variety tracking. Reward formula: <code>base + 30s automation income</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Weekly quests</td><td class="td-detail">Pool of 5, 1 selected per week by <code>mondayStr()</code>. Reset on Monday.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Achievements</td><td class="td-detail">10 standard + 38 hidden = 48 total. <code>syncAch(type, value)</code> iterates matching-type achievements and updates <code>G.quests.ap</code>. <code>claimQuestReward('ach', id)</code> correct.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Hidden achievements</td><td class="td-detail"><code>hidden: true</code> flag. Displayed as '???' until <code>prog >= goal</code>. Revealed on completion.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Quest badge</td><td class="td-detail"><code>updateQuestBadge()</code> injects/removes <code>.quest-badge</code> on nav button based on any claimable daily/weekly/achievement. Disappears after all claimed.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Quest event hooks</td><td class="td-detail"><code>onCatchEvent(fishId, rarity)</code>, <code>onSellEvent(fishId, value)</code>, <code>onStorageFullEvent()</code> all track relevant events. Called from correct locations (both manual and auto catch paths). <code>G.stats</code> updated.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Statistics & Records -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Statistics &amp; Records</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-warn">2 WARN</span>
+        <span class="mini-pill mp-pass">3 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">DEFAULT_STATE.stats</td><td class="td-detail">All stats fields initialized: catches, economy, automation counters, event counters, play streak, all 10 record fields (<code>rec*</code>).</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Stats tabs 1–7</td><td class="td-detail"><code>_renderStatsContent()</code> renders 7 tabs: Fishing, Economy, Automation, Progression, Gameplay, Events, Records. <code>switchStatsTab(n)</code> updates active class and re-renders.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Records tab + tracking</td><td class="td-detail">9 record rows rendered in tab 7. Tracking: <code>trackManualCatch()</code> → biggest fish + trophy records; <code>_updateSaleRecords()</code> (3 call sites) → sale value + multiplier; <code>updateHUD()</code> → peak diamonds/pearls; <code>buyTransport()</code> → highest zone; <code>finishCompetition()</code> → grand titles. Save migration for <code>recHighestZone</code> in <code>initQuests()</code>.</td></tr>
+        <tr class="row-warn"><td class="td-status"><span class="status-badge sb-warn">WARN</span></td><td class="td-system">fishdexPct /180</td><td class="td-detail">Verify total reachable count matches 180. See detailed warning above.</td></tr>
+        <tr class="row-warn"><td class="td-status"><span class="status-badge sb-warn">WARN</span></td><td class="td-system">G.records (dead data)</td><td class="td-detail"><code>updateRecord()</code> populates <code>G.records</code> per zone/species on every catch. Data is tracked and saved but never rendered in any UI panel. Not a crash — wasted writes only.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Redeem Codes -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Redeem Codes</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-fail">1 FAIL</span>
+        <span class="mini-pill mp-pass">1 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">redeemCode()</td><td class="td-detail">Server-side validation at Railway (<code>/pa/redeem</code>). Requires <code>isSignedIn()</code>. Error codes handled: invalid_code, already_redeemed, expired, server_error, missing_uid. Reward types processed client-side after server confirmation.</td></tr>
+        <tr class="row-fail"><td class="td-status"><span class="status-badge sb-fail">FAIL</span></td><td class="td-system">Diamond reward message</td><td class="td-detail">Success message appends "Black Pearls!" when reward type is diamonds (~line 4963). Diamonds are correctly credited; only the toast string is wrong. See detailed finding above.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- NPC Dialogue -->
+  <div class="category">
+    <div class="category-header">
+      <h2>NPC Dialogue</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">3 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">loadDialogueData()</td><td class="td-detail">Loads 3 JSON files asynchronously (dialogue, fishdex_info, competition_names) with silent failure. Called during <code>init()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Shopkeeper dialogue</td><td class="td-detail"><code>onShopOpen()</code> selects from quickReturn/longAbsence/normal greeting pools based on time since last visit. <code>showSpeechBubble('shop-speech-bubble', ...)</code> — element exists in HTML.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Fisherman dialogue</td><td class="td-detail"><code>checkFishermanDialogue(zone)</code> fires on clock tick for river/lake/bay when zone has a fisherman unit, once per in-game hour. <code>fisherman-speech-bubble</code> element exists in HTML.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Special Events -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Special Events</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-warn">1 WARN</span>
+        <span class="mini-pill mp-pass">5 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">SPECIAL_EVENTS array</td><td class="td-detail">5 events: care_package, rapid_waters, lost_treasure, bite_speed_boost, special_catch. Each has id, title, desc, icon, and claim() handler.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">triggerSpecialEvent()</td><td class="td-detail">Weighted selection: <code>lost_treasure</code> weight = <code>1 + getPearlTreasureBonus()</code>, others = 1. Filter excludes active rapid_waters, active bite_speed_boost, active/cooldown special_catch. Selection loop correct.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">scheduleNextSpecialEvent()</td><td class="td-detail"><code>(15 + Math.random() × 15) × 60000</code> = 15–30 min interval. Persisted in <code>G.specialEventNextAt</code>. <code>init()</code> handles missed events (fires after 2s) and remaining countdowns.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Event popup UI</td><td class="td-detail"><code>special-event-overlay</code>, <code>se-icon</code>, <code>se-title</code>, <code>se-desc</code>, <code>se-claim-btn</code>, <code>se-skip-btn</code>, <code>se-ad-note</code>, <code>event-side-icon</code> all present in HTML. Show/hide functions wired.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Treasure Hunter wired</td><td class="td-detail"><code>getPearlTreasureBonus()</code> correctly feeds into weighted event selection. At level 0 pool is uniform; each upgrade level adds +0.05 to lost_treasure weight.</td></tr>
+        <tr class="row-warn"><td class="td-status"><span class="status-badge sb-warn">WARN</span></td><td class="td-system">Claim handler double-call</td><td class="td-detail"><code>rapid_waters.claim()</code> and <code>bite_speed_boost.claim()</code> each call <code>scheduleNextSpecialEvent()</code>, which is also called by <code>closeSpecialEventPopup()</code>. Timer gets restarted twice. Functionally harmless (last write wins) but inconsistent with the other 3 events. See detailed warning above.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Ads & IAP -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Ads &amp; IAP</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">5 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">admob.js</td><td class="td-detail">GDPR consent flow before initialize. Race condition fix confirmed in all 3 locations (<code>onRewardedVideoAdDismissed</code>, <code>onRewardedVideoAdFailedToShow</code>, catch block): <code>AM.removeAllListeners().then(() => _prepareRewarded())</code>. Shared <code>_preparePromise</code> prevents concurrent loads. 20s timeout guard. Production IDs configured (<code>ADMOB_USE_TEST_ID = false</code>).</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">iap.js</td><td class="td-detail">Non-consumables: remove_ads, permanent_autoseller, dev_support_package. Consumables: starter (×1 only), pouch, chest, vault. <code>_restoreNonConsumables()</code> on Android init. Restore button wired in settings. <code>_grantNonConsumable()</code> sets correct G fields.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">simulateAdWatch()</td><td class="td-detail">Calls <code>showRewardedAd(onReward, onDismiss)</code>. Web fallback: 5s countdown. Remove Ads users bypass ad gate entirely.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Remove Ads flag</td><td class="td-detail"><code>G.removeAds</code> in DEFAULT_STATE. Checked in event popup (skips ad), <code>getSpeedMult()</code> (+25% fishing speed permanently), and <code>_startAutoSpecialCatch()</code>.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">_startAutoSpecialCatch()</td><td class="td-detail"><code>setInterval</code> every 10 min. Grants Lucky Hook to Remove Ads users when not already active. Sets <code>specialCatchEnd</code> and clears <code>specialCatchNextAt</code> to avoid event cooldown blocking it.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Save & Auth -->
+  <div class="category">
+    <div class="category-header">
+      <h2>Save, Auth &amp; Version</h2>
+      <div class="category-tally">
+        <span class="mini-pill mp-pass">5 PASS</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="result-table">
+      <thead><tr>
+        <th class="td-status">Status</th>
+        <th class="td-system">System</th>
+        <th class="td-detail">Notes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">saveState() / loadState()</td><td class="td-detail"><code>localStorage.setItem('patientAngler_v1', JSON.stringify(G))</code>. Load uses DEFAULT_STATE spread merge. New <code>stats.rec*</code> fields correctly receive defaults via spread. Nested objects (stats, quests, pearlUpgrades, rod/bobber tiers) merged with <code>|| 0</code> guards throughout.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Cloud save (auth.js)</td><td class="td-detail">Firebase Auth + Railway (<code>/pa/save</code>, <code>/pa/load/:uid</code>). Timestamp comparison (<code>cloudTs > localTs</code>) prevents stale cloud overwriting newer local. <code>triggerCloudSave()</code> debounced 3s + 5-min interval sync.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Version migration</td><td class="td-detail"><code>init()</code> migrates old string-array <code>ownedStorage</code> → object array, old <code>inventory</code> array → <code>fishPile</code> key-value. <code>recHighestZone</code> save migration in <code>initQuests()</code> correctly infers zone from <code>isZoneUnlocked</code> checks.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">checkClientVersion()</td><td class="td-detail">Fetches <code>/pa/version</code> from Railway. Compares <code>GAME_VERSION</code> against <code>minClientVersion</code> (hard block) and <code>latestVersion</code> (soft banner). Retries up to 3× at 10s intervals. <code>openPlayStorePage()</code> with Capacitor Browser fallback. Build 21 / v0.1.15.</td></tr>
+        <tr><td class="td-status"><span class="status-badge sb-pass">PASS</span></td><td class="td-system">Loading screen timing</td><td class="td-detail"><code>.loading-start-btn</code> hidden by default (<code>opacity:0; pointer-events:none</code>). After 1200ms: listener attached with <code>{ once: true }</code> + <code>.ready</code> class added (fade-in + pulse animation). <code>pressToStart()</code> early-returns if called before <code>_loadingReadyAt</code>. Double-fire protected.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Known pre-existing issues -->
+  <div class="section-label">Pre-existing issues — not regressions</div>
+  <div class="note-box" style="border-color: var(--border); border-left-color: var(--text-dim);">
+    The following are known gaps carried from before this session. They are not introduced by recent changes.
+  </div>
+
+  <div class="table-scroll" style="margin-bottom:40px;">
+  <table class="result-table">
+    <thead><tr>
+      <th class="td-status" style="width:80px;">Severity</th>
+      <th class="td-system">System</th>
+      <th class="td-detail">Issue</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="status-badge sb-note">INFO</span></td><td class="td-system">Abyss zone</td><td class="td-detail"><code>mythic_rod</code> and <code>abyss_rod</code> reference <code>zone: 'abyss'</code>. No <code>ZONE_DATA</code> entry, no loot table, no abyss fish. Fully stubbed by design.</td></tr>
+      <tr><td><span class="status-badge sb-note">INFO</span></td><td class="td-system">Bot scoring</td><td class="td-detail">Bot competition scores do not apply player-equivalent multipliers (mastery, pearls). Late-game competitions are easier than early-game — not a bug but worth tuning before production.</td></tr>
+      <tr><td><span class="status-badge sb-note">INFO</span></td><td class="td-system">care_package cap</td><td class="td-detail">Hardcoded 12,000c cap on Care Package reward. Trivially small vs. Ocean-zone income. May want to scale with player progression tier.</td></tr>
+      <tr><td><span class="status-badge sb-note">INFO</span></td><td class="td-system">G.currentBobber</td><td class="td-detail">Field exists in code but not in DEFAULT_STATE and no equip mechanic. Bobber visual is always default. Noted above as WARN — design decision pending.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="footer">
+    <span>Patient Angler: Idle Fishing — Static Code Regression Test</span>
+    <span>2026-07-09 · v0.1.15 Build 21 · Recapsa OU / Henly Games</span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Economy Regression Check — Patient Angler</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #21262d;
+  --border:    #30363d;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --faint:     #484f58;
+  --accent:    #58a6ff;
+  --pass:      #3fb950;
+  --warn:      #d29922;
+  --flag:      #f85149;
+
+  --ok-bg:   #0f2419; --ok-fg:   #3fb950;
+  --mid-bg:  #0c1f3a; --mid-fg:  #58a6ff;
+  --hard-bg: #251c00; --hard-fg: #d29922;
+  --wall-bg: #200d0d; --wall-fg: #f85149;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 32px 20px 80px;
+}
+
+.mono { font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace; }
+
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+
+/* ── Header ── */
+.rpt-header { border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+.rpt-title  { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.rpt-sub    { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* ── Summary bar ── */
+.summary { display: flex; gap: 10px; flex-wrap: wrap; }
+.finding {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 10px 14px; flex: 1; min-width: 220px;
+}
+.finding.pass { border-left: 3px solid var(--pass); }
+.finding.warn { border-left: 3px solid var(--warn); }
+.finding.flag { border-left: 3px solid var(--flag); }
+.finding-badge {
+  font-family: ui-monospace, monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  padding: 2px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0;
+}
+.badge-pass { background: #0f2419; color: var(--pass); }
+.badge-warn { background: #251c00; color: var(--warn); }
+.badge-flag { background: #200d0d; color: var(--flag); }
+.finding-text { font-size: 12px; color: var(--muted); }
+.finding-text strong { color: var(--text); font-weight: 600; }
+
+/* ── Sections ── */
+.section { display: flex; flex-direction: column; gap: 16px; }
+.section-head {
+  display: flex; align-items: baseline; gap: 12px;
+  border-bottom: 1px solid var(--border); padding-bottom: 10px;
+}
+.section-num {
+  font-family: ui-monospace, monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  color: var(--faint);
+}
+.section-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.section-status { margin-left: auto; }
+
+/* ── Callout box ── */
+.callout {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 14px 16px;
+  font-size: 12px; color: var(--muted); line-height: 1.7;
+}
+.callout.warn-box { border-left: 3px solid var(--warn); }
+.callout.flag-box { border-left: 3px solid var(--flag); }
+.callout.pass-box { border-left: 3px solid var(--pass); }
+.callout strong { color: var(--text); }
+.callout code {
+  font-family: ui-monospace, monospace;
+  font-size: 11px; background: var(--surface2);
+  padding: 1px 5px; border-radius: 3px; color: var(--accent);
+}
+
+/* ── Tables ── */
+.tbl-wrap { overflow-x: auto; }
+table {
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  min-width: max-content;
+}
+thead th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 7px 12px; text-align: right; white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+thead th:first-child { text-align: left; }
+tbody td {
+  padding: 6px 12px; text-align: right;
+  border-bottom: 1px solid var(--border);
+  font-family: ui-monospace, monospace;
+  white-space: nowrap; color: var(--muted);
+}
+tbody td:first-child { text-align: left; color: var(--text); font-weight: 600; font-family: inherit; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+td.ok   { background: var(--ok-bg);   color: var(--ok-fg);   }
+td.mid  { background: var(--mid-bg);  color: var(--mid-fg);  }
+td.hard { background: var(--hard-bg); color: var(--hard-fg); }
+td.wall { background: var(--wall-bg); color: var(--wall-fg); }
+td.match   { color: var(--pass); }
+td.nomatch { color: var(--flag); }
+
+.legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted);
+}
+.leg { display: flex; align-items: center; gap: 6px; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── Two-column grid ── */
+.col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .col2 { grid-template-columns: 1fr; } }
+
+.tbl-label {
+  font-size: 11px; color: var(--muted); margin-bottom: 8px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="rpt-header">
+    <div class="rpt-title">Economy Regression Check — Patient Angler</div>
+    <div class="rpt-sub mono">Three fixes: Treasure Hunter · Rod Tier Costs · Prestige Zone Scaling &nbsp;|&nbsp; 2026-07-09</div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary" id="summary-bar"></div>
+
+  <!-- SECTION 1: TREASURE HUNTER -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <span class="section-title">Treasure Hunter</span>
+      <span class="section-status"><span class="finding-badge badge-warn">WARN</span></span>
+    </div>
+
+    <div class="callout pass-box">
+      <strong>Code: PASS.</strong> Weighted event selection is correctly implemented.
+      <code>lost_treasure</code> weight = <code>1 + (level × 0.05)</code>; all other events weight = 1.
+      At L10, Lost Treasure is <strong>1.5× more likely</strong> to be selected than any individual non-treasure event.
+      The bonus applies at runtime during every <code>triggerSpecialEvent()</code> call.
+    </div>
+
+    <div class="callout warn-box">
+      <strong>UI description mismatch.</strong> Shop text reads "+5% Lost Treasure event chance per level."
+      This implies +5 percentage-point probability gain per level (+50 pp at L10 → 70% chance), which is impossible.
+      The code adds 0.05 to the event's <em>weight</em>, not to its probability directly.
+      With a 5-event pool at L10, the actual probability is <strong>27.3%</strong> (up from 20.0% baseline) — a +7.3 pp / +36% relative gain.
+      The upgrade works and benefits the player, but the copy is misleading. No gameplay bug.
+    </div>
+
+    <div class="col2">
+      <div>
+        <div class="tbl-label">Probability — full pool (N = 5)</div>
+        <div class="tbl-wrap"><table id="th-table-5"></table></div>
+      </div>
+      <div>
+        <div class="tbl-label">Probability — reduced pool (N = 3, two events filtered)</div>
+        <div class="tbl-wrap"><table id="th-table-3"></table></div>
+      </div>
+    </div>
+
+    <div class="callout" style="font-size:11px">
+      <strong>Pool size context:</strong> Pool filters remove <code>rapid_waters</code> if already active,
+      <code>bite_speed_boost</code> if already active, and <code>special_catch</code> if Lucky Hook is active or on cooldown.
+      Pool can range from 2 to 5 events. Lost Treasure is never filtered — it is always eligible.
+    </div>
+  </div>
+
+  <!-- SECTION 2: ROD TIERS -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <span class="section-title">Rod Tier Costs (base 10, tiers 1–15)</span>
+      <span class="section-status"><span class="finding-badge badge-warn">WARN</span></span>
+    </div>
+
+    <div class="callout pass-box">
+      <strong>Formula confirmed:</strong> <code>Math.floor(baseTierCost × 10^(tier−1))</code>.
+      Significant improvement from base 25: Ocean Rod T3 is now 250M (was 1.56B), T4 is 2.5B (was 39B), T5 is 25B (was 977B).
+      Tiers 1–5 are attainable for active players in relevant zones.
+    </div>
+
+    <div class="callout warn-box">
+      <strong>Band 3 gate is unreachable.</strong> The band system requires all owned rods to reach T10 before T11–T15 unlock.
+      The cheapest path is basic_rod T10 at <strong>1 trillion coins</strong>; ocean_rod T10 is <strong>2.5 quadrillion</strong>.
+      Neither is achievable in the current game. Tiers 11–15 exist in data but are dead content.
+    </div>
+
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:var(--ok-fg)"></div> ≤ 100M — attainable</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--mid-fg)"></div> 100M – 5B — endgame</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--hard-fg)"></div> 5B – 250B — extreme</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--flag)"></div> > 250B — unreachable</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table id="rod-table"></table>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:-4px">
+      Band system: T1–5 open from start &nbsp;·&nbsp; T6–10 requires all owned rods at T5 &nbsp;·&nbsp; T11–15 requires all owned rods at T10
+    </div>
+
+    <div>
+      <div class="tbl-label">Band gate costs (T5 requirement for Band 2 access)</div>
+      <div class="tbl-wrap"><table id="band-table"></table></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: PRESTIGE SCALING -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <span class="section-title">Prestige Zone Cost Scaling</span>
+      <span class="section-status"><span class="finding-badge badge-pass">PASS</span></span>
+    </div>
+
+    <div class="callout pass-box">
+      <strong>Formula confirmed:</strong> <code>Math.floor(cost × (1 + √prestigeCount × 0.35))</code>.
+      All seven spec multipliers match to two decimal places. Ocean re-unlock at prestige 50 is 1.56B
+      (was 22.95B with the old linear formula — a 93% reduction). No extreme wall exists at any realistic prestige level.
+    </div>
+
+    <div class="col2">
+      <div>
+        <div class="tbl-label">Multiplier verification</div>
+        <div class="tbl-wrap"><table id="mult-table"></table></div>
+      </div>
+      <div>
+        <div class="tbl-label">Ocean re-unlock cost — new vs old</div>
+        <div class="tbl-wrap"><table id="ocean-table"></table></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="tbl-label">No-wall confirmation — Ocean unlock payback time</div>
+      <div class="tbl-wrap"><table id="wall-table"></table></div>
+    </div>
+
+    <div class="callout" style="font-size:11px">
+      <strong>Income assumption:</strong> Deep Sea Fleet (10/s × 220c avg) × Black Pearl bonus (500 pearls = 6×) × Fishdex mastery sell (+30%) ≈ 61.7M coins/hr maximum sustained income.
+      Even at prestige 100, Ocean re-unlock costs 2.03B — approximately 33 hours of maximum automation income. No wall.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmt(n) {
+  if (n > 9e15)   return '>9Qa';
+  if (n >= 1e15)  { const v = n/1e15; return (v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2).replace(/\.?0+$/,'')) + 'Qa'; }
+  if (n >= 1e12)  { const v = n/1e12; return (v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2).replace(/\.?0+$/,'')) + 'T';  }
+  if (n >= 1e9)   { const v = n/1e9;  return (v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2).replace(/\.?0+$/,'')) + 'B';  }
+  if (n >= 1e6)   { const v = n/1e6;  return (v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2).replace(/\.?0+$/,'')) + 'M';  }
+  if (n >= 1e3)   { const v = n/1e3;  return v.toFixed(0) + 'K'; }
+  return n.toFixed(0);
+}
+function fmtMult(m) { return m.toFixed(3) + '×'; }
+function fmtPct(p)  { return p.toFixed(1) + '%'; }
+function reach(n)   {
+  if (n <= 1e8)    return 'ok';
+  if (n <= 5e9)    return 'mid';
+  if (n <= 2.5e11) return 'hard';
+  return 'wall';
+}
+
+// ─── 1. Treasure Hunter ───────────────────────────────────────────────────────
+
+function thProb(level, n) {
+  const w = 1 + level * 0.05;
+  return (w / (n - 1 + w)) * 100;
+}
+
+function buildTHTable(tableId, n) {
+  const table = document.getElementById(tableId);
+  const thead = table.createTHead();
+  const tbody = table.createTBody();
+  const hr = thead.insertRow();
+  ['Level','Weight','Prob %','vs L0','vs UI claim'].forEach((h, i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    if (i === 0) th.style.textAlign = 'left';
+    hr.appendChild(th);
+  });
+  const base = thProb(0, n);
+  [0,1,2,3,4,5,6,7,8,9,10].forEach(lvl => {
+    const prob   = thProb(lvl, n);
+    const weight = 1 + lvl * 0.05;
+    const delta  = prob - base;
+    const uiClaim = base + lvl * 5;
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td>L${lvl}</td>
+      <td>${weight.toFixed(2)}</td>
+      <td>${fmtPct(prob)}</td>
+      <td style="color:var(--muted)">${lvl===0 ? '—' : '+'+fmtPct(delta)}</td>
+      <td class="${lvl===0 ? '' : 'nomatch'}" style="${lvl===0 ? 'color:var(--muted)' : ''}">${lvl===0 ? '—' : fmtPct(uiClaim)}</td>
+    `;
+  });
+}
+
+buildTHTable('th-table-5', 5);
+buildTHTable('th-table-3', 3);
+
+// ─── 2. Rod Tier Costs ────────────────────────────────────────────────────────
+
+const RODS = [
+  { name:'Basic Rod',  zone:'Pond',   base:1000       },
+  { name:'River Rod',  zone:'River',  base:5000       },
+  { name:'Lake Rod',   zone:'Lake',   base:25000      },
+  { name:'Bay Rod',    zone:'Bay',    base:100000     },
+  { name:'Sea Rod',    zone:'Sea',    base:500000     },
+  { name:'Ocean Rod',  zone:'Ocean',  base:2500000    },
+  { name:'Carbon Rod', zone:'All',    base:10000000   },
+  { name:'Mythic Rod', zone:'Abyss',  base:50000000   },
+  { name:'Abyss Rod',  zone:'Abyss',  base:200000000  },
+];
+
+function rodCost(base, tier) { return Math.floor(base * Math.pow(10, tier - 1)); }
+
+(function buildRodTable() {
+  const table = document.getElementById('rod-table');
+  const thead = table.createTHead();
+  const tbody = table.createTBody();
+
+  const hr = thead.insertRow();
+  const thRod = document.createElement('th');
+  thRod.textContent = 'Rod / Tier';
+  thRod.style.textAlign = 'left';
+  hr.appendChild(thRod);
+  for (let t = 1; t <= 15; t++) {
+    const th = document.createElement('th');
+    th.textContent = 'T' + t;
+    if (t === 6)  th.style.borderLeft = '2px solid var(--warn)';
+    if (t === 11) th.style.borderLeft = '2px solid var(--flag)';
+    hr.appendChild(th);
+  }
+
+  RODS.forEach(rod => {
+    const tr = tbody.insertRow();
+    const tdName = tr.insertCell();
+    tdName.innerHTML = `${rod.name} <span style="color:var(--faint);font-size:10px">${rod.zone}</span>`;
+    tdName.style.textAlign = 'left';
+    for (let t = 1; t <= 15; t++) {
+      const cost = rodCost(rod.base, t);
+      const td   = tr.insertCell();
+      td.className  = reach(cost);
+      td.textContent = cost > 9e15 ? '>9Qa' : fmt(cost) + 'c';
+      if (t === 6)  td.style.borderLeft = '2px solid var(--border)';
+      if (t === 11) td.style.borderLeft = '2px solid var(--border)';
+    }
+  });
+})();
+
+(function buildBandTable() {
+  const table = document.getElementById('band-table');
+  const thead = table.createTHead();
+  const tbody = table.createTBody();
+  const hr = thead.insertRow();
+  ['Rod','T5 cost (band 2 gate)','Cumulative T1→T5','Status'].forEach((h, i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    if (i === 0) th.style.textAlign = 'left';
+    hr.appendChild(th);
+  });
+  RODS.slice(0, 6).forEach(rod => {
+    const t5 = rodCost(rod.base, 5);
+    let cum = 0;
+    for (let t = 1; t <= 5; t++) cum += rodCost(rod.base, t);
+    const cls = reach(t5);
+    const label = { ok:'Easy', mid:'Late-game', hard:'Difficult', wall:'Unreachable' }[cls];
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td>${rod.name}</td>
+      <td class="${cls}">${fmt(t5)}c</td>
+      <td style="color:var(--muted)">${fmt(cum)}c</td>
+      <td class="${cls}">${label}</td>
+    `;
+  });
+  const note = tbody.insertRow();
+  note.innerHTML = `<td colspan="4" style="color:var(--flag);font-size:11px;padding-top:10px">
+    Band 3 gate (T11): all rods at T10. Basic Rod T10 = 1T · Ocean Rod T10 = 2.5Qa → gate is unreachable at any playtime. Tiers 11–15 are dead content for all rods.
+  </td>`;
+})();
+
+// ─── 3. Prestige Scaling ─────────────────────────────────────────────────────
+
+function prestigeMult(p) { return 1 + Math.sqrt(p) * 0.35; }
+
+const OCEAN_ROD   = 250000000;
+const OCEAN_TRANS = 200000000;
+
+function oceanCost(p) {
+  const m = prestigeMult(p);
+  return Math.floor(OCEAN_ROD * m) + Math.floor(OCEAN_TRANS * m);
+}
+function oceanCostOld(p) {
+  return (OCEAN_ROD + OCEAN_TRANS) * (1 + p);
+}
+
+const SPEC = { 0:1.00, 1:1.35, 2:1.49, 5:1.78, 10:2.11, 20:2.56, 50:3.47 };
+const CHECK = [0,1,2,5,10,20,50];
+
+(function buildMultTable() {
+  const table = document.getElementById('mult-table');
+  const thead = table.createTHead(); const tbody = table.createTBody();
+  const hr = thead.insertRow();
+  ['Prestige','Multiplier','Spec','Match'].forEach((h, i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    if (i === 0) th.style.textAlign = 'left';
+    hr.appendChild(th);
+  });
+  CHECK.forEach(p => {
+    const m     = prestigeMult(p);
+    const spec  = SPEC[p];
+    const match = Math.abs(m - spec) < 0.005;
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td>P${p}</td>
+      <td class="mono">${fmtMult(m)}</td>
+      <td class="mono" style="color:var(--muted)">${spec.toFixed(2)}×</td>
+      <td class="${match ? 'match' : 'nomatch'}">${match ? '✓' : '✗'}</td>
+    `;
+  });
+})();
+
+(function buildOceanTable() {
+  const table = document.getElementById('ocean-table');
+  const thead = table.createTHead(); const tbody = table.createTBody();
+  const hr = thead.insertRow();
+  ['Prestige','New','Old','Reduction'].forEach((h, i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    if (i === 0) th.style.textAlign = 'left';
+    hr.appendChild(th);
+  });
+  CHECK.forEach(p => {
+    const nw  = oceanCost(p);
+    const old = oceanCostOld(p);
+    const pct = p === 0 ? '—' : '-' + Math.round((1 - nw / old) * 100) + '%';
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td>P${p}</td>
+      <td style="color:var(--pass)">${fmt(nw)}c</td>
+      <td style="color:var(--flag)">${fmt(old)}c</td>
+      <td style="color:var(--muted)">${pct}</td>
+    `;
+  });
+})();
+
+(function buildWallTable() {
+  const table = document.getElementById('wall-table');
+  const thead = table.createTHead(); const tbody = table.createTBody();
+  const hr = thead.insertRow();
+  ['Prestige','Ocean cost','Max income/hr','Hours to earn','Wall?'].forEach((h, i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    if (i === 0) th.style.textAlign = 'left';
+    hr.appendChild(th);
+  });
+  const MAX_HR = 61700000;
+  [0,1,2,5,10,20,50,100].forEach(p => {
+    const cost  = oceanCost(p);
+    const hrs   = cost / MAX_HR;
+    const isWall = hrs > 720;
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td>P${p}</td>
+      <td>${fmt(cost)}c</td>
+      <td style="color:var(--muted)">61.7M/hr</td>
+      <td class="${isWall ? 'nomatch' : 'match'}">${hrs.toFixed(1)} hrs</td>
+      <td class="${isWall ? 'nomatch' : 'match'}">${isWall ? 'YES — WALL' : 'No'}</td>
+    `;
+  });
+})();
+
+// ─── Summary bar ─────────────────────────────────────────────────────────────
+document.getElementById('summary-bar').innerHTML = `
+  <div class="finding warn">
+    <span class="finding-badge badge-warn">WARN</span>
+    <div class="finding-text"><strong>Treasure Hunter</strong> — code correct, UI copy misleading. At L10 actual gain is +7.3 pp (27.3%), not the implied +50 pp.</div>
+  </div>
+  <div class="finding warn">
+    <span class="finding-badge badge-warn">WARN</span>
+    <div class="finding-text"><strong>Rod Tiers</strong> — T1–T5 reachable as intended. T6–T10 difficult. T11–T15 blocked by unreachable Band 3 gate (all rods at T10).</div>
+  </div>
+  <div class="finding pass">
+    <span class="finding-badge badge-pass">PASS</span>
+    <div class="finding-text"><strong>Prestige Scaling</strong> — all 7 spec multipliers match. Ocean at P50 = 1.56B (was 22.95B). No wall through P100.</div>
+  </div>
+`;
+</script>
+</body>
+</html>

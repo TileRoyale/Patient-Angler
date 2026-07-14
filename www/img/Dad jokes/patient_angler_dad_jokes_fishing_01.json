@@ -1,0 +1,609 @@
+{
+  "version": "1.0",
+  "fileNumber": 1,
+  "theme": "fishing",
+  "count": 100,
+  "description": "100 hand-written fishing-themed dad jokes for Patient Angler. Every setup and punchline is unique.",
+  "jokes": [
+    {
+      "id": 1,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a ladder?",
+      "punchline": "He wanted to reach the high tide."
+    },
+    {
+      "id": 2,
+      "category": "fishing",
+      "setup": "Why did the trout blush?",
+      "punchline": "It saw the river bank."
+    },
+    {
+      "id": 3,
+      "category": "fishing",
+      "setup": "Why did the bass join a band?",
+      "punchline": "It already knew the scales."
+    },
+    {
+      "id": 4,
+      "category": "fishing",
+      "setup": "Why did the fish open a savings account?",
+      "punchline": "It wanted to improve its net worth."
+    },
+    {
+      "id": 5,
+      "category": "fishing",
+      "setup": "Why did the fisherman carry a pencil?",
+      "punchline": "He needed to draw a stronger line."
+    },
+    {
+      "id": 6,
+      "category": "fishing",
+      "setup": "Why was the fishing boat so confident?",
+      "punchline": "It had plenty of buoyant self-esteem."
+    },
+    {
+      "id": 7,
+      "category": "fishing",
+      "setup": "Why did the hook get promoted?",
+      "punchline": "It always caught on before everyone else."
+    },
+    {
+      "id": 8,
+      "category": "fishing",
+      "setup": "Why did the fish become a teacher?",
+      "punchline": "It was excellent at schooling others."
+    },
+    {
+      "id": 9,
+      "category": "fishing",
+      "setup": "Why did the fisherman take a nap?",
+      "punchline": "He needed a little reelaxation."
+    },
+    {
+      "id": 10,
+      "category": "fishing",
+      "setup": "Why did the crab avoid the contest?",
+      "punchline": "It refused to sidestep the rules."
+    },
+    {
+      "id": 11,
+      "category": "fishing",
+      "setup": "Why did the fish bring an umbrella?",
+      "punchline": "It expected scattered showers in the stream."
+    },
+    {
+      "id": 12,
+      "category": "fishing",
+      "setup": "Why did the fisherman sit on the dock?",
+      "punchline": "He wanted to pier into the distance."
+    },
+    {
+      "id": 13,
+      "category": "fishing",
+      "setup": "Why did the sardine pack a suitcase?",
+      "punchline": "It was ready to travel in a tight group."
+    },
+    {
+      "id": 14,
+      "category": "fishing",
+      "setup": "Why did the eel start a business?",
+      "punchline": "It had a truly shocking proposal."
+    },
+    {
+      "id": 15,
+      "category": "fishing",
+      "setup": "Why did the fish fail its driving test?",
+      "punchline": "It kept drifting into the wrong current."
+    },
+    {
+      "id": 16,
+      "category": "fishing",
+      "setup": "Why did the fisherman tell bad jokes?",
+      "punchline": "He believed every story needed a hook."
+    },
+    {
+      "id": 17,
+      "category": "fishing",
+      "setup": "Why did the salmon cross the river?",
+      "punchline": "It was heading for the other tide."
+    },
+    {
+      "id": 18,
+      "category": "fishing",
+      "setup": "Why did the fish avoid the internet?",
+      "punchline": "It feared getting caught in the net."
+    },
+    {
+      "id": 19,
+      "category": "fishing",
+      "setup": "Why did the fisherman buy a new hat?",
+      "punchline": "He needed better cap-ture equipment."
+    },
+    {
+      "id": 20,
+      "category": "fishing",
+      "setup": "Why did the tuna refuse the microphone?",
+      "punchline": "It did not want to be canned live."
+    },
+    {
+      "id": 21,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a ruler?",
+      "punchline": "He wanted to measure up to the competition."
+    },
+    {
+      "id": 22,
+      "category": "fishing",
+      "setup": "Why did the fish become a detective?",
+      "punchline": "It always followed the strongest line."
+    },
+    {
+      "id": 23,
+      "category": "fishing",
+      "setup": "Why did the boat visit the doctor?",
+      "punchline": "It felt a little under the weather."
+    },
+    {
+      "id": 24,
+      "category": "fishing",
+      "setup": "Why did the fisherman smile at the worm?",
+      "punchline": "It looked like reel good bait."
+    },
+    {
+      "id": 25,
+      "category": "fishing",
+      "setup": "Why did the fish stay after class?",
+      "punchline": "It needed extra schooling time."
+    },
+    {
+      "id": 26,
+      "category": "fishing",
+      "setup": "Why did the octopus win the derby?",
+      "punchline": "It had a hand in every catch."
+    },
+    {
+      "id": 27,
+      "category": "fishing",
+      "setup": "Why did the fisherman refuse to argue?",
+      "punchline": "He would not take the bait."
+    },
+    {
+      "id": 28,
+      "category": "fishing",
+      "setup": "Why did the fish join the choir?",
+      "punchline": "It had perfect tuna and timing."
+    },
+    {
+      "id": 29,
+      "category": "fishing",
+      "setup": "Why did the net go to therapy?",
+      "punchline": "It felt trapped in the same pattern."
+    },
+    {
+      "id": 30,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a calendar?",
+      "punchline": "He hoped to catch the right date."
+    },
+    {
+      "id": 31,
+      "category": "fishing",
+      "setup": "Why did the fish become a comedian?",
+      "punchline": "It always delivered a strong fin-ish."
+    },
+    {
+      "id": 32,
+      "category": "fishing",
+      "setup": "Why did the fisherman visit the bakery?",
+      "punchline": "He heard the rolls were off the hook."
+    },
+    {
+      "id": 33,
+      "category": "fishing",
+      "setup": "Why did the fish take the elevator?",
+      "punchline": "It wanted to rise above the stream."
+    },
+    {
+      "id": 34,
+      "category": "fishing",
+      "setup": "Why did the worm look nervous?",
+      "punchline": "It had a sinking feeling about the hook."
+    },
+    {
+      "id": 35,
+      "category": "fishing",
+      "setup": "Why did the fisherman carry two rods?",
+      "punchline": "He wanted a backup line of work."
+    },
+    {
+      "id": 36,
+      "category": "fishing",
+      "setup": "Why did the fish bring a flashlight?",
+      "punchline": "It was exploring the deep end."
+    },
+    {
+      "id": 37,
+      "category": "fishing",
+      "setup": "Why was the dock invited to every party?",
+      "punchline": "It always anchored the conversation."
+    },
+    {
+      "id": 38,
+      "category": "fishing",
+      "setup": "Why did the fisherman open a restaurant?",
+      "punchline": "He already had the catch of the day."
+    },
+    {
+      "id": 39,
+      "category": "fishing",
+      "setup": "Why did the fish refuse to gamble?",
+      "punchline": "It did not want to lose its scales."
+    },
+    {
+      "id": 40,
+      "category": "fishing",
+      "setup": "Why did the angler bring glue?",
+      "punchline": "He wanted every fishing story to stick."
+    },
+    {
+      "id": 41,
+      "category": "fishing",
+      "setup": "Why did the fish call in sick?",
+      "punchline": "It was feeling a little koi."
+    },
+    {
+      "id": 42,
+      "category": "fishing",
+      "setup": "Why did the fisherman start jogging?",
+      "punchline": "He wanted better catch-up speed."
+    },
+    {
+      "id": 43,
+      "category": "fishing",
+      "setup": "Why did the shrimp avoid the spotlight?",
+      "punchline": "It was tired of feeling small on stage."
+    },
+    {
+      "id": 44,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a map?",
+      "punchline": "He had completely lost his bearings."
+    },
+    {
+      "id": 45,
+      "category": "fishing",
+      "setup": "Why did the fish become a musician?",
+      "punchline": "It loved playing with the current rhythm."
+    },
+    {
+      "id": 46,
+      "category": "fishing",
+      "setup": "Why did the fisherman get a promotion?",
+      "punchline": "He always delivered results on the line."
+    },
+    {
+      "id": 47,
+      "category": "fishing",
+      "setup": "Why did the pike refuse dessert?",
+      "punchline": "It was already stuffed to the gills."
+    },
+    {
+      "id": 48,
+      "category": "fishing",
+      "setup": "Why did the fisherman carry a bell?",
+      "punchline": "He wanted to ring in a better catch."
+    },
+    {
+      "id": 49,
+      "category": "fishing",
+      "setup": "Why did the fish bring a notebook?",
+      "punchline": "It had too many current events to remember."
+    },
+    {
+      "id": 50,
+      "category": "fishing",
+      "setup": "Why did the fisherman wear sunglasses?",
+      "punchline": "The future looked bright off the water."
+    },
+    {
+      "id": 51,
+      "category": "fishing",
+      "setup": "Why did the carp start meditating?",
+      "punchline": "It was searching for inner piece of river."
+    },
+    {
+      "id": 52,
+      "category": "fishing",
+      "setup": "Why did the fisherman avoid gossip?",
+      "punchline": "He kept everything off the record and on the reel."
+    },
+    {
+      "id": 53,
+      "category": "fishing",
+      "setup": "Why did the fish bring a charger?",
+      "punchline": "Its battery was running low tide."
+    },
+    {
+      "id": 54,
+      "category": "fishing",
+      "setup": "Why did the fisherman pack extra socks?",
+      "punchline": "He expected a very wet ending."
+    },
+    {
+      "id": 55,
+      "category": "fishing",
+      "setup": "Why did the mackerel become an accountant?",
+      "punchline": "It was good with schools of numbers."
+    },
+    {
+      "id": 56,
+      "category": "fishing",
+      "setup": "Why did the fisherman carry a spare line?",
+      "punchline": "He believed in second catches."
+    },
+    {
+      "id": 57,
+      "category": "fishing",
+      "setup": "Why did the fish become a chef?",
+      "punchline": "It knew how to season the sea."
+    },
+    {
+      "id": 58,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a mirror?",
+      "punchline": "He wanted to reflect on his last catch."
+    },
+    {
+      "id": 59,
+      "category": "fishing",
+      "setup": "Why did the fish refuse to hurry?",
+      "punchline": "It preferred to go with the flow."
+    },
+    {
+      "id": 60,
+      "category": "fishing",
+      "setup": "Why did the bait open a café?",
+      "punchline": "It wanted to attract a loyal following."
+    },
+    {
+      "id": 61,
+      "category": "fishing",
+      "setup": "Why did the fisherman take a camera?",
+      "punchline": "He wanted proof that the big one existed."
+    },
+    {
+      "id": 62,
+      "category": "fishing",
+      "setup": "Why did the clam keep secrets?",
+      "punchline": "It was naturally tight-lipped."
+    },
+    {
+      "id": 63,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a broom?",
+      "punchline": "He wanted to sweep the competition."
+    },
+    {
+      "id": 64,
+      "category": "fishing",
+      "setup": "Why did the lobster refuse to share?",
+      "punchline": "It was feeling a bit shellfish."
+    },
+    {
+      "id": 65,
+      "category": "fishing",
+      "setup": "Why did the reel apply for a job?",
+      "punchline": "It had plenty of experience handling pressure."
+    },
+    {
+      "id": 66,
+      "category": "fishing",
+      "setup": "Why did the fisherman open a bank account?",
+      "punchline": "He wanted somewhere safe for his net earnings."
+    },
+    {
+      "id": 67,
+      "category": "fishing",
+      "setup": "Why did the cod become a lawyer?",
+      "punchline": "It was great at arguing its case."
+    },
+    {
+      "id": 68,
+      "category": "fishing",
+      "setup": "Why did the fishing line stay calm?",
+      "punchline": "It knew how to keep its tension."
+    },
+    {
+      "id": 69,
+      "category": "fishing",
+      "setup": "Why did the perch sit near the window?",
+      "punchline": "It wanted the best seat in the school."
+    },
+    {
+      "id": 70,
+      "category": "fishing",
+      "setup": "Why did the fisherman buy a new clock?",
+      "punchline": "He kept losing track of tide."
+    },
+    {
+      "id": 71,
+      "category": "fishing",
+      "setup": "Why did the buoy get invited to dinner?",
+      "punchline": "It always lifted the mood."
+    },
+    {
+      "id": 72,
+      "category": "fishing",
+      "setup": "Why did the fisherman's story get longer?",
+      "punchline": "The fish kept growing every time he told it."
+    },
+    {
+      "id": 73,
+      "category": "fishing",
+      "setup": "Why did the salmon carry a passport?",
+      "punchline": "It was preparing for a long migration."
+    },
+    {
+      "id": 74,
+      "category": "fishing",
+      "setup": "Why did the tackle box feel organized?",
+      "punchline": "It had everything neatly hooked up."
+    },
+    {
+      "id": 75,
+      "category": "fishing",
+      "setup": "Why did the fisherman whisper to the lake?",
+      "punchline": "He did not want to wake the fish."
+    },
+    {
+      "id": 76,
+      "category": "fishing",
+      "setup": "Why did the anchovy avoid the elevator?",
+      "punchline": "It preferred being packed on one level."
+    },
+    {
+      "id": 77,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a newspaper?",
+      "punchline": "He wanted to catch up on current events."
+    },
+    {
+      "id": 78,
+      "category": "fishing",
+      "setup": "Why did the lure wear perfume?",
+      "punchline": "It wanted to be more attractive."
+    },
+    {
+      "id": 79,
+      "category": "fishing",
+      "setup": "Why did the fish refuse the promotion?",
+      "punchline": "It did not want more responsibility on its plate."
+    },
+    {
+      "id": 80,
+      "category": "fishing",
+      "setup": "Why did the fisherman take acting lessons?",
+      "punchline": "He wanted to improve his cast."
+    },
+    {
+      "id": 81,
+      "category": "fishing",
+      "setup": "Why did the crab become a referee?",
+      "punchline": "It was good at calling things sideways."
+    },
+    {
+      "id": 82,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a pillow?",
+      "punchline": "He expected a long wait for a bite."
+    },
+    {
+      "id": 83,
+      "category": "fishing",
+      "setup": "Why did the minnow tell a big story?",
+      "punchline": "It wanted to sound like a whale of a fish."
+    },
+    {
+      "id": 84,
+      "category": "fishing",
+      "setup": "Why did the fisherman's boots complain?",
+      "punchline": "They were tired of being dragged through the mud."
+    },
+    {
+      "id": 85,
+      "category": "fishing",
+      "setup": "Why did the bait shop close early?",
+      "punchline": "Business had gone off the hook."
+    },
+    {
+      "id": 86,
+      "category": "fishing",
+      "setup": "Why did the fish carry a briefcase?",
+      "punchline": "It had an important school meeting."
+    },
+    {
+      "id": 87,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a magnet?",
+      "punchline": "He was hoping for an attractive catch."
+    },
+    {
+      "id": 88,
+      "category": "fishing",
+      "setup": "Why did the seaweed start a band?",
+      "punchline": "It was great at kelp-ing the rhythm."
+    },
+    {
+      "id": 89,
+      "category": "fishing",
+      "setup": "Why did the fisherman buy a calculator?",
+      "punchline": "He wanted to count every catch without losing track."
+    },
+    {
+      "id": 90,
+      "category": "fishing",
+      "setup": "Why did the oyster stay home?",
+      "punchline": "It was feeling a little closed off."
+    },
+    {
+      "id": 91,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a chair?",
+      "punchline": "He wanted to take a seat by the reel estate."
+    },
+    {
+      "id": 92,
+      "category": "fishing",
+      "setup": "Why did the fish avoid the dentist?",
+      "punchline": "It was afraid of getting its scales scraped."
+    },
+    {
+      "id": 93,
+      "category": "fishing",
+      "setup": "Why did the fisherman carry a lantern?",
+      "punchline": "He wanted to brighten up the night bite."
+    },
+    {
+      "id": 94,
+      "category": "fishing",
+      "setup": "Why did the squid get the job?",
+      "punchline": "It had plenty of ink-lination."
+    },
+    {
+      "id": 95,
+      "category": "fishing",
+      "setup": "Why did the fisherman pack lunch?",
+      "punchline": "He did not trust the catch of the day."
+    },
+    {
+      "id": 96,
+      "category": "fishing",
+      "setup": "Why did the fish take music lessons?",
+      "punchline": "It wanted to improve its bass line."
+    },
+    {
+      "id": 97,
+      "category": "fishing",
+      "setup": "Why did the fisherman bring a dictionary?",
+      "punchline": "He wanted to define the perfect catch."
+    },
+    {
+      "id": 98,
+      "category": "fishing",
+      "setup": "Why did the boat refuse to gossip?",
+      "punchline": "It did not want to rock the boat."
+    },
+    {
+      "id": 99,
+      "category": "fishing",
+      "setup": "Why did the fish become an architect?",
+      "punchline": "It had great schools of design."
+    },
+    {
+      "id": 100,
+      "category": "fishing",
+      "setup": "Why did the fisherman carry a spare hook?",
+      "punchline": "He liked having a second point of view."
+    }
+  ]
+}

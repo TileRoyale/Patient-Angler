@@ -1,0 +1,309 @@
+{
+  "version": "1.0",
+  "fileNumber": 5,
+  "theme": "general",
+  "count": 50,
+  "description": "General dad jokes set #5. Hand-written original style.",
+  "jokes": [
+    {
+      "id": 1,
+      "category": "general",
+      "setup": "I bought my couch a diary.",
+      "punchline": "It finally had somewhere to unload."
+    },
+    {
+      "id": 2,
+      "category": "general",
+      "setup": "My wallet started meditating.",
+      "punchline": "It's trying to find inner cents."
+    },
+    {
+      "id": 3,
+      "category": "general",
+      "setup": "I taught my ceiling fan to dance.",
+      "punchline": "Now it really spins the room."
+    },
+    {
+      "id": 4,
+      "category": "general",
+      "setup": "I gave my mailbox a compliment.",
+      "punchline": "It said my words really delivered."
+    },
+    {
+      "id": 5,
+      "category": "general",
+      "setup": "My shoelaces started a podcast.",
+      "punchline": "They're tying up loose ends every week."
+    },
+    {
+      "id": 6,
+      "category": "general",
+      "setup": "I bought a glow-in-the-dark notebook.",
+      "punchline": "My ideas finally shine at night."
+    },
+    {
+      "id": 7,
+      "category": "general",
+      "setup": "My keyboard became a chef.",
+      "punchline": "Its specialty is hot keys."
+    },
+    {
+      "id": 8,
+      "category": "general",
+      "setup": "I adopted a traffic cone.",
+      "punchline": "It always points me in the right direction."
+    },
+    {
+      "id": 9,
+      "category": "general",
+      "setup": "My coffee table got promoted.",
+      "punchline": "It finally rose above the rest."
+    },
+    {
+      "id": 10,
+      "category": "general",
+      "setup": "I entered my vacuum in a talent show.",
+      "punchline": "It sucked the judges in."
+    },
+    {
+      "id": 11,
+      "category": "general",
+      "setup": "My sunglasses became philosophers.",
+      "punchline": "They always look on the bright side."
+    },
+    {
+      "id": 12,
+      "category": "general",
+      "setup": "I bought my broom a sports car.",
+      "punchline": "Now it sweeps around town."
+    },
+    {
+      "id": 13,
+      "category": "general",
+      "setup": "My refrigerator writes mystery novels.",
+      "punchline": "They're full of cold cases."
+    },
+    {
+      "id": 14,
+      "category": "general",
+      "setup": "I named my ladder 'Success'.",
+      "punchline": "Everyone says I'm climbing Success."
+    },
+    {
+      "id": 15,
+      "category": "general",
+      "setup": "My slippers started exercising.",
+      "punchline": "They're working on their sole."
+    },
+    {
+      "id": 16,
+      "category": "general",
+      "setup": "I challenged my bookmark to hide-and-seek.",
+      "punchline": "It always knew my place."
+    },
+    {
+      "id": 17,
+      "category": "general",
+      "setup": "My umbrella became a magician.",
+      "punchline": "It disappears whenever the sun comes out."
+    },
+    {
+      "id": 18,
+      "category": "general",
+      "setup": "I hired a stapler as security.",
+      "punchline": "Nothing gets past its attachments."
+    },
+    {
+      "id": 19,
+      "category": "general",
+      "setup": "My pillow joined a choir.",
+      "punchline": "It loves hitting the soft notes."
+    },
+    {
+      "id": 20,
+      "category": "general",
+      "setup": "I bought invisible shoelaces.",
+      "punchline": "Nobody could tie with my style."
+    },
+    {
+      "id": 21,
+      "category": "general",
+      "setup": "My soap bar opened a bakery.",
+      "punchline": "Everything comes out squeaky clean."
+    },
+    {
+      "id": 22,
+      "category": "general",
+      "setup": "I taught my spoon table manners.",
+      "punchline": "Now it's quite well-rounded."
+    },
+    {
+      "id": 23,
+      "category": "general",
+      "setup": "My garden hose became a storyteller.",
+      "punchline": "Its tales always flow."
+    },
+    {
+      "id": 24,
+      "category": "general",
+      "setup": "I named my cactus 'Fluffy'.",
+      "punchline": "Visitors never forget meeting it."
+    },
+    {
+      "id": 25,
+      "category": "general",
+      "setup": "My flashlight entered politics.",
+      "punchline": "It promised total transparency."
+    },
+    {
+      "id": 26,
+      "category": "general",
+      "setup": "I gave my backpack a map.",
+      "punchline": "It finally found its direction."
+    },
+    {
+      "id": 27,
+      "category": "general",
+      "setup": "My scissors became hairdressers.",
+      "punchline": "Business is cutting edge."
+    },
+    {
+      "id": 28,
+      "category": "general",
+      "setup": "I bought a musical alarm clock.",
+      "punchline": "It wakes up on the right note."
+    },
+    {
+      "id": 29,
+      "category": "general",
+      "setup": "My ruler opened a dating app.",
+      "punchline": "It was looking for someone who measured up."
+    },
+    {
+      "id": 30,
+      "category": "general",
+      "setup": "I made friends with my toolbox.",
+      "punchline": "It's full of useful advice."
+    },
+    {
+      "id": 31,
+      "category": "general",
+      "setup": "My calendar quit social media.",
+      "punchline": "It needed more personal days."
+    },
+    {
+      "id": 32,
+      "category": "general",
+      "setup": "I bought a tiny sofa.",
+      "punchline": "It was a little couch potato."
+    },
+    {
+      "id": 33,
+      "category": "general",
+      "setup": "My mirror started giving speeches.",
+      "punchline": "They were very reflective."
+    },
+    {
+      "id": 34,
+      "category": "general",
+      "setup": "My teapot writes romance novels.",
+      "punchline": "Every chapter gets steamy."
+    },
+    {
+      "id": 35,
+      "category": "general",
+      "setup": "My notebook became a detective.",
+      "punchline": "It always takes good notes."
+    },
+    {
+      "id": 36,
+      "category": "general",
+      "setup": "I entered my pencil in a marathon.",
+      "punchline": "It drew a big crowd."
+    },
+    {
+      "id": 37,
+      "category": "general",
+      "setup": "My blanket became an artist.",
+      "punchline": "Its work has lots of layers."
+    },
+    {
+      "id": 38,
+      "category": "general",
+      "setup": "My lamp started gardening.",
+      "punchline": "It wanted brighter flowers."
+    },
+    {
+      "id": 39,
+      "category": "general",
+      "setup": "I taught my doormat confidence.",
+      "punchline": "Now it never gets walked over emotionally."
+    },
+    {
+      "id": 40,
+      "category": "general",
+      "setup": "My headphones became librarians.",
+      "punchline": "They're excellent at keeping things quiet."
+    },
+    {
+      "id": 41,
+      "category": "general",
+      "setup": "I bought my clock a treadmill.",
+      "punchline": "Time keeps running."
+    },
+    {
+      "id": 42,
+      "category": "general",
+      "setup": "My snow shovel became a comedian.",
+      "punchline": "It always breaks the ice."
+    },
+    {
+      "id": 43,
+      "category": "general",
+      "setup": "My mug took singing lessons.",
+      "punchline": "Now it's full of good vibes."
+    },
+    {
+      "id": 44,
+      "category": "general",
+      "setup": "I adopted a paperclip.",
+      "punchline": "It's surprisingly attached to me."
+    },
+    {
+      "id": 45,
+      "category": "general",
+      "setup": "My watering can opened a spa.",
+      "punchline": "Business is overflowing."
+    },
+    {
+      "id": 46,
+      "category": "general",
+      "setup": "My bookshelf became a coach.",
+      "punchline": "It always encourages new chapters."
+    },
+    {
+      "id": 47,
+      "category": "general",
+      "setup": "I bought a lazy compass.",
+      "punchline": "It just can't find itself."
+    },
+    {
+      "id": 48,
+      "category": "general",
+      "setup": "My lunchbox became an entrepreneur.",
+      "punchline": "It's thinking outside the box."
+    },
+    {
+      "id": 49,
+      "category": "general",
+      "setup": "My paintbrush started a travel blog.",
+      "punchline": "Its stories are full of colorful details."
+    },
+    {
+      "id": 50,
+      "category": "general",
+      "setup": "I complimented my door.",
+      "punchline": "It said I really know how to make an entrance."
+    }
+  ]
+}

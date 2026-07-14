@@ -1,0 +1,609 @@
+{
+  "version": "1.0",
+  "fileNumber": 2,
+  "theme": "general",
+  "count": 100,
+  "description": "General dad jokes (set 2). 100 unique setups and punchlines.",
+  "jokes": [
+    {
+      "id": 1,
+      "category": "general",
+      "setup": "Why did the blanket apply for a promotion?",
+      "punchline": "It liked covering for its friends. It knew it was qualified."
+    },
+    {
+      "id": 2,
+      "category": "general",
+      "setup": "Why did the blanket join a band?",
+      "punchline": "It liked covering for its friends. It already had perfect timing."
+    },
+    {
+      "id": 3,
+      "category": "general",
+      "setup": "Why did the blanket open a restaurant?",
+      "punchline": "It liked covering for its friends. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 4,
+      "category": "general",
+      "setup": "Why did the blanket go back to school?",
+      "punchline": "It liked covering for its friends. Learning never goes out of style."
+    },
+    {
+      "id": 5,
+      "category": "general",
+      "setup": "Why did the blanket visit the doctor?",
+      "punchline": "It liked covering for its friends. It needed a check-up on life."
+    },
+    {
+      "id": 6,
+      "category": "general",
+      "setup": "Why did the blanket start a podcast?",
+      "punchline": "It liked covering for its friends. It finally had something to say."
+    },
+    {
+      "id": 7,
+      "category": "general",
+      "setup": "Why did the blanket run a marathon?",
+      "punchline": "It liked covering for its friends. It wanted to go the extra mile."
+    },
+    {
+      "id": 8,
+      "category": "general",
+      "setup": "Why did the blanket become a detective?",
+      "punchline": "It liked covering for its friends. It always noticed the little details."
+    },
+    {
+      "id": 9,
+      "category": "general",
+      "setup": "Why did the blanket host a party?",
+      "punchline": "It liked covering for its friends. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 10,
+      "category": "general",
+      "setup": "Why did the blanket write a book?",
+      "punchline": "It liked covering for its friends. It had quite a story to tell."
+    },
+    {
+      "id": 11,
+      "category": "general",
+      "setup": "Why did the mirror apply for a promotion?",
+      "punchline": "It encouraged self-reflection. It knew it was qualified."
+    },
+    {
+      "id": 12,
+      "category": "general",
+      "setup": "Why did the mirror join a band?",
+      "punchline": "It encouraged self-reflection. It already had perfect timing."
+    },
+    {
+      "id": 13,
+      "category": "general",
+      "setup": "Why did the mirror open a restaurant?",
+      "punchline": "It encouraged self-reflection. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 14,
+      "category": "general",
+      "setup": "Why did the mirror go back to school?",
+      "punchline": "It encouraged self-reflection. Learning never goes out of style."
+    },
+    {
+      "id": 15,
+      "category": "general",
+      "setup": "Why did the mirror visit the doctor?",
+      "punchline": "It encouraged self-reflection. It needed a check-up on life."
+    },
+    {
+      "id": 16,
+      "category": "general",
+      "setup": "Why did the mirror start a podcast?",
+      "punchline": "It encouraged self-reflection. It finally had something to say."
+    },
+    {
+      "id": 17,
+      "category": "general",
+      "setup": "Why did the mirror run a marathon?",
+      "punchline": "It encouraged self-reflection. It wanted to go the extra mile."
+    },
+    {
+      "id": 18,
+      "category": "general",
+      "setup": "Why did the mirror become a detective?",
+      "punchline": "It encouraged self-reflection. It always noticed the little details."
+    },
+    {
+      "id": 19,
+      "category": "general",
+      "setup": "Why did the mirror host a party?",
+      "punchline": "It encouraged self-reflection. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 20,
+      "category": "general",
+      "setup": "Why did the mirror write a book?",
+      "punchline": "It encouraged self-reflection. It had quite a story to tell."
+    },
+    {
+      "id": 21,
+      "category": "general",
+      "setup": "Why did the clock apply for a promotion?",
+      "punchline": "It never wasted time. It knew it was qualified."
+    },
+    {
+      "id": 22,
+      "category": "general",
+      "setup": "Why did the clock join a band?",
+      "punchline": "It never wasted time. It already had perfect timing."
+    },
+    {
+      "id": 23,
+      "category": "general",
+      "setup": "Why did the clock open a restaurant?",
+      "punchline": "It never wasted time. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 24,
+      "category": "general",
+      "setup": "Why did the clock go back to school?",
+      "punchline": "It never wasted time. Learning never goes out of style."
+    },
+    {
+      "id": 25,
+      "category": "general",
+      "setup": "Why did the clock visit the doctor?",
+      "punchline": "It never wasted time. It needed a check-up on life."
+    },
+    {
+      "id": 26,
+      "category": "general",
+      "setup": "Why did the clock start a podcast?",
+      "punchline": "It never wasted time. It finally had something to say."
+    },
+    {
+      "id": 27,
+      "category": "general",
+      "setup": "Why did the clock run a marathon?",
+      "punchline": "It never wasted time. It wanted to go the extra mile."
+    },
+    {
+      "id": 28,
+      "category": "general",
+      "setup": "Why did the clock become a detective?",
+      "punchline": "It never wasted time. It always noticed the little details."
+    },
+    {
+      "id": 29,
+      "category": "general",
+      "setup": "Why did the clock host a party?",
+      "punchline": "It never wasted time. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 30,
+      "category": "general",
+      "setup": "Why did the clock write a book?",
+      "punchline": "It never wasted time. It had quite a story to tell."
+    },
+    {
+      "id": 31,
+      "category": "general",
+      "setup": "Why did the vacuum apply for a promotion?",
+      "punchline": "It knew how to clean up a mess. It knew it was qualified."
+    },
+    {
+      "id": 32,
+      "category": "general",
+      "setup": "Why did the vacuum join a band?",
+      "punchline": "It knew how to clean up a mess. It already had perfect timing."
+    },
+    {
+      "id": 33,
+      "category": "general",
+      "setup": "Why did the vacuum open a restaurant?",
+      "punchline": "It knew how to clean up a mess. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 34,
+      "category": "general",
+      "setup": "Why did the vacuum go back to school?",
+      "punchline": "It knew how to clean up a mess. Learning never goes out of style."
+    },
+    {
+      "id": 35,
+      "category": "general",
+      "setup": "Why did the vacuum visit the doctor?",
+      "punchline": "It knew how to clean up a mess. It needed a check-up on life."
+    },
+    {
+      "id": 36,
+      "category": "general",
+      "setup": "Why did the vacuum start a podcast?",
+      "punchline": "It knew how to clean up a mess. It finally had something to say."
+    },
+    {
+      "id": 37,
+      "category": "general",
+      "setup": "Why did the vacuum run a marathon?",
+      "punchline": "It knew how to clean up a mess. It wanted to go the extra mile."
+    },
+    {
+      "id": 38,
+      "category": "general",
+      "setup": "Why did the vacuum become a detective?",
+      "punchline": "It knew how to clean up a mess. It always noticed the little details."
+    },
+    {
+      "id": 39,
+      "category": "general",
+      "setup": "Why did the vacuum host a party?",
+      "punchline": "It knew how to clean up a mess. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 40,
+      "category": "general",
+      "setup": "Why did the vacuum write a book?",
+      "punchline": "It knew how to clean up a mess. It had quite a story to tell."
+    },
+    {
+      "id": 41,
+      "category": "general",
+      "setup": "Why did the toaster apply for a promotion?",
+      "punchline": "It always brought warmth to the table. It knew it was qualified."
+    },
+    {
+      "id": 42,
+      "category": "general",
+      "setup": "Why did the toaster join a band?",
+      "punchline": "It always brought warmth to the table. It already had perfect timing."
+    },
+    {
+      "id": 43,
+      "category": "general",
+      "setup": "Why did the toaster open a restaurant?",
+      "punchline": "It always brought warmth to the table. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 44,
+      "category": "general",
+      "setup": "Why did the toaster go back to school?",
+      "punchline": "It always brought warmth to the table. Learning never goes out of style."
+    },
+    {
+      "id": 45,
+      "category": "general",
+      "setup": "Why did the toaster visit the doctor?",
+      "punchline": "It always brought warmth to the table. It needed a check-up on life."
+    },
+    {
+      "id": 46,
+      "category": "general",
+      "setup": "Why did the toaster start a podcast?",
+      "punchline": "It always brought warmth to the table. It finally had something to say."
+    },
+    {
+      "id": 47,
+      "category": "general",
+      "setup": "Why did the toaster run a marathon?",
+      "punchline": "It always brought warmth to the table. It wanted to go the extra mile."
+    },
+    {
+      "id": 48,
+      "category": "general",
+      "setup": "Why did the toaster become a detective?",
+      "punchline": "It always brought warmth to the table. It always noticed the little details."
+    },
+    {
+      "id": 49,
+      "category": "general",
+      "setup": "Why did the toaster host a party?",
+      "punchline": "It always brought warmth to the table. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 50,
+      "category": "general",
+      "setup": "Why did the toaster write a book?",
+      "punchline": "It always brought warmth to the table. It had quite a story to tell."
+    },
+    {
+      "id": 51,
+      "category": "general",
+      "setup": "Why did the hammer apply for a promotion?",
+      "punchline": "It liked to nail every challenge. It knew it was qualified."
+    },
+    {
+      "id": 52,
+      "category": "general",
+      "setup": "Why did the hammer join a band?",
+      "punchline": "It liked to nail every challenge. It already had perfect timing."
+    },
+    {
+      "id": 53,
+      "category": "general",
+      "setup": "Why did the hammer open a restaurant?",
+      "punchline": "It liked to nail every challenge. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 54,
+      "category": "general",
+      "setup": "Why did the hammer go back to school?",
+      "punchline": "It liked to nail every challenge. Learning never goes out of style."
+    },
+    {
+      "id": 55,
+      "category": "general",
+      "setup": "Why did the hammer visit the doctor?",
+      "punchline": "It liked to nail every challenge. It needed a check-up on life."
+    },
+    {
+      "id": 56,
+      "category": "general",
+      "setup": "Why did the hammer start a podcast?",
+      "punchline": "It liked to nail every challenge. It finally had something to say."
+    },
+    {
+      "id": 57,
+      "category": "general",
+      "setup": "Why did the hammer run a marathon?",
+      "punchline": "It liked to nail every challenge. It wanted to go the extra mile."
+    },
+    {
+      "id": 58,
+      "category": "general",
+      "setup": "Why did the hammer become a detective?",
+      "punchline": "It liked to nail every challenge. It always noticed the little details."
+    },
+    {
+      "id": 59,
+      "category": "general",
+      "setup": "Why did the hammer host a party?",
+      "punchline": "It liked to nail every challenge. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 60,
+      "category": "general",
+      "setup": "Why did the hammer write a book?",
+      "punchline": "It liked to nail every challenge. It had quite a story to tell."
+    },
+    {
+      "id": 61,
+      "category": "general",
+      "setup": "Why did the shoe apply for a promotion?",
+      "punchline": "It stayed one step ahead. It knew it was qualified."
+    },
+    {
+      "id": 62,
+      "category": "general",
+      "setup": "Why did the shoe join a band?",
+      "punchline": "It stayed one step ahead. It already had perfect timing."
+    },
+    {
+      "id": 63,
+      "category": "general",
+      "setup": "Why did the shoe open a restaurant?",
+      "punchline": "It stayed one step ahead. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 64,
+      "category": "general",
+      "setup": "Why did the shoe go back to school?",
+      "punchline": "It stayed one step ahead. Learning never goes out of style."
+    },
+    {
+      "id": 65,
+      "category": "general",
+      "setup": "Why did the shoe visit the doctor?",
+      "punchline": "It stayed one step ahead. It needed a check-up on life."
+    },
+    {
+      "id": 66,
+      "category": "general",
+      "setup": "Why did the shoe start a podcast?",
+      "punchline": "It stayed one step ahead. It finally had something to say."
+    },
+    {
+      "id": 67,
+      "category": "general",
+      "setup": "Why did the shoe run a marathon?",
+      "punchline": "It stayed one step ahead. It wanted to go the extra mile."
+    },
+    {
+      "id": 68,
+      "category": "general",
+      "setup": "Why did the shoe become a detective?",
+      "punchline": "It stayed one step ahead. It always noticed the little details."
+    },
+    {
+      "id": 69,
+      "category": "general",
+      "setup": "Why did the shoe host a party?",
+      "punchline": "It stayed one step ahead. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 70,
+      "category": "general",
+      "setup": "Why did the shoe write a book?",
+      "punchline": "It stayed one step ahead. It had quite a story to tell."
+    },
+    {
+      "id": 71,
+      "category": "general",
+      "setup": "Why did the wallet apply for a promotion?",
+      "punchline": "It knew the value of saving. It knew it was qualified."
+    },
+    {
+      "id": 72,
+      "category": "general",
+      "setup": "Why did the wallet join a band?",
+      "punchline": "It knew the value of saving. It already had perfect timing."
+    },
+    {
+      "id": 73,
+      "category": "general",
+      "setup": "Why did the wallet open a restaurant?",
+      "punchline": "It knew the value of saving. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 74,
+      "category": "general",
+      "setup": "Why did the wallet go back to school?",
+      "punchline": "It knew the value of saving. Learning never goes out of style."
+    },
+    {
+      "id": 75,
+      "category": "general",
+      "setup": "Why did the wallet visit the doctor?",
+      "punchline": "It knew the value of saving. It needed a check-up on life."
+    },
+    {
+      "id": 76,
+      "category": "general",
+      "setup": "Why did the wallet start a podcast?",
+      "punchline": "It knew the value of saving. It finally had something to say."
+    },
+    {
+      "id": 77,
+      "category": "general",
+      "setup": "Why did the wallet run a marathon?",
+      "punchline": "It knew the value of saving. It wanted to go the extra mile."
+    },
+    {
+      "id": 78,
+      "category": "general",
+      "setup": "Why did the wallet become a detective?",
+      "punchline": "It knew the value of saving. It always noticed the little details."
+    },
+    {
+      "id": 79,
+      "category": "general",
+      "setup": "Why did the wallet host a party?",
+      "punchline": "It knew the value of saving. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 80,
+      "category": "general",
+      "setup": "Why did the wallet write a book?",
+      "punchline": "It knew the value of saving. It had quite a story to tell."
+    },
+    {
+      "id": 81,
+      "category": "general",
+      "setup": "Why did the soap apply for a promotion?",
+      "punchline": "It wanted to come clean. It knew it was qualified."
+    },
+    {
+      "id": 82,
+      "category": "general",
+      "setup": "Why did the soap join a band?",
+      "punchline": "It wanted to come clean. It already had perfect timing."
+    },
+    {
+      "id": 83,
+      "category": "general",
+      "setup": "Why did the soap open a restaurant?",
+      "punchline": "It wanted to come clean. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 84,
+      "category": "general",
+      "setup": "Why did the soap go back to school?",
+      "punchline": "It wanted to come clean. Learning never goes out of style."
+    },
+    {
+      "id": 85,
+      "category": "general",
+      "setup": "Why did the soap visit the doctor?",
+      "punchline": "It wanted to come clean. It needed a check-up on life."
+    },
+    {
+      "id": 86,
+      "category": "general",
+      "setup": "Why did the soap start a podcast?",
+      "punchline": "It wanted to come clean. It finally had something to say."
+    },
+    {
+      "id": 87,
+      "category": "general",
+      "setup": "Why did the soap run a marathon?",
+      "punchline": "It wanted to come clean. It wanted to go the extra mile."
+    },
+    {
+      "id": 88,
+      "category": "general",
+      "setup": "Why did the soap become a detective?",
+      "punchline": "It wanted to come clean. It always noticed the little details."
+    },
+    {
+      "id": 89,
+      "category": "general",
+      "setup": "Why did the soap host a party?",
+      "punchline": "It wanted to come clean. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 90,
+      "category": "general",
+      "setup": "Why did the soap write a book?",
+      "punchline": "It wanted to come clean. It had quite a story to tell."
+    },
+    {
+      "id": 91,
+      "category": "general",
+      "setup": "Why did the magnet apply for a promotion?",
+      "punchline": "It naturally attracted attention. It knew it was qualified."
+    },
+    {
+      "id": 92,
+      "category": "general",
+      "setup": "Why did the magnet join a band?",
+      "punchline": "It naturally attracted attention. It already had perfect timing."
+    },
+    {
+      "id": 93,
+      "category": "general",
+      "setup": "Why did the magnet open a restaurant?",
+      "punchline": "It naturally attracted attention. It wanted to serve fresh ideas."
+    },
+    {
+      "id": 94,
+      "category": "general",
+      "setup": "Why did the magnet go back to school?",
+      "punchline": "It naturally attracted attention. Learning never goes out of style."
+    },
+    {
+      "id": 95,
+      "category": "general",
+      "setup": "Why did the magnet visit the doctor?",
+      "punchline": "It naturally attracted attention. It needed a check-up on life."
+    },
+    {
+      "id": 96,
+      "category": "general",
+      "setup": "Why did the magnet start a podcast?",
+      "punchline": "It naturally attracted attention. It finally had something to say."
+    },
+    {
+      "id": 97,
+      "category": "general",
+      "setup": "Why did the magnet run a marathon?",
+      "punchline": "It naturally attracted attention. It wanted to go the extra mile."
+    },
+    {
+      "id": 98,
+      "category": "general",
+      "setup": "Why did the magnet become a detective?",
+      "punchline": "It naturally attracted attention. It always noticed the little details."
+    },
+    {
+      "id": 99,
+      "category": "general",
+      "setup": "Why did the magnet host a party?",
+      "punchline": "It naturally attracted attention. Everyone said it was a natural entertainer."
+    },
+    {
+      "id": 100,
+      "category": "general",
+      "setup": "Why did the magnet write a book?",
+      "punchline": "It naturally attracted attention. It had quite a story to tell."
+    }
+  ]
+}

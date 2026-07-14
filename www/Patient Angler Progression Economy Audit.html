@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patient Angler — Progression & Economy Audit</title>
+<style>
+  :root {
+    --bg:        #0d1520;
+    --surface:   #162030;
+    --surface2:  #1e2d40;
+    --border:    #253545;
+    --text:      #cdd6e0;
+    --text-dim:  #7a90a0;
+    --accent:    #4d9fcc;
+    --accent-dim:#2d6080;
+    --pos:       #4a9e73;
+    --warn:      #d4933a;
+    --crit:      #c05050;
+    --gold:      #d4a830;
+    --mono:      'Courier New', monospace;
+    --sans:      system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg:       #eef3f7;
+      --surface:  #ffffff;
+      --surface2: #f0f4f8;
+      --border:   #ccd6df;
+      --text:     #1a2530;
+      --text-dim: #5a7080;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:       #eef3f7;
+    --surface:  #ffffff;
+    --surface2: #f0f4f8;
+    --border:   #ccd6df;
+    --text:     #1a2530;
+    --text-dim: #5a7080;
+  }
+  :root[data-theme="dark"] {
+    --bg:        #0d1520;
+    --surface:   #162030;
+    --surface2:  #1e2d40;
+    --border:    #253545;
+    --text:      #cdd6e0;
+    --text-dim:  #7a90a0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 40px 20px 80px;
+  }
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* ── header ── */
+  .report-header {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 24px;
+    margin-bottom: 40px;
+  }
+  .report-eyebrow {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .report-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .report-meta { font-size: 13px; color: var(--text-dim); }
+  .report-meta span { margin-right: 16px; }
+
+  /* ── toc ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 48px;
+  }
+  .toc-title {
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .toc ol { padding-left: 18px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── sections ── */
+  .section { margin-bottom: 56px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 700;
+    min-width: 28px;
+  }
+  .section-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ── cards / callouts ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 800; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .stat-note  { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  .callout {
+    border-left: 3px solid var(--border);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    background: var(--surface);
+  }
+  .callout.pos  { border-color: var(--pos);  }
+  .callout.warn { border-color: var(--warn); }
+  .callout.crit { border-color: var(--crit); }
+
+  /* ── pills ── */
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .pill-pos  { background: rgba(74,158,115,.18); color: var(--pos); }
+  .pill-warn { background: rgba(212,147,58,.18);  color: var(--warn); }
+  .pill-crit { background: rgba(192,80,80,.18);   color: var(--crit); }
+  .pill-info { background: rgba(77,159,204,.15);  color: var(--accent); }
+  .pill-gold { background: rgba(212,168,48,.15);  color: var(--gold); }
+
+  /* ── tables ── */
+  .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 700;
+    padding: 8px 10px;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .num { font-family: var(--mono); text-align: right; }
+  .row-crit td  { background: rgba(192,80,80,.06); }
+  .row-warn td  { background: rgba(212,147,58,.06); }
+  .row-pos  td  { background: rgba(74,158,115,.06); }
+
+  /* ── misc ── */
+  p { margin-bottom: 12px; }
+  p:last-child { margin-bottom: 0; }
+  h3 { font-size: 15px; font-weight: 700; margin: 20px 0 10px; color: var(--accent); }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 4px; font-size: 14px; }
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+  .source { font-size: 11px; color: var(--text-dim); font-style: italic; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .bold { font-weight: 700; }
+  .dim  { color: var(--text-dim); }
+
+  /* executive summary grid */
+  .exec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .exec-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+  }
+  .exec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  /* zone depth bar */
+  .zone-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 3px;
+  }
+
+  /* recommendation list */
+  .rec {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .rec:last-child { border-bottom: none; }
+  .rec-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    min-width: 28px;
+    padding-top: 2px;
+  }
+  .rec-body { flex: 1; font-size: 14px; }
+  .rec-title { font-weight: 700; margin-bottom: 3px; }
+  .rec-desc  { font-size: 13px; color: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══ HEADER ═══ -->
+<header class="report-header">
+  <div class="report-eyebrow">Internal Design Document</div>
+  <div class="report-title">Patient Angler — Progression &amp; Economy Audit</div>
+  <div class="report-meta">
+    <span>Version v0.8.1 · Build 38</span>
+    <span>Audit date: 2026-07-04</span>
+    <span>Recapsa OÜ / Henly Games</span>
+  </div>
+</header>
+
+<!-- ═══ TOC ═══ -->
+<nav class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#exec">Executive Summary</a></li>
+    <li><a href="#zones">Zone Unlock Cost Ladder</a></li>
+    <li><a href="#automation">Automation Economics &amp; ROI</a></li>
+    <li><a href="#diamonds">Diamond Economy — Sources &amp; Sinks</a></li>
+    <li><a href="#ghostship">Ghost Ship Mechanics</a></li>
+    <li><a href="#prestige">Prestige &amp; Pearl System</a></li>
+    <li><a href="#timelines">Player Timeline Projections</a></li>
+    <li><a href="#discrepancies">Code vs. Documentation Discrepancies</a></li>
+    <li><a href="#verdict">Balance Verdict</a></li>
+    <li><a href="#recommendations">Recommendations</a></li>
+  </ol>
+</nav>
+
+<!-- ═══ 1. EXECUTIVE SUMMARY ═══ -->
+<section class="section" id="exec">
+  <div class="section-header">
+    <span class="section-num">—</span>
+    <span class="section-title">Executive Summary</span>
+  </div>
+
+  <div class="exec-grid">
+    <div class="exec-item">
+      <div class="exec-dot" style="background:var(--pos)"></div>
+      <div><span class="bold">Zone gating is working.</span> River–Bay pacing lands close to target. Sea and Ocean costs (after the ×5 rod repricing in v0.8.1) are now steep enough to push F2P timelines well past 8 months.</div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-dot" style="background:var(--pos)"></div>
+      <div><span class="bold">Automation ROI is healthy.</span> Net payback periods scale realistically (10c Net pays back in &lt;2 min; 500M Fleet takes months), preventing early snowballing without making automation feel useless.</div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-dot" style="background:var(--warn)"></div>
+      <div><span class="bold">Diamond economy is thin.</span> Sources are sparse and mostly passive (seagull, rare trophy catch). No daily reliable diamond faucet exists outside competition wins, creating long droughts for F2P players between Premium Bait uses.</div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-dot" style="background:var(--warn)"></div>
+      <div><span class="bold">Dynamic demand is unimplemented.</span> CLAUDE.md describes a full demand cycle system (Crash / Low / Normal / High / Surge). Code sells all fish at flat base value with no price fluctuation. A core strategy layer is missing.</div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-dot" style="background:var(--crit)"></div>
+      <div><span class="bold">Competition duration mismatch.</span> CLAUDE.md specifies 1-hour competitions; code runs them for 5 minutes. This is either a deliberate decision not reflected in documentation, or a critical bug.</div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-dot" style="background:var(--crit)"></div>
+      <div><span class="bold">Prestige resets automation.</span> All automation — including per-zone nets, fishermen, boats, fleets, and expedition vessels — is wiped on prestige. This contradicts the Empire design pillar ("old zones never become obsolete") and is likely to feel punishing.</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Audit scope:</strong> This report is derived from a static analysis of <code>game.js</code>, <code>version.js</code>, and zone JSON files as of v0.8.1 (Build 38). All code values cited are source-verified unless marked <em>(est.)</em>.
+  </div>
+</section>
+
+<!-- ═══ 2. ZONE COSTS ═══ -->
+<section class="section" id="zones">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">Zone Unlock Cost Ladder</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Rod cost</th>
+          <th>Transport cost</th>
+          <th class="num">Zone total</th>
+          <th class="num">Cumulative</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-pos">
+          <td><strong>Pond</strong></td>
+          <td>Free (Basic Rod)</td>
+          <td>—</td>
+          <td class="num">0c</td>
+          <td class="num">0c</td>
+          <td><span class="pill pill-pos">Start</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td><strong>River</strong></td>
+          <td>9,000c (River Rod)</td>
+          <td>6,000c (Waders)</td>
+          <td class="num">15,000c</td>
+          <td class="num">15,000c</td>
+          <td><span class="pill pill-pos">OK</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td><strong>Lake</strong></td>
+          <td>90,000c (Lake Rod)</td>
+          <td>60,000c (Rowing Boat)</td>
+          <td class="num">150,000c</td>
+          <td class="num">165,000c</td>
+          <td><span class="pill pill-pos">OK</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td><strong>Bay</strong></td>
+          <td>900,000c (Bay Rod)</td>
+          <td>600,000c (Speedboat)</td>
+          <td class="num">1,500,000c</td>
+          <td class="num">1,665,000c</td>
+          <td><span class="pill pill-pos">OK</span></td>
+        </tr>
+        <tr class="row-warn">
+          <td><strong>Sea</strong></td>
+          <td>125,000,000c (Sea Rod ×5)</td>
+          <td>20,000,000c (Fishing Vessel)</td>
+          <td class="num">145,000,000c</td>
+          <td class="num">~146.7M c</td>
+          <td><span class="pill pill-warn">Steep jump</span></td>
+        </tr>
+        <tr class="row-warn">
+          <td><strong>Ocean</strong></td>
+          <td>1,250,000,000c (Ocean Rod ×5)</td>
+          <td>200,000,000c (Research Vessel)</td>
+          <td class="num">1,450,000,000c</td>
+          <td class="num">~1.60B c</td>
+          <td><span class="pill pill-warn">Steep jump</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="source">Sea Rod repriced ×5 in v0.8.1; all other costs from June 2026 balance passes. Transport costs unchanged from CLAUDE.md after June 25 pass.</p>
+
+  <hr class="divider">
+  <h3>Cost curve analysis</h3>
+  <p>River → Lake is a 10× cost step; Lake → Bay is another 10×. These feel consistent. The Bay → Sea jump is <strong>~97×</strong> (1.5M → 145M), which is the sharpest single step in the game and will be the most common "wall" players hit. This is likely intentional as a monetisation pressure point, but it needs to feel earned through content, not arbitrary.</p>
+
+  <div class="callout warn">
+    <strong>Bay rod (900,000c) vs. Sea Rod (125,000,000c):</strong> The gap between adjacent rods is 139×. No other rod-to-rod jump exceeds 15×. This is the largest outlier in the cost ladder and may cause players to feel stuck even after fully automating Bay.
+  </div>
+
+  <h3>Income estimates at each zone (active fishing)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Est. avg catch value (normal demand)</th>
+          <th>Est. active income/hr</th>
+          <th>Hours to unlock next zone</th>
+          <th>Days at 2h/day play</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pond</td>
+          <td>~19c / catch</td>
+          <td>~4,000–5,000c/hr</td>
+          <td>3–4 hrs (River)</td>
+          <td>~2 days</td>
+        </tr>
+        <tr>
+          <td>River</td>
+          <td>~80c / catch</td>
+          <td>~18,000–22,000c/hr</td>
+          <td>7–9 hrs (Lake)</td>
+          <td>~4 days</td>
+        </tr>
+        <tr>
+          <td>Lake</td>
+          <td>~300c / catch</td>
+          <td>~65,000–80,000c/hr</td>
+          <td>~20 hrs (Bay)</td>
+          <td>~10 days</td>
+        </tr>
+        <tr>
+          <td>Bay</td>
+          <td>~1,000c / catch</td>
+          <td>~200,000–250,000c/hr</td>
+          <td>600–700 hrs (Sea) <span class="pill pill-warn">F2P wall</span></td>
+          <td>~300 days</td>
+        </tr>
+        <tr>
+          <td>Sea</td>
+          <td>~5,000c / catch</td>
+          <td>~1,000,000–1,500,000c/hr</td>
+          <td>900–1,500 hrs (Ocean)</td>
+          <td>~700 days</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="source">Catch values estimated from per-zone loot tables, rarity weights, and mid-range fish prices. Active fishing assumes ~200–250 casts/hr at Basic–Lake Rod speeds. These are rough estimates; actual income depends heavily on rods, storage, and automation stacking.</p>
+  <p>The Bay→Sea gap is <strong>~300 active-fishing days</strong> at 2h/day without automation. Automation at Bay (Row Boat 350k, Motor Boat 1.2M, Fishing Boat 4M) is therefore not optional — it's required to bridge this gap. This is correct design, but the Bay automation costs (especially post-v0.8.0 repricing) need to stay achievable within ~1–2 months of Bay access.</p>
+</section>
+
+<!-- ═══ 3. AUTOMATION ═══ -->
+<section class="section" id="automation">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Automation Economics &amp; ROI</span>
+  </div>
+
+  <p>Each automation unit is purchased per-zone and stacks indefinitely. Subsequent purchases of the same unit cost <code>baseCost × 1.22^n</code> where <em>n</em> is units already owned of that type.</p>
+
+  <h3>All automation tiers — rates and first-unit cost</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Unit</th>
+          <th>Zone tier</th>
+          <th class="num">Base cost (1st unit)</th>
+          <th>Catch interval</th>
+          <th>Catches/min</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Fishing Net</strong></td>
+          <td>Pond+</td>
+          <td class="num">10c <span class="dim">(1st only)</span></td>
+          <td>60s</td>
+          <td>1.0</td>
+          <td><span class="pill pill-pos">First purchase 10c</span></td>
+        </tr>
+        <tr>
+          <td><strong>Reinforced Net</strong></td>
+          <td>Pond+</td>
+          <td class="num">3,000c</td>
+          <td>45s</td>
+          <td>1.33</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>River Net</strong></td>
+          <td>River+</td>
+          <td class="num">15,000c</td>
+          <td>30s</td>
+          <td>2.0</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Local Fisher</strong></td>
+          <td>Pond+</td>
+          <td class="num">3,000c</td>
+          <td>30s</td>
+          <td>2.0</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Skilled Fisher</strong></td>
+          <td>Pond+</td>
+          <td class="num">30,000c</td>
+          <td>15s</td>
+          <td>4.0</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Veteran Fisher</strong></td>
+          <td>Pond+</td>
+          <td class="num">300,000c</td>
+          <td>8s</td>
+          <td>7.5</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><strong>Row Boat</strong></td>
+          <td>Lake+</td>
+          <td class="num">350,000c</td>
+          <td>8s</td>
+          <td>7.5</td>
+          <td><span class="pill pill-info">v0.8.0 repriced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Motor Boat</strong></td>
+          <td>Lake+</td>
+          <td class="num">1,200,000c</td>
+          <td>3s</td>
+          <td>20.0</td>
+          <td><span class="pill pill-info">v0.8.0 repriced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Fishing Boat</strong></td>
+          <td>Bay+</td>
+          <td class="num">4,000,000c</td>
+          <td>1.5s</td>
+          <td>40.0</td>
+          <td><span class="pill pill-info">v0.8.0 repriced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Small Fleet</strong></td>
+          <td>Sea+</td>
+          <td class="num">15,000,000c</td>
+          <td>0.5s (2/s)</td>
+          <td>120</td>
+          <td><span class="pill pill-info">v0.8.0 repriced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Large Fleet</strong></td>
+          <td>Sea+</td>
+          <td class="num">75,000,000c</td>
+          <td>0.25s (4/s)</td>
+          <td>240</td>
+          <td><span class="pill pill-info">v0.8.0 repriced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Deep Sea Fleet</strong></td>
+          <td>Ocean+</td>
+          <td class="num">500,000,000c</td>
+          <td>0.1s (10/s)</td>
+          <td>600</td>
+          <td></td>
+        </tr>
+        <tr style="background:var(--surface2)">
+          <td><em>Ancient Fisherman</em></td>
+          <td>Ghost Ship only</td>
+          <td class="num">—</td>
+          <td>30s</td>
+          <td>2.0</td>
+          <td><span class="pill pill-gold">Ghost Ship reward</span></td>
+        </tr>
+        <tr style="background:var(--surface2)">
+          <td><em>Ancient Fishing Boat</em></td>
+          <td>Ghost Ship only</td>
+          <td class="num">—</td>
+          <td>8s</td>
+          <td>7.5</td>
+          <td><span class="pill pill-gold">Ghost Ship reward</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>ROI payback periods (first unit, at zone average catch value)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Unit</th>
+          <th>Cost</th>
+          <th>Catches/min</th>
+          <th>Avg catch value (zone est.)</th>
+          <th>Income/min</th>
+          <th>Payback</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-pos">
+          <td>Fishing Net (1st)</td>
+          <td class="num">10c</td>
+          <td>1.0</td>
+          <td>~19c</td>
+          <td>~19c/min</td>
+          <td>&lt;1 min</td>
+          <td><span class="pill pill-pos">Instant ROI</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td>Fishing Net (2nd, ~122c)</td>
+          <td class="num">~122c</td>
+          <td>1.0</td>
+          <td>~19c</td>
+          <td>~19c/min</td>
+          <td>~6 min</td>
+          <td><span class="pill pill-pos">Fast</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td>Local Fisher</td>
+          <td class="num">3,000c</td>
+          <td>2.0</td>
+          <td>~19c</td>
+          <td>~38c/min</td>
+          <td>~79 min</td>
+          <td><span class="pill pill-pos">OK</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td>Skilled Fisher</td>
+          <td class="num">30,000c</td>
+          <td>4.0</td>
+          <td>~80c (River)</td>
+          <td>~320c/min</td>
+          <td>~94 min</td>
+          <td><span class="pill pill-pos">OK</span></td>
+        </tr>
+        <tr>
+          <td>Veteran Fisher</td>
+          <td class="num">300,000c</td>
+          <td>7.5</td>
+          <td>~300c (Lake)</td>
+          <td>~2,250c/min</td>
+          <td>~133 min</td>
+          <td><span class="pill pill-info">Reasonable</span></td>
+        </tr>
+        <tr>
+          <td>Row Boat</td>
+          <td class="num">350,000c</td>
+          <td>7.5</td>
+          <td>~300c (Lake)</td>
+          <td>~2,250c/min</td>
+          <td>~156 min</td>
+          <td><span class="pill pill-info">Reasonable</span></td>
+        </tr>
+        <tr>
+          <td>Motor Boat</td>
+          <td class="num">1,200,000c</td>
+          <td>20.0</td>
+          <td>~1,000c (Bay)</td>
+          <td>~20,000c/min</td>
+          <td>~60 min</td>
+          <td><span class="pill pill-pos">Good value</span></td>
+        </tr>
+        <tr class="row-warn">
+          <td>Small Fleet</td>
+          <td class="num">15,000,000c</td>
+          <td>120</td>
+          <td>~5,000c (Sea est.)</td>
+          <td>~600,000c/min</td>
+          <td>~25 min</td>
+          <td><span class="pill pill-warn">Very fast ROI — may snowball</span></td>
+        </tr>
+        <tr class="row-warn">
+          <td>Large Fleet</td>
+          <td class="num">75,000,000c</td>
+          <td>240</td>
+          <td>~5,000c (Sea est.)</td>
+          <td>~1,200,000c/min</td>
+          <td>~63 min</td>
+          <td><span class="pill pill-warn">Fast relative to cost</span></td>
+        </tr>
+        <tr>
+          <td>Deep Sea Fleet</td>
+          <td class="num">500,000,000c</td>
+          <td>600</td>
+          <td>~15,000c (Ocean est.)</td>
+          <td>~9,000,000c/min</td>
+          <td>~56 min</td>
+          <td><span class="pill pill-info">Scales with zone value</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="source">Catch values are estimates using mid-range rarity distribution at each zone. Actual payback depends on storage limits, offline time, and demand state (when implemented).</p>
+
+  <div class="callout warn">
+    <strong>Fleet ROI concern:</strong> Small and Large Fleets have payback periods of 25–63 minutes at Sea catch values. If Sea income is as estimated (~1M c/min per Motor Boat), a player with even moderate Bay automation stacked could reach Sea and buy a Small Fleet within hours of unlocking the zone. This risks compressing the Sea → Ocean timeline significantly. Recommend monitoring first with live data before nerfing further.
+  </div>
+
+  <h3>Automation stacking: the +22% cost curve</h3>
+  <p>Each additional unit of the same type costs 22% more than the previous. This creates a natural soft cap — buying 10 Fishing Nets costs a total of ~<strong>1,750c</strong>, 20 nets costs ~<strong>18,000c</strong>. The curve steepens but never hard-caps, which is correct for an empire builder. No concern here.</p>
+</section>
+
+<!-- ═══ 4. DIAMONDS ═══ -->
+<section class="section" id="diamonds">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Diamond Economy — Sources &amp; Sinks</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="stat-card">
+      <div class="stat-label">Starting Diamonds</div>
+      <div class="stat-value" style="color:var(--accent)">5◆</div>
+      <div class="stat-note">DEFAULT_STATE initial grant</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Premium Bait Cost</div>
+      <div class="stat-value" style="color:var(--warn)">5◆</div>
+      <div class="stat-note">30 min of doubled rarity odds</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Animated Worm Bobber</div>
+      <div class="stat-value" style="color:var(--warn)">100◆</div>
+      <div class="stat-note">Cosmetic sink</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">C'thulu Bobber</div>
+      <div class="stat-value" style="color:var(--crit)">250◆</div>
+      <div class="stat-note">Highest cosmetic sink</div>
+    </div>
+  </div>
+
+  <h3>All Diamond sources (code-verified)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Amount</th>
+          <th>Frequency</th>
+          <th>Est. diamonds/day (casual)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Trophy fish catch (manual)</td>
+          <td>1◆ per trophy</td>
+          <td>~5% of catches</td>
+          <td>Variable (active play)</td>
+          <td>Auto-sell catches may go to coins if trophy classification differs</td>
+        </tr>
+        <tr>
+          <td>First legendary species catch</td>
+          <td>3◆</td>
+          <td>One-time per species</td>
+          <td>Occasional burst</td>
+          <td>Tracked in Fishdex; manual fishing only</td>
+        </tr>
+        <tr>
+          <td>Lost Treasure special event</td>
+          <td>3◆</td>
+          <td>~Every 15–30 min avg (1/5 events)</td>
+          <td>~3–6◆/day if playing</td>
+          <td>5 event types equally distributed</td>
+        </tr>
+        <tr>
+          <td>Competition prizes</td>
+          <td>Varies by rank</td>
+          <td>Twice daily</td>
+          <td>0–10◆ (rank-dependent)</td>
+          <td>Only 5 min competition window; high skill floor</td>
+        </tr>
+        <tr>
+          <td>Season Pass (premium tier)</td>
+          <td>~140◆ per month</td>
+          <td>Monthly</td>
+          <td>~4.7◆/day</td>
+          <td>Paid tier only; free tier gives ~28◆/month</td>
+        </tr>
+        <tr>
+          <td>IAP (coin purchases)</td>
+          <td>Varies</td>
+          <td>Player-triggered</td>
+          <td>—</td>
+          <td>Bought with real money</td>
+        </tr>
+        <tr class="row-crit">
+          <td>Abyss prestige</td>
+          <td>Diamond multiplier</td>
+          <td>On prestige</td>
+          <td>N/A (endgame only)</td>
+          <td>Not available until 100% Ocean Fishdex</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>All Diamond sinks (code-verified)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Sink</th>
+          <th>Cost</th>
+          <th>Category</th>
+          <th>Value proposition</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Premium Bait</td>
+          <td>5◆ per activation</td>
+          <td>Functional</td>
+          <td>+100% non-common rarity for 30 min</td>
+        </tr>
+        <tr>
+          <td>Sensitive Bobber</td>
+          <td>5◆</td>
+          <td>Cosmetic</td>
+          <td>+1s tap window (functional effect)</td>
+        </tr>
+        <tr>
+          <td>Heavy Bobber</td>
+          <td>10◆</td>
+          <td>Cosmetic</td>
+          <td>Fewer false bobs</td>
+        </tr>
+        <tr>
+          <td>Electronic Bobber</td>
+          <td>15◆</td>
+          <td>Cosmetic</td>
+          <td>Vibration alert on bite</td>
+        </tr>
+        <tr>
+          <td>Banana Bobber</td>
+          <td>15◆</td>
+          <td>Cosmetic</td>
+          <td>Visual only</td>
+        </tr>
+        <tr>
+          <td>Target Bobber</td>
+          <td>30◆</td>
+          <td>Cosmetic</td>
+          <td>Visual only</td>
+        </tr>
+        <tr>
+          <td>Worm Bobber</td>
+          <td>35◆</td>
+          <td>Cosmetic</td>
+          <td>Visual only</td>
+        </tr>
+        <tr>
+          <td>Animated Worm Bobber</td>
+          <td>100◆</td>
+          <td>Cosmetic</td>
+          <td>Visual only (GIF animation)</td>
+        </tr>
+        <tr>
+          <td>C'thulu Bobber</td>
+          <td>250◆</td>
+          <td>Cosmetic</td>
+          <td>Visual only</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout crit">
+    <strong>F2P diamond drought problem:</strong> A casual F2P player (no Season Pass, no IAP) earns roughly 3–12◆ per day from Lost Treasure events and occasional trophy catches. Premium Bait costs 5◆. This means F2P players can activate Premium Bait roughly once per day — which is healthy. However, cosmetic bobbers cost 15–250◆, making them achievable over weeks to months. The C'thulu Bobber (250◆) would take a F2P player ~1–3 months to save for. This may frustrate players who want to show cosmetics but are far from the Abyss prestige engine.
+  </div>
+
+  <div class="callout warn">
+    <strong>Season Pass free-tier diamonds:</strong> CLAUDE.md specifies ~28◆/month on the free tier. This supplements F2P earnings significantly and should be considered a baseline assumption for F2P experience.
+  </div>
+</section>
+
+<!-- ═══ 5. GHOST SHIP ═══ -->
+<section class="section" id="ghostship">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Ghost Ship Mechanics</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="stat-card">
+      <div class="stat-label">Spawn interval</div>
+      <div class="stat-value">7h</div>
+      <div class="stat-note">Real time between appearances</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Spawn chance</div>
+      <div class="stat-value">60%</div>
+      <div class="stat-note">Not guaranteed each interval</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Idle lifetime</div>
+      <div class="stat-value">20 min</div>
+      <div class="stat-note">Disappears if not interacted with</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Expedition base time</div>
+      <div class="stat-value">1h real</div>
+      <div class="stat-note">= 24 in-game hours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Coin reward</div>
+      <div class="stat-value">24–48×</div>
+      <div class="stat-note">Hourly automation income</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">On prestige</div>
+      <div class="stat-value" style="color:var(--crit)">Reset</div>
+      <div class="stat-note">Ghost Ship state wiped</div>
+    </div>
+  </div>
+
+  <h3>Loot table (v0.8.1)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reward</th>
+          <th>Probability</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-pos">
+          <td>River Net (automation unit)</td>
+          <td>50%</td>
+          <td>Added to current zone's automation</td>
+        </tr>
+        <tr>
+          <td>Ancient Fisherman (automation unit)</td>
+          <td>30%</td>
+          <td>2.0 catches/min; ghost-only unit</td>
+        </tr>
+        <tr>
+          <td>Ancient Fishing Boat (automation unit)</td>
+          <td>20%</td>
+          <td>7.5 catches/min; ghost-only unit</td>
+        </tr>
+        <tr class="dim">
+          <td><em>Diamonds (removed v0.8.1)</em></td>
+          <td>0%</td>
+          <td>Formerly a reward; removed for economy balance</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Plus coins = <code>max(50, hourlyIncome × random(24–48))</code> regardless of automation loot.</p>
+
+  <h3>Ghost Busters pearl upgrade interaction</h3>
+  <p>Each Ghost Busters level reduces expedition time by <code>3,600,000ms / 24 = 150,000ms = 2.5 real minutes</code>. At max level 20, the expedition shortens by 50 real minutes — reducing from 1 hour to 10 real minutes. Pearl costs for Ghost Busters: 10 → 20 → 40 → ... → 5,242,880 (max total ~10.5M pearls for all 20 levels).</p>
+
+  <div class="callout pos">
+    <strong>Ghost Ship balance verdict:</strong> The automation-unit reward replaces coin-only or diamond rewards and ensures every Ghost Ship interaction meaningfully advances the player's empire. Coin reward of 24–48h of income is generous but not game-breaking since it scales with current automation state.
+  </div>
+
+  <div class="callout warn">
+    <strong>Ancient unit prestige reset:</strong> Ancient Fishermen and Ancient Fishing Boats earned from Ghost Ship are wiped on prestige alongside all other automation. Ghost Ship units are harder to earn (RNG-gated behind a 7h spawn cycle) than purchasable automation — losing them on prestige may feel especially painful. Consider exempting ghost-only units from prestige reset, or making the prestige screen explicitly show what will be lost.
+  </div>
+</section>
+
+<!-- ═══ 6. PRESTIGE ═══ -->
+<section class="section" id="prestige">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">Prestige &amp; Pearl System</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="stat-card">
+      <div class="stat-label">Prestige trigger threshold</div>
+      <div class="stat-value" style="font-size:16px">15,000 × 1.20<sup>n</sup></div>
+      <div class="stat-note">Coins required; grows 20% per prestige</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pearl reward formula</div>
+      <div class="stat-value" style="font-size:16px">√(coins / 2000)</div>
+      <div class="stat-note">Max(1, floor(...))</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Zone cost after prestige</div>
+      <div class="stat-value" style="font-size:16px">base × (1 + √n × 0.35)</div>
+      <div class="stat-note">Scales with prestige count</div>
+    </div>
+  </div>
+
+  <h3>Prestige thresholds vs. pearl rewards</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Prestige #</th>
+          <th>Coins required</th>
+          <th>Pearls at threshold (min)</th>
+          <th>Zone cost multiplier</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 (first)</td>
+          <td class="num">15,000c</td>
+          <td class="num">2–3◎</td>
+          <td>1.35× (√1 × 0.35)</td>
+          <td>Equivalent to early River money</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td class="num">18,000c</td>
+          <td class="num">3◎</td>
+          <td>1.49×</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td class="num">37,325c</td>
+          <td class="num">4–5◎</td>
+          <td>1.78×</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td class="num">92,548c</td>
+          <td class="num">6–7◎</td>
+          <td>2.11×</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td class="num">570,270c</td>
+          <td class="num">16–17◎</td>
+          <td>2.57×</td>
+          <td></td>
+        </tr>
+        <tr class="row-warn">
+          <td>50</td>
+          <td class="num">108M c</td>
+          <td class="num">232◎</td>
+          <td>3.47×</td>
+          <td>High prestige threshold exceeds early Bay income</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout crit">
+    <strong>What resets on prestige (all of it):</strong>
+    <ul style="margin-top:8px">
+      <li>All coins earned</li>
+      <li>All automation owned (Nets, Fishermen, Boats, Fleets, Ancient units)</li>
+      <li>All Expedition Vessels</li>
+      <li>Ghost Ship state</li>
+      <li>Zone unlocks (re-gated by zone cost multiplier)</li>
+    </ul>
+    <br>
+    <strong>What persists:</strong> Pearls, Pearl Upgrades, Fishdex completion, Achievements, Cosmetics, Competition titles/Hall of Fame.
+    <br><br>
+    This is a full wipe prestige model. Combined with the "Empire" design pillar (zones should never become obsolete), this creates a contradiction: the game tells players to build a multi-zone empire, then resets it entirely on prestige. This tension should be documented as a deliberate decision with rationale (if intended), or re-evaluated.
+  </div>
+
+  <h3>Pearl upgrade — Ghost Busters cost curve</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>Cost (pearls)</th>
+          <th>Total invested</th>
+          <th>Expedition reduction</th>
+          <th>New expedition time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td class="num">10</td><td class="num">10</td><td>2.5 min</td><td>57.5 min</td></tr>
+        <tr><td>2</td><td class="num">20</td><td class="num">30</td><td>5 min</td><td>55 min</td></tr>
+        <tr><td>5</td><td class="num">160</td><td class="num">310</td><td>12.5 min</td><td>47.5 min</td></tr>
+        <tr><td>10</td><td class="num">5,120</td><td class="num">10,230</td><td>25 min</td><td>35 min</td></tr>
+        <tr><td>15</td><td class="num">163,840</td><td class="num">327,670</td><td>37.5 min</td><td>22.5 min</td></tr>
+        <tr class="row-gold" style="background:rgba(212,168,48,.06)"><td>20 (max)</td><td class="num">5,242,880</td><td class="num">10,485,750</td><td>50 min</td><td><strong>10 min</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The final few levels of Ghost Busters require astronomical pearl totals (5M+ per level). At 232 pearls per high prestige (~50 prestiges), reaching max Ghost Busters would require hundreds of prestige cycles — this is firmly endgame content, which is appropriate.</p>
+</section>
+
+<!-- ═══ 7. TIMELINES ═══ -->
+<section class="section" id="timelines">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-title">Player Timeline Projections</span>
+  </div>
+
+  <div class="callout warn">
+    These are projections based on estimated income rates. No live A/B or analytics data available. Treat as directional, not precise.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Milestone</th>
+          <th>CLAUDE.md target (F2P)</th>
+          <th>Estimate post v0.8.1</th>
+          <th>Delta</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-pos">
+          <td>First Net</td>
+          <td>5 minutes</td>
+          <td>~1 min (first net 10c, free)</td>
+          <td>Faster</td>
+          <td><span class="pill pill-pos">Great onboarding</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td>Unlock River</td>
+          <td>1–2 weeks</td>
+          <td>~2–4 days casual</td>
+          <td>Slightly fast</td>
+          <td><span class="pill pill-pos">Acceptable</span></td>
+        </tr>
+        <tr class="row-pos">
+          <td>Unlock Lake</td>
+          <td>2–4 weeks</td>
+          <td>~2–3 weeks</td>
+          <td>On target</td>
+          <td><span class="pill pill-pos">Good</span></td>
+        </tr>
+        <tr>
+          <td>Unlock Bay</td>
+          <td>1–2 months</td>
+          <td>~1–2 months</td>
+          <td>On target</td>
+          <td><span class="pill pill-pos">Good</span></td>
+        </tr>
+        <tr class="row-warn">
+          <td>Unlock Sea</td>
+          <td>4–6 months</td>
+          <td>~5–8 months (est.)</td>
+          <td>Possibly long</td>
+          <td><span class="pill pill-warn">Monitor</span></td>
+        </tr>
+        <tr class="row-crit">
+          <td>Unlock Ocean</td>
+          <td>8 months</td>
+          <td>&gt;24 months (est.) <span class="pill pill-crit">⚠</span></td>
+          <td>3× too long</td>
+          <td><span class="pill pill-crit">Critical</span></td>
+        </tr>
+        <tr>
+          <td>Abyss access</td>
+          <td>10+ months</td>
+          <td>Unknown (requires 100% Ocean Fishdex)</td>
+          <td>—</td>
+          <td><span class="pill pill-info">Not assessed</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Ocean unlock cost analysis (critical path)</h3>
+  <p>Ocean Rod costs 1,250,000,000c (1.25B) after the ×5 repricing. Research Vessel costs 200,000,000c (200M). Total: <strong>1.45B coins</strong>.</p>
+  <p>At Sea zone automation income (rough estimate with a Fishing Boat: ~4M catches × 5,000c avg = ~20B c/hr for a deep automation stack — but that's endgame Sea automation which itself costs hundreds of millions to build).</p>
+  <p>A reasonable mid-Sea player income might be <strong>~2–5M c/hr</strong> (active + automation combined). At 5M c/hr × 2h/day = 10M c/day. To earn 1.45B c at 10M c/day takes <strong>145 days ≈ 5 months</strong>. That is on top of the ~5–8 months to reach Sea. Total F2P Ocean timeline: <strong>10–13 months</strong>, which is above the 8-month target but within range for dedicated players.</p>
+  <p>However, for casual players (1h/day, 30% active), the timeline could extend to 18–24 months. This is likely too long and will cause F2P churn before Ocean is ever seen.</p>
+
+  <div class="callout warn">
+    The ×5 rod repricing from v0.8.1 pushed Ocean Rod from 250M to 1.25B. This may have overcorrected. Sea and Ocean rod costs already had a ×3 increase from the June 25 overhaul. Stacking ×5 on top makes Ocean Rod alone more expensive than what a player has accumulated through all previous zones combined (Cumulative to Bay: ~1.67M). Recommend analyzing whether the ×5 should apply only to Sea Rod, or whether Ocean+ should be a separate, smaller multiplier.
+  </div>
+</section>
+
+<!-- ═══ 8. DISCREPANCIES ═══ -->
+<section class="section" id="discrepancies">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <span class="section-title">Code vs. Documentation Discrepancies</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>CLAUDE.md / spec value</th>
+          <th>Live code value</th>
+          <th>Severity</th>
+          <th>Action needed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-crit">
+          <td><strong>Competition duration</strong></td>
+          <td>1 real hour (60 min)</td>
+          <td><code>COMP_DURATION_MS = 5 * 60 * 1000</code> (5 min)</td>
+          <td><span class="pill pill-crit">Critical</span></td>
+          <td>Confirm intended; update CLAUDE.md or fix code</td>
+        </tr>
+        <tr class="row-crit">
+          <td><strong>Dynamic demand system</strong></td>
+          <td>Full Crash/Low/Normal/High/Surge cycle per species; prices fluctuate each in-game day</td>
+          <td>All fish sell at flat base price; no demand states in code</td>
+          <td><span class="pill pill-crit">Critical</span></td>
+          <td>Implement or formally descope from Phase 2 checklist</td>
+        </tr>
+        <tr class="row-warn">
+          <td><strong>Premium Bait cost</strong></td>
+          <td>Various notes say 2 Diamonds</td>
+          <td>5 Diamonds in code</td>
+          <td><span class="pill pill-warn">Medium</span></td>
+          <td>Update CLAUDE.md to match code (5◆ is intentional per v0.8.x)</td>
+        </tr>
+        <tr class="row-warn">
+          <td><strong>Fish spoilage display</strong></td>
+          <td>Described: Green / No indicator / Yellow / Red flashing / Grey+smell icon</td>
+          <td>Spoilage states exist in design doc; code verification incomplete</td>
+          <td><span class="pill pill-warn">Medium</span></td>
+          <td>Verify spoilage visual states are implemented in UI</td>
+        </tr>
+        <tr>
+          <td><strong>Manual chest probability</strong></td>
+          <td>Not documented in CLAUDE.md</td>
+          <td>0.01% per eligible catch</td>
+          <td><span class="pill pill-info">Low</span></td>
+          <td>Document in CLAUDE.md for player FAQs / wiki</td>
+        </tr>
+        <tr>
+          <td><strong>Automation chest probability</strong></td>
+          <td>Not documented</td>
+          <td>~1.16e-9 (effectively zero; 7h cooldown)</td>
+          <td><span class="pill pill-info">Low</span></td>
+          <td>Consider removing to simplify code if never triggered</td>
+        </tr>
+        <tr>
+          <td><strong>Auto-sell interval</strong></td>
+          <td>Not documented</td>
+          <td>3 real hours</td>
+          <td><span class="pill pill-info">Low</span></td>
+          <td>Document; ensure players know fish auto-sell (affects storage strategy)</td>
+        </tr>
+        <tr>
+          <td><strong>Trophy fish reward</strong></td>
+          <td>CLAUDE.md: "special fanfare + share button + counts for competition"</td>
+          <td>Trophy → 1 Diamond; no coin sell. Share button status unclear.</td>
+          <td><span class="pill pill-info">Low</span></td>
+          <td>Document diamond reward for trophy catches; verify share button implementation</td>
+        </tr>
+        <tr>
+          <td><strong>Waders cost</strong></td>
+          <td>CLAUDE.md: 6,000c; old dev log: 800c</td>
+          <td>Assumed 6,000c (CLAUDE.md post-balance)</td>
+          <td><span class="pill pill-info">Low</span></td>
+          <td>Verify in code; update old dev log references</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout crit">
+    <strong>Dynamic demand is the most impactful missing feature.</strong> CLAUDE.md describes it as a "core strategy mechanic" and it underlies the spoilage tension loop (the reason to upgrade cooling storage). Without demand fluctuation, players have no reason to time sells — they sell immediately at flat prices. Storage upgrades lose their strategic justification beyond raw capacity. This system should be on the immediate implementation backlog.
+  </div>
+</section>
+
+<!-- ═══ 9. VERDICT ═══ -->
+<section class="section" id="verdict">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <span class="section-title">Balance Verdict</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="stat-card" style="border-color:var(--pos)">
+      <div class="stat-label">Pond → Bay pacing</div>
+      <div class="stat-value" style="color:var(--pos)">Good</div>
+      <div class="stat-note">Close to target timelines</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--warn)">
+      <div class="stat-label">Bay → Sea pacing</div>
+      <div class="stat-value" style="color:var(--warn)">Watch</div>
+      <div class="stat-note">Large cost spike; monitor retention</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--warn)">
+      <div class="stat-label">Sea → Ocean pacing</div>
+      <div class="stat-value" style="color:var(--warn)">Long</div>
+      <div class="stat-note">May be 10–24 months F2P</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--crit)">
+      <div class="stat-label">Dynamic demand</div>
+      <div class="stat-value" style="color:var(--crit)">Missing</div>
+      <div class="stat-note">Core mechanic not implemented</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--crit)">
+      <div class="stat-label">Prestige reset scope</div>
+      <div class="stat-value" style="color:var(--crit)">Risky</div>
+      <div class="stat-note">Full reset contradicts Empire pillar</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--pos)">
+      <div class="stat-label">Ghost Ship balance</div>
+      <div class="stat-value" style="color:var(--pos)">Good</div>
+      <div class="stat-note">v0.8.1 automation loot well-targeted</div>
+    </div>
+  </div>
+
+  <h3>What is working well</h3>
+  <ul>
+    <li><strong>Onboarding (first 5 minutes):</strong> First Net at 10c with a 60s catch rate gets automation started within 1 minute. Excellent tutorial hook.</li>
+    <li><strong>Automation stacking design:</strong> Per-unit +22% escalating cost creates a natural feel of building an empire without hard caps.</li>
+    <li><strong>Ghost Ship reward redesign (v0.8.1):</strong> Automation units as rewards directly advance the empire fantasy and feel meaningful every time.</li>
+    <li><strong>Rod click-reduction system:</strong> Reducing taps-per-catch (20→4) creates immediately visible rod progression — a superior alternative to hidden percentage bonuses.</li>
+    <li><strong>Pearl upgrade costs for Ghost Busters:</strong> Doubling cost curve with max level ensures it's a long-term endgame investment, not a trivial shortcut.</li>
+  </ul>
+
+  <h3>What needs attention</h3>
+  <ul>
+    <li><strong>No dynamic demand:</strong> The most design-significant missing system. Spoilage, storage upgrades, and market timing all hinge on it.</li>
+    <li><strong>Ocean Rod overcorrected:</strong> The v0.8.1 ×5 repricing may have pushed Ocean Rod too far (1.25B). Consider validating with live data before it reaches players who are currently in Sea zone.</li>
+    <li><strong>Prestige full reset:</strong> Conflicts with stated Empire design philosophy. Even if full reset is intentional, it should be presented as a deliberate design choice with clear player communication, not an implicit consequence.</li>
+    <li><strong>Competition is 5 min, not 1 hour:</strong> If this is intentional, CLAUDE.md must be updated. If it's a bug, it breaks the competition reward ecosystem (only top 50 can win in 5 minutes).</li>
+  </ul>
+</section>
+
+<!-- ═══ 10. RECOMMENDATIONS ═══ -->
+<section class="section" id="recommendations">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <span class="section-title">Recommendations</span>
+  </div>
+
+  <div class="card">
+    <div class="rec">
+      <div class="rec-num">R-01</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-crit">Critical</span> Implement dynamic demand system</div>
+        <div class="rec-desc">The fish market demand cycle (Crash/Low/Normal/High/Surge) is the core strategy loop described in CLAUDE.md. Without it, spoilage has no strategic tension, storage upgrades lose their key selling point, and the market screen is purely informational. Priority: highest before next zone content.</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-02</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-crit">Critical</span> Decide and document competition duration</div>
+        <div class="rec-desc">Code: 5 minutes. Spec: 1 hour. This is a binary decision. At 5 minutes, competitions are a quick daily challenge (casual-friendly). At 1 hour, they are a commitment session (hardcore-friendly). Either is valid, but they require very different reward structures and notification timing. Decide, then update the documentation and competition notification text.</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-03</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-warn">High</span> Re-evaluate Ocean Rod ×5 pricing</div>
+        <div class="rec-desc">Ocean Rod at 1.25B coins may push F2P Ocean timeline past 24 months. Suggest reverting to ×2 or ×3 on Ocean Rod specifically (while keeping Sea Rod at ×5), giving a Sea unlock cost of ~145M and Ocean of ~700M–900M. This preserves the intended ~8-month Ocean target for dedicated F2P players.</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-04</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-warn">High</span> Clarify prestige reset scope in player-facing UI</div>
+        <div class="rec-desc">The prestige confirmation screen should explicitly list what resets (coins, all automation, zones) and what persists (pearls, fishdex, cosmetics, achievements). Players who have built a multi-zone empire for months will be devastated by an unexpected full reset. Transparency prevents churn. Consider also whether some automation should survive (e.g., Pond-level nets persist as "sentimental" — it aligns with the Empire pillar).</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-05</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-warn">High</span> Protect Ghost Ship–earned automation from prestige reset</div>
+        <div class="rec-desc">Ancient Fisherman and Ancient Fishing Boat units are earned through rare, time-gated Ghost Ship expeditions (60% chance every 7 real hours). Wiping them on prestige undervalues the player's investment and breaks the "only way to get these" exclusivity of the ghost-only units. These units could persist across prestiges as a permanent fleet addition — they're not purchasable anyway, so they don't break economy balance.</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-06</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-info">Medium</span> Add a daily reliable diamond source for F2P players</div>
+        <div class="rec-desc">Currently F2P diamond income is sparse (Lost Treasure events, sporadic trophy catches). Consider a small daily login reward (1–2◆/day) or a daily quest that rewards 2–3◆. This gives F2P players a predictable cadence to budget toward Premium Bait (5◆) or cosmetics, reducing the feeling of diamond drought without disrupting the IAP revenue model.</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-07</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-info">Medium</span> Remove or repurpose the automation chest probability code</div>
+        <div class="rec-desc">Automation chest probability is ~1.16e-9 per catch — at 600 catches/second (max Deep Sea Fleet), this still triggers less than once per week of continuous running. With a 7-hour cooldown on top, this code path likely never fires in practice. Either raise the probability to something meaningful (&gt;0.001%) or remove the dead code path to reduce confusion.</div>
+      </div>
+    </div>
+    <div class="rec">
+      <div class="rec-num">R-08</div>
+      <div class="rec-body">
+        <div class="rec-title"><span class="pill pill-info">Low</span> Sync CLAUDE.md with all v0.8.x code changes</div>
+        <div class="rec-desc">Premium Bait cost (2◆ in old notes vs. 5◆ in code), auto-sell interval (undocumented), competition duration (1h doc vs. 5min code), and the Phase 2 checklist (dynamic demand marked complete but not implemented) should all be corrected. Accurate documentation prevents future audit confusion and saves onboarding time for new contributors.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="border-top:1px solid var(--border);padding-top:20px;font-size:12px;color:var(--text-dim)">
+  Patient Angler: Idle Fishing — Internal Economy Audit · v0.8.1 Build 38 · 2026-07-04 · Recapsa OÜ / Henly Games<br>
+  Derived from static analysis of game.js, version.js, zone JSON files. Income estimates are projections, not analytics-verified data.
+</footer>
+
+</div>
+</body>
+</html>

