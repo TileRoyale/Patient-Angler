@@ -4475,3 +4475,156 @@ html, body {
   flex: 1;
   min-width: 140px;
 }
+
+/* ─── Maelstrom Screen (Phase 2) ─────────────────────────────────────────── */
+
+.mael-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: stretch;
+}
+.mael-header {
+  font-size: clamp(14px, 3.5vw, 18px);
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 0 4px;
+}
+.mael-debug-tag {
+  display: inline-block;
+  font-size: clamp(9px, 2vw, 11px);
+  font-family: monospace;
+  background: #ff6b35;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.1em;
+}
+.mael-panel {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mael-panel-title {
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim);
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.mael-panel-note {
+  font-size: clamp(10px, 2.5vw, 12px);
+  color: var(--color-text-dim);
+  font-family: monospace;
+  font-style: italic;
+}
+.mael-panel-stats {
+  font-size: clamp(9px, 2.2vw, 11px);
+  color: var(--color-text-dim);
+  font-family: monospace;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+/* Crystal inventory row */
+.mael-crystal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+.mael-crystal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.mael-crystal-name {
+  flex: 1;
+  font-size: clamp(11px, 2.8vw, 13px);
+}
+.mael-crystal-amt {
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Vessel mission rows */
+.mael-vessel-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.mael-vessel-row:last-of-type { border-bottom: none; }
+.mael-vessel-label {
+  font-size: clamp(10px, 2.5vw, 12px);
+  font-family: monospace;
+  min-width: 56px;
+  color: var(--color-text-dim);
+}
+.mael-vessel-status {
+  flex: 1;
+  font-size: clamp(10px, 2.5vw, 12px);
+  font-family: monospace;
+  color: var(--color-text-dim);
+}
+.mael-vessel-status.ready {
+  color: #4cde7f;
+  font-weight: bold;
+}
+
+/* Mission buttons */
+.mael-collect-btn,
+.mael-dispatch-btn,
+.mael-recall-btn {
+  font-size: clamp(10px, 2.5vw, 12px);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mael-collect-btn {
+  background: #4cde7f;
+  color: #111;
+}
+.mael-collect-btn:active { opacity: 0.8; }
+.mael-dispatch-btn {
+  background: #8b00ff;
+  color: #fff;
+}
+.mael-dispatch-btn:active { opacity: 0.8; }
+.mael-recall-btn {
+  background: rgba(255,255,255,0.12);
+  color: var(--color-text-dim);
+}
+.mael-recall-btn:active { opacity: 0.7; }
+
+/* Bottom controls */
+.mael-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+.mael-reset-btn {
+  color: #ff6b35;
+  border-color: rgba(255,107,53,0.4);
+}

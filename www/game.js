@@ -683,9 +683,12 @@ const DEFAULT_STATE = {
   maelstrom: {
     unlocked:              false,
     entered:               false,
-    crystalProgress:       {},
     stabilized:            false,
     abyssEntranceUnlocked: false,
+    crystals:              { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 },
+    crystalRequirements:   { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 }, // Phase 2 provisional: 0 = not yet set
+    crystalMissions:       [],
+    stats:                 { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 },
   },
   abyss: {
     unlocked:    false,
@@ -1040,6 +1043,7 @@ function executePrestige() {
   G.series = { index: ((G.series || {}).index || 1), competitionNumber: 0, nextName: _pickCompName ? _pickCompName() : '', usedNames: [], standings: {}, grandPending: false };
 
   // Reset expedition vessels and chest cooldown; keep chests, sunkenTreasureUnlocked, treasurehold level, stats
+  if (typeof _clearMaelstromMissionsOnPrestige === 'function') _clearMaelstromMissionsOnPrestige();
   G.expeditionVessels               = [];
   G.automationTreasureCooldownUntil = 0;
   if (_expeditionCheckInterval) { clearInterval(_expeditionCheckInterval); _expeditionCheckInterval = null; }
@@ -4490,6 +4494,7 @@ function calculateOfflineProgress() {
   // Expedition vessel offline catch-up (max one chest per vessel, never lost)
   if (G.expeditionVessels && G.expeditionVessels.length) {
     for (const v of G.expeditionVessels) {
+      if (v.maelstromMissionId) continue; // on a crystal mission — skip normal timer
       if (v.awaitingDelivery) {
         if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
           addSunkenChest('expedition', 'sea');
@@ -4506,6 +4511,8 @@ function calculateOfflineProgress() {
         }
       }
     }
+    // Process any Maelstrom crystal missions that completed while offline
+    if (typeof _processMaelstromMissions === 'function') _processMaelstromMissions();
   }
 
   // Clear storage first so offline catches have maximum room
@@ -4756,6 +4763,7 @@ function _checkExpeditionVessels() {
   const now = Date.now();
   let changed = false;
   for (const v of G.expeditionVessels) {
+    if (v.maelstromMissionId) continue; // on a crystal mission — normal timer is paused
     if (v.awaitingDelivery) {
       // Hold is now free — deliver the stored chest
       if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
@@ -4790,6 +4798,7 @@ function _tryDeliverPendingEV() {
   let changed = false;
   const now = Date.now();
   for (const v of G.expeditionVessels) {
+    if (v.maelstromMissionId) continue; // on a crystal mission — skip normal delivery
     if (v.awaitingDelivery && (G.sunkenChests || []).length < sunkenChestCapacity()) {
       addSunkenChest('expedition', 'sea');
       v.awaitingDelivery = false;
@@ -7475,11 +7484,21 @@ function init() {
     G.activeAutomationZones = _unl.slice(-2);
   }
   // Ensure EV objects have awaitingDelivery field (old saves)
-  if (G.expeditionVessels) G.expeditionVessels.forEach(v => { if (v.awaitingDelivery === undefined) v.awaitingDelivery = false; });
+  if (G.expeditionVessels) G.expeditionVessels.forEach(v => {
+    if (v.awaitingDelivery       === undefined) v.awaitingDelivery       = false;
+    if (v.maelstromMissionId     === undefined) v.maelstromMissionId     = null;
+    if (v.savedTreasureRemainingMs === undefined) v.savedTreasureRemainingMs = null;
+  });
   if (!G.usedCodes)                       G.usedCodes            = [];
   // Expansion fields — ensure old saves receive safe defaults
   if (!G.currentWorld)  G.currentWorld = 'overworld';
-  if (!G.maelstrom) G.maelstrom = { unlocked:false, entered:false, crystalProgress:{}, stabilized:false, abyssEntranceUnlocked:false };
+  if (!G.maelstrom) G.maelstrom = JSON.parse(JSON.stringify(DEFAULT_STATE.maelstrom));
+  // Phase 2: ensure maelstrom sub-fields exist in Phase 1 saves
+  if (!G.maelstrom.crystals)            G.maelstrom.crystals            = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  if (!G.maelstrom.crystalRequirements) G.maelstrom.crystalRequirements = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  if (!G.maelstrom.crystalMissions)     G.maelstrom.crystalMissions     = [];
+  if (!G.maelstrom.stats)               G.maelstrom.stats               = { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 };
+  if (!Array.isArray(G.maelstrom.crystalMissions)) G.maelstrom.crystalMissions = [];
   if (!G.abyss)     G.abyss     = { unlocked:false, currentZone:null, highestZone:0, zones:{}, automation:{}, tribes:{}, crystals:{}, geodes:{}, stats:{} };
   // Reset world to overworld on load — prevents stale debug state from affecting live saves
   if (typeof canAccessMaelstromAndAbyss === 'function' && !canAccessMaelstromAndAbyss()) {

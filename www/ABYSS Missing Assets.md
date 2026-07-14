@@ -13,12 +13,15 @@ Statuses: Missing | Placeholder Implemented | Art Created | Integrated | Verifie
 |---|---|---|---|---|---|---|---|
 | Zone Background | Maelstrom Main Background | `maelstrom_bg.png` | `img/backgrounds/` | 1920×1080 (landscape) | Dark swirling vortex, bioluminescent purples and blues, whirlpool center | Maelstrom world view | Missing |
 | Icon | Maelstrom Navigation Icon | `maelstrom.png` | `img/icons/` | 64×64 | Small icon for navigation buttons and zone indicators, matches Maelstrom purple theme | Nav bar / Zone selector | Missing |
-| Icon | Crystal Cluster — Blue | `crystal_blue.png` | `img/icons/Maelstrom/` | 64×64 | Blue glowing crystal cluster for collection progress | Crystal collection UI | Missing |
-| Icon | Crystal Cluster — Green | `crystal_green.png` | `img/icons/Maelstrom/` | 64×64 | Green glowing crystal cluster | Crystal collection UI | Missing |
-| Icon | Crystal Cluster — Purple | `crystal_purple.png` | `img/icons/Maelstrom/` | 64×64 | Purple glowing crystal cluster | Crystal collection UI | Missing |
-| Icon | Crystal Cluster — Red | `crystal_red.png` | `img/icons/Maelstrom/` | 64×64 | Red glowing crystal cluster | Crystal collection UI | Missing |
-| Icon | Crystal Cluster — Gold | `crystal_gold.png` | `img/icons/Maelstrom/` | 64×64 | Gold glowing crystal cluster | Crystal collection UI | Missing |
-| UI | Stabilization Progress Icon | `maelstrom_stabilize.png` | `img/icons/Maelstrom/` | 64×64 | Swirling indicator showing Maelstrom calm/unstable state | Stabilization bar | Missing |
+| Icon | Crystal Cluster — Blue | `crystal_blue.png` | `img/icons/Maelstrom/` | 64×64 | Blue glowing crystal cluster for collection progress | Crystal inventory panel (Phase 2) | Missing |
+| Icon | Crystal Cluster — Green | `crystal_green.png` | `img/icons/Maelstrom/` | 64×64 | Green glowing crystal cluster | Crystal inventory panel (Phase 2) | Missing |
+| Icon | Crystal Cluster — Purple | `crystal_purple.png` | `img/icons/Maelstrom/` | 64×64 | Purple glowing crystal cluster | Crystal inventory panel (Phase 2) | Missing |
+| Icon | Crystal Cluster — Red | `crystal_red.png` | `img/icons/Maelstrom/` | 64×64 | Red glowing crystal cluster | Crystal inventory panel (Phase 2) | Missing |
+| Icon | Crystal Cluster — Gold | `crystal_gold.png` | `img/icons/Maelstrom/` | 64×64 | Gold glowing crystal cluster | Crystal inventory panel (Phase 2) | Missing |
+| UI | Stabilization Progress Meter | `maelstrom_stabilize.png` | `img/icons/Maelstrom/` | 64×64 | Swirling indicator showing Maelstrom calm/unstable state | Stabilization panel (Phase 3) | Missing |
+| UI | Crystal Inventory Panel Icon | `crystal_inventory.png` | `img/icons/Maelstrom/` | 64×64 | Small decorative icon for the crystal inventory panel header | Crystal inventory panel (Phase 2) | Missing |
+| UI | Mission Complete Visual | `mission_complete.png` | `img/icons/Maelstrom/` | 64×64 | Flash/fanfare icon shown when a crystal mission finishes | EV mission panel — Collect state (Phase 2) | Missing |
+| UI | EV Mission Status Icon | `ev_on_mission.png` | `img/icons/Maelstrom/` | 32×32 | Small icon shown on EV vessel row when vessel is on a Maelstrom mission | EV mission panel (Phase 2) | Missing |
 | Visual | Abyss Entrance | `abyss_entrance.png` | `img/icons/Maelstrom/` | 256×256 or wider | Dark gateway/portal in the Maelstrom floor leading to the Abyss | Maelstrom world view | Missing |
 
 ---
