@@ -107,6 +107,26 @@ async function saveCloudSave() {
   }
 }
 
+// Returns true if cloud save represents more real progress than local state.
+// Used to detect reinstall scenarios where localTs > cloudTs due to saveState()
+// running at startup before the cloud fetch completes.
+function _cloudIsRicher(cloud, local) {
+  const ZONE_ORDER = ['pond','river','lake','bay','sea','ocean','abyss'];
+  const cloudZone  = ZONE_ORDER.indexOf(cloud.stats?.recHighestZone  || cloud.currentZone  || 'pond');
+  const localZone  = ZONE_ORDER.indexOf(local.stats?.recHighestZone  || local.currentZone  || 'pond');
+  if (cloudZone > localZone) return true;
+  const cloudRods  = (cloud.ownedRods  || []).length;
+  const localRods  = (local.ownedRods  || []).length;
+  if (cloudRods > localRods) return true;
+  const cloudTrans = (cloud.ownedTransport || []).length;
+  const localTrans = (local.ownedTransport || []).length;
+  if (cloudTrans > localTrans) return true;
+  const cloudLife  = (cloud.stats?.lifeCoinsEarned || 0) + (cloud.coins || 0);
+  const localLife  = (local.stats?.lifeCoinsEarned || 0) + (local.coins || 0);
+  if (cloudLife > localLife * 5 && cloudLife > 5000) return true;
+  return false;
+}
+
 async function loadCloudSave() {
   if (!_currentUser) return;
 
@@ -118,12 +138,14 @@ async function loadCloudSave() {
     const cloud   = body.save;
     const localTs = G._savedAt || 0;
     const cloudTs = cloud._savedAt || 0;
-    // On fresh install _hadLocalSave is false — always prefer cloud save.
-    // On reinstall saveState() runs during init before loadCloudSave(), which would make
-    // localTs = Date.now() > cloudTs, causing the cloud save to be skipped. _hadLocalSave
-    // captures the pre-init localStorage state so the comparison stays correct.
+    // Prefer cloud when:
+    // 1. No local save existed before init (fresh install / wipe)
+    // 2. Cloud timestamp is newer (normal sync)
+    // 3. Cloud has more game progress (reinstall detection — catches the case where
+    //    saveState() at startup set localTs=now, making localTs > cloudTs even though
+    //    the cloud has the real save and local only has a default/post-reinstall state)
     const freshInstall = typeof _hadLocalSave !== 'undefined' && !_hadLocalSave;
-    if (freshInstall || cloudTs > localTs) {
+    if (freshInstall || cloudTs > localTs || _cloudIsRicher(cloud, G)) {
       Object.assign(G, cloud);
       saveState();
       updateHUD();
