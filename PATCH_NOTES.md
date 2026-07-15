@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.6.1 — Build 44 (July 2026)
+
+### Fix
+- **Community links on mobile** — Discord and Google Play links now open in the system browser (installed Capacitor Browser plugin)
+
+---
+
 ## v0.8.6 — Build 43 (July 2026)
 
 ### Fix
