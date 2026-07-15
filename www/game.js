@@ -7260,6 +7260,13 @@ function renderSettings() {
       }
     };
   }
+
+  const discordBtn   = document.getElementById('btn-social-discord');
+  const playstoreBtn = document.getElementById('btn-social-playstore');
+  const redditBtn    = document.getElementById('btn-social-reddit');
+  if (discordBtn)   discordBtn.onclick   = () => openExternalLink('https://discord.gg/CYpwvgsbB');
+  if (playstoreBtn) playstoreBtn.onclick = () => openExternalLink('https://play.google.com/store/apps/details?id=com.henlygames.patientangler&hl=en');
+  if (redditBtn)    redditBtn.onclick    = () => openExternalLink('https://www.reddit.com/r/PatientAngler/');
 }
 
 
@@ -8387,13 +8394,9 @@ function renderAutoOverview() {
 }
 
 function openExternalLink(url) {
-  try {
-    if (typeof Capacitor !== 'undefined') {
-      Capacitor.Plugins.Browser?.open({ url });
-    } else {
-      window.open(url, '_blank');
-    }
-  } catch (e) {
+  if (typeof Capacitor !== 'undefined') {
+    setTimeout(() => { window.open(url, '_system'); });
+  } else {
     window.open(url, '_blank');
   }
   return false;
