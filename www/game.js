@@ -1914,9 +1914,10 @@ function renderZones() {
           (reqHtml ? '<div class="zone-reqs">' + reqHtml + '</div>' : '') +
           autoLine +
         '</div>' +
+        (autoZoneBtn ? '<div class="zone-auto-col">' + autoZoneBtn + '</div>' : '') +
         previewHtml +
       '</div>' +
-      '<div class="zone-card-right">' + actionHtml + autoZoneBtn + '</div>';
+      '<div class="zone-card-right">' + actionHtml + '</div>';
 
     const switchBtn = div.querySelector('.js-switch');
     if (switchBtn) switchBtn.addEventListener('click', () => switchZone(zone.id));

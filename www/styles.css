@@ -1110,9 +1110,9 @@ html, body {
   font-family: inherit;
   font-size: calc((clamp(9px,2.2vw,11px)) * var(--font-scale, 1));
   font-weight: bold;
-  color: var(--color-text-dim);
+  color: var(--color-gold);
   background: transparent;
-  border: 1px solid var(--color-border, #444);
+  border: 1px solid var(--color-gold);
   border-radius: 10px;
   padding: 2px 8px;
   cursor: pointer;
@@ -1664,6 +1664,11 @@ html, body {
   padding: 10px 12px;
   flex-shrink: 0;
   max-width: 34%;
+}
+.zone-auto-col {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 .zone-preview-img,
 .zone-preview-color {
