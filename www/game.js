@@ -8482,15 +8482,15 @@ function renderAutoOverview() {
 
 function openExternalLink(url) {
   try {
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
-      window.Capacitor.Plugins.Browser.open({ url });
+    if (window.Capacitor) {
+      window.open(url, '_system'); // lets Android open native app (Reddit/Discord/etc) if installed
     } else {
-      window.open(url, '_system');
+      window.open(url, '_blank');
     }
   } catch (e) {
     window.open(url, '_blank');
   }
-  return false; // always prevent <a href> from navigating WebView
+  return false;
 }
 
 // Make catch/s HUD indicator clickable
