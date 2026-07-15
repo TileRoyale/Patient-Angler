@@ -7558,8 +7558,7 @@ document.addEventListener('visibilitychange', () => {
       if (_eventStartedAt && Date.now() - _eventStartedAt > EVENT_WINDOW_MS) {
         expireSpecialEvent();
       } else {
-        // Still valid — ensure ad is loaded (may have been dropped while backgrounded)
-        if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
+        // Still valid — ad loads on demand when player taps claim
       }
     }
   }
@@ -7718,8 +7717,6 @@ function triggerSpecialEvent() {
   for (let i = 0; i < _evWeights.length; i++) { _evRand -= _evWeights[i]; if (_evRand <= 0) { _evIdx = i; break; } }
   _pendingEvent    = available[_evIdx];
   _eventStartedAt  = Date.now();
-  // Start loading the ad immediately — gives it ~5 min to load before user taps
-  if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
   const iconEl = document.getElementById('event-side-icon');
   if (iconEl) {
     iconEl.querySelector('.event-side-img').src = _pendingEvent.icon;
@@ -7788,13 +7785,21 @@ function closeSpecialEventPopup() {
 function simulateAdWatch(onReward) {
   const adNote = document.getElementById('se-ad-note');
   const btn    = document.getElementById('se-claim-btn');
+  let   _tries = 0;
 
   function attempt() {
-    if (btn) { btn.disabled = true; btn.textContent = 'Loading ad…'; }
+    _tries++;
+    if (btn) { btn.disabled = true; btn.textContent = _tries === 1 ? 'Loading ad…' : 'Retrying…'; }
     showRewardedAd(onReward, () => {
-      // Ad not ready or dismissed without reward — always allow retry
-      if (adNote) adNote.textContent = 'Ad not ready. Tap to try again.';
-      if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; btn.onclick = attempt; }
+      if (_tries < 3) {
+        // Auto-retry silently up to 3 attempts total
+        if (adNote) adNote.textContent = 'Loading ad…';
+        attempt();
+      } else {
+        // Give up — let player decide to retry manually or skip
+        if (adNote) adNote.textContent = 'Ad not available. Try again or skip.';
+        if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; btn.onclick = () => { _tries = 0; attempt(); }; }
+      }
     });
   }
 
