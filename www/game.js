@@ -8404,8 +8404,8 @@ function renderAutoOverview() {
 
 function openExternalLink(url) {
   try {
-    if (window.Capacitor) {
-      window.open(url, '_system'); // lets Android open native app (Reddit/Discord/etc) if installed
+    if (typeof Capacitor !== 'undefined') {
+      Capacitor.Plugins.Browser?.open({ url });
     } else {
       window.open(url, '_blank');
     }
