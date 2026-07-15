@@ -2148,6 +2148,14 @@ html, body {
   flex-shrink: 0;
 }
 .co-row.is-player .co-val { color: #7eff7e; }
+.co-warning {
+  color: #ff6b6b;
+  font-size: 10px;
+  text-align: center;
+  margin-top: 5px;
+  line-height: 1.3;
+}
+.co-warning.hidden { display: none; }
 
 /* ── Special Event side icon ────────────────────────────── */
 .event-side-icon {
@@ -2510,7 +2518,7 @@ html, body {
 /* ── Settings screen ─────────────────────────────────────── */
 .settings-scroll {
   overflow-y: auto;
-  padding: 8px clamp(20px,6vw,48px) 24px;
+  padding: 8px clamp(20px,6vw,48px) calc(var(--safe-b) + var(--float-nav-h) + 20px);
 }
 
 .settings-section {
@@ -2706,8 +2714,8 @@ html, body {
 }
 .btn-discord   { background: #5865F2; }
 .btn-playstore { background: #01875f; }
+.btn-social svg { pointer-events: none; }
 .btn-reddit    { background: #FF4500; }
-a.btn-social   { text-decoration: none; }
 .social-icon {
   width: 20px;
   height: 20px;

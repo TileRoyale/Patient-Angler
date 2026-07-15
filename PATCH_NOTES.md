@@ -2,6 +2,49 @@
 
 ---
 
+## v0.8.6.2 — Build 45 (July 2026)
+
+### Fix
+- **Community buttons** — Discord, Google Play and Reddit buttons in Settings now open correctly on Android (fixed SVG pointer-event blocking and Capacitor WebView inline handler scope)
+
+---
+
+## v0.8.6.1 — Build 44 (July 2026)
+
+### Fix
+- **Community links on mobile** — Discord and Google Play links now open in the system browser (installed Capacitor Browser plugin)
+
+---
+
+## v0.8.6 — Build 43 (July 2026)
+
+### Fix
+- **Community links on mobile** — Discord and Google Play links now correctly open in the system browser on Android instead of inside the game
+
+---
+
+## v0.8.5 — Build 42 (July 2026)
+
+### New
+- **Discord community** — join link added to Settings. Chat with other anglers, share catches, give feedback
+- **Google Play review** — rate the game link added to Settings. Helps the game grow!
+
+---
+
+## v0.8.4 — Build 41 (July 2026)
+
+### Fix
+- **Debug button removed** — Ghost Ship debug spawn button is no longer visible in production builds
+
+---
+
+## v0.8.3 — Build 40 (July 2026)
+
+### Fix
+- **Sea unlock comic** — Sea Discovery comic no longer gets permanently skipped after Prestige; it will now show again the next time the player unlocks the Sea zone
+
+---
+
 ## v0.8.2 — Build 39 (July 2026)
 
 ### New
