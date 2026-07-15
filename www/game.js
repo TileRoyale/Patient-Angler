@@ -5953,6 +5953,11 @@ function updateCompOverlay() {
       `</div>`
     ).join('');
   }
+  const warnEl = document.getElementById('co-warning');
+  if (warnEl) {
+    const inCompZone = G.currentZone === G.competition.zone;
+    warnEl.classList.toggle('hidden', inCompZone);
+  }
 }
 
 // ── Series helpers ────────────────────────────────────────────────────────────
@@ -6219,6 +6224,7 @@ function updateCompetitionBest(catchResult) {
   if (!isCompetitionActive()) return;
   if (catchResult.rarity === 'trash' || catchResult.rarity === 'plant' || catchResult.isTrophy) return;
   const c = G.competition;
+  if (G.currentZone !== c.zone) return;
   if (!c.myBest || catchResult.value > c.myBest.value) {
     c.myBest = { name: catchResult.name, value: catchResult.value, rarity: catchResult.rarity, size: catchResult.size };
     saveState();
