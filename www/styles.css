@@ -2684,6 +2684,7 @@ html, body {
 }
 .btn-discord  { background: #5865F2; }
 .btn-playstore { background: #01875f; }
+a.btn-social { text-decoration: none; }
 .social-icon {
   width: 20px;
   height: 20px;
