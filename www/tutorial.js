@@ -571,4 +571,5 @@ function _tutComplete() {
   saveState();
   if (typeof showScreen === 'function') showScreen('fishing');
   if (typeof trackMilestone === 'function') trackMilestone('tutorial_completed');
+  if (typeof _maybShowCommunityNotice === 'function') _maybShowCommunityNotice();
 }
