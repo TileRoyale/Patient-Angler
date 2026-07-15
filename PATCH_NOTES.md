@@ -2,6 +2,14 @@
 
 ---
 
+## v0.8.5 — Build 42 (July 2026)
+
+### New
+- **Discord community** — join link added to Settings. Chat with other anglers, share catches, give feedback
+- **Google Play review** — rate the game link added to Settings. Helps the game grow!
+
+---
+
 ## v0.8.4 — Build 41 (July 2026)
 
 ### Fix
