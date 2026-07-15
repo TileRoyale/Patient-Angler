@@ -680,6 +680,9 @@ const DEFAULT_STATE = {
   usedCodes: [],
 };
 
+// Captured before any saveState() calls so loadCloudSave() knows if this is a fresh install
+const _hadLocalSave = !!localStorage.getItem('patientAngler_v1');
+
 let G = loadState();
 
 function _earnCoins(n) {
@@ -2136,6 +2139,7 @@ function onStorageFullEvent() {
   });
 
   syncAch('storefills', G.stats.storageFills);
+  finalizeQuestUpdate();
 }
 
 function fishPileKey(fishId, size) { return fishId + '|' + size; }
@@ -4523,7 +4527,7 @@ function calculateOfflineProgress() {
                                : 1;
     const offlineSpd = getSpeedMult() * offlineTypeSpeedMult * getPearlSpeedMult() * getMasteryAutoSpeedMult();
     const effectiveRate = aDef.rate / offlineSpd;
-    const rawCatches = Math.floor(Math.floor(elapsedSec / effectiveRate) * (1 + getPearlExtraCatchChance()) * getMasteryOfflineMult()) * getMultiCatch();
+    const rawCatches = Math.floor(Math.floor(elapsedSec / effectiveRate) * 0.75 * (1 + getPearlExtraCatchChance()) * getMasteryOfflineMult()) * getMultiCatch();
 
     const toProcess = Math.min(rawCatches, OFFLINE_ITER_BUDGET - itersUsed);
     itersUsed += toProcess;
