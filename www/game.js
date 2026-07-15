@@ -678,35 +678,6 @@ const DEFAULT_STATE = {
   ghostShips: [],
   ghostShipNextSpawnAt: 0,
   usedCodes: [],
-  // ── Expansion save foundation (Phase 1 — all inactive until Maelstrom unlocks) ──
-  currentWorld: 'overworld',   // overworld | maelstrom | abyss
-  maelstrom: {
-    unlocked:                     false,
-    entered:                      false,
-    stabilized:                   false,
-    abyssEntranceUnlocked:        false,
-    crystals:                     { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 },
-    stabilizationProgress:        { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 },
-    stabilizationCompletionShown: false,
-    crystalMissions:              [],
-    stats:                        { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 },
-    // crystalRequirements removed — requirements live in MAELSTROM_STAB_REQUIREMENTS (abyss.js)
-  },
-  abyss: {
-    unlocked:        false,
-    currentZone:     null,
-    highestZone:     0,
-    zones:           {},
-    automation:      {},
-    tribes:          {},
-    crystals:        {},
-    geodes:          {},
-    stats:           {},
-    tribeReputation: {},   // { tribeId: stageName } — survives prestige
-    tribeProgress:   {},   // { tribeId: catchCount } — resets on prestige (current stage only)
-    tribeBobbers:    [],   // [ bobberId, ... ] — permanent, survive prestige
-    mythicCatches:   {},   // { zoneId: count } — resets on prestige
-  },
 };
 
 let G = loadState();
@@ -1049,8 +1020,6 @@ function executePrestige() {
   G.series = { index: ((G.series || {}).index || 1), competitionNumber: 0, nextName: _pickCompName ? _pickCompName() : '', usedNames: [], standings: {}, grandPending: false };
 
   // Reset expedition vessels and chest cooldown; keep chests, sunkenTreasureUnlocked, treasurehold level, stats
-  if (typeof _clearMaelstromMissionsOnPrestige === 'function') _clearMaelstromMissionsOnPrestige();
-  if (typeof _clearAbyssOnPrestige === 'function') _clearAbyssOnPrestige();
   G.expeditionVessels               = [];
   G.automationTreasureCooldownUntil = 0;
   if (_expeditionCheckInterval) { clearInterval(_expeditionCheckInterval); _expeditionCheckInterval = null; }
@@ -3325,10 +3294,8 @@ function showScreen(id) {
   if (id === 'zones')       renderZones();
   if (id === 'competition') renderCompetition();
   if (id === 'halloffame')  renderStatistics();
-  if (id === 'abyss')                renderAbyss();
-  if (id === 'diamondstore')         renderDiamondStore();
-  if (id === 'expansion-maelstrom' && typeof renderMaelstromDebug === 'function') renderMaelstromDebug();
-  if (id === 'expansion-abyss'     && typeof renderAbyssDebug      === 'function') renderAbyssDebug();
+  if (id === 'abyss')         renderAbyss();
+  if (id === 'diamondstore')  renderDiamondStore();
   if (id === 'settings')    renderSettings();
   if (id === 'fishing')     updateHUD();
   if (typeof tutHook === 'function') tutHook('screen', id);
@@ -4513,7 +4480,6 @@ function calculateOfflineProgress() {
   // Expedition vessel offline catch-up (max one chest per vessel, never lost)
   if (G.expeditionVessels && G.expeditionVessels.length) {
     for (const v of G.expeditionVessels) {
-      if (v.maelstromMissionId) continue; // on a crystal mission — skip normal timer
       if (v.awaitingDelivery) {
         if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
           addSunkenChest('expedition', 'sea');
@@ -4530,8 +4496,6 @@ function calculateOfflineProgress() {
         }
       }
     }
-    // Process any Maelstrom crystal missions that completed while offline
-    if (typeof _processMaelstromMissions === 'function') _processMaelstromMissions();
   }
 
   // Clear storage first so offline catches have maximum room
@@ -4782,7 +4746,6 @@ function _checkExpeditionVessels() {
   const now = Date.now();
   let changed = false;
   for (const v of G.expeditionVessels) {
-    if (v.maelstromMissionId) continue; // on a crystal mission — normal timer is paused
     if (v.awaitingDelivery) {
       // Hold is now free — deliver the stored chest
       if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
@@ -4817,7 +4780,6 @@ function _tryDeliverPendingEV() {
   let changed = false;
   const now = Date.now();
   for (const v of G.expeditionVessels) {
-    if (v.maelstromMissionId) continue; // on a crystal mission — skip normal delivery
     if (v.awaitingDelivery && (G.sunkenChests || []).length < sunkenChestCapacity()) {
       addSunkenChest('expedition', 'sea');
       v.awaitingDelivery = false;
@@ -7298,7 +7260,13 @@ function renderSettings() {
       }
     };
   }
-  if (typeof renderAbyssDebugSettings === 'function') renderAbyssDebugSettings();
+
+  const discordBtn   = document.getElementById('btn-social-discord');
+  const playstoreBtn = document.getElementById('btn-social-playstore');
+  const redditBtn    = document.getElementById('btn-social-reddit');
+  if (discordBtn)   discordBtn.onclick   = () => openExternalLink('https://discord.gg/CYpwvgsbB');
+  if (playstoreBtn) playstoreBtn.onclick = () => openExternalLink('https://play.google.com/store/apps/details?id=com.henlygames.patientangler&hl=en');
+  if (redditBtn)    redditBtn.onclick    = () => openExternalLink('https://www.reddit.com/r/PatientAngler/');
 }
 
 
@@ -7505,48 +7473,8 @@ function init() {
     G.activeAutomationZones = _unl.slice(-2);
   }
   // Ensure EV objects have awaitingDelivery field (old saves)
-  if (G.expeditionVessels) G.expeditionVessels.forEach(v => {
-    if (v.awaitingDelivery       === undefined) v.awaitingDelivery       = false;
-    if (v.maelstromMissionId     === undefined) v.maelstromMissionId     = null;
-    if (v.savedTreasureRemainingMs === undefined) v.savedTreasureRemainingMs = null;
-  });
+  if (G.expeditionVessels) G.expeditionVessels.forEach(v => { if (v.awaitingDelivery === undefined) v.awaitingDelivery = false; });
   if (!G.usedCodes)                       G.usedCodes            = [];
-  // Expansion fields — ensure old saves receive safe defaults
-  if (!G.currentWorld)  G.currentWorld = 'overworld';
-  if (!G.maelstrom) G.maelstrom = JSON.parse(JSON.stringify(DEFAULT_STATE.maelstrom));
-  // Phase 2/3: ensure maelstrom sub-fields exist in older saves
-  if (!G.maelstrom.crystals)                G.maelstrom.crystals                = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  if (!G.maelstrom.crystalMissions)         G.maelstrom.crystalMissions         = [];
-  if (!G.maelstrom.stats)                   G.maelstrom.stats                   = { missionsStarted:0, missionsCompleted:0, crystalsRecovered:0 };
-  if (!Array.isArray(G.maelstrom.crystalMissions)) G.maelstrom.crystalMissions  = [];
-  // Phase 3: stabilization fields
-  if (!G.maelstrom.stabilizationProgress)   G.maelstrom.stabilizationProgress   = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  if (G.maelstrom.stabilizationCompletionShown === undefined) G.maelstrom.stabilizationCompletionShown = false;
-  // Sanitize crystal counts and stabilization progress (clamp negatives; caps against requirements handled in abyss.js)
-  ['azure','emerald','amethyst','ruby','golden'].forEach(function(id) {
-    if (!isFinite(G.maelstrom.crystals[id])             || G.maelstrom.crystals[id]             < 0) G.maelstrom.crystals[id]             = 0;
-    if (!isFinite(G.maelstrom.stabilizationProgress[id]) || G.maelstrom.stabilizationProgress[id] < 0) G.maelstrom.stabilizationProgress[id] = 0;
-  });
-  // Phase 3: backfill mission fields added in Phase 3 (Phase 2 missions had pre-generated rewards)
-  G.maelstrom.crystalMissions.forEach(function(m) {
-    if (m.rewardGenerated === undefined) m.rewardGenerated = (m.crystalType != null);
-    if (m.completedAt     === undefined) m.completedAt     = (m.status !== 'active') ? (m.completesAt || 0) : 0;
-  });
-  if (!G.abyss) G.abyss = JSON.parse(JSON.stringify(DEFAULT_STATE.abyss));
-  // Phase 4: add new abyss sub-fields for saves that predate them
-  if (!G.abyss.tribeReputation)              G.abyss.tribeReputation = {};
-  if (!G.abyss.tribeProgress)               G.abyss.tribeProgress   = {};
-  if (!Array.isArray(G.abyss.tribeBobbers)) G.abyss.tribeBobbers    = [];
-  if (!G.abyss.mythicCatches)               G.abyss.mythicCatches   = {};
-  // Phase 4: retire old Phase 1 zone IDs — reset if save has a stale zone selected
-  var _oldAbyssZones = ['azure_crystal_caverns','emerald_bloom','amethyst_depths','ruby_chasm','golden_rift'];
-  if (G.abyss.currentZone && _oldAbyssZones.indexOf(G.abyss.currentZone) !== -1) {
-    G.abyss.currentZone = null;
-  }
-  // Reset world to overworld on load — prevents stale debug state from affecting live saves
-  if (typeof canAccessMaelstromAndAbyss === 'function' && !canAccessMaelstromAndAbyss()) {
-    G.currentWorld = 'overworld';
-  }
 
   isPremiumBaitActive(); // clears expired bait
   applyFontScale();
@@ -7603,7 +7531,6 @@ function init() {
   if (typeof initAuth      === 'function') initAuth();
   if (typeof initAnalytics === 'function') initAnalytics();
   loadDialogueData();
-  if (typeof initAbyssFramework === 'function') initAbyssFramework();
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -8467,13 +8394,9 @@ function renderAutoOverview() {
 }
 
 function openExternalLink(url) {
-  try {
-    if (typeof Capacitor !== 'undefined') {
-      Capacitor.Plugins.Browser?.open({ url });
-    } else {
-      window.open(url, '_blank');
-    }
-  } catch (e) {
+  if (typeof Capacitor !== 'undefined') {
+    setTimeout(() => { window.open(url, '_system'); });
+  } else {
     window.open(url, '_blank');
   }
   return false;
