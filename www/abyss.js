@@ -1490,6 +1490,22 @@ function renderAbyssDebugSettings() {
       <button class="btn-secondary-sm" onclick="_debugAbyssSpawnMythic()">Spawn Mythic</button>
       <button class="btn-secondary-sm" onclick="_debugAbyssUnlockNextZone()">Unlock Next Zone</button>
       <button class="btn-secondary-sm" onclick="_debugAbyssResetRun()">Reset Run</button>
+    </div>
+    <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Abyss Geodes (Phase 8)</strong></div>
+    <div class="settings-info-row dim" style="font-size:10px;margin-bottom:4px;opacity:0.6;">
+      Owned: ${getGeodeOwnedCount()} · Base drop: ${(ABYSS_GEODE_BASE_DROP_CHANCE*100).toFixed(2)}%
+      · Tribe mult: ${typeof getTribeGeodeFindRateMultiplier==='function'?getTribeGeodeFindRateMultiplier().toFixed(3):'1.000'}x
+      · Extra ◆ chance: ${typeof getTribeExtraGeodeDiamondChance==='function'?(getTribeExtraGeodeDiamondChance()*100).toFixed(1):'0'}%
+    </div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="_debugAbyssAddGeode(1)">+1 Geode</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssAddGeode(10)">+10 Geodes</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce()">Open (Random)</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce(1)">Force 1 ◆</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce(2)">Force 2 ◆</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce(3)">Force 3 ◆</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce(4)">Force 4 ◆ (max)</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssResetGeodes()">Reset Geodes</button>
     </div>` : ''}`;
 }
 
@@ -2555,6 +2571,13 @@ function resolveAbyssCatch(zoneId) {
     }
   }
 
+  // Geode drop — lower priority than Mythic; replaces normal catch if triggered.
+  var _geodeChance = getAbyssGeodeDropChance('manual');
+  if (_geodeChance > 0 && Math.random() < _geodeChance) {
+    _awardAbyssGeode();
+    return;
+  }
+
   var catchObj = rollAbyssCatch(zoneId);
   if (!catchObj) { if (typeof resetFishingState === 'function') resetFishingState(); return; }
 
@@ -2792,6 +2815,210 @@ function _debugAbyssResetRun() {
   if (typeof saveState === 'function') saveState();
   if (typeof showStatus === 'function') showStatus('Run reset.', 1500);
   renderAbyssZoneSelector();
+}
+
+// ─── PHASE 8 — UNIVERSAL GEODE SYSTEM ────────────────────────────────────────
+// Target: ~10 Geodes/day from manual Abyss fishing.
+// Assumptions: ~2 h active Abyss play/day at ~1 cast per 5 s → 1440 catches/day.
+// Base chance: 10 / 1440 ≈ 0.694% → ABYSS_GEODE_BASE_DROP_CHANCE = 0.007.
+// Tribe Geode Find Rate bonus (Sapphire Deepwatch, max +12%) applied multiplicatively.
+// Automation balance deferred to Phase 9; getAbyssGeodeDropChance('automation') returns 0.
+
+var ABYSS_GEODE_BASE_DROP_CHANCE = 0.007;  // ~0.7% per manual Abyss catch
+var ABYSS_GEODE_OPEN_REVEAL_MS   = 1500;   // ms before reward reveals in popup
+
+var _geodeOpeningInProgress = false;
+
+// ── State helper ──────────────────────────────────────────────────────────────
+// Authoritative inventory  : G.abyss.geodes.owned (unbounded int)
+// Authoritative found/opened: G.abyss.fishdex.geode.foundCount / openedCount (Phase 5)
+// Unique to Phase 8        : G.abyss.geodes.totalDiamondsEarned
+
+function _ensureAbyssGeodeInventory() {
+  if (!G.abyss) G.abyss = {};
+  if (!G.abyss.geodes || typeof G.abyss.geodes !== 'object') G.abyss.geodes = {};
+  var inv = G.abyss.geodes;
+  if (typeof inv.owned !== 'number'               || !isFinite(inv.owned)               || inv.owned < 0)               inv.owned               = 0;
+  if (typeof inv.totalDiamondsEarned !== 'number' || !isFinite(inv.totalDiamondsEarned) || inv.totalDiamondsEarned < 0) inv.totalDiamondsEarned = 0;
+  inv.owned               = Math.floor(inv.owned);
+  inv.totalDiamondsEarned = Math.floor(inv.totalDiamondsEarned);
+}
+
+function getGeodeOwnedCount() {
+  if (!G.abyss || !G.abyss.geodes) return 0;
+  var n = G.abyss.geodes.owned;
+  return (typeof n === 'number' && isFinite(n) && n > 0) ? Math.floor(n) : 0;
+}
+
+// ── Drop chance calculator ────────────────────────────────────────────────────
+// Centralized so manual and future automation (Phase 9) share one source.
+
+function getAbyssGeodeDropChance(context) {
+  if (context === 'automation') {
+    // Phase 9 — automation uses a separate time-normalized model; return 0 for now.
+    return 0;
+  }
+  // Manual fishing: base × Sapphire Deepwatch Geode Find Rate multiplier.
+  var mult = typeof getTribeGeodeFindRateMultiplier === 'function'
+    ? getTribeGeodeFindRateMultiplier() : 1;
+  return ABYSS_GEODE_BASE_DROP_CHANCE * mult;
+}
+
+// ── Drop award ────────────────────────────────────────────────────────────────
+
+function _awardAbyssGeode() {
+  _ensureAbyssGeodeInventory();
+  _ensureAbyssFishdexState();
+  G.abyss.geodes.owned++;
+  recordAbyssGeodeFound(1);
+  if (typeof saveState         === 'function') saveState();
+  if (typeof resetFishingState === 'function') resetFishingState();
+  if (typeof showStatus        === 'function') showStatus('Abyss Geode found! Open it in the Market.', 2500);
+}
+
+// ── Reward generation ─────────────────────────────────────────────────────────
+// base:  uniform integer in [diamondMin, diamondMax] = [1, 3].
+// extra: +1 Diamond if Blue Diamond Ancients geodeExtraDiamondChance roll passes.
+// Max:   4 Diamonds (3 base + 1 extra at max Tribe stage).
+// Reward generated BEFORE decrement so a crash during popup cannot grant twice.
+
+function _generateGeodeReward() {
+  var min  = (ABYSS_UNIVERSAL_GEODE && ABYSS_UNIVERSAL_GEODE.diamondMin) || 1;
+  var max  = (ABYSS_UNIVERSAL_GEODE && ABYSS_UNIVERSAL_GEODE.diamondMax) || 3;
+  var base = Math.floor(Math.random() * (max - min + 1)) + min;
+  var extra = 0;
+  var extraChance = typeof getTribeExtraGeodeDiamondChance === 'function'
+    ? getTribeExtraGeodeDiamondChance() : 0;
+  if (extraChance > 0 && Math.random() < extraChance) extra = 1;
+  return { diamonds: base + extra, base: base, extra: extra > 0 };
+}
+
+// ── Opening transaction ───────────────────────────────────────────────────────
+// Atomic order: validate → generate reward → guard → decrement → grant Diamonds
+//               → update stats → save → popup.
+// Diamonds granted before popup so a crash does not lose the reward silently.
+
+function openAbyssGeode() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (_geodeOpeningInProgress)       return;
+  _ensureAbyssGeodeInventory();
+  var inv = G.abyss.geodes;
+  if (inv.owned <= 0) {
+    if (typeof showStatus === 'function') showStatus('No Geodes to open.', 1200);
+    return;
+  }
+
+  var reward = _generateGeodeReward();
+
+  _geodeOpeningInProgress     = true;
+  inv.owned                   = Math.max(0, inv.owned - 1);
+  G.diamonds                  = (G.diamonds || 0) + reward.diamonds;
+  inv.totalDiamondsEarned     = (inv.totalDiamondsEarned || 0) + reward.diamonds;
+  recordAbyssGeodeOpened(1);
+  if (typeof saveState  === 'function') saveState();
+  if (typeof updateHUD  === 'function') updateHUD();
+
+  showGeodeOpenPopup(reward);
+}
+
+// ── Opening popup ─────────────────────────────────────────────────────────────
+
+function showGeodeOpenPopup(reward) {
+  var overlay = document.getElementById('geode-open-overlay');
+  if (!overlay) {
+    _geodeOpeningInProgress = false;
+    return;
+  }
+  var revealEl  = document.getElementById('geode-reward-reveal');
+  var contentEl = document.getElementById('geode-reward-content');
+
+  if (revealEl) revealEl.classList.add('hidden');
+  overlay.classList.remove('hidden');
+
+  if (contentEl) {
+    var bonusLine = reward.extra
+      ? '<div class="geode-reward-bonus">+ Tribe Bonus!</div>' : '';
+    contentEl.innerHTML =
+      '<div class="geode-reward-diamonds">+' + reward.diamonds +
+      ' <img src="img/icons/Diamond icon.png" class="diamond-icon-sm" alt=""> Diamond' +
+      (reward.diamonds !== 1 ? 's' : '') + '</div>' + bonusLine;
+  }
+
+  setTimeout(function() {
+    var el = document.getElementById('geode-reward-reveal');
+    if (el) el.classList.remove('hidden');
+  }, ABYSS_GEODE_OPEN_REVEAL_MS);
+}
+
+function dismissGeodeOpenPopup() {
+  var overlay = document.getElementById('geode-open-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  _geodeOpeningInProgress = false;
+  if (typeof renderMarket === 'function') {
+    var ms = document.getElementById('screen-market');
+    if (ms && ms.classList.contains('active')) renderMarket();
+  }
+  if (typeof renderAbyssFishdex === 'function') {
+    var as = document.getElementById('screen-abyss');
+    if (as && as.classList.contains('active')) renderAbyssFishdex();
+  }
+}
+
+// ── Phase 8 debug helpers ─────────────────────────────────────────────────────
+// Guarded by isLocalAbyssDebugEnabled(). No effect on Sunken Treasure.
+// All forced-reward paths call the production opening flow (_geodeOpeningInProgress, saveState).
+
+function _debugAbyssAddGeode(qty) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  qty = qty || 1;
+  _ensureAbyssGeodeInventory();
+  _ensureAbyssFishdexState();
+  G.abyss.geodes.owned += qty;
+  recordAbyssGeodeFound(qty);
+  if (typeof saveState  === 'function') saveState();
+  if (typeof showStatus === 'function') showStatus('Debug: +' + qty + ' Geode(s). Owned: ' + G.abyss.geodes.owned, 2000);
+  if (typeof renderMarket === 'function') {
+    var ms = document.getElementById('screen-market');
+    if (ms && ms.classList.contains('active')) renderMarket();
+  }
+}
+
+function _debugAbyssOpenGeodeForce(forceDiamonds) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  if (_geodeOpeningInProgress) {
+    if (typeof showStatus === 'function') showStatus('Opening already in progress.', 1200);
+    return;
+  }
+  _ensureAbyssGeodeInventory();
+  if (G.abyss.geodes.owned <= 0) {
+    if (typeof showStatus === 'function') showStatus('No Geodes owned — use +1 Geode first.', 1500);
+    return;
+  }
+  var reward = (forceDiamonds != null)
+    ? { diamonds: forceDiamonds, base: forceDiamonds, extra: false }
+    : _generateGeodeReward();
+  _geodeOpeningInProgress             = true;
+  G.abyss.geodes.owned                = Math.max(0, G.abyss.geodes.owned - 1);
+  G.diamonds                          = (G.diamonds || 0) + reward.diamonds;
+  G.abyss.geodes.totalDiamondsEarned  = (G.abyss.geodes.totalDiamondsEarned || 0) + reward.diamonds;
+  recordAbyssGeodeOpened(1);
+  if (typeof saveState  === 'function') saveState();
+  if (typeof updateHUD  === 'function') updateHUD();
+  showGeodeOpenPopup(reward);
+}
+
+function _debugAbyssResetGeodes() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  if (!G.abyss) G.abyss = {};
+  G.abyss.geodes = { owned: 0, totalDiamondsEarned: 0 };
+  if (G.abyss.fishdex && G.abyss.fishdex.geode)
+    G.abyss.fishdex.geode = { discovered: false, foundCount: 0, openedCount: 0 };
+  if (typeof saveState  === 'function') saveState();
+  if (typeof showStatus === 'function') showStatus('Debug: Geode inventory and Fishdex stats reset.', 2000);
+  if (typeof renderMarket === 'function') {
+    var ms = document.getElementById('screen-market');
+    if (ms && ms.classList.contains('active')) renderMarket();
+  }
 }
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────

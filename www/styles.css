@@ -4596,6 +4596,21 @@ html, body {
 .bobber-tribe-section-hdr { grid-column:1/-1; padding:8px 0 4px; font-size:calc((clamp(10px,2.5vw,12px))*var(--font-scale,1)); color:#7ec8e3; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; border-top:1px solid rgba(126,200,227,0.2); margin-top:4px; }
 .tribe-bobber-placeholder  { display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; color:rgba(255,255,255,0.3); background:rgba(0,0,0,0.2); border-radius:6px; }
 
+/* ── Phase 8 — Geode system ── */
+.geode-market-icon { display:flex; align-items:center; justify-content:center; font-size:22px; color:#00e5ff; background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); border-radius:6px; width:48px; height:48px; flex-shrink:0; }
+
+.geode-open-visual { display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:14px; }
+.geode-placeholder-icon { font-size:56px; color:#00e5ff; animation:geode-pulse 1.5s ease-in-out infinite; }
+.geode-opening-label { font-size:12px; color:rgba(0,229,255,0.55); letter-spacing:0.12em; text-transform:uppercase; }
+
+@keyframes geode-pulse {
+  0%, 100% { opacity:0.55; transform:scale(1); }
+  50%       { opacity:1;    transform:scale(1.14); }
+}
+
+.geode-reward-diamonds { font-size:19px; color:#00e5ff; font-weight:bold; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:4px; }
+.geode-reward-bonus    { font-size:12px; color:#f4c430; margin-bottom:6px; }
+
 /* ── Phase 7 — Expansion screens ── */
 .screen-expansion { background:#0a0a14; display:flex; flex-direction:column; }
 .expansion-back-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(0,0,0,0.5); border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }

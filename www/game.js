@@ -4045,6 +4045,30 @@ function renderMarket() {
     });
   }
 
+  // ── Abyss Geodes ──────────────────────────────────────────────
+  if (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss() &&
+      typeof getGeodeOwnedCount === 'function') {
+    const geodeCount = getGeodeOwnedCount();
+    if (geodeCount > 0) {
+      mkHeader('Abyss Geodes');
+      const gDiv = document.createElement('div');
+      gDiv.className = 'storage-item';
+      gDiv.innerHTML = `
+        <div class="storage-item-img geode-market-icon">◆</div>
+        <div class="storage-item-info">
+          <div class="storage-item-name">Abyss Geode</div>
+          <div class="storage-item-meta">1–3 Diamonds · Cannot be sold · ×${geodeCount}</div>
+        </div>
+        <div class="storage-item-demand"></div>
+        <button class="btn-sell-one" style="background:#00bcd4;color:#fff">Open</button>
+      `;
+      gDiv.querySelector('.btn-sell-one').addEventListener('click', () => {
+        if (typeof openAbyssGeode === 'function') openAbyssGeode();
+      });
+      inv.appendChild(gDiv);
+    }
+  }
+
   // ── Fish section (stacked by species + size) ──────────────────
   const fishEntries = Object.entries(G.fishPile || {}).filter(([,q]) => q > 0);
   if (fishEntries.length) {
@@ -7570,6 +7594,11 @@ function init() {
   if (!_afd.insects)  _afd.insects  = {};
   if (!_afd.mythics)  _afd.mythics  = {};
   if (!_afd.geode)    _afd.geode    = { discovered: false, foundCount: 0, openedCount: 0 };
+  // Phase 8 — Geode inventory (unbounded, persists through Prestige)
+  if (!G.abyss.geodes || typeof G.abyss.geodes !== 'object') G.abyss.geodes = { owned: 0, totalDiamondsEarned: 0 };
+  if (typeof G.abyss.geodes.owned !== 'number'               || !isFinite(G.abyss.geodes.owned)               || G.abyss.geodes.owned < 0)               G.abyss.geodes.owned               = 0;
+  if (typeof G.abyss.geodes.totalDiamondsEarned !== 'number' || !isFinite(G.abyss.geodes.totalDiamondsEarned) || G.abyss.geodes.totalDiamondsEarned < 0) G.abyss.geodes.totalDiamondsEarned = 0;
+  if (!G.abyss.currentRun) G.abyss.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
   if (!G.currentWorld) G.currentWorld = 'overworld';
 
   isPremiumBaitActive(); // clears expired bait

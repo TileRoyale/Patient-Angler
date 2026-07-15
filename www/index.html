@@ -750,6 +750,21 @@
     </div>
   </div>
 
+  <!-- Abyss Geode opening popup -->
+  <div class="special-event-overlay hidden" id="geode-open-overlay">
+    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:280px">
+      <div class="se-title" style="color:#00e5ff;margin-bottom:12px">Abyss Geode</div>
+      <div class="geode-open-visual">
+        <div class="geode-placeholder-icon">◆</div>
+        <div class="geode-opening-label">Opening...</div>
+      </div>
+      <div id="geode-reward-reveal" class="hidden">
+        <div id="geode-reward-content" style="margin-bottom:12px"></div>
+        <button class="btn-primary pc-ok-btn" onclick="dismissGeodeOpenPopup()">Collect!</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Ghost Ship reward popup -->
   <div class="special-event-overlay hidden" id="ghost-ship-reward-overlay" onclick="if(event.target===this)gsClaimReward()">
     <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px">

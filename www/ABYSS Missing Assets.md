@@ -158,3 +158,22 @@ Note: `geode_placeholder.png` listed in the General section above is the generic
 | UI | Request Complete Visual | `tribe_request_complete.png` | `img/icons/Abyss/` | 64×64 | Fanfare icon shown on request completion | Tribe detail — request complete | Missing |
 | UI | Trial of Return Icon | `tribe_trial_of_return.png` | `img/icons/Abyss/` | 64×64 | Icon for Trial of Return row in tribe detail | Tribe detail — Trial row | Missing |
 | UI | Reputation Stage Icons (5 icons) | `rep_stranger.png`, `rep_friendly.png`, `rep_honored.png`, `rep_revered.png`, `rep_exalted.png` | `img/icons/Abyss/Reputation/` | 32×32 | Small icons for reputation rank display | Tribe list card + detail | Missing |
+
+---
+
+## Abyss Geode System — Phase 8
+
+Phase 8 implements the universal Geode drop, Market integration, and opening popup. The ◆ character is used as a placeholder in all UI locations until final art is integrated.
+
+| Category | Asset Name | Suggested Filename | Expected Folder | Dimensions / Aspect | Description | Feature / Screen | Status |
+|---|---|---|---|---|---|---|---|
+| Icon | Universal Abyss Geode (Market) | `abyss_geode.png` | `img/icons/Abyss/` | 64×64 | Cracked dark geode exterior with glowing cyan crystal interior; used in Market row left column and Fishdex cell | Market Geode row · Abyss Fishdex | Placeholder Implemented (◆ text) |
+| Animation | Geode Opening Sprite Sheet or GIF | `abyss_geode_opening.gif` | `img/icons/Abyss/` | 128×128 | Short 1–2 s animation: dark rock cracks open and cyan crystal light spills out; holds on final frame | Geode opening popup — animation phase | Missing |
+| Visual | Geode Opened State | `abyss_geode_opened.png` | `img/icons/Abyss/` | 64×64 | Static final frame: geode split open, glowing cyan interior exposed | Geode opening popup — hold frame after animation | Missing |
+| Effect | Diamond Reveal Effect | `diamond_reveal_effect.png` | `img/icons/Abyss/` | 64×64 or animated | Small burst/sparkle effect displayed alongside the Diamond reward count | Geode opening popup — reward reveal step | Missing |
+| Icon | Market Geode Category Icon | `geode_market_icon.png` | `img/icons/Abyss/` | 48×48 | Polished geode icon for the Market section header and row; may reuse `abyss_geode.png` if art team prefers one file | Market — Abyss Geodes section header | Missing |
+
+### Integration notes
+- `openAbyssGeode()` in `abyss.js` calls `showGeodeOpenPopup()`. When `abyss_geode_opening.gif` is available, integrate it the same way as `Sunken treasure opening no background.gif` in `_showChestOpenPopup()` — load via `_loadGifOnce()` and set `img#geode-open-gif` src.
+- Add `<img id="geode-open-gif">` inside `#geode-open-overlay` in `index.html` at the same time. Until then the pulsing ◆ placeholder in `.geode-placeholder-icon` serves.
+- The `img/icons/Abyss/geode_placeholder.png` listed in Abyss — General section above is the generic placeholder for collect screens. `abyss_geode.png` is the Fishdex-specific icon. These may share the same final art file if art team decides on one design.
