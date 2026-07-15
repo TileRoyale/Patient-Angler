@@ -3299,6 +3299,7 @@ function pressToStart() {
 
 function _maybShowCommunityNotice() {
   if (localStorage.getItem('pa_communityNotice_v1')) return;
+  if (!G.tutorialDone) return; // wait until tutorial is complete
   setTimeout(function() {
     var el = document.getElementById('community-notice-overlay');
     if (el) el.classList.remove('hidden');
@@ -7702,6 +7703,7 @@ document.getElementById('tutorial-btn').addEventListener('click', () => {
     document.getElementById('tutorial-overlay').classList.add('hidden');
     G.tutorialDone = true;
     saveState();
+    _maybShowCommunityNotice();
   } else {
     renderTutorialStep();
   }
