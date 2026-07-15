@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.6 — Build 43 (July 2026)
+
+### Fix
+- **Community links on mobile** — Discord and Google Play links now correctly open in the system browser on Android instead of inside the game
+
+---
+
 ## v0.8.5 — Build 42 (July 2026)
 
 ### New
