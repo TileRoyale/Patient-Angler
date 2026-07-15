@@ -89,3 +89,51 @@ Statuses: Missing | Placeholder Implemented | Art Created | Integrated | Verifie
 | Sprite | Golden Fault Eel | `golden_fault_eel.png` | `img/fish/Abyss/` | 128×64 (side view) | Massive eel following the topaz fault lines, golden scales with rift-orange spine glow | Zone 8 mythic catch screen | Missing |
 | Sprite | Sapphire Trench Warden | `sapphire_trench_warden.png` | `img/fish/Abyss/` | 128×64 (side view) | Ancient armored guardian fish, deep blue sapphire plating, cold glow | Zone 9 mythic catch screen | Missing |
 | Sprite | Heart of the Abyss | `heart_of_the_abyss.png` | `img/fish/Abyss/` | 128×64 (side view) | Transcendent crystalline entity, blue diamond heart visible through translucent body | Zone 10 mythic catch screen | Missing |
+
+---
+
+## Abyss Fishdex — Fish Sprites (Phase 5)
+
+55 unique fish sprites used in the Abyss Fishdex grid cells. Each fish also appears in the zone where it's first native and in all subsequent zones (inherited forward). Full list in `ABYSS_FISH_DB` in `abyss.js`.
+
+All 55 entries currently have `img: null` — Fishdex renders letter placeholders.
+
+| Category | Asset Count | Suggested Filename Pattern | Expected Folder | Dimensions | Feature / Screen | Status |
+|---|---|---|---|---|---|---|
+| Abyss Fish Sprites | 55 | `abyss_fish_<id>.png` | `img/fish/Abyss/` | 64×64 (side view) | Abyss Fishdex — Fish category | Missing |
+
+---
+
+## Abyss Fishdex — Crystal Sprites (Phase 5)
+
+55 unique crystal sprites for the Abyss Fishdex Crystals category. Each crystal is native to one zone and inherited by subsequent zones. Full list in `ABYSS_CRYSTAL_DB` in `abyss.js`.
+
+All 55 entries currently have `img: null` — Fishdex renders letter placeholders.
+
+| Category | Asset Count | Suggested Filename Pattern | Expected Folder | Dimensions | Feature / Screen | Status |
+|---|---|---|---|---|---|---|
+| Abyss Crystal Sprites | 55 | `abyss_crystal_<id>.png` | `img/icons/Abyss/Crystals/` | 64×64 | Abyss Fishdex — Crystals category | Missing |
+
+---
+
+## Abyss Fishdex — Insect Sprites (Phase 5)
+
+55 unique bioluminescent insect sprites for the Abyss Fishdex Insects category. Full list in `ABYSS_INSECT_DB` in `abyss.js`.
+
+All 55 entries currently have `img: null` — Fishdex renders letter placeholders.
+
+| Category | Asset Count | Suggested Filename Pattern | Expected Folder | Dimensions | Feature / Screen | Status |
+|---|---|---|---|---|---|---|
+| Abyss Insect Sprites | 55 | `abyss_insect_<id>.png` | `img/icons/Abyss/Insects/` | 64×64 | Abyss Fishdex — Insects category | Missing |
+
+---
+
+## Abyss Fishdex — Universal Geode (Phase 5)
+
+The Universal Abyss Geode is a shared drop (one entry across all zones). It appears in a dedicated "Universal Reward" section at the top of the Abyss Fishdex.
+
+| Category | Asset Name | Suggested Filename | Expected Folder | Dimensions | Description | Feature / Screen | Status |
+|---|---|---|---|---|---|---|---|
+| Icon | Universal Abyss Geode | `abyss_geode.png` | `img/icons/Abyss/` | 64×64 | Cracked dark geode exterior with glowing cyan interior crystal | Abyss Fishdex — Universal Reward section | Missing |
+
+Note: `geode_placeholder.png` listed in the General section above is the generic collect-screen placeholder. `abyss_geode.png` is specifically the Fishdex cell icon. Both are needed.

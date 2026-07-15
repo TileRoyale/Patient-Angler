@@ -1456,6 +1456,13 @@ function renderAbyssDebugSettings() {
       <button class="btn-secondary-sm" onclick="_debugAddCrystals()">+10 Each Crystal</button>
       <button class="btn-secondary-sm" onclick="_debugCompleteStabilization()">Complete Stabilization</button>
       <button class="btn-secondary-sm" onclick="_debugClearStabilization()">Clear Stabilization</button>
+    </div>
+    <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Abyss Fishdex</strong></div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="_debugAbyssDiscoverBiome()">Discover Biome</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssDiscoverAll()">Discover All</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssDiscoverGeode()">Find Geode</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssResetFishdex()">Reset Fishdex</button>
     </div>` : ''}`;
 }
 
@@ -1463,6 +1470,286 @@ function toggleAbyssDebugMode() {
   if (!isLocalDevelopmentEnvironment()) return;
   setLocalAbyssDebugEnabled(!isLocalAbyssDebugEnabled());
   renderAbyssDebugSettings();
+}
+
+// ─── ABYSS FISHDEX (Phase 5) ──────────────────────────────────────────────────
+
+let _abyssFishdexBiome = null; // session state: which biome tab is showing
+
+function _ensureAbyssFishdexState() {
+  if (!G.abyss) G.abyss = { currentZone:null, tribeReputation:{}, tribeProgress:{}, tribeBobbers:[], mythicCatches:{}, fishdex:{ fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } } };
+  if (!G.abyss.fishdex) G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
+  const fd = G.abyss.fishdex;
+  if (!fd.fish)     fd.fish     = {};
+  if (!fd.crystals) fd.crystals = {};
+  if (!fd.insects)  fd.insects  = {};
+  if (!fd.mythics)  fd.mythics  = {};
+  if (!fd.geode)    fd.geode    = { discovered: false, foundCount: 0, openedCount: 0 };
+}
+
+// ── Recording helpers ──────────────────────────────────────────────────────────
+
+function recordAbyssFishCatch(fishId, amount) {
+  _ensureAbyssFishdexState();
+  const fd = G.abyss.fishdex.fish;
+  if (!fd[fishId]) fd[fishId] = { discovered: false, count: 0 };
+  fd[fishId].discovered = true;
+  fd[fishId].count = (fd[fishId].count || 0) + (amount || 1);
+  if (typeof saveState === 'function') saveState();
+}
+
+function recordAbyssCrystalFound(crystalId, amount) {
+  _ensureAbyssFishdexState();
+  const fd = G.abyss.fishdex.crystals;
+  if (!fd[crystalId]) fd[crystalId] = { discovered: false, count: 0 };
+  fd[crystalId].discovered = true;
+  fd[crystalId].count = (fd[crystalId].count || 0) + (amount || 1);
+  if (typeof saveState === 'function') saveState();
+}
+
+function recordAbyssInsectFound(insectId, amount) {
+  _ensureAbyssFishdexState();
+  const fd = G.abyss.fishdex.insects;
+  if (!fd[insectId]) fd[insectId] = { discovered: false, count: 0 };
+  fd[insectId].discovered = true;
+  fd[insectId].count = (fd[insectId].count || 0) + (amount || 1);
+  if (typeof saveState === 'function') saveState();
+}
+
+function recordAbyssMythicCatch(mythicId, amount) {
+  _ensureAbyssFishdexState();
+  const fd = G.abyss.fishdex.mythics;
+  if (!fd[mythicId]) fd[mythicId] = { discovered: false, count: 0 };
+  fd[mythicId].discovered = true;
+  fd[mythicId].count = (fd[mythicId].count || 0) + (amount || 1);
+  if (typeof saveState === 'function') saveState();
+}
+
+function recordAbyssGeodeFound(amount) {
+  _ensureAbyssFishdexState();
+  const g = G.abyss.fishdex.geode;
+  g.discovered  = true;
+  g.foundCount  = (g.foundCount  || 0) + (amount || 1);
+  if (typeof saveState === 'function') saveState();
+}
+
+function recordAbyssGeodeOpened(amount) {
+  _ensureAbyssFishdexState();
+  const g = G.abyss.fishdex.geode;
+  g.openedCount = (g.openedCount || 0) + (amount || 1);
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Renderer ───────────────────────────────────────────────────────────────────
+
+function renderAbyssFishdex() {
+  // Safety: fall back to auto if access was revoked mid-session
+  if (!canAccessMaelstromAndAbyss()) {
+    if (typeof _fishdexMode !== 'undefined') { window._fishdexMode = 'auto'; }
+    if (typeof renderFishdexTabs === 'function') renderFishdexTabs();
+    if (typeof renderFishdex    === 'function') renderFishdex();
+    return;
+  }
+  _ensureAbyssFishdexState();
+
+  const content  = document.getElementById('fishdex-content');
+  const progress = document.getElementById('fishdex-progress');
+  if (!content) return;
+  content.innerHTML = '';
+
+  // Ensure a valid biome is selected
+  if (!_abyssFishdexBiome || !ABYSS_ZONES.find(function(z) { return z.id === _abyssFishdexBiome; })) {
+    _abyssFishdexBiome = ABYSS_ZONES[0] ? ABYSS_ZONES[0].id : null;
+  }
+
+  // ── Overall progress ─────────────────────────────────────────────────────
+  const totalEntries   = ABYSS_FISH_DB.length + ABYSS_CRYSTAL_DB.length + ABYSS_INSECT_DB.length + ABYSS_MYTHIC_FISH.length + 1;
+  const fd             = G.abyss.fishdex;
+  const discFish       = Object.values(fd.fish    ).filter(function(e) { return e.discovered; }).length;
+  const discCrystals   = Object.values(fd.crystals).filter(function(e) { return e.discovered; }).length;
+  const discInsects    = Object.values(fd.insects ).filter(function(e) { return e.discovered; }).length;
+  const discMythics    = Object.values(fd.mythics ).filter(function(e) { return e.discovered; }).length;
+  const discGeode      = fd.geode.discovered ? 1 : 0;
+  const totalDisc      = discFish + discCrystals + discInsects + discMythics + discGeode;
+
+  if (progress) progress.textContent = totalDisc + ' / ' + totalEntries;
+
+  const pct = totalEntries ? Math.round(totalDisc / totalEntries * 100) : 0;
+  const header = document.createElement('div');
+  header.className = 'abyss-fishdex-header';
+  header.innerHTML =
+    '<div class="abyss-fd-title">Abyss Fishdex</div>' +
+    '<div class="abyss-fd-subtitle">' + totalDisc + ' / ' + totalEntries + ' discovered</div>' +
+    '<div class="abyss-fd-bar-wrap"><div class="abyss-fd-bar" style="width:' + pct + '%"></div></div>';
+  content.appendChild(header);
+
+  // ── Universal Geode ──────────────────────────────────────────────────────
+  _renderAbyssGeodeSection(content);
+
+  // ── Biome tabs ───────────────────────────────────────────────────────────
+  const biomeTabs = document.createElement('div');
+  biomeTabs.className = 'abyss-biome-tabs';
+  ABYSS_ZONES.forEach(function(zone) {
+    const btn = document.createElement('button');
+    btn.className = 'abyss-biome-tab' + (zone.id === _abyssFishdexBiome ? ' active' : '');
+    btn.textContent = zone.name || zone.id;
+    btn.addEventListener('click', function() {
+      _abyssFishdexBiome = zone.id;
+      renderAbyssFishdex();
+    });
+    biomeTabs.appendChild(btn);
+  });
+  content.appendChild(biomeTabs);
+
+  // ── Selected biome content ───────────────────────────────────────────────
+  if (_abyssFishdexBiome) _renderAbyssBiome(_abyssFishdexBiome, content);
+}
+
+function _renderAbyssGeodeSection(container) {
+  _ensureAbyssFishdexState();
+  const geode    = G.abyss.fishdex.geode;
+  const geodeDef = ABYSS_UNIVERSAL_GEODE;
+
+  const section = document.createElement('div');
+  section.className = 'abyss-geode-section';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'abyss-category-header';
+  hdr.innerHTML = '<span>Universal Reward</span><span class="abyss-cat-progress">' + (geode.discovered ? '1' : '0') + '/1</span>';
+  section.appendChild(hdr);
+
+  const cell = document.createElement('div');
+  cell.className = 'fishdex-cell' + (geode.discovered ? '' : ' locked');
+
+  if (geode.discovered) {
+    cell.innerHTML =
+      '<div class="fishdex-placeholder" style="color:#00e5ff">' + (geodeDef && geodeDef.name ? geodeDef.name[0].toUpperCase() : 'G') + '</div>' +
+      '<span class="fishdex-rarity-dot" style="background:#00e5ff"></span>' +
+      '<div class="fishdex-name">' + (geodeDef ? geodeDef.name : 'Abyss Geode') + '</div>' +
+      '<div class="abyss-entry-count">Found ' + (geode.foundCount || 0) + 'x &middot; Opened ' + (geode.openedCount || 0) + 'x</div>';
+  } else {
+    cell.innerHTML =
+      '<div class="fishdex-placeholder">?</div>' +
+      '<span class="fishdex-rarity-dot" style="background:#333"></span>' +
+      '<div class="fishdex-name">???</div>';
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'fishdex-grid abyss-geode-grid';
+  grid.appendChild(cell);
+  section.appendChild(grid);
+  container.appendChild(section);
+}
+
+function _renderAbyssCategory(itemIds, db, fdMap, label, color, container) {
+  var disc = itemIds.filter(function(id) { return fdMap[id] && fdMap[id].discovered; }).length;
+
+  var catHeader = document.createElement('div');
+  catHeader.className = 'abyss-category-header';
+  catHeader.innerHTML = '<span>' + label + '</span><span class="abyss-cat-progress">' + disc + '/' + itemIds.length + '</span>';
+  container.appendChild(catHeader);
+
+  var grid = document.createElement('div');
+  grid.className = 'fishdex-grid';
+
+  itemIds.forEach(function(id) {
+    var def        = db.find(function(e) { return e.id === id; });
+    var entry      = fdMap[id] || null;
+    var discovered = !!(entry && entry.discovered);
+
+    var cell = document.createElement('div');
+    cell.className = 'fishdex-cell' + (discovered ? '' : ' locked');
+
+    if (discovered && def) {
+      cell.innerHTML =
+        (def.img
+          ? '<img src="' + def.img + '" alt="' + def.name + '" class="fishdex-img">'
+          : '<div class="fishdex-placeholder" style="color:' + color + '">' + def.name[0].toUpperCase() + '</div>') +
+        '<span class="fishdex-rarity-dot" style="background:' + color + '"></span>' +
+        '<div class="fishdex-name">' + def.name + '</div>' +
+        (entry.count ? '<div class="abyss-entry-count">' + entry.count + 'x</div>' : '');
+    } else {
+      cell.innerHTML =
+        '<div class="fishdex-placeholder">?</div>' +
+        '<span class="fishdex-rarity-dot" style="background:#333"></span>' +
+        '<div class="fishdex-name">???</div>';
+    }
+    grid.appendChild(cell);
+  });
+  container.appendChild(grid);
+}
+
+function _renderAbyssBiome(biomeId, container) {
+  var zone = ABYSS_ZONES.find(function(z) { return z.id === biomeId; });
+  if (!zone) return;
+  _ensureAbyssFishdexState();
+  var fd = G.abyss.fishdex;
+
+  var biomeTotal = zone.fish.length + zone.crystals.length + zone.insects.length + (zone.mythicFish ? 1 : 0);
+  var biomeDisc  =
+    zone.fish    .filter(function(id) { return fd.fish[id]    && fd.fish[id].discovered;    }).length +
+    zone.crystals.filter(function(id) { return fd.crystals[id] && fd.crystals[id].discovered; }).length +
+    zone.insects .filter(function(id) { return fd.insects[id]  && fd.insects[id].discovered;  }).length +
+    (zone.mythicFish && fd.mythics[zone.mythicFish] && fd.mythics[zone.mythicFish].discovered ? 1 : 0);
+
+  var biomeHeader = document.createElement('div');
+  biomeHeader.className = 'abyss-biome-header';
+  biomeHeader.innerHTML = '<span>' + (zone.name || biomeId) + '</span><span class="abyss-biome-count">' + biomeDisc + '/' + biomeTotal + '</span>';
+  container.appendChild(biomeHeader);
+
+  _renderAbyssCategory(zone.fish,     ABYSS_FISH_DB,    fd.fish,     'Fish',     '#4dd0e1', container);
+  _renderAbyssCategory(zone.crystals, ABYSS_CRYSTAL_DB, fd.crystals, 'Crystals', '#ce93d8', container);
+  _renderAbyssCategory(zone.insects,  ABYSS_INSECT_DB,  fd.insects,  'Insects',  '#a5d6a7', container);
+  if (zone.mythicFish) {
+    _renderAbyssCategory([zone.mythicFish], ABYSS_MYTHIC_FISH, fd.mythics, 'Mythic', '#ffd700', container);
+  }
+}
+
+// ── Debug helpers (local dev only) ────────────────────────────────────────────
+
+function _debugAbyssDiscoverBiome() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssFishdexState();
+  var biomeId = _abyssFishdexBiome || (ABYSS_ZONES[0] && ABYSS_ZONES[0].id);
+  if (!biomeId) return;
+  var zone = ABYSS_ZONES.find(function(z) { return z.id === biomeId; });
+  if (!zone) return;
+  var fd = G.abyss.fishdex;
+  zone.fish    .forEach(function(id) { fd.fish[id]     = { discovered:true, count:(fd.fish[id]    ?.count||0)+1 }; });
+  zone.crystals.forEach(function(id) { fd.crystals[id] = { discovered:true, count:(fd.crystals[id]?.count||0)+1 }; });
+  zone.insects .forEach(function(id) { fd.insects[id]  = { discovered:true, count:(fd.insects[id] ?.count||0)+1 }; });
+  if (zone.mythicFish) fd.mythics[zone.mythicFish] = { discovered:true, count:1 };
+  if (typeof saveState === 'function') saveState();
+  if (typeof renderFishdex === 'function') renderFishdex();
+}
+
+function _debugAbyssDiscoverAll() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssFishdexState();
+  var fd = G.abyss.fishdex;
+  ABYSS_FISH_DB   .forEach(function(f) { fd.fish[f.id]     = { discovered:true, count:1 }; });
+  ABYSS_CRYSTAL_DB.forEach(function(c) { fd.crystals[c.id] = { discovered:true, count:1 }; });
+  ABYSS_INSECT_DB .forEach(function(i) { fd.insects[i.id]  = { discovered:true, count:1 }; });
+  ABYSS_MYTHIC_FISH.forEach(function(m){ fd.mythics[m.id]  = { discovered:true, count:1 }; });
+  fd.geode = { discovered:true, foundCount:1, openedCount:1 };
+  if (typeof saveState === 'function') saveState();
+  if (typeof renderFishdex === 'function') renderFishdex();
+}
+
+function _debugAbyssDiscoverGeode() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  recordAbyssGeodeFound(1);
+  recordAbyssGeodeOpened(1);
+  if (typeof renderFishdex === 'function') renderFishdex();
+}
+
+function _debugAbyssResetFishdex() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  if (!confirm('Reset Abyss Fishdex progress?')) return;
+  _ensureAbyssFishdexState();
+  G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
+  if (typeof saveState === 'function') saveState();
+  if (typeof renderFishdex === 'function') renderFishdex();
 }
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────

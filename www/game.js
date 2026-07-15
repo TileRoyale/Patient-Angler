@@ -678,6 +678,21 @@ const DEFAULT_STATE = {
   ghostShips: [],
   ghostShipNextSpawnAt: 0,
   usedCodes: [],
+  currentWorld: 'overworld',
+  abyss: {
+    currentZone:     null,
+    tribeReputation: {},
+    tribeProgress:   {},
+    tribeBobbers:    [],
+    mythicCatches:   {},
+    fishdex: {
+      fish:     {},
+      crystals: {},
+      insects:  {},
+      mythics:  {},
+      geode:    { discovered: false, foundCount: 0, openedCount: 0 },
+    },
+  },
 };
 
 // Captured before any saveState() calls so loadCloudSave() knows if this is a fresh install
@@ -5215,13 +5230,18 @@ function renderFishdexTabs() {
   if (!tabRow) return;
   tabRow.innerHTML = '';
 
-  // ── Mode toggle (Automation / Manual) ──────────────────────────────────────
+  // ── Mode toggle (Automation / Manual / Abyss) ─────────────────────────────
+  const abyssAccessible = typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss();
+  if (!abyssAccessible && _fishdexMode === 'abyss') _fishdexMode = 'auto';
+
   const modeWrap = document.createElement('div');
   modeWrap.className = 'fishdex-mode-toggle';
-  ['auto', 'manual'].forEach(mode => {
+  const modes = ['auto', 'manual'];
+  if (abyssAccessible) modes.push('abyss');
+  modes.forEach(mode => {
     const btn = document.createElement('button');
     btn.className = 'fishdex-mode-btn' + (mode === _fishdexMode ? ' active' : '');
-    btn.textContent = mode === 'auto' ? 'Automation' : 'Manual';
+    btn.textContent = mode === 'auto' ? 'Automation' : mode === 'manual' ? 'Manual' : 'Abyss';
     btn.addEventListener('click', () => {
       _fishdexMode = mode;
       renderFishdexTabs();
@@ -5231,26 +5251,28 @@ function renderFishdexTabs() {
   });
   tabRow.appendChild(modeWrap);
 
-  // ── Zone tabs ───────────────────────────────────────────────────────────────
-  const zoneWrap = document.createElement('div');
-  zoneWrap.className = 'fishdex-zone-tabs';
-  ZONE_DATA.forEach(z => {
-    const unlocked = isZoneUnlocked(z.id);
-    const btn = document.createElement('button');
-    btn.className = 'fishdex-tab' +
-      (z.id === _fishdexZone ? ' active' : '') +
-      (!unlocked ? ' locked' : '');
-    btn.textContent = z.name;
-    if (unlocked) {
-      btn.addEventListener('click', () => {
-        _fishdexZone = z.id;
-        renderFishdexTabs();
-        renderFishdex();
-      });
-    }
-    zoneWrap.appendChild(btn);
-  });
-  tabRow.appendChild(zoneWrap);
+  // ── Zone tabs — only for auto / manual modes ────────────────────────────────
+  if (_fishdexMode !== 'abyss') {
+    const zoneWrap = document.createElement('div');
+    zoneWrap.className = 'fishdex-zone-tabs';
+    ZONE_DATA.forEach(z => {
+      const unlocked = isZoneUnlocked(z.id);
+      const btn = document.createElement('button');
+      btn.className = 'fishdex-tab' +
+        (z.id === _fishdexZone ? ' active' : '') +
+        (!unlocked ? ' locked' : '');
+      btn.textContent = z.name;
+      if (unlocked) {
+        btn.addEventListener('click', () => {
+          _fishdexZone = z.id;
+          renderFishdexTabs();
+          renderFishdex();
+        });
+      }
+      zoneWrap.appendChild(btn);
+    });
+    tabRow.appendChild(zoneWrap);
+  }
 }
 
 function _renderMasteryPanel(zone, container) {
@@ -5385,6 +5407,11 @@ function renderFishdex() {
 
   const zone = _fishdexZone || G.currentZone;
   content.innerHTML = '';
+
+  if (_fishdexMode === 'abyss') {
+    if (typeof renderAbyssFishdex === 'function') renderAbyssFishdex();
+    return;
+  }
 
   if (_fishdexMode === 'manual') {
     _renderManualFishdex(zone, content, progress);
@@ -7481,6 +7508,20 @@ function init() {
   // Ensure EV objects have awaitingDelivery field (old saves)
   if (G.expeditionVessels) G.expeditionVessels.forEach(v => { if (v.awaitingDelivery === undefined) v.awaitingDelivery = false; });
   if (!G.usedCodes)                       G.usedCodes            = [];
+  // Abyss state — ensure all fields exist for saves predating Phase 5
+  if (!G.abyss) G.abyss = JSON.parse(JSON.stringify(DEFAULT_STATE.abyss));
+  if (!G.abyss.tribeReputation) G.abyss.tribeReputation = {};
+  if (!G.abyss.tribeProgress)   G.abyss.tribeProgress   = {};
+  if (!G.abyss.tribeBobbers)    G.abyss.tribeBobbers    = [];
+  if (!G.abyss.mythicCatches)   G.abyss.mythicCatches   = {};
+  if (!G.abyss.fishdex)         G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
+  const _afd = G.abyss.fishdex;
+  if (!_afd.fish)     _afd.fish     = {};
+  if (!_afd.crystals) _afd.crystals = {};
+  if (!_afd.insects)  _afd.insects  = {};
+  if (!_afd.mythics)  _afd.mythics  = {};
+  if (!_afd.geode)    _afd.geode    = { discovered: false, foundCount: 0, openedCount: 0 };
+  if (!G.currentWorld) G.currentWorld = 'overworld';
 
   isPremiumBaitActive(); // clears expired bait
   applyFontScale();
