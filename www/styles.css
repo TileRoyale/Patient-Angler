@@ -650,6 +650,7 @@ html, body {
   border-bottom: 2px solid var(--color-wood);
   gap: 10px;
   flex-shrink: 0;
+  position: relative;
 }
 .panel-header h2 {
   flex: 1;
@@ -1108,16 +1109,19 @@ html, body {
 }
 .fishdex-reset-lure-btn {
   font-family: inherit;
-  font-size: calc((clamp(9px,2.2vw,11px)) * var(--font-scale, 1));
+  font-size: calc((clamp(11px,3vw,16px)) * var(--font-scale, 1));
   font-weight: bold;
   color: var(--color-gold);
   background: transparent;
   border: 1px solid var(--color-gold);
   border-radius: 10px;
-  padding: 2px 8px;
+  padding: 2px 10px;
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .fishdex-reset-lure-btn:active {
   opacity: 0.6;
