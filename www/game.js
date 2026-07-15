@@ -8371,6 +8371,18 @@ function renderAutoOverview() {
   body.innerHTML = html;
 }
 
+function openExternalLink(url) {
+  try {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
+      window.Capacitor.Plugins.Browser.open({ url });
+    } else {
+      window.open(url, '_system');
+    }
+  } catch (e) {
+    window.open(url, '_blank');
+  }
+}
+
 // Make catch/s HUD indicator clickable
 // document.getElementById('hud-fishrate').style.cursor = 'pointer';
 // document.getElementById('hud-fishrate').addEventListener('click', openAutoOverview);
