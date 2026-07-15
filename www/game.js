@@ -680,11 +680,16 @@ const DEFAULT_STATE = {
   usedCodes: [],
   currentWorld: 'overworld',
   abyss: {
-    currentZone:     null,
-    tribeReputation: {},
-    tribeProgress:   {},
-    tribeBobbers:    [],
-    mythicCatches:   {},
+    currentZone:           null,
+    tribeReputation:       {},
+    tribeProgress:         {},
+    tribeBobbers:          [],
+    mythicCatches:         {},
+    tribeInitialCompleted: {},
+    tribeBonusesClaimed:   {},
+    tribeTrialNeeded:      {},
+    tribeTrialProgress:    {},
+    tribeTrialCompleted:   {},
     fishdex: {
       fish:     {},
       crystals: {},
@@ -792,6 +797,10 @@ function getBobberSrc() {
   if (cosm && cosm !== 'bc_basic') {
     const cd = BOBBER_COSMETICS.find(c => c.id === cosm);
     if (cd) return cd.img;
+    if (typeof ABYSS_TRIBE_BOBBERS !== 'undefined') {
+      const tb = ABYSS_TRIBE_BOBBERS.find(b => b.id === cosm);
+      if (tb && tb.img) return tb.img;
+    }
   }
   const bob = BOBBERS.find(b => b.id === G.currentBobber);
   return (bob && bob.img) ? bob.img : 'img/icons/Shop/Bait/Basic bobber.png';
@@ -1052,6 +1061,9 @@ function executePrestige() {
   G.seaComicSeen = false;
 
   // Keep: fishdex, masteryData, manualFishdex, diamonds, blackPearls, prestigeCount, pearlUpgrades, quests, stats, records, unlockedBobberCosmetics, equippedBobberCosmetic, premiumBait, sunkenChests, sunkenTreasureUnlocked, sunkenTreasureStats
+
+  if (typeof _clearMaelstromMissionsOnPrestige === 'function') _clearMaelstromMissionsOnPrestige();
+  if (typeof _clearAbyssOnPrestige             === 'function') _clearAbyssOnPrestige();
 
   saveState();
   updateZoneBg('pond');
@@ -7163,6 +7175,14 @@ function buyDevSupport() {
 function renderAbyss() {
   const el = document.getElementById('abyss-content');
   if (!el) return;
+  if (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss() && typeof renderTribeMenu === 'function') {
+    renderTribeMenu();
+    return;
+  }
+  const navBtn = document.querySelector('.hud-nav-btn[data-screen="abyss"] span');
+  if (navBtn) navBtn.textContent = 'Abyss';
+  const screenTitle = document.querySelector('#screen-abyss .panel-header h2');
+  if (screenTitle) screenTitle.textContent = 'The Abyss';
   el.innerHTML = `
     <div class="abyss-screen">
       <img src="img/icons/Abyss mode landscape.png" alt="Abyss Mode Preview" class="abyss-sneak-img">
@@ -7370,6 +7390,8 @@ function renderBobberCosmetics() {
     card.appendChild(action);
     grid.appendChild(card);
   });
+
+  if (typeof renderAbyssTribeBobbers === 'function') renderAbyssTribeBobbers();
 }
 
 // ─── CODE REDEEM ──────────────────────────────────────────────────────────────
@@ -7510,11 +7532,16 @@ function init() {
   if (!G.usedCodes)                       G.usedCodes            = [];
   // Abyss state — ensure all fields exist for saves predating Phase 5
   if (!G.abyss) G.abyss = JSON.parse(JSON.stringify(DEFAULT_STATE.abyss));
-  if (!G.abyss.tribeReputation) G.abyss.tribeReputation = {};
-  if (!G.abyss.tribeProgress)   G.abyss.tribeProgress   = {};
-  if (!G.abyss.tribeBobbers)    G.abyss.tribeBobbers    = [];
-  if (!G.abyss.mythicCatches)   G.abyss.mythicCatches   = {};
-  if (!G.abyss.fishdex)         G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
+  if (!G.abyss.tribeReputation)       G.abyss.tribeReputation       = {};
+  if (!G.abyss.tribeProgress)         G.abyss.tribeProgress         = {};
+  if (!G.abyss.tribeBobbers)          G.abyss.tribeBobbers          = [];
+  if (!G.abyss.mythicCatches)         G.abyss.mythicCatches         = {};
+  if (!G.abyss.tribeInitialCompleted) G.abyss.tribeInitialCompleted = {};
+  if (!G.abyss.tribeBonusesClaimed)   G.abyss.tribeBonusesClaimed   = {};
+  if (!G.abyss.tribeTrialNeeded)      G.abyss.tribeTrialNeeded      = {};
+  if (!G.abyss.tribeTrialProgress)    G.abyss.tribeTrialProgress    = {};
+  if (!G.abyss.tribeTrialCompleted)   G.abyss.tribeTrialCompleted   = {};
+  if (!G.abyss.fishdex)               G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
   const _afd = G.abyss.fishdex;
   if (!_afd.fish)     _afd.fish     = {};
   if (!_afd.crystals) _afd.crystals = {};

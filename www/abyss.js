@@ -1085,9 +1085,22 @@ function _clearMaelstromMissionsOnPrestige() {
 
 function _clearAbyssOnPrestige() {
   if (typeof G === 'undefined' || !G.abyss) return;
-  G.abyss.tribeProgress  = {};  // current-stage catch counts reset
-  G.abyss.mythicCatches  = {};  // mythic catch flags reset
-  // tribeReputation, tribeBobbers, and permanent bonuses survive
+  var a = G.abyss;
+  // Reset run-specific state
+  a.tribeProgress      = {};
+  a.mythicCatches      = {};
+  a.tribeTrialProgress = {};
+  a.tribeTrialCompleted = {};
+  a.currentZone        = null;
+  // Mark Trial of Return needed for all tribes that completed Initial Request
+  var initDone = a.tribeInitialCompleted || {};
+  a.tribeTrialNeeded = {};
+  if (typeof ABYSS_TRIBES !== 'undefined') {
+    ABYSS_TRIBES.forEach(function(t) {
+      if (initDone[t.id]) a.tribeTrialNeeded[t.id] = true;
+    });
+  }
+  // tribeReputation, tribeInitialCompleted, tribeBonusesClaimed, tribeBobbers, fishdex all survive
 }
 
 // ─── DEBUG STATE RESET ────────────────────────────────────────────────────────
@@ -1463,6 +1476,11 @@ function renderAbyssDebugSettings() {
       <button class="btn-secondary-sm" onclick="_debugAbyssDiscoverAll()">Discover All</button>
       <button class="btn-secondary-sm" onclick="_debugAbyssDiscoverGeode()">Find Geode</button>
       <button class="btn-secondary-sm" onclick="_debugAbyssResetFishdex()">Reset Fishdex</button>
+    </div>
+    <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Abyss Tribes</strong></div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="enterTribeMenu()">Open Tribe Menu</button>
+      <button class="btn-secondary-sm" onclick="_debugTribeResetAll()">Reset All Tribes</button>
     </div>` : ''}`;
 }
 
@@ -1750,6 +1768,692 @@ function _debugAbyssResetFishdex() {
   G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
   if (typeof saveState === 'function') saveState();
   if (typeof renderFishdex === 'function') renderFishdex();
+}
+
+// ─── ABYSS TRIBES (Phase 6) ──────────────────────────────────────────────────
+
+let _tribeOpenId       = null;
+let _tribeCompleteLock = false;
+
+function _fmtAbyssQty(n) {
+  if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';
+  if (n >= 1e9)  return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6)  return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1) + 'K';
+  return String(n);
+}
+
+function _ensureAbyssTribeState() {
+  if (!G.abyss) G.abyss = { currentZone:null, tribeReputation:{}, tribeProgress:{}, tribeBobbers:[], mythicCatches:{}, tribeInitialCompleted:{}, tribeBonusesClaimed:{}, tribeTrialNeeded:{}, tribeTrialProgress:{}, tribeTrialCompleted:{}, fishdex:{ fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } } };
+  var a = G.abyss;
+  if (!a.tribeReputation)       a.tribeReputation       = {};
+  if (!a.tribeProgress)         a.tribeProgress         = {};
+  if (!a.tribeBobbers)          a.tribeBobbers          = [];
+  if (!a.mythicCatches)         a.mythicCatches         = {};
+  if (!a.tribeInitialCompleted) a.tribeInitialCompleted = {};
+  if (!a.tribeBonusesClaimed)   a.tribeBonusesClaimed   = {};
+  if (!a.tribeTrialNeeded)      a.tribeTrialNeeded      = {};
+  if (!a.tribeTrialProgress)    a.tribeTrialProgress    = {};
+  if (!a.tribeTrialCompleted)   a.tribeTrialCompleted   = {};
+}
+
+// ── State machine helpers ────────────────────────────────────────────────────
+function getTribeReputation(tribeId) {
+  _ensureAbyssTribeState();
+  return G.abyss.tribeReputation[tribeId] || 'stranger';
+}
+
+function getActiveTribeRequestType(tribeId) {
+  _ensureAbyssTribeState();
+  var a        = G.abyss;
+  var initDone = !!(a.tribeInitialCompleted[tribeId]);
+  var trialNeed = !!(a.tribeTrialNeeded[tribeId]);
+  var trialDone = !!(a.tribeTrialCompleted[tribeId]);
+  var rep      = a.tribeReputation[tribeId] || 'stranger';
+  if (initDone && trialNeed && !trialDone) return 'trialOfReturn';
+  if (!initDone) return 'initialRequest';
+  if (rep === 'exalted')  return 'none';
+  if (rep === 'stranger') return 'friendly';
+  if (rep === 'friendly') return 'honored';
+  if (rep === 'honored')  return 'revered';
+  if (rep === 'revered')  return 'exalted';
+  return 'none';
+}
+
+function getTrialFishRequirements(tribeId) {
+  var tribe = getAbyssTribe(tribeId);
+  if (!tribe) return [];
+  return tribe.stages.initialRequest.fish.map(function(f) {
+    return { id: f.id, name: f.name, qty: Math.max(1, Math.ceil(f.qty * 0.25)) };
+  });
+}
+
+function getActiveTribeRequestFish(tribeId) {
+  var reqType = getActiveTribeRequestType(tribeId);
+  if (reqType === 'none') return [];
+  if (reqType === 'trialOfReturn') return getTrialFishRequirements(tribeId);
+  var tribe = getAbyssTribe(tribeId);
+  if (!tribe) return [];
+  return (tribe.stages[reqType] || {}).fish || [];
+}
+
+function _getActiveTribeProgress(tribeId) {
+  _ensureAbyssTribeState();
+  var reqType = getActiveTribeRequestType(tribeId);
+  if (reqType === 'none') return {};
+  if (reqType === 'trialOfReturn') return G.abyss.tribeTrialProgress[tribeId] || {};
+  return G.abyss.tribeProgress[tribeId] || {};
+}
+
+function isTribeRequestComplete(tribeId) {
+  var fish = getActiveTribeRequestFish(tribeId);
+  if (!fish.length) return false;
+  var prog = _getActiveTribeProgress(tribeId);
+  return fish.every(function(f) { return (prog[f.id] || 0) >= f.qty; });
+}
+
+function isTribeBobberOwned(tribeId) {
+  _ensureAbyssTribeState();
+  return G.abyss.tribeBobbers.indexOf(tribeId) >= 0;
+}
+
+function getTribeRequestProgress(tribeId) {
+  var fish = getActiveTribeRequestFish(tribeId);
+  if (!fish.length) return 0;
+  var prog = _getActiveTribeProgress(tribeId);
+  var total = 0, current = 0;
+  fish.forEach(function(f) {
+    total   += f.qty;
+    current += Math.min(prog[f.id] || 0, f.qty);
+  });
+  return total > 0 ? current / total : 0;
+}
+
+function getActiveTribeRequestTitle(tribeId) {
+  var reqType = getActiveTribeRequestType(tribeId);
+  var titles = { initialRequest:'Initial Request', friendly:'Friendly Request', honored:'Honored Request', revered:'Revered Request', exalted:'Exalted Request', trialOfReturn:'Trial of Return' };
+  return titles[reqType] || '';
+}
+
+// ── Progress recording ───────────────────────────────────────────────────────
+function recordTribeFishCatch(fishId, amount) {
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (!fishId) return;
+  amount = Math.max(1, Math.floor(Number(amount) || 1));
+  _ensureAbyssTribeState();
+  var changed = false;
+  var a = G.abyss;
+  ABYSS_TRIBES.forEach(function(tribe) {
+    var reqType = getActiveTribeRequestType(tribe.id);
+    if (reqType === 'none') return;
+    var reqFish, progStore;
+    if (reqType === 'trialOfReturn') {
+      reqFish = getTrialFishRequirements(tribe.id);
+      if (!a.tribeTrialProgress[tribe.id]) a.tribeTrialProgress[tribe.id] = {};
+      progStore = a.tribeTrialProgress[tribe.id];
+    } else {
+      reqFish = ((tribe.stages[reqType] || {}).fish || []);
+      if (!a.tribeProgress[tribe.id]) a.tribeProgress[tribe.id] = {};
+      progStore = a.tribeProgress[tribe.id];
+    }
+    reqFish.forEach(function(f) {
+      if (f.id !== fishId) return;
+      var cur    = progStore[fishId] || 0;
+      var capped = Math.min(cur + amount, f.qty);
+      if (capped > cur) { progStore[fishId] = capped; changed = true; }
+    });
+  });
+  if (changed) {
+    if (typeof saveState === 'function') saveState();
+    var scr = document.getElementById('screen-abyss');
+    if (scr && scr.classList.contains('active')) renderTribeMenu();
+  }
+}
+
+// ── Request completion ───────────────────────────────────────────────────────
+function _grantTribalBonus(tribeId, stageKey) {
+  _ensureAbyssTribeState();
+  var a = G.abyss;
+  if (!a.tribeBonusesClaimed[tribeId]) a.tribeBonusesClaimed[tribeId] = {};
+  if (a.tribeBonusesClaimed[tribeId][stageKey]) return;
+  a.tribeBonusesClaimed[tribeId][stageKey] = true;
+}
+
+function completeTribeRequest(tribeId) {
+  if (_tribeCompleteLock) return;
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (!isTribeRequestComplete(tribeId)) return;
+  _tribeCompleteLock = true;
+  _ensureAbyssTribeState();
+  var a       = G.abyss;
+  var reqType = getActiveTribeRequestType(tribeId);
+  if (reqType === 'none') { _tribeCompleteLock = false; return; }
+  try {
+    if (reqType === 'initialRequest') {
+      if (a.tribeInitialCompleted[tribeId]) { _tribeCompleteLock = false; return; }
+      a.tribeInitialCompleted[tribeId] = true;
+      _awardTribeBobber(tribeId);
+      a.tribeProgress[tribeId] = {};
+    } else if (reqType === 'trialOfReturn') {
+      if (a.tribeTrialCompleted[tribeId]) { _tribeCompleteLock = false; return; }
+      a.tribeTrialCompleted[tribeId] = true;
+      a.tribeTrialProgress[tribeId]  = {};
+    } else {
+      if (!a.tribeInitialCompleted[tribeId]) { _tribeCompleteLock = false; return; }
+      _grantTribalBonus(tribeId, reqType);
+      a.tribeReputation[tribeId] = reqType;
+      a.tribeProgress[tribeId]   = {};
+    }
+    if (typeof saveState === 'function') saveState();
+    if (typeof showStatus === 'function') showStatus('Request complete!', 1500);
+    var scr = document.getElementById('screen-abyss');
+    if (scr && scr.classList.contains('active')) renderTribeMenu();
+  } finally {
+    _tribeCompleteLock = false;
+  }
+}
+
+// ── Bobber award ─────────────────────────────────────────────────────────────
+function _awardTribeBobber(tribeId) {
+  _ensureAbyssTribeState();
+  var a = G.abyss;
+  if (a.tribeBobbers.indexOf(tribeId) >= 0) return;
+  a.tribeBobbers.push(tribeId);
+  var tribe    = getAbyssTribe(tribeId);
+  var bobberId = tribe ? tribe.bobber : null;
+  if (bobberId) {
+    if (!G.unlockedBobberCosmetics) G.unlockedBobberCosmetics = ['bc_basic'];
+    if (G.unlockedBobberCosmetics.indexOf(bobberId) < 0) {
+      G.unlockedBobberCosmetics.push(bobberId);
+    }
+  }
+}
+
+// ── Permanent bonus getters ──────────────────────────────────────────────────
+var TRIBE_STAGES_ORDERED = ['friendly', 'honored', 'revered', 'exalted'];
+
+function _sumTribeStat(stat) {
+  if (!G.abyss || !G.abyss.tribeBonusesClaimed) return 0;
+  var total = 0;
+  ABYSS_TRIBES.forEach(function(tribe) {
+    var claimed = G.abyss.tribeBonusesClaimed[tribe.id] || {};
+    TRIBE_STAGES_ORDERED.forEach(function(stageKey) {
+      if (!claimed[stageKey]) return;
+      var stage = tribe.stages[stageKey];
+      if (stage && stage.bonus && stage.bonus.stat === stat) total += (stage.bonus.pct || 0);
+    });
+  });
+  return total;
+}
+
+function getTribeStorageMultiplier()          { return 1 + _sumTribeStat('storage')                / 100; }
+function getTribeFishValueMultiplier()        { return 1 + _sumTribeStat('fishValue')              / 100; }
+function getTribeAutomationSpeedMultiplier()  { return 1 + _sumTribeStat('automationSpeed')        / 100; }
+function getTribeManualCatchSpeedMultiplier() { return 1 + _sumTribeStat('manualCatchSpeed')       / 100; }
+function getTribeOfflineIncomeMultiplier()    { return 1 + _sumTribeStat('offlineIncome')          / 100; }
+function getTribeRareChanceBonus()            { return     _sumTribeStat('rareEpicChance')         / 100; }
+function getTribeMythicChanceBonus()          { return     _sumTribeStat('mythicFishChance')       / 100; }
+function getTribeExpeditionSpeedMultiplier()  { return 1 + _sumTribeStat('expeditionSpeed')        / 100; }
+function getTribeGeodeFindRateMultiplier()    { return 1 + _sumTribeStat('geodeFindRate')          / 100; }
+function getTribeExtraGeodeDiamondChance()    { return     _sumTribeStat('geodeExtraDiamondChance') / 100; }
+
+// ── Mythic eligibility (Phase 7 gate) ────────────────────────────────────────
+function isAbyssMythicEligible(zoneId) {
+  if (!canAccessMaelstromAndAbyss()) return false;
+  _ensureAbyssTribeState();
+  var a     = G.abyss;
+  var tribe = getAbyssTribeForZone(zoneId);
+  if (!tribe) return false;
+  var tribeId = tribe.id;
+  if (a.mythicCatches[tribeId]) return false;
+  if (a.tribeBobbers.indexOf(tribeId) < 0) return false;
+  if (a.tribeInitialCompleted[tribeId] && !a.tribeTrialNeeded[tribeId]) return true;
+  if (a.tribeTrialNeeded[tribeId] && a.tribeTrialCompleted[tribeId]) return true;
+  return false;
+}
+
+// ── Tribe bobbers in Diamond Store ───────────────────────────────────────────
+function renderAbyssTribeBobbers() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  _ensureAbyssTribeState();
+  var owned = ABYSS_TRIBE_BOBBERS.filter(function(b) {
+    return G.abyss.tribeBobbers.indexOf(b.tribe) >= 0;
+  });
+  if (!owned.length) return;
+  var grid = document.getElementById('bobber-cosmetics-grid');
+  if (!grid) return;
+  var hdr = document.createElement('div');
+  hdr.className = 'bobber-tribe-section-hdr';
+  hdr.textContent = 'Abyss Tribe Bobbers';
+  grid.appendChild(hdr);
+  owned.forEach(function(bobberDef) {
+    var equipped = G.equippedBobberCosmetic === bobberDef.id;
+    var card = document.createElement('div');
+    card.className = 'bobber-cosm-card' + (equipped ? ' equipped' : '');
+    var imgWrap = document.createElement('div');
+    imgWrap.className = 'bobber-cosm-img-wrap tribe-bobber-placeholder';
+    imgWrap.textContent = bobberDef.name[0].toUpperCase();
+    var label = document.createElement('div');
+    label.className = 'bobber-cosm-name';
+    label.textContent = bobberDef.name;
+    var action = document.createElement('div');
+    action.className = 'bobber-cosm-action';
+    if (equipped) {
+      action.innerHTML = '<span class="bobber-cosm-equipped-tag">Equipped</span>';
+    } else {
+      var btn = document.createElement('button');
+      btn.className = 'btn-secondary-sm';
+      btn.textContent = 'Equip';
+      btn.onclick = (function(bid) { return function() {
+        G.equippedBobberCosmetic = bid;
+        if (typeof updateBobberImg === 'function') updateBobberImg();
+        if (typeof saveState === 'function') saveState();
+        if (typeof renderBobberCosmetics === 'function') renderBobberCosmetics();
+      }; })(bobberDef.id);
+      action.appendChild(btn);
+    }
+    card.appendChild(imgWrap);
+    card.appendChild(label);
+    card.appendChild(action);
+    grid.appendChild(card);
+  });
+}
+
+// ── Tribe UI ─────────────────────────────────────────────────────────────────
+var TRIBE_REP_COLORS = { stranger:'#777', friendly:'#4caf50', honored:'#2196f3', revered:'#9c27b0', exalted:'#f4c430' };
+var TRIBE_REP_LABELS = { stranger:'—', friendly:'Friendly', honored:'Honored', revered:'Revered', exalted:'★ Exalted (MAX)' };
+
+function enterTribeMenu() {
+  _tribeOpenId = null;
+  if (typeof showScreen === 'function') showScreen('abyss');
+}
+
+function renderTribeMenu() {
+  var el = document.getElementById('abyss-content');
+  if (!el) return;
+  if (!canAccessMaelstromAndAbyss()) return;
+  var navBtn = document.querySelector('.hud-nav-btn[data-screen="abyss"] span');
+  if (navBtn) navBtn.textContent = 'Tribes';
+  var screenTitle = document.querySelector('#screen-abyss .panel-header h2');
+  if (screenTitle) screenTitle.textContent = 'Abyss Tribes';
+  el.innerHTML = '';
+  if (_tribeOpenId) {
+    _renderTribeDetail(_tribeOpenId, el);
+  } else {
+    _renderTribeList(el);
+  }
+}
+
+function _renderTribeList(el) {
+  _ensureAbyssTribeState();
+  var bonusBar = document.createElement('div');
+  bonusBar.className = 'tribe-bonus-summary';
+  var storage   = Math.round(_sumTribeStat('storage')        * 10) / 10;
+  var fishVal   = Math.round(_sumTribeStat('fishValue')      * 10) / 10;
+  var autoSpeed = Math.round(_sumTribeStat('automationSpeed') * 10) / 10;
+  bonusBar.innerHTML = storage || fishVal || autoSpeed
+    ? '<span class="tribe-bonus-tag">Storage +' + storage + '%</span>' +
+      '<span class="tribe-bonus-tag">Fish Value +' + fishVal + '%</span>' +
+      '<span class="tribe-bonus-tag">Auto Speed +' + autoSpeed + '%</span>'
+    : '<span style="opacity:0.5;font-size:11px;">Complete Tribe requests to earn permanent bonuses</span>';
+  el.appendChild(bonusBar);
+  ABYSS_TRIBES.forEach(function(tribe) { _renderTribeCard(tribe, el); });
+}
+
+function _renderTribeCard(tribe, container) {
+  _ensureAbyssTribeState();
+  var reqType  = getActiveTribeRequestType(tribe.id);
+  var rep      = getTribeReputation(tribe.id);
+  var pct      = Math.round(getTribeRequestProgress(tribe.id) * 100);
+  var bobOwned = isTribeBobberOwned(tribe.id);
+  var complete = isTribeRequestComplete(tribe.id);
+  var isMax    = reqType === 'none' && rep === 'exalted';
+  var repColor = TRIBE_REP_COLORS[rep] || '#777';
+  var zone     = getAbyssZone(tribe.zone);
+  var zoneName = zone ? zone.name : tribe.zone;
+
+  var card = document.createElement('div');
+  card.className = 'tribe-card' + (isMax ? ' tribe-card-max' : '');
+
+  var title = document.createElement('div');
+  title.className = 'tribe-card-title';
+  title.innerHTML = '<span class="tribe-card-name">' + tribe.name + '</span>' +
+    '<span class="tribe-card-rep" style="color:' + repColor + '">' + (TRIBE_REP_LABELS[rep] || rep) + '</span>';
+  card.appendChild(title);
+
+  var meta = document.createElement('div');
+  meta.className = 'tribe-card-meta';
+  meta.innerHTML = '<span class="tribe-card-biome">' + zoneName + '</span>' +
+    (bobOwned ? '<span class="tribe-card-bobber">Bobber Owned</span>' : '');
+  card.appendChild(meta);
+
+  if (!isMax && reqType !== 'none') {
+    var reqTitle = document.createElement('div');
+    reqTitle.className = 'tribe-card-req-label';
+    reqTitle.textContent = getActiveTribeRequestTitle(tribe.id);
+    card.appendChild(reqTitle);
+
+    var barWrap = document.createElement('div');
+    barWrap.className = 'tribe-progress-bar-wrap';
+    var bar = document.createElement('div');
+    bar.className = 'tribe-progress-bar' + (complete ? ' complete' : '');
+    bar.style.width = pct + '%';
+    barWrap.appendChild(bar);
+    card.appendChild(barWrap);
+
+    var pctLabel = document.createElement('div');
+    pctLabel.className = 'tribe-card-pct';
+    pctLabel.textContent = pct + '% ' + (complete ? '— Ready to complete!' : '');
+    card.appendChild(pctLabel);
+  } else if (isMax) {
+    var maxTag = document.createElement('div');
+    maxTag.className = 'tribe-max-tag';
+    maxTag.textContent = 'MAX — Exalted';
+    card.appendChild(maxTag);
+  }
+
+  card.addEventListener('click', function() { _tribeOpenId = tribe.id; renderTribeMenu(); });
+  container.appendChild(card);
+}
+
+function _renderTribeDetail(tribeId, el) {
+  _ensureAbyssTribeState();
+  var tribe = getAbyssTribe(tribeId);
+  if (!tribe) { _tribeOpenId = null; renderTribeMenu(); return; }
+  var a        = G.abyss;
+  var reqType  = getActiveTribeRequestType(tribeId);
+  var rep      = getTribeReputation(tribeId);
+  var repColor = TRIBE_REP_COLORS[rep] || '#777';
+  var reqFish  = getActiveTribeRequestFish(tribeId);
+  var prog     = _getActiveTribeProgress(tribeId);
+  var isMax    = reqType === 'none' && rep === 'exalted';
+  var zone     = getAbyssZone(tribe.zone);
+  var zoneName = zone ? zone.name : tribe.zone;
+  var mythic   = getAbyssMythicFishForZone(tribe.zone);
+  var mythicName = mythic ? mythic.name : '???';
+
+  var backBtn = document.createElement('button');
+  backBtn.className = 'btn-secondary-sm tribe-back-btn';
+  backBtn.textContent = 'All Tribes';
+  backBtn.addEventListener('click', function() { _tribeOpenId = null; renderTribeMenu(); });
+  el.appendChild(backBtn);
+
+  var header = document.createElement('div');
+  header.className = 'tribe-detail-header';
+  header.innerHTML =
+    '<div class="tribe-portrait-placeholder">' + tribe.name[0].toUpperCase() + '</div>' +
+    '<div class="tribe-detail-info">' +
+      '<div class="tribe-detail-name">' + tribe.name + '</div>' +
+      '<div class="tribe-detail-biome">' + zoneName + ' &bull; ' + tribe.specialization + '</div>' +
+      '<div class="tribe-detail-rep" style="color:' + repColor + '">' + (TRIBE_REP_LABELS[rep] || rep) + '</div>' +
+    '</div>';
+  el.appendChild(header);
+
+  var stagesEl = document.createElement('div');
+  stagesEl.className = 'tribe-stages';
+  var stageOrder  = ['initialRequest', 'friendly', 'honored', 'revered', 'exalted'];
+  var stageLabels = { initialRequest:'Initial Request', friendly:'Friendly', honored:'Honored', revered:'Revered', exalted:'Exalted' };
+  stageOrder.forEach(function(sk) {
+    var stage = tribe.stages[sk];
+    if (!stage) return;
+    var isDone, isActive;
+    if (sk === 'initialRequest') {
+      isDone   = !!(a.tribeInitialCompleted[tribeId]);
+      isActive = reqType === 'initialRequest';
+    } else {
+      var repRanks = ['stranger','friendly','honored','revered','exalted'];
+      var skIdx  = repRanks.indexOf(sk);
+      var curIdx = repRanks.indexOf(rep);
+      isDone   = curIdx >= skIdx && skIdx > 0;
+      isActive = reqType === sk;
+    }
+    var cls = isDone ? 'tribe-stage-row done' : isActive ? 'tribe-stage-row active' : 'tribe-stage-row locked';
+    var row = document.createElement('div');
+    row.className = cls;
+    var desc = isDone && stage.rewardDesc ? stage.rewardDesc : '';
+    row.innerHTML = '<span class="tribe-stage-dot">' + (isDone ? '✓' : isActive ? '▶' : '○') + '</span>' +
+      '<span class="tribe-stage-label">' + stageLabels[sk] + '</span>' +
+      (desc ? '<span class="tribe-stage-reward">' + desc + '</span>' : '');
+    stagesEl.appendChild(row);
+  });
+  el.appendChild(stagesEl);
+
+  if (a.tribeTrialNeeded[tribeId]) {
+    var trialEl = document.createElement('div');
+    var trialDone = !!(a.tribeTrialCompleted[tribeId]);
+    trialEl.className = 'tribe-trial-row' + (trialDone ? ' done' : reqType === 'trialOfReturn' ? ' active' : '');
+    trialEl.innerHTML = '<span class="tribe-stage-dot">' + (trialDone ? '✓' : reqType === 'trialOfReturn' ? '▶' : '○') + '</span>' +
+      '<span class="tribe-stage-label">Trial of Return</span>' +
+      (trialDone ? '<span class="tribe-stage-reward">Mythic eligible this run</span>' : '');
+    el.appendChild(trialEl);
+  }
+
+  if (!isMax && reqType !== 'none') {
+    var reqSection = document.createElement('div');
+    reqSection.className = 'tribe-req-section';
+
+    var overallPct = Math.round(getTribeRequestProgress(tribeId) * 100);
+    var reqHdr = document.createElement('div');
+    reqHdr.className = 'tribe-req-header';
+    reqHdr.innerHTML = '<span>' + getActiveTribeRequestTitle(tribeId) + '</span><span class="tribe-req-pct">' + overallPct + '%</span>';
+    reqSection.appendChild(reqHdr);
+
+    var overallBarWrap = document.createElement('div');
+    overallBarWrap.className = 'tribe-progress-bar-wrap';
+    var overallBar = document.createElement('div');
+    overallBar.className = 'tribe-progress-bar' + (overallPct >= 100 ? ' complete' : '');
+    overallBar.style.width = overallPct + '%';
+    overallBarWrap.appendChild(overallBar);
+    reqSection.appendChild(overallBarWrap);
+
+    reqFish.forEach(function(f) {
+      var cur     = Math.min(prog[f.id] || 0, f.qty);
+      var fishPct = Math.round(cur / f.qty * 100);
+      var row = document.createElement('div');
+      row.className = 'tribe-req-fish-row';
+      row.innerHTML =
+        '<div class="tribe-req-fish-name">' + f.name + '</div>' +
+        '<div class="tribe-req-fish-bar-wrap"><div class="tribe-req-fish-bar" style="width:' + fishPct + '%;background:' + (fishPct >= 100 ? '#4caf50' : '#7ec8e3') + '"></div></div>' +
+        '<div class="tribe-req-fish-count">' + _fmtAbyssQty(cur) + ' / ' + _fmtAbyssQty(f.qty) + '</div>';
+      reqSection.appendChild(row);
+    });
+
+    var activeStage = tribe.stages[reqType];
+    if (activeStage && activeStage.rewardDesc) {
+      var rwdEl = document.createElement('div');
+      rwdEl.className = 'tribe-req-reward';
+      rwdEl.textContent = 'Reward: ' + activeStage.rewardDesc;
+      reqSection.appendChild(rwdEl);
+    }
+
+    var complete = isTribeRequestComplete(tribeId);
+    var completeBtn = document.createElement('button');
+    completeBtn.className = 'tribe-complete-btn' + (complete ? ' ready' : ' locked');
+    completeBtn.disabled = !complete;
+    completeBtn.textContent = complete ? 'Complete Request' : 'Request in Progress';
+    completeBtn.addEventListener('click', function() { completeTribeRequest(tribeId); });
+    reqSection.appendChild(completeBtn);
+    el.appendChild(reqSection);
+  } else if (isMax) {
+    var maxEl = document.createElement('div');
+    maxEl.className = 'tribe-max-banner';
+    maxEl.innerHTML = '<span>Exalted (MAX)</span><span style="opacity:0.7;font-size:12px;">All requests complete</span>';
+    el.appendChild(maxEl);
+  }
+
+  var claimed = a.tribeBonusesClaimed[tribeId] || {};
+  var earnedBonuses = TRIBE_STAGES_ORDERED.filter(function(sk) { return claimed[sk]; }).map(function(sk) {
+    var stage = tribe.stages[sk];
+    return stage && stage.rewardDesc ? stage.rewardDesc : '';
+  }).filter(Boolean);
+  if (earnedBonuses.length) {
+    var bonusEl = document.createElement('div');
+    bonusEl.className = 'tribe-bonuses-earned';
+    bonusEl.innerHTML = '<div class="tribe-bonuses-title">Permanent Bonuses Earned</div>' +
+      earnedBonuses.map(function(b) { return '<div class="tribe-bonus-earned-row">+ ' + b + '</div>'; }).join('');
+    el.appendChild(bonusEl);
+  }
+
+  var mythicEl = document.createElement('div');
+  mythicEl.className = 'tribe-mythic-row';
+  var mythicEligible = isAbyssMythicEligible(tribe.zone);
+  mythicEl.innerHTML = '<span class="tribe-mythic-label">Mythic:</span> <span>' + mythicName + '</span>' +
+    '<span class="tribe-mythic-status ' + (mythicEligible ? 'eligible' : 'locked') + '">' +
+    (a.mythicCatches[tribeId] ? '✓ Caught this run' : mythicEligible ? 'Eligible' : 'Not yet eligible') + '</span>';
+  el.appendChild(mythicEl);
+
+  if (isLocalAbyssDebugEnabled()) _renderTribeDebugPanel(tribeId, el);
+}
+
+function _renderTribeDebugPanel(tribeId, container) {
+  var panel = document.createElement('div');
+  panel.className = 'tribe-debug-panel';
+  panel.innerHTML = '<div class="tribe-debug-title">Dev — Tribe Debug [LOCAL ONLY]</div>';
+
+  var repRow = document.createElement('div');
+  repRow.className = 'tribe-debug-row';
+  ['stranger','friendly','honored','revered','exalted'].forEach(function(r) {
+    var btn = document.createElement('button');
+    btn.className = 'btn-secondary-sm';
+    btn.textContent = 'Rep:' + r;
+    btn.onclick = function() { _debugTribeSetReputation(tribeId, r); };
+    repRow.appendChild(btn);
+  });
+  panel.appendChild(repRow);
+
+  var btnRow = document.createElement('div');
+  btnRow.className = 'tribe-debug-row';
+  [
+    { label:'+25% Progress', fn: function() { _debugTribeAddProgress(tribeId, 0.25); } },
+    { label:'Instant Complete', fn: function() { _debugTribeComplete(tribeId); } },
+    { label:'Reset Progress',   fn: function() { _debugTribeResetProgress(tribeId); } },
+    { label:'Grant Bobber',     fn: function() { _debugTribeGrantBobber(tribeId); } },
+    { label:'Activate Trial',   fn: function() { _debugTribeActivateTrialOfReturn(tribeId); } },
+    { label:'Complete Trial',   fn: function() { _debugTribeCompleteTrialOfReturn(tribeId); } },
+  ].forEach(function(r) {
+    var btn = document.createElement('button');
+    btn.className = 'btn-secondary-sm';
+    btn.textContent = r.label;
+    btn.addEventListener('click', r.fn);
+    btnRow.appendChild(btn);
+  });
+  panel.appendChild(btnRow);
+  container.appendChild(panel);
+}
+
+// ── Debug helpers ────────────────────────────────────────────────────────────
+function _debugTribeAddProgress(tribeId, fraction) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssTribeState();
+  var reqFish = getActiveTribeRequestFish(tribeId);
+  if (!reqFish.length) return;
+  var reqType = getActiveTribeRequestType(tribeId);
+  var a = G.abyss;
+  var store;
+  if (reqType === 'trialOfReturn') {
+    if (!a.tribeTrialProgress[tribeId]) a.tribeTrialProgress[tribeId] = {};
+    store = a.tribeTrialProgress[tribeId];
+  } else {
+    if (!a.tribeProgress[tribeId]) a.tribeProgress[tribeId] = {};
+    store = a.tribeProgress[tribeId];
+  }
+  reqFish.forEach(function(f) {
+    var add = Math.max(1, Math.ceil(f.qty * fraction));
+    store[f.id] = Math.min((store[f.id] || 0) + add, f.qty);
+  });
+  if (typeof saveState === 'function') saveState();
+  renderTribeMenu();
+}
+
+function _debugTribeComplete(tribeId) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssTribeState();
+  var reqFish = getActiveTribeRequestFish(tribeId);
+  if (!reqFish.length) return;
+  var reqType = getActiveTribeRequestType(tribeId);
+  var a = G.abyss;
+  var store;
+  if (reqType === 'trialOfReturn') {
+    if (!a.tribeTrialProgress[tribeId]) a.tribeTrialProgress[tribeId] = {};
+    store = a.tribeTrialProgress[tribeId];
+  } else {
+    if (!a.tribeProgress[tribeId]) a.tribeProgress[tribeId] = {};
+    store = a.tribeProgress[tribeId];
+  }
+  reqFish.forEach(function(f) { store[f.id] = f.qty; });
+  completeTribeRequest(tribeId);
+}
+
+function _debugTribeResetProgress(tribeId) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssTribeState();
+  G.abyss.tribeProgress[tribeId]      = {};
+  G.abyss.tribeTrialProgress[tribeId] = {};
+  if (typeof saveState === 'function') saveState();
+  renderTribeMenu();
+}
+
+function _debugTribeSetReputation(tribeId, rank) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssTribeState();
+  G.abyss.tribeReputation[tribeId] = rank;
+  if (rank !== 'stranger') G.abyss.tribeInitialCompleted[tribeId] = true;
+  if (typeof saveState === 'function') saveState();
+  renderTribeMenu();
+}
+
+function _debugTribeGrantBobber(tribeId) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _awardTribeBobber(tribeId);
+  if (typeof saveState === 'function') saveState();
+  renderTribeMenu();
+}
+
+function _debugTribeActivateTrialOfReturn(tribeId) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssTribeState();
+  G.abyss.tribeTrialNeeded[tribeId]    = true;
+  G.abyss.tribeTrialCompleted[tribeId] = false;
+  G.abyss.tribeTrialProgress[tribeId]  = {};
+  if (typeof saveState === 'function') saveState();
+  renderTribeMenu();
+}
+
+function _debugTribeCompleteTrialOfReturn(tribeId) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssTribeState();
+  if (!G.abyss.tribeTrialNeeded[tribeId]) G.abyss.tribeTrialNeeded[tribeId] = true;
+  var reqFish = getTrialFishRequirements(tribeId);
+  if (!G.abyss.tribeTrialProgress[tribeId]) G.abyss.tribeTrialProgress[tribeId] = {};
+  reqFish.forEach(function(f) { G.abyss.tribeTrialProgress[tribeId][f.id] = f.qty; });
+  completeTribeRequest(tribeId);
+}
+
+function _debugTribeResetAll() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  if (!confirm('Reset ALL Tribe state? This does NOT affect Fishdex or Maelstrom.')) return;
+  _ensureAbyssTribeState();
+  var a = G.abyss;
+  a.tribeReputation       = {};
+  a.tribeProgress         = {};
+  a.tribeBobbers          = [];
+  a.mythicCatches         = {};
+  a.tribeInitialCompleted = {};
+  a.tribeBonusesClaimed   = {};
+  a.tribeTrialNeeded      = {};
+  a.tribeTrialProgress    = {};
+  a.tribeTrialCompleted   = {};
+  var tribeBobbedIds = ABYSS_TRIBE_BOBBERS.map(function(b) { return b.id; });
+  if (G.unlockedBobberCosmetics) {
+    G.unlockedBobberCosmetics = G.unlockedBobberCosmetics.filter(function(id) {
+      return tribeBobbedIds.indexOf(id) < 0;
+    });
+    if (G.unlockedBobberCosmetics.indexOf('bc_basic') < 0) G.unlockedBobberCosmetics.push('bc_basic');
+  }
+  if (tribeBobbedIds.indexOf(G.equippedBobberCosmetic) >= 0) G.equippedBobberCosmetic = 'bc_basic';
+  if (typeof saveState === 'function') saveState();
+  _tribeOpenId = null;
+  renderTribeMenu();
 }
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────

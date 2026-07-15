@@ -137,3 +137,24 @@ The Universal Abyss Geode is a shared drop (one entry across all zones). It appe
 | Icon | Universal Abyss Geode | `abyss_geode.png` | `img/icons/Abyss/` | 64×64 | Cracked dark geode exterior with glowing cyan interior crystal | Abyss Fishdex — Universal Reward section | Missing |
 
 Note: `geode_placeholder.png` listed in the General section above is the generic collect-screen placeholder. `abyss_geode.png` is specifically the Fishdex cell icon. Both are needed.
+
+---
+
+## Abyss Tribe UI — Phase 6
+
+| Category | Asset Name | Suggested Filename | Expected Folder | Dimensions | Description | Feature / Screen | Status |
+|---|---|---|---|---|---|---|---|
+| UI | Tribe Menu Icon | `tribes_menu_icon.png` | `img/icons/Abyss/` | 64×64 | Small icon for the Abyss nav button when Tribes are available | HUD nav button | Missing |
+| UI | Tribe Portrait — Emerald Wardens | `tribe_portrait_emerald_wardens.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Emerald Wardens tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Amber Reefkin | `tribe_portrait_amber_reefkin.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Amber Reefkin tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Amethyst Seers | `tribe_portrait_amethyst_seers.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Amethyst Seers tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Ruby Forged | `tribe_portrait_ruby_forged.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Ruby Forged tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Aquamarine Tidefolk | `tribe_portrait_aquamarine_tidefolk.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Aquamarine Tidefolk tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Opal Gardeners | `tribe_portrait_opal_gardeners.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Opal Gardeners tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Obsidian Keepers | `tribe_portrait_obsidian_keepers.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Obsidian Keepers tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Topaz Riftborn | `tribe_portrait_topaz_riftborn.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Topaz Riftborn tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Sapphire Deepwatch | `tribe_portrait_sapphire_deepwatch.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Sapphire Deepwatch tribe representative | Tribe detail header | Missing |
+| UI | Tribe Portrait — Blue Diamond Ancients | `tribe_portrait_blue_diamond_ancients.png` | `img/icons/Abyss/Tribes/` | 128×128 | Portrait of the Blue Diamond Ancients tribe representative | Tribe detail header | Missing |
+| UI | Request Complete Visual | `tribe_request_complete.png` | `img/icons/Abyss/` | 64×64 | Fanfare icon shown on request completion | Tribe detail — request complete | Missing |
+| UI | Trial of Return Icon | `tribe_trial_of_return.png` | `img/icons/Abyss/` | 64×64 | Icon for Trial of Return row in tribe detail | Tribe detail — Trial row | Missing |
+| UI | Reputation Stage Icons (5 icons) | `rep_stranger.png`, `rep_friendly.png`, `rep_honored.png`, `rep_revered.png`, `rep_exalted.png` | `img/icons/Abyss/Reputation/` | 32×32 | Small icons for reputation rank display | Tribe list card + detail | Missing |
