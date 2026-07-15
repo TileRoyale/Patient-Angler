@@ -7261,12 +7261,7 @@ function renderSettings() {
     };
   }
 
-  const discordBtn   = document.getElementById('btn-social-discord');
-  const playstoreBtn = document.getElementById('btn-social-playstore');
-  const redditBtn    = document.getElementById('btn-social-reddit');
-  if (discordBtn)   discordBtn.onclick   = () => openExternalLink('https://discord.gg/CYpwvgsbB');
-  if (playstoreBtn) playstoreBtn.onclick = () => openExternalLink('https://play.google.com/store/apps/details?id=com.henlygames.patientangler&hl=en');
-  if (redditBtn)    redditBtn.onclick    = () => openExternalLink('https://www.reddit.com/r/PatientAngler/');
+  // social button onclicks set via HTML attributes
 }
 
 
@@ -8393,13 +8388,24 @@ function renderAutoOverview() {
   body.innerHTML = html;
 }
 
+function rateApp() {
+  const marketUrl = 'market://details?id=com.henlygames.patientangler';
+  const webUrl = 'https://play.google.com/store/apps/details?id=com.henlygames.patientangler&hl=en';
+  if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
+    Capacitor.Plugins.App.openUrl({ url: marketUrl });
+  } else if (typeof Capacitor !== 'undefined') {
+    setTimeout(() => { window.open(marketUrl, '_system'); }, 1000);
+  } else {
+    window.open(webUrl, '_blank');
+  }
+}
+
 function openExternalLink(url) {
   if (typeof Capacitor !== 'undefined') {
-    setTimeout(() => { window.open(url, '_system'); });
+    setTimeout(() => { window.open(url, '_system'); }, 1000);
   } else {
     window.open(url, '_blank');
   }
-  return false;
 }
 
 // Make catch/s HUD indicator clickable

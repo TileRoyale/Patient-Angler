@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.6.2 — Build 45 (July 2026)
+
+### Fix
+- **Community buttons** — Discord, Google Play and Reddit buttons in Settings now open correctly on Android (fixed SVG pointer-event blocking and Capacitor WebView inline handler scope)
+
+---
+
 ## v0.8.6.1 — Build 44 (July 2026)
 
 ### Fix

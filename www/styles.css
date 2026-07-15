@@ -2509,7 +2509,7 @@ html, body {
 /* ── Settings screen ─────────────────────────────────────── */
 .settings-scroll {
   overflow-y: auto;
-  padding: 8px clamp(20px,6vw,48px) 24px;
+  padding: 8px clamp(20px,6vw,48px) calc(var(--safe-b) + var(--float-nav-h) + 20px);
 }
 
 .settings-section {
@@ -2705,6 +2705,7 @@ html, body {
 }
 .btn-discord   { background: #5865F2; }
 .btn-playstore { background: #01875f; }
+.btn-social svg { pointer-events: none; }
 .btn-reddit    { background: #FF4500; }
 .social-icon {
   width: 20px;
