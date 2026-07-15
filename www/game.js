@@ -8470,10 +8470,13 @@ function openExternalLink(url) {
   try {
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
       window.Capacitor.Plugins.Browser.open({ url });
-      return false; // prevent <a href> from opening in WebView
+    } else {
+      window.open(url, '_system');
     }
-  } catch (e) {}
-  return true; // desktop: let <a href target="_blank"> work normally
+  } catch (e) {
+    window.open(url, '_blank');
+  }
+  return false; // always prevent <a href> from navigating WebView
 }
 
 // Make catch/s HUD indicator clickable
