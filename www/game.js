@@ -3282,6 +3282,21 @@ function pressToStart() {
   showScreen('fishing');
   if (typeof initTutorial === 'function') initTutorial();
   checkClientVersion(); // retry in case DOMContentLoaded call failed (slow Android network)
+  _maybShowCommunityNotice();
+}
+
+function _maybShowCommunityNotice() {
+  if (localStorage.getItem('pa_communityNotice_v1')) return;
+  setTimeout(function() {
+    var el = document.getElementById('community-notice-overlay');
+    if (el) el.classList.remove('hidden');
+  }, 1500);
+}
+
+function dismissCommunityNotice() {
+  localStorage.setItem('pa_communityNotice_v1', '1');
+  var el = document.getElementById('community-notice-overlay');
+  if (el) el.classList.add('hidden');
 }
 
 function showScreen(id) {
