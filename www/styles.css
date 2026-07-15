@@ -579,7 +579,7 @@ html, body {
 
 /* ── Status msg ── */
 .status-msg {
-  position: absolute;
+  position: fixed;
   bottom: calc(var(--float-nav-h) + 14px + var(--safe-b));
   left: 50%;
   transform: translateX(-50%);
@@ -592,6 +592,7 @@ html, body {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
+  z-index: 9000;
 }
 .status-msg.show { opacity: 1; }
 

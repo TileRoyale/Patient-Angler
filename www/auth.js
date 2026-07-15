@@ -118,7 +118,12 @@ async function loadCloudSave() {
     const cloud   = body.save;
     const localTs = G._savedAt || 0;
     const cloudTs = cloud._savedAt || 0;
-    if (cloudTs > localTs) {
+    // On fresh install _hadLocalSave is false — always prefer cloud save.
+    // On reinstall saveState() runs during init before loadCloudSave(), which would make
+    // localTs = Date.now() > cloudTs, causing the cloud save to be skipped. _hadLocalSave
+    // captures the pre-init localStorage state so the comparison stays correct.
+    const freshInstall = typeof _hadLocalSave !== 'undefined' && !_hadLocalSave;
+    if (freshInstall || cloudTs > localTs) {
       Object.assign(G, cloud);
       saveState();
       updateHUD();
