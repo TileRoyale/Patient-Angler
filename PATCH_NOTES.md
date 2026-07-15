@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.4 — Build 41 (July 2026)
+
+### Fix
+- **Debug button removed** — Ghost Ship debug spawn button is no longer visible in production builds
+
+---
+
 ## v0.8.3 — Build 40 (July 2026)
 
 ### Fix
