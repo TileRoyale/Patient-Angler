@@ -1126,6 +1126,13 @@ html, body {
 .fishdex-reset-lure-btn:active {
   opacity: 0.6;
 }
+.fishdex-lure-count {
+  font-size: calc((clamp(10px,2.5vw,13px)) * var(--font-scale, 1));
+  color: var(--color-gold);
+  font-weight: bold;
+  white-space: nowrap;
+  opacity: 0.85;
+}
 .fishdex-section-header {
   padding: 10px 12px 4px;
   font-size: calc((clamp(10px,2.5vw,13px)) * var(--font-scale, 1));
