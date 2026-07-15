@@ -8376,7 +8376,7 @@ function openExternalLink(url) {
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
       window.Capacitor.Plugins.Browser.open({ url });
     } else {
-      window.open(url, '_system');
+      window.open(url, '_blank');
     }
   } catch (e) {
     window.open(url, '_blank');
