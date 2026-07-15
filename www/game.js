@@ -7151,6 +7151,7 @@ function applyBobberScale() {
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
 
 function renderSettings() {
+  if (typeof renderAbyssDebugSettings === 'function') renderAbyssDebugSettings();
   const muteBtn = document.getElementById('btn-music-mute');
   if (muteBtn) {
     muteBtn.textContent = G.musicMuted ? 'OFF' : 'ON';
@@ -7534,6 +7535,7 @@ function init() {
   if (typeof initIAP       === 'function') initIAP();
   if (typeof initAuth      === 'function') initAuth();
   if (typeof initAnalytics === 'function') initAnalytics();
+  if (typeof initAbyssFramework === 'function') initAbyssFramework();
   loadDialogueData();
 }
 
