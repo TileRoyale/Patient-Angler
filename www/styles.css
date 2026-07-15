@@ -4595,3 +4595,47 @@ html, body {
 
 .bobber-tribe-section-hdr { grid-column:1/-1; padding:8px 0 4px; font-size:calc((clamp(10px,2.5vw,12px))*var(--font-scale,1)); color:#7ec8e3; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; border-top:1px solid rgba(126,200,227,0.2); margin-top:4px; }
 .tribe-bobber-placeholder  { display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; color:rgba(255,255,255,0.3); background:rgba(0,0,0,0.2); border-radius:6px; }
+
+/* ── Phase 7 — Expansion screens ── */
+.screen-expansion { background:#0a0a14; display:flex; flex-direction:column; }
+.expansion-back-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(0,0,0,0.5); border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
+.expansion-title { font-size:clamp(14px,3.5vw,18px); font-weight:bold; color:#fff; letter-spacing:0.04em; }
+.expansion-exit-btn { background:none; border:none; padding:0; cursor:pointer; }
+#expansion-maelstrom-content,
+#expansion-abyss-content { flex:1; overflow-y:auto; }
+
+/* ── Abyss zone selector ── */
+.abyss-zone-sel { padding:clamp(12px,3vw,20px); }
+.azs-header { font-size:clamp(15px,3.8vw,20px); font-weight:bold; color:#7ec8e3; margin-bottom:4px; }
+.azs-subtext { font-size:clamp(10px,2.5vw,13px); color:rgba(255,255,255,0.45); margin-bottom:16px; }
+.abyss-zone-grid { display:flex; flex-direction:column; gap:10px; }
+
+.abyss-zone-card { background:rgba(20,30,50,0.85); border:1px solid rgba(126,200,227,0.18); border-radius:10px; padding:12px 14px; cursor:pointer; transition:border-color 0.15s, background 0.15s; }
+.abyss-zone-card:hover:not(.locked) { border-color:rgba(126,200,227,0.6); background:rgba(30,45,70,0.9); }
+.abyss-zone-card.locked { opacity:0.5; cursor:not-allowed; border-color:rgba(255,255,255,0.1); }
+.abyss-zone-card.active-zone { border-color:#f4c430; background:rgba(244,196,48,0.08); }
+
+.azc-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.azc-order { font-size:11px; color:rgba(255,255,255,0.35); min-width:22px; }
+.azc-name { font-size:clamp(12px,3vw,15px); font-weight:bold; color:#e8f4f8; flex:1; }
+.azc-lock-note { font-size:10px; color:rgba(255,255,255,0.35); }
+
+.azc-meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+.azc-tribe { font-size:10px; color:#9ecfdf; background:rgba(126,200,227,0.1); border:1px solid rgba(126,200,227,0.2); border-radius:4px; padding:2px 6px; }
+
+.abyss-zone-badge { font-size:10px; border-radius:4px; padding:2px 7px; font-weight:bold; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); }
+.abyss-zone-badge.done { background:rgba(76,175,80,0.2); color:#81c784; border:1px solid rgba(76,175,80,0.3); }
+.abyss-zone-badge.eligible { background:rgba(244,196,48,0.18); color:#f4c430; border:1px solid rgba(244,196,48,0.4); }
+
+.azc-bobber-tag { font-size:10px; color:#a0e0c0; background:rgba(100,200,150,0.12); border:1px solid rgba(100,200,150,0.25); border-radius:4px; padding:2px 6px; }
+.azc-no-bobber { font-size:10px; color:rgba(255,255,255,0.3); }
+.azc-mythic-chance { font-size:10px; color:#f4c430; }
+
+/* ── Abyss catch popup ── */
+.abyss-catch-popup { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,10,0.75); backdrop-filter:blur(4px); }
+.abyss-catch-popup.hidden { display:none; }
+.acp-inner { background:rgba(10,15,30,0.97); border:1px solid rgba(126,200,227,0.4); border-radius:14px; padding:clamp(20px,5vw,36px) clamp(24px,6vw,48px); text-align:center; max-width:320px; width:90%; box-shadow:0 0 40px rgba(126,200,227,0.15); }
+.acp-badge { font-size:clamp(28px,8vw,44px); margin-bottom:10px; }
+.acp-name { font-size:clamp(14px,3.5vw,18px); font-weight:bold; color:#e8f4f8; margin-bottom:6px; }
+.acp-zone { font-size:clamp(10px,2.5vw,12px); color:rgba(255,255,255,0.45); margin-bottom:18px; }
+.acp-ok-btn { padding:10px 32px; font-size:clamp(11px,2.8vw,14px); }

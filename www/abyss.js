@@ -1100,6 +1100,8 @@ function _clearAbyssOnPrestige() {
       if (initDone[t.id]) a.tribeTrialNeeded[t.id] = true;
     });
   }
+  // Reset current run (zone unlocks + mythic catches this run)
+  a.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
   // tribeReputation, tribeInitialCompleted, tribeBonusesClaimed, tribeBobbers, fishdex all survive
 }
 
@@ -1481,6 +1483,13 @@ function renderAbyssDebugSettings() {
     <div class="mael-debug-helpers">
       <button class="btn-secondary-sm" onclick="enterTribeMenu()">Open Tribe Menu</button>
       <button class="btn-secondary-sm" onclick="_debugTribeResetAll()">Reset All Tribes</button>
+    </div>
+    <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Abyss Fishing (Phase 7)</strong></div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="_debugAbyssForceNormalCatch()">Force Catch</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssSpawnMythic()">Spawn Mythic</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssUnlockNextZone()">Unlock Next Zone</button>
+      <button class="btn-secondary-sm" onclick="_debugAbyssResetRun()">Reset Run</button>
     </div>` : ''}`;
 }
 
@@ -2454,6 +2463,335 @@ function _debugTribeResetAll() {
   if (typeof saveState === 'function') saveState();
   _tribeOpenId = null;
   renderTribeMenu();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PHASE 7 — ABYSS FISHING LOOP, MYTHIC FISH ENCOUNTER, LINEAR ZONE PROGRESSION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+
+var ABYSS_MYTHIC_TAPS      = 75;    // Fish Fight taps required for Mythic fish
+var ABYSS_MYTHIC_DURATION  = 30000; // Fish Fight time limit for Mythic (30s)
+var ABYSS_MYTHIC_CHANCE    = 0.05;  // Base 5% spawn chance per cast when eligible
+var ABYSS_MYTHIC_CHANCE_MAX = 0.20; // Clamped maximum
+
+var ABYSS_LOOT_WEIGHTS = { fish: 60, crystal: 25, insect: 15 };
+
+// ─── RUN STATE ───────────────────────────────────────────────────────────────
+
+function _ensureAbyssRunState() {
+  _ensureAbyssTribeState();
+  var a = G.abyss;
+  if (!a.currentRun) a.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
+  if (!Array.isArray(a.currentRun.unlockedZones)) a.currentRun.unlockedZones = ['emerald_forest'];
+  if (!a.currentRun.mythicCaughtThisRun) a.currentRun.mythicCaughtThisRun = {};
+  if (a.currentRun.unlockedZones.indexOf('emerald_forest') < 0) a.currentRun.unlockedZones.unshift('emerald_forest');
+}
+
+function isAbyssZoneUnlockedThisRun(zoneId) {
+  if (!G.abyss || !G.abyss.currentRun) return zoneId === 'emerald_forest';
+  return G.abyss.currentRun.unlockedZones.indexOf(zoneId) >= 0;
+}
+
+function unlockNextAbyssZone(currentZoneId) {
+  _ensureAbyssRunState();
+  var zone = getAbyssZone(currentZoneId);
+  if (!zone || !zone.nextZone) return;
+  var next = zone.nextZone;
+  if (G.abyss.currentRun.unlockedZones.indexOf(next) >= 0) return;
+  G.abyss.currentRun.unlockedZones.push(next);
+  if (typeof saveState === 'function') saveState();
+  var nextDef = getAbyssZone(next);
+  if (typeof showStatus === 'function') showStatus('New zone unlocked: ' + (nextDef ? nextDef.name : next) + '!', 3000);
+}
+
+// ─── LOOT TABLE ──────────────────────────────────────────────────────────────
+
+function rollAbyssCatch(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  if (!zone) return null;
+  var total = ABYSS_LOOT_WEIGHTS.fish + ABYSS_LOOT_WEIGHTS.crystal + ABYSS_LOOT_WEIGHTS.insect;
+  var r = Math.random() * total;
+  var category, pool, db;
+  if (r < ABYSS_LOOT_WEIGHTS.fish) {
+    category = 'fish'; pool = zone.fish; db = ABYSS_FISH_DB;
+  } else if (r < ABYSS_LOOT_WEIGHTS.fish + ABYSS_LOOT_WEIGHTS.crystal) {
+    category = 'crystal'; pool = zone.crystals; db = ABYSS_CRYSTAL_DB;
+  } else {
+    category = 'insect'; pool = zone.insects; db = ABYSS_INSECT_DB;
+  }
+  if (!pool || !pool.length) return null;
+  var id  = pool[Math.floor(Math.random() * pool.length)];
+  var def = db.find(function(e) { return e.id === id; }) || null;
+  return { category: category, id: id, name: def ? def.name : id, zoneId: zoneId, img: def ? def.img : null };
+}
+
+// ─── MYTHIC SPAWN CHANCE ─────────────────────────────────────────────────────
+
+function getAbyssMythicSpawnChance() {
+  var bonus = typeof getTribeMythicChanceBonus === 'function' ? getTribeMythicChanceBonus() : 0;
+  return Math.min(ABYSS_MYTHIC_CHANCE + bonus, ABYSS_MYTHIC_CHANCE_MAX);
+}
+
+// ─── CATCH RESOLVER ──────────────────────────────────────────────────────────
+// Called from game.js tapBobber() when G.currentWorld === 'abyss'.
+
+function resolveAbyssCatch(zoneId) {
+  if (!canAccessMaelstromAndAbyss() || !zoneId) {
+    if (typeof resetFishingState === 'function') resetFishingState();
+    return;
+  }
+  _ensureAbyssRunState();
+
+  var tribe   = getAbyssTribeForZone(zoneId);
+  var tribeId = tribe ? tribe.id : null;
+  var alreadyCaught = tribeId && G.abyss.currentRun.mythicCaughtThisRun[tribeId];
+
+  if (!alreadyCaught && isAbyssMythicEligible(zoneId)) {
+    if (Math.random() < getAbyssMythicSpawnChance()) {
+      _startAbyssMythicFight(zoneId);
+      return;
+    }
+  }
+
+  var catchObj = rollAbyssCatch(zoneId);
+  if (!catchObj) { if (typeof resetFishingState === 'function') resetFishingState(); return; }
+
+  if (catchObj.category === 'fish')    recordAbyssFishCatch(catchObj.id, 1);
+  if (catchObj.category === 'crystal') recordAbyssCrystalFound(catchObj.id, 1);
+  if (catchObj.category === 'insect')  recordAbyssInsectFound(catchObj.id, 1);
+
+  showAbyssCatchPopup(catchObj);
+}
+
+// ─── ABYSS CATCH POPUP ───────────────────────────────────────────────────────
+
+function showAbyssCatchPopup(catchObj) {
+  var popup = document.getElementById('abyss-catch-popup');
+  if (!popup) { if (typeof resetFishingState === 'function') resetFishingState(); return; }
+  var zone   = getAbyssZone(catchObj.zoneId);
+  var color  = catchObj.category === 'fish' ? '#4dd0e1' : catchObj.category === 'crystal' ? '#ce93d8' : '#a5d6a7';
+  var label  = catchObj.category === 'fish' ? 'ABYSS FISH' : catchObj.category === 'crystal' ? 'CRYSTAL' : 'INSECT';
+
+  var badge  = document.getElementById('acp-badge');
+  var nameEl = document.getElementById('acp-name');
+  var zoneEl = document.getElementById('acp-zone');
+  var btn    = document.getElementById('acp-ok');
+
+  if (badge)  { badge.textContent = label; badge.style.color = color; }
+  if (nameEl) nameEl.textContent = catchObj.name;
+  if (zoneEl) { zoneEl.textContent = zone ? zone.name : catchObj.zoneId; zoneEl.style.color = zone ? zone.themeColor : '#7ec8e3'; }
+  if (btn)    { btn.disabled = true; setTimeout(function() { btn.disabled = false; }, 600); }
+
+  popup.classList.remove('hidden');
+  if (typeof fishingState !== 'undefined') fishingState = 'result';
+}
+
+function dismissAbyssCatchPopup() {
+  var popup = document.getElementById('abyss-catch-popup');
+  if (popup) popup.classList.add('hidden');
+  if (typeof resetFishingState === 'function') resetFishingState();
+}
+
+// ─── MYTHIC FISH FIGHT ────────────────────────────────────────────────────────
+
+function _startAbyssMythicFight(zoneId) {
+  var mythicDef = getAbyssMythicFishForZone(zoneId);
+  if (!mythicDef || typeof startFishFight !== 'function') {
+    if (typeof resetFishingState === 'function') resetFishingState();
+    return;
+  }
+  var tribe = getAbyssTribeForZone(zoneId);
+  var catchObj = {
+    fishId:        mythicDef.id,
+    name:          mythicDef.name,
+    img:           mythicDef.img || null,
+    rarity:        'mythic',
+    value:         0,
+    isAbyssMythic: true,
+    _ffRequired:   ABYSS_MYTHIC_TAPS,
+    _ffDuration:   ABYSS_MYTHIC_DURATION,
+    _abyssOnWin:   function() { _onAbyssMythicWin(zoneId, tribe ? tribe.id : null, mythicDef); },
+    _abyssOnLoss:  function() { _onAbyssMythicLoss(zoneId); },
+  };
+  if (typeof showStatus === 'function') showStatus('MYTHIC FISH ENCOUNTERED — ' + mythicDef.name + '!', 2000);
+  startFishFight(catchObj);
+}
+
+function _onAbyssMythicWin(zoneId, tribeId, mythicDef) {
+  _ensureAbyssRunState();
+  if (tribeId) {
+    G.abyss.currentRun.mythicCaughtThisRun[tribeId] = true;
+    G.abyss.mythicCatches[tribeId] = true;
+  }
+  if (mythicDef) recordAbyssMythicCatch(mythicDef.id, 1);
+  unlockNextAbyssZone(zoneId);
+  if (typeof saveState === 'function') saveState();
+  _showAbyssMythicResult(zoneId, mythicDef);
+}
+
+function _onAbyssMythicLoss(zoneId) {
+  if (typeof showStatus === 'function') showStatus('The mythic fish escaped... try again!', 2500);
+  if (typeof resetFishingState === 'function') resetFishingState();
+}
+
+function _showAbyssMythicResult(zoneId, mythicDef) {
+  var popup = document.getElementById('abyss-catch-popup');
+  if (!popup) { if (typeof resetFishingState === 'function') resetFishingState(); return; }
+  var zone   = getAbyssZone(zoneId);
+  var badge  = document.getElementById('acp-badge');
+  var nameEl = document.getElementById('acp-name');
+  var zoneEl = document.getElementById('acp-zone');
+  var btn    = document.getElementById('acp-ok');
+  if (badge)  { badge.textContent = 'MYTHIC CAUGHT!'; badge.style.color = '#ffd700'; }
+  if (nameEl) nameEl.textContent = mythicDef ? mythicDef.name : 'Mythic Fish';
+  if (zoneEl) { zoneEl.textContent = (zone ? zone.name : zoneId) + ' — next zone unlocked!'; zoneEl.style.color = '#ffd700'; }
+  if (btn)    { btn.disabled = true; setTimeout(function() { btn.disabled = false; }, 800); }
+  popup.classList.remove('hidden');
+  if (typeof fishingState !== 'undefined') fishingState = 'result';
+}
+
+// ─── ZONE SELECTOR (replaces Phase 4 data inspector as the Abyss screen) ─────
+
+function renderAbyssDebug() {
+  if (!canAccessMaelstromAndAbyss()) { if (typeof showScreen === 'function') showScreen('fishing'); return; }
+  renderAbyssZoneSelector();
+}
+
+function renderAbyssZoneSelector() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  _ensureAbyssRunState();
+  var el = document.getElementById('expansion-abyss-content');
+  if (!el) return;
+
+  var currentZoneId = getCurrentAbyssZone();
+
+  var rows = ABYSS_ZONES.map(function(z) {
+    var unlocked  = isAbyssZoneUnlockedThisRun(z.id);
+    var isCurrent = currentZoneId === z.id;
+    var tribe     = getAbyssTribeForZone(z.id);
+    var tribeId   = tribe ? tribe.id : null;
+    var bobberOwned = tribeId ? isTribeBobberOwned(tribeId) : false;
+    var mythicDone  = tribeId && G.abyss.currentRun.mythicCaughtThisRun[tribeId];
+    var mythicElig  = unlocked && isAbyssMythicEligible(z.id);
+    var fd = G.abyss.fishdex || {};
+    var fishDisc   = (z.fish    ||[]).filter(function(id){ return fd.fish    &&fd.fish[id]    &&fd.fish[id].discovered;    }).length;
+    var crystDisc  = (z.crystals||[]).filter(function(id){ return fd.crystals&&fd.crystals[id]&&fd.crystals[id].discovered; }).length;
+    var insectDisc = (z.insects ||[]).filter(function(id){ return fd.insects &&fd.insects[id] &&fd.insects[id].discovered;  }).length;
+    var mythicDisc = z.mythicFish&&fd.mythics&&fd.mythics[z.mythicFish]&&fd.mythics[z.mythicFish].discovered ? 1 : 0;
+    var totalDisc  = fishDisc + crystDisc + insectDisc + mythicDisc;
+    var totalItems = (z.fish||[]).length + (z.crystals||[]).length + (z.insects||[]).length + (z.mythicFish ? 1 : 0);
+
+    if (!unlocked) {
+      var prevDef    = z.previousZone ? getAbyssZone(z.previousZone) : null;
+      var prevMythic = prevDef ? getAbyssMythicFishForZone(z.previousZone) : null;
+      return '<div class="abyss-zone-card locked" style="border-color:' + z.themeColor + '55;">' +
+        '<div class="azc-header"><span class="azc-order" style="color:' + z.themeColor + '80;">Zone ' + z.order + '</span>' +
+        '<span class="azc-name locked-name">' + z.name + '</span></div>' +
+        '<div class="azc-lock-note">Catch ' + (prevMythic ? prevMythic.name : 'previous Mythic') + ' to unlock</div>' +
+      '</div>';
+    }
+
+    var statusBadge = '';
+    if (mythicDone)       statusBadge = '<span class="abyss-zone-badge done">Mythic Caught</span>';
+    else if (mythicElig)  statusBadge = '<span class="abyss-zone-badge eligible">Mythic Eligible</span>';
+
+    return '<div class="abyss-zone-card' + (isCurrent ? ' active-zone' : '') + '" style="border-color:' + z.themeColor + ';cursor:pointer;" onclick="enterAbyssZoneForFishing(\'' + z.id + '\')">' +
+      '<div class="azc-header">' +
+        '<span class="azc-order" style="color:' + z.themeColor + '">Zone ' + z.order + '</span>' +
+        '<span class="azc-name">' + z.name + '</span>' + statusBadge +
+      '</div>' +
+      '<div class="azc-meta">' +
+        '<span>Dex: ' + totalDisc + '/' + totalItems + '</span>' +
+        (bobberOwned ? '<span class="azc-bobber-tag">Bobber</span>' : '<span class="azc-no-bobber">No Bobber</span>') +
+        (mythicElig && !mythicDone ? '<span class="azc-mythic-chance">5% Mythic</span>' : '') +
+      '</div>' +
+      '<div class="azc-tribe">Tribe: ' + (tribe ? tribe.name : z.tribe) + '</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="abyss-zone-sel">' +
+      '<div class="azs-header">Choose a Zone</div>' +
+      '<div class="azs-subtext">Catch each zone\'s Mythic fish to unlock the next.</div>' +
+      '<div class="abyss-zone-grid">' + rows + '</div>' +
+      '<div class="expansion-dev-controls" style="margin-top:12px;">' +
+        '<button class="btn-secondary expansion-return-btn" onclick="enterMaelstromDebug()">Return to Maelstrom</button>' +
+        '<button class="btn-secondary expansion-return-btn" onclick="leaveExpansionWorld()">Leave Abyss</button>' +
+      '</div>' +
+      (isLocalAbyssDebugEnabled() ? _renderAbyssZoneDebugPanel() : '') +
+    '</div>';
+}
+
+// ─── ZONE ENTRY ──────────────────────────────────────────────────────────────
+
+function enterAbyssZoneForFishing(zoneId) {
+  if (!canAccessMaelstromAndAbyss()) return;
+  _ensureAbyssRunState();
+  if (!isAbyssZoneUnlockedThisRun(zoneId)) {
+    if (typeof showStatus === 'function') showStatus('Zone not unlocked this run.', 1500);
+    return;
+  }
+  _stopMaelstromUITimer();
+  G.currentWorld = 'abyss';
+  G.abyss.currentZone = zoneId;
+  var zone = getAbyssZone(zoneId);
+  var hudZone = document.getElementById('hud-zone');
+  if (hudZone && zone) hudZone.textContent = zone.name;
+  if (typeof saveState === 'function') saveState();
+  if (typeof showScreen === 'function') showScreen('fishing');
+  if (typeof showStatus === 'function') showStatus('Entered ' + (zone ? zone.name : zoneId) + ' — tap to cast!', 2000);
+}
+
+// ─── DEBUG PANEL ─────────────────────────────────────────────────────────────
+
+function _renderAbyssZoneDebugPanel() {
+  var zoneId = getCurrentAbyssZone() || 'emerald_forest';
+  return '<div class="mael-debug-helpers" style="margin-top:10px;">' +
+    '<div style="font-size:11px;margin-bottom:4px;opacity:0.7;">Active zone: <strong>' + zoneId + '</strong></div>' +
+    '<button class="btn-secondary-sm" onclick="_debugAbyssForceNormalCatch()">Force Normal Catch</button>' +
+    '<button class="btn-secondary-sm" onclick="_debugAbyssSpawnMythic()">Spawn Mythic</button>' +
+    '<button class="btn-secondary-sm" onclick="_debugAbyssUnlockNextZone()">Unlock Next Zone</button>' +
+    '<button class="btn-secondary-sm" onclick="_debugAbyssResetRun()">Reset Run</button>' +
+  '</div>';
+}
+
+function _debugAbyssForceNormalCatch() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  var zoneId = getCurrentAbyssZone();
+  if (!zoneId) { if (typeof showStatus === 'function') showStatus('Enter a zone first.', 1500); return; }
+  var c = rollAbyssCatch(zoneId);
+  if (!c) return;
+  if (c.category === 'fish')    recordAbyssFishCatch(c.id, 1);
+  if (c.category === 'crystal') recordAbyssCrystalFound(c.id, 1);
+  if (c.category === 'insect')  recordAbyssInsectFound(c.id, 1);
+  showAbyssCatchPopup(c);
+}
+
+function _debugAbyssSpawnMythic() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  var zoneId = getCurrentAbyssZone();
+  if (!zoneId) { if (typeof showStatus === 'function') showStatus('Enter a zone first.', 1500); return; }
+  _startAbyssMythicFight(zoneId);
+}
+
+function _debugAbyssUnlockNextZone() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  var zoneId = getCurrentAbyssZone();
+  if (!zoneId) zoneId = (G.abyss && G.abyss.currentRun && G.abyss.currentRun.unlockedZones.slice(-1)[0]) || 'emerald_forest';
+  unlockNextAbyssZone(zoneId);
+  renderAbyssZoneSelector();
+}
+
+function _debugAbyssResetRun() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  if (!confirm('Reset Abyss run? (zone unlocks + mythic catches this run only)')) return;
+  _ensureAbyssRunState();
+  G.abyss.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
+  if (typeof saveState === 'function') saveState();
+  if (typeof showStatus === 'function') showStatus('Run reset.', 1500);
+  renderAbyssZoneSelector();
 }
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────

@@ -2103,6 +2103,8 @@ function onCatchEvent(fishId, rarity) {
     TRASH_DB.filter(t => t.zones.includes('pond') && G.fishdex.includes(t.id)).length;
   syncAch('pondall', pondAll);
   checkFishdexAch();
+
+  if (isFish && typeof recordTribeFishCatch === 'function') recordTribeFishCatch(fishId, 1);
 }
 
 function onSellEvent(fishId, value) {
@@ -2879,7 +2881,8 @@ function _ffBarColor(pct) {
 
 function _ffTickCountdown() {
   const elapsed = Date.now() - _ffStartTime;
-  const remaining = Math.max(0, FF_DURATION - elapsed);
+  const _dur = (_ffCatch && _ffCatch._ffDuration) || FF_DURATION;
+  const remaining = Math.max(0, _dur - elapsed);
   const secsLeft = Math.ceil(remaining / 1000);
   const el = document.getElementById('ff-countdown');
   if (el) el.textContent = secsLeft + 's';
@@ -2903,8 +2906,8 @@ function _ffVisibilityHandler() {
 }
 
 function startFishFight(c) {
-  // Safety: only trigger on real fish entries
-  if (!c || !c.fishId || !FISH_DB.find(x => x.id === c.fishId)) {
+  // Safety: only trigger on real fish entries or tagged Abyss Mythic objects
+  if (!c || !c.fishId || (!FISH_DB.find(x => x.id === c.fishId) && !c.isAbyssMythic)) {
     presentCatch(c);
     return;
   }
@@ -2929,7 +2932,8 @@ function startFishFight(c) {
   if (ffUI) {
     document.getElementById('ff-bar-fill').style.width = '0%';
     document.getElementById('ff-bar-fill').style.background = _ffBarColor(0);
-    document.getElementById('ff-countdown').textContent = Math.ceil(FF_DURATION / 1000) + 's';
+    const _initDur = c._ffDuration || FF_DURATION;
+    document.getElementById('ff-countdown').textContent = Math.ceil(_initDur / 1000) + 's';
     ffUI.classList.remove('hidden');
     _ffPositionUI();
   }
@@ -2940,22 +2944,24 @@ function startFishFight(c) {
   // Countdown interval
   _ffCdInterval = setInterval(_ffTickCountdown, 250);
 
-  // Timeout = loss
-  _ffTimer = setTimeout(() => _endFishFight(false), FF_DURATION);
+  // Timeout = loss — duration per-catch for Mythic overrides
+  const _dur = c._ffDuration || FF_DURATION;
+  _ffTimer = setTimeout(() => _endFishFight(false), _dur);
 }
 
 function tapFishFight() {
   if (!_ffActive) return;
   _ffTaps++;
 
-  const pct = _ffTaps / FF_REQUIRED;
+  const _req = (_ffCatch && _ffCatch._ffRequired) || FF_REQUIRED;
+  const pct = _ffTaps / _req;
   const fill = document.getElementById('ff-bar-fill');
   if (fill) {
     fill.style.width = Math.min(100, pct * 100) + '%';
     fill.style.background = _ffBarColor(pct);
   }
 
-  if (_ffTaps >= FF_REQUIRED) {
+  if (_ffTaps >= _req) {
     _endFishFight(true);
   }
 }
@@ -2992,17 +2998,26 @@ function _endFishFight(won) {
     setTimeout(() => {
       if (ffUI) ffUI.classList.add('hidden');
       if (!catchToPresent) { resetFishingState(); return; }
-      catchToPresent.isFishFight = true;
-      const fishDef = FISH_DB.find(x => x.id === catchToPresent.fishId);
-      catchToPresent.value = Math.round((fishDef ? fishDef.baseValue : catchToPresent.value) * 5);
-      presentCatch(catchToPresent);
+      if (typeof catchToPresent._abyssOnWin === 'function') {
+        catchToPresent._abyssOnWin();
+      } else {
+        catchToPresent.isFishFight = true;
+        const fishDef = FISH_DB.find(x => x.id === catchToPresent.fishId);
+        catchToPresent.value = Math.round((fishDef ? fishDef.baseValue : catchToPresent.value) * 5);
+        presentCatch(catchToPresent);
+      }
     }, 500);
   } else {
     G.stats.fishFightLost = (G.stats.fishFightLost || 0) + 1;
     if (ffUI) ffUI.classList.add('hidden');
+    const lostCatch = _ffCatch;
     _ffCatch = null;
-    resetFishingState();
-    showStatus('Fish Fight lost — fish got away!', 2500);
+    if (lostCatch && typeof lostCatch._abyssOnLoss === 'function') {
+      lostCatch._abyssOnLoss();
+    } else {
+      resetFishingState();
+      showStatus('Fish Fight lost — fish got away!', 2500);
+    }
   }
 }
 
@@ -3092,6 +3107,11 @@ function tapBobber() {
     fishingState = 'result';
     document.getElementById('bite-prompt').classList.add('hidden');
     tapCnt.classList.add('hidden');
+    // Route to Abyss resolver when player is fishing inside an Abyss zone
+    if (typeof resolveAbyssCatch === 'function' && G.currentWorld === 'abyss' && G.abyss && G.abyss.currentZone) {
+      resolveAbyssCatch(G.abyss.currentZone);
+      return;
+    }
     const c = rollCatch(G.currentZone, true);
     // Fish Fight: 1% chance on non-trash, non-plant, non-trophy fish only, with 3-min cooldown
     if (c.rarity !== 'trash' && c.rarity !== 'plant' && !c.isTrophy &&
@@ -3325,7 +3345,9 @@ function showScreen(id) {
   if (id === 'zones')       renderZones();
   if (id === 'competition') renderCompetition();
   if (id === 'halloffame')  renderStatistics();
-  if (id === 'abyss')         renderAbyss();
+  if (id === 'abyss')                renderAbyss();
+  if (id === 'expansion-maelstrom') { if (typeof renderMaelstromDebug === 'function') renderMaelstromDebug(); }
+  if (id === 'expansion-abyss')     { if (typeof renderAbyssDebug     === 'function') renderAbyssDebug(); }
   if (id === 'diamondstore')  renderDiamondStore();
   if (id === 'settings')    renderSettings();
   if (id === 'fishing')     updateHUD();

@@ -457,6 +457,34 @@
     <div id="abyss-content" class="abyss-scroll"></div>
   </div>
 
+  <!-- SCREEN: EXPANSION — MAELSTROM (full-screen fishing overlay) -->
+  <div id="screen-expansion-maelstrom" class="screen screen-expansion">
+    <div class="expansion-back-row">
+      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <span class="expansion-title">Maelstrom</span>
+    </div>
+    <div id="expansion-maelstrom-content"></div>
+  </div>
+
+  <!-- SCREEN: EXPANSION — ABYSS (full-screen abyss fishing overlay) -->
+  <div id="screen-expansion-abyss" class="screen screen-expansion">
+    <div class="expansion-back-row">
+      <button class="expansion-exit-btn" onclick="leaveExpansionWorld()"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <span class="expansion-title" id="expansion-abyss-title">Abyss</span>
+    </div>
+    <div id="expansion-abyss-content"></div>
+  </div>
+
+  <!-- ABYSS CATCH POPUP -->
+  <div id="abyss-catch-popup" class="abyss-catch-popup hidden">
+    <div class="acp-inner">
+      <div id="acp-badge" class="acp-badge"></div>
+      <div id="acp-name" class="acp-name"></div>
+      <div id="acp-zone" class="acp-zone"></div>
+      <button id="acp-ok" class="btn-primary acp-ok-btn" onclick="dismissAbyssCatchPopup()">Continue</button>
+    </div>
+  </div>
+
   <!-- SCREEN: DIAMOND STORE -->
   <div id="screen-diamondstore" class="screen">
     <div class="panel-header">
