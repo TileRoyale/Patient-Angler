@@ -1,8 +1,8 @@
 // ===== VERSION — SINGLE SOURCE OF TRUTH =====
 // When bumping: update GAME_VERSION + BUILD_NUMBER here AND android/app/build.gradle versionName/versionCode
 // Also bump PA_MIN_CLIENT_VERSION in tile-royale-server/src/index.ts when forcing an update
-const GAME_VERSION = 'v0.8.2';
-const BUILD_NUMBER  = 39;
+const GAME_VERSION = 'v0.8.6.1';
+const BUILD_NUMBER  = 44;
 
 document.addEventListener('DOMContentLoaded', () => {
   const badge = document.getElementById('version-badge');
