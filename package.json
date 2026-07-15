@@ -13,7 +13,7 @@
     "@capacitor-firebase/firestore": "^7.0.0",
     "@capacitor/android": "^7.0.0",
     "@capacitor/app": "^7.0.0",
-    "@capacitor/browser": "^8.0.3",
+    "@capacitor/browser": "^7.0.5",
     "@capacitor/core": "^7.0.0",
     "@capacitor/haptics": "^7.0.0",
     "@capacitor/splash-screen": "^7.0.5"
