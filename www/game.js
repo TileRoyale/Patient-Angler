@@ -693,15 +693,19 @@ const DEFAULT_STATE = {
     // crystalRequirements removed — requirements live in MAELSTROM_STAB_REQUIREMENTS (abyss.js)
   },
   abyss: {
-    unlocked:    false,
-    currentZone: null,
-    highestZone: 0,
-    zones:       {},
-    automation:  {},
-    tribes:      {},
-    crystals:    {},
-    geodes:      {},
-    stats:       {},
+    unlocked:        false,
+    currentZone:     null,
+    highestZone:     0,
+    zones:           {},
+    automation:      {},
+    tribes:          {},
+    crystals:        {},
+    geodes:          {},
+    stats:           {},
+    tribeReputation: {},   // { tribeId: stageName } — survives prestige
+    tribeProgress:   {},   // { tribeId: catchCount } — resets on prestige (current stage only)
+    tribeBobbers:    [],   // [ bobberId, ... ] — permanent, survive prestige
+    mythicCatches:   {},   // { zoneId: count } — resets on prestige
   },
 };
 
@@ -1046,6 +1050,7 @@ function executePrestige() {
 
   // Reset expedition vessels and chest cooldown; keep chests, sunkenTreasureUnlocked, treasurehold level, stats
   if (typeof _clearMaelstromMissionsOnPrestige === 'function') _clearMaelstromMissionsOnPrestige();
+  if (typeof _clearAbyssOnPrestige === 'function') _clearAbyssOnPrestige();
   G.expeditionVessels               = [];
   G.automationTreasureCooldownUntil = 0;
   if (_expeditionCheckInterval) { clearInterval(_expeditionCheckInterval); _expeditionCheckInterval = null; }
@@ -7513,7 +7518,17 @@ function init() {
     if (m.rewardGenerated === undefined) m.rewardGenerated = (m.crystalType != null);
     if (m.completedAt     === undefined) m.completedAt     = (m.status !== 'active') ? (m.completesAt || 0) : 0;
   });
-  if (!G.abyss)     G.abyss     = { unlocked:false, currentZone:null, highestZone:0, zones:{}, automation:{}, tribes:{}, crystals:{}, geodes:{}, stats:{} };
+  if (!G.abyss) G.abyss = JSON.parse(JSON.stringify(DEFAULT_STATE.abyss));
+  // Phase 4: add new abyss sub-fields for saves that predate them
+  if (!G.abyss.tribeReputation)              G.abyss.tribeReputation = {};
+  if (!G.abyss.tribeProgress)               G.abyss.tribeProgress   = {};
+  if (!Array.isArray(G.abyss.tribeBobbers)) G.abyss.tribeBobbers    = [];
+  if (!G.abyss.mythicCatches)               G.abyss.mythicCatches   = {};
+  // Phase 4: retire old Phase 1 zone IDs — reset if save has a stale zone selected
+  var _oldAbyssZones = ['azure_crystal_caverns','emerald_bloom','amethyst_depths','ruby_chasm','golden_rift'];
+  if (G.abyss.currentZone && _oldAbyssZones.indexOf(G.abyss.currentZone) !== -1) {
+    G.abyss.currentZone = null;
+  }
   // Reset world to overworld on load — prevents stale debug state from affecting live saves
   if (typeof canAccessMaelstromAndAbyss === 'function' && !canAccessMaelstromAndAbyss()) {
     G.currentWorld = 'overworld';

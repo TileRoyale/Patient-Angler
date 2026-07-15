@@ -45,8 +45,47 @@ Statuses: Missing | Placeholder Implemented | Art Created | Integrated | Verifie
 
 | Category | Asset Name | Suggested Filename | Expected Folder | Dimensions / Aspect | Description | Feature / Screen | Status |
 |---|---|---|---|---|---|---|---|
-| Zone Background | Azure Crystal Caverns | `abyss_azure_crystal_caverns.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Blue crystal formations, stalactites, glowing azure light reflecting off underground lake | Azure Crystal Caverns zone | Placeholder Implemented |
-| Zone Background | Emerald Bloom | `abyss_emerald_bloom.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Dense bioluminescent green plant growth, giant mushroom-like organisms, verdant glow | Emerald Bloom zone | Placeholder Implemented |
-| Zone Background | Amethyst Depths | `abyss_amethyst_depths.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Purple crystal formations deeper than Azure, darker atmosphere, glowing veins in rock | Amethyst Depths zone | Placeholder Implemented |
-| Zone Background | Ruby Chasm | `abyss_ruby_chasm.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Red glowing lava cracks, volcanic rock chasm walls, intense heat-haze effect | Ruby Chasm zone | Placeholder Implemented |
-| Zone Background | Golden Rift | `abyss_golden_rift.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Gold and white crystalline rift, brightest of all zones, ancient-treasure aesthetic | Golden Rift zone | Placeholder Implemented |
+| Zone Background | Emerald Forest | `abyss_emerald_forest.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Lush crystal forest, glowing emerald trees, bioluminescent green undergrowth | Zone 1 — Emerald Forest | Missing |
+| Zone Background | Amber Reef | `abyss_amber_reef.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Warm coral reef bathed in golden amber light, honey-colored crystal coral formations | Zone 2 — Amber Reef | Missing |
+| Zone Background | Amethyst Caverns | `abyss_amethyst_caverns.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Glowing purple crystal cave, giant amethyst pillars, violet bioluminescent mist | Zone 3 — Amethyst Caverns | Missing |
+| Zone Background | Ruby Chasm | `abyss_ruby_chasm.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Deep red fractured canyon, lava-glow cracks, volcanic rock walls, ruby crystal veins | Zone 4 — Ruby Chasm | Missing |
+| Zone Background | Aquamarine Lagoon | `abyss_aquamarine_lagoon.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Bright mirror-clear tropical lagoon, vivid cyan water, aquamarine crystal outcrops | Zone 5 — Aquamarine Lagoon | Missing |
+| Zone Background | Opal Gardens | `abyss_opal_gardens.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Shimmering color-shifting crystal gardens, iridescent opal formations, gentle mist | Zone 6 — Opal Gardens | Missing |
+| Zone Background | Obsidian Abyss | `abyss_obsidian_abyss.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Dark volcanic depths, towering obsidian spires, glowing lava flows, ash in water | Zone 7 — Obsidian Abyss | Missing |
+| Zone Background | Topaz Rift | `abyss_topaz_rift.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Golden mineral fault line, warm orange-gold crystal formations, glowing rift seams | Zone 8 — Topaz Rift | Missing |
+| Zone Background | Sapphire Trench | `abyss_sapphire_trench.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Cold deep-ocean trench, royal blue walls plunging into infinite darkness, ice-cold hue | Zone 9 — Sapphire Trench | Missing |
+| Zone Background | Blue Diamond Sanctuary | `abyss_blue_diamond_sanctuary.png` | `img/backgrounds/Abyss/` | 1920×1080 (landscape) | Ancient sacred sanctuary, brilliant blue diamond formations, ethereal light beams | Zone 10 — Blue Diamond Sanctuary | Missing |
+
+---
+
+## Abyss — Tribe Bobbers
+
+| Category | Asset Name | Suggested Filename | Expected Folder | Dimensions / Aspect | Description | Feature / Screen | Status |
+|---|---|---|---|---|---|---|---|
+| Icon | Emerald Root Bobber | `emerald_root_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Bobber shaped like gnarled root wrapped in glowing emerald crystal | Zone 1 bobber reward | Missing |
+| Icon | Amber Coral Bobber | `amber_coral_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Bobber shaped like branching coral, warm amber glow | Zone 2 bobber reward | Missing |
+| Icon | Amethyst Eye Bobber | `amethyst_eye_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Bobber with a glowing amethyst eye motif, purple aura | Zone 3 bobber reward | Missing |
+| Icon | Ruby Fang Bobber | `ruby_fang_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Bobber shaped like a curved fang set in ruby red crystal | Zone 4 bobber reward | Missing |
+| Icon | Aquamarine Pearl Bobber | `aquamarine_pearl_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Smooth pearl-like bobber with aquamarine shimmer | Zone 5 bobber reward | Missing |
+| Icon | Opal Bloom Bobber | `opal_bloom_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Flower-shaped bobber in iridescent opal colors | Zone 6 bobber reward | Missing |
+| Icon | Obsidian Spike Bobber | `obsidian_spike_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Jagged obsidian spike bobber, dark with volcanic glow edges | Zone 7 bobber reward | Missing |
+| Icon | Topaz Rift Bobber | `topaz_rift_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Bobber cut like a topaz gemstone, orange-gold facets | Zone 8 bobber reward | Missing |
+| Icon | Sapphire Trench Bobber | `sapphire_trench_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Deep royal blue bobber with sapphire crystal inlay, cold gleam | Zone 9 bobber reward | Missing |
+| Icon | Blue Diamond Bobber | `blue_diamond_bobber.png` | `img/icons/Abyss/Bobbers/` | 64×64 | Perfectly cut blue diamond bobber, celestial blue radiance | Zone 10 bobber reward | Missing |
+
+---
+
+## Abyss — Mythic Fish Sprites
+
+| Category | Asset Name | Suggested Filename | Expected Folder | Dimensions / Aspect | Description | Feature / Screen | Status |
+|---|---|---|---|---|---|---|---|
+| Sprite | Ancient Emerald Leviathan | `ancient_emerald_leviathan.png` | `img/fish/Abyss/` | 128×64 (side view) | Massive serpentine leviathan covered in emerald crystal scales, glowing green | Zone 1 mythic catch screen | Missing |
+| Sprite | Amber Reef Colossus | `amber_reef_colossus.png` | `img/fish/Abyss/` | 128×64 (side view) | Colossal reef fish encrusted with amber coral, warm golden glow | Zone 2 mythic catch screen | Missing |
+| Sprite | Amethyst Dream Serpent | `amethyst_dream_serpent.png` | `img/fish/Abyss/` | 128×64 (side view) | Ethereal serpent with amethyst crystal fins, trailing violet mist | Zone 3 mythic catch screen | Missing |
+| Sprite | Crimson Chasm Tyrant | `crimson_chasm_tyrant.png` | `img/fish/Abyss/` | 128×64 (side view) | Ferocious deep-chasm predator, crimson-red scales, volcanic eye glow | Zone 4 mythic catch screen | Missing |
+| Sprite | Lagoon Skywhale | `lagoon_skywhale.png` | `img/fish/Abyss/` | 128×64 (side view) | Vast whale-like creature with bioluminescent aquamarine patterns, serene | Zone 5 mythic catch screen | Missing |
+| Sprite | Iridescent Garden Ray | `iridescent_garden_ray.png` | `img/fish/Abyss/` | 128×64 (side view) | Enormous manta ray with shifting opal-colored wing patterns | Zone 6 mythic catch screen | Missing |
+| Sprite | Voidjaw | `voidjaw.png` | `img/fish/Abyss/` | 128×64 (side view) | Terrifying void-black predator with dislocating jaw, obsidian scales, void-glow eyes | Zone 7 mythic catch screen | Missing |
+| Sprite | Golden Fault Eel | `golden_fault_eel.png` | `img/fish/Abyss/` | 128×64 (side view) | Massive eel following the topaz fault lines, golden scales with rift-orange spine glow | Zone 8 mythic catch screen | Missing |
+| Sprite | Sapphire Trench Warden | `sapphire_trench_warden.png` | `img/fish/Abyss/` | 128×64 (side view) | Ancient armored guardian fish, deep blue sapphire plating, cold glow | Zone 9 mythic catch screen | Missing |
+| Sprite | Heart of the Abyss | `heart_of_the_abyss.png` | `img/fish/Abyss/` | 128×64 (side view) | Transcendent crystalline entity, blue diamond heart visible through translucent body | Zone 10 mythic catch screen | Missing |

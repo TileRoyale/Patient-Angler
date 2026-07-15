@@ -74,13 +74,635 @@ const MAELSTROM_ZONE = {
   bg:         null,   // Missing — see ABYSS Missing Assets.md
 };
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// PHASE 4 — ABYSS DATA FRAMEWORK
+// Single source of truth for all World 2 (Abyss) content.
+// All data derived from Patient_Angler_Abyss_Design_Workbook(7).xlsx.
+// ═══════════════════════════════════════════════════════════════════════════════
+
 const ABYSS_ZONES = [
-  { id: 'azure_crystal_caverns', name: 'Azure Crystal Caverns', themeColor: '#1a8fd4', order: 1, bg: null, locked: true },
-  { id: 'emerald_bloom',         name: 'Emerald Bloom',         themeColor: '#1aa352', order: 2, bg: null, locked: true },
-  { id: 'amethyst_depths',       name: 'Amethyst Depths',       themeColor: '#8b34c8', order: 3, bg: null, locked: true },
-  { id: 'ruby_chasm',            name: 'Ruby Chasm',            themeColor: '#c43030', order: 4, bg: null, locked: true },
-  { id: 'golden_rift',           name: 'Golden Rift',           themeColor: '#c49a00', order: 5, bg: null, locked: true },
+  {
+    id: 'emerald_forest', name: 'Emerald Forest', order: 1,
+    theme: 'Emerald', themeColor: '#10b981',
+    atmosphere: 'Lush crystal forest', landmark: 'Crystal trees',
+    expectedCatchsPerSecond: 10000,
+    fish:    ['emerald_glowfin','crystal_minnow','moss_koi','jade_pike','leaf_ray','forest_eel','verdant_carp','root_catfish','emerald_disc','canopy_guppy'],
+    crystals:['emerald_shard','living_emerald','moss_crystal','root_crystal','forest_core','leaf_prism','green_cluster','glow_emerald','ancient_emerald','wild_emerald'],
+    insects: ['crystal_beetle','glow_moth','leaf_cricket','emerald_spider','root_ant','moss_firefly','fern_hopper','crystal_bee','green_scarab','forest_wasp'],
+    mythicFish: 'ancient_emerald_leviathan', tribe: 'emerald_wardens', bobberReward: 'emerald_root_bobber',
+    previousZone: null, nextZone: 'amber_reef',
+    unlockRequirement: 'Complete Maelstrom stabilization', bg: null,
+  },
+  {
+    id: 'amber_reef', name: 'Amber Reef', order: 2,
+    theme: 'Amber', themeColor: '#f59e0b',
+    atmosphere: 'Warm coral reef', landmark: 'Golden coral cathedral',
+    expectedCatchsPerSecond: 20000,
+    fish:    ['forest_eel','verdant_carp','root_catfish','emerald_disc','canopy_guppy','amber_snapper','honey_wrasse','golden_butterflyfish','reef_grouper','sunscale_bass'],
+    crystals:['leaf_prism','green_cluster','glow_emerald','ancient_emerald','wild_emerald','amber_shard','sun_amber','honey_crystal','golden_resin','warm_prism'],
+    insects: ['moss_firefly','fern_hopper','crystal_bee','green_scarab','forest_wasp','amber_beetle','honey_bee','golden_mantis','reef_cricket','sun_hopper'],
+    mythicFish: 'amber_reef_colossus', tribe: 'amber_reefkin', bobberReward: 'amber_coral_bobber',
+    previousZone: 'emerald_forest', nextZone: 'amethyst_caverns',
+    unlockRequirement: 'Complete Zone 1 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'amethyst_caverns', name: 'Amethyst Caverns', order: 3,
+    theme: 'Amethyst', themeColor: '#8b34c8',
+    atmosphere: 'Glowing crystal caves', landmark: 'Giant crystal pillars',
+    expectedCatchsPerSecond: 30000,
+    fish:    ['amber_snapper','honey_wrasse','golden_butterflyfish','reef_grouper','sunscale_bass','amethyst_angelfish','violet_stingray','crystal_loach','purple_lanternfish','gem_betta'],
+    crystals:['amber_shard','sun_amber','honey_crystal','golden_resin','warm_prism','amethyst_shard','dream_quartz','violet_prism','crystal_bloom','echo_gem'],
+    insects: ['amber_beetle','honey_bee','golden_mantis','reef_cricket','sun_hopper','amethyst_moth','violet_scarab','gem_spider','purple_wasp','echo_cricket'],
+    mythicFish: 'amethyst_dream_serpent', tribe: 'amethyst_seers', bobberReward: 'amethyst_eye_bobber',
+    previousZone: 'amber_reef', nextZone: 'ruby_chasm',
+    unlockRequirement: 'Complete Zone 2 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'ruby_chasm', name: 'Ruby Chasm', order: 4,
+    theme: 'Ruby', themeColor: '#dc2626',
+    atmosphere: 'Deep fractured canyon', landmark: 'Ruby canyon',
+    expectedCatchsPerSecond: 40000,
+    fish:    ['amethyst_angelfish','violet_stingray','crystal_loach','purple_lanternfish','gem_betta','ruby_barracuda','scarlet_shark','crimson_moray','red_emperor','bloodfin_tuna'],
+    crystals:['amethyst_shard','dream_quartz','violet_prism','crystal_bloom','echo_gem','ruby_shard','crimson_core','blood_prism','fire_ruby','scarlet_gem'],
+    insects: ['amethyst_moth','violet_scarab','gem_spider','purple_wasp','echo_cricket','ruby_hornet','scarlet_beetle','fire_ant','red_mantis','crimson_moth'],
+    mythicFish: 'crimson_chasm_tyrant', tribe: 'ruby_forged', bobberReward: 'ruby_fang_bobber',
+    previousZone: 'amethyst_caverns', nextZone: 'aquamarine_lagoon',
+    unlockRequirement: 'Complete Zone 3 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'aquamarine_lagoon', name: 'Aquamarine Lagoon', order: 5,
+    theme: 'Aquamarine', themeColor: '#06b6d4',
+    atmosphere: 'Bright tropical abyss', landmark: 'Mirror-clear lagoon',
+    expectedCatchsPerSecond: 50000,
+    fish:    ['ruby_barracuda','scarlet_shark','crimson_moray','red_emperor','bloodfin_tuna','aquamarine_sailfish','lagoon_gar','azure_seahorse','glass_marlin','wave_surgeon'],
+    crystals:['ruby_shard','crimson_core','blood_prism','fire_ruby','scarlet_gem','aquamarine_shard','tide_crystal','ocean_prism','wave_core','sea_glass_gem'],
+    insects: ['ruby_hornet','scarlet_beetle','fire_ant','red_mantis','crimson_moth','lagoon_dragonfly','azure_beetle','wave_cricket','sea_hopper','blue_wasp'],
+    mythicFish: 'lagoon_skywhale', tribe: 'aquamarine_tidefolk', bobberReward: 'aquamarine_pearl_bobber',
+    previousZone: 'ruby_chasm', nextZone: 'opal_gardens',
+    unlockRequirement: 'Complete Zone 4 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'opal_gardens', name: 'Opal Gardens', order: 6,
+    theme: 'Opal', themeColor: '#c7d2fe',
+    atmosphere: 'Shimmering crystal gardens', landmark: 'Color-shifting gardens',
+    expectedCatchsPerSecond: 60000,
+    fish:    ['aquamarine_sailfish','lagoon_gar','azure_seahorse','glass_marlin','wave_surgeon','opal_butterfly_fish','moon_carp','pearl_eel','iridescent_koi','halo_ray'],
+    crystals:['aquamarine_shard','tide_crystal','ocean_prism','wave_core','sea_glass_gem','opal_shard','moon_opal','rainbow_core','mist_prism','white_bloom'],
+    insects: ['lagoon_dragonfly','azure_beetle','wave_cricket','sea_hopper','blue_wasp','opal_butterfly_insect','moon_moth','white_scarab','rainbow_beetle','mist_bee'],
+    mythicFish: 'iridescent_garden_ray', tribe: 'opal_gardeners', bobberReward: 'opal_bloom_bobber',
+    previousZone: 'aquamarine_lagoon', nextZone: 'obsidian_abyss',
+    unlockRequirement: 'Complete Zone 5 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'obsidian_abyss', name: 'Obsidian Abyss', order: 7,
+    theme: 'Obsidian', themeColor: '#374151',
+    atmosphere: 'Dark volcanic depths', landmark: 'Volcanic obsidian towers',
+    expectedCatchsPerSecond: 70000,
+    fish:    ['opal_butterfly_fish','moon_carp','pearl_eel','iridescent_koi','halo_ray','obsidian_sturgeon','shadow_pike','void_catfish','ash_moray','basalt_shark'],
+    crystals:['opal_shard','moon_opal','rainbow_core','mist_prism','white_bloom','obsidian_spike','void_glass','black_prism','lava_core','night_shard'],
+    insects: ['opal_butterfly_insect','moon_moth','white_scarab','rainbow_beetle','mist_bee','obsidian_beetle','shadow_spider','ash_wasp','void_mantis','dark_firefly'],
+    mythicFish: 'voidjaw', tribe: 'obsidian_keepers', bobberReward: 'obsidian_spike_bobber',
+    previousZone: 'opal_gardens', nextZone: 'topaz_rift',
+    unlockRequirement: 'Complete Zone 6 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'topaz_rift', name: 'Topaz Rift', order: 8,
+    theme: 'Topaz', themeColor: '#f97316',
+    atmosphere: 'Golden mineral rift', landmark: 'Topaz fault line',
+    expectedCatchsPerSecond: 80000,
+    fish:    ['obsidian_sturgeon','shadow_pike','void_catfish','ash_moray','basalt_shark','topaz_triggerfish','goldscale_perch','citrine_eel','fault_snapper','auric_carp'],
+    crystals:['obsidian_spike','void_glass','black_prism','lava_core','night_shard','topaz_cluster','golden_prism','sun_core','bright_topaz','fault_crystal'],
+    insects: ['obsidian_beetle','shadow_spider','ash_wasp','void_mantis','dark_firefly','topaz_butterfly','gold_scarab','sun_beetle','fault_wasp','bright_hopper'],
+    mythicFish: 'golden_fault_eel', tribe: 'topaz_riftborn', bobberReward: 'topaz_rift_bobber',
+    previousZone: 'obsidian_abyss', nextZone: 'sapphire_trench',
+    unlockRequirement: 'Complete Zone 7 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'sapphire_trench', name: 'Sapphire Trench', order: 9,
+    theme: 'Sapphire', themeColor: '#1e3a8a',
+    atmosphere: 'Cold deep-ocean trench', landmark: 'Bottomless trench',
+    expectedCatchsPerSecond: 90000,
+    fish:    ['topaz_triggerfish','goldscale_perch','citrine_eel','fault_snapper','auric_carp','sapphire_dragonfish','deep_blue_cod','royal_ray','frost_eel','trench_leviathan'],
+    crystals:['topaz_cluster','golden_prism','sun_core','bright_topaz','fault_crystal','sapphire_core','blue_prism','frozen_sapphire','royal_crystal','deep_gem'],
+    insects: ['topaz_butterfly','gold_scarab','sun_beetle','fault_wasp','bright_hopper','sapphire_dragonfly','royal_scarab','ice_moth','trench_spider','deep_wasp'],
+    mythicFish: 'sapphire_trench_warden', tribe: 'sapphire_deepwatch', bobberReward: 'sapphire_trench_bobber',
+    previousZone: 'topaz_rift', nextZone: 'blue_diamond_sanctuary',
+    unlockRequirement: 'Complete Zone 8 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
+  {
+    id: 'blue_diamond_sanctuary', name: 'Blue Diamond Sanctuary', order: 10,
+    theme: 'Blue Diamond', themeColor: '#3b82f6',
+    atmosphere: 'Ancient sacred sanctuary', landmark: 'Ancient blue diamond sanctuary',
+    expectedCatchsPerSecond: 100000,
+    fish:    ['sapphire_dragonfish','deep_blue_cod','royal_ray','frost_eel','trench_leviathan','diamond_whale','blue_prism_shark','sanctuary_koi','celestial_eel','heart_guardian'],
+    crystals:['sapphire_core','blue_prism','frozen_sapphire','royal_crystal','deep_gem','blue_diamond_fragment','blue_diamond_cluster','perfect_diamond','sanctuary_core','abyss_heart'],
+    insects: ['sapphire_dragonfly','royal_scarab','ice_moth','trench_spider','deep_wasp','diamond_beetle','prism_butterfly','sanctuary_bee','blue_scarab','heart_firefly'],
+    mythicFish: 'heart_of_the_abyss', tribe: 'blue_diamond_ancients', bobberReward: 'blue_diamond_bobber',
+    previousZone: 'sapphire_trench', nextZone: null,
+    unlockRequirement: 'Complete Zone 9 Initial Request, equip its Tribe Bobber, and catch its Mythic fish', bg: null,
+  },
 ];
+
+// ─── ABYSS FISH DATABASE ─────────────────────────────────────────────────────
+// 55 unique fish. Inherited fish appear in multiple zones but have one DB entry.
+
+const ABYSS_FISH_DB = [
+  // Zone 1 native (10 fish)
+  { id: 'emerald_glowfin',      name: 'Emerald Glowfin',      nativeZone: 'emerald_forest',         img: null },
+  { id: 'crystal_minnow',       name: 'Crystal Minnow',       nativeZone: 'emerald_forest',         img: null },
+  { id: 'moss_koi',             name: 'Moss Koi',             nativeZone: 'emerald_forest',         img: null },
+  { id: 'jade_pike',            name: 'Jade Pike',            nativeZone: 'emerald_forest',         img: null },
+  { id: 'leaf_ray',             name: 'Leaf Ray',             nativeZone: 'emerald_forest',         img: null },
+  { id: 'forest_eel',           name: 'Forest Eel',           nativeZone: 'emerald_forest',         img: null },
+  { id: 'verdant_carp',         name: 'Verdant Carp',         nativeZone: 'emerald_forest',         img: null },
+  { id: 'root_catfish',         name: 'Root Catfish',         nativeZone: 'emerald_forest',         img: null },
+  { id: 'emerald_disc',         name: 'Emerald Disc',         nativeZone: 'emerald_forest',         img: null },
+  { id: 'canopy_guppy',         name: 'Canopy Guppy',         nativeZone: 'emerald_forest',         img: null },
+  // Zone 2 new (+5)
+  { id: 'amber_snapper',        name: 'Amber Snapper',        nativeZone: 'amber_reef',             img: null },
+  { id: 'honey_wrasse',         name: 'Honey Wrasse',         nativeZone: 'amber_reef',             img: null },
+  { id: 'golden_butterflyfish', name: 'Golden Butterflyfish', nativeZone: 'amber_reef',             img: null },
+  { id: 'reef_grouper',         name: 'Reef Grouper',         nativeZone: 'amber_reef',             img: null },
+  { id: 'sunscale_bass',        name: 'Sunscale Bass',        nativeZone: 'amber_reef',             img: null },
+  // Zone 3 new (+5)
+  { id: 'amethyst_angelfish',   name: 'Amethyst Angelfish',   nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'violet_stingray',      name: 'Violet Stingray',      nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'crystal_loach',        name: 'Crystal Loach',        nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'purple_lanternfish',   name: 'Purple Lanternfish',   nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'gem_betta',            name: 'Gem Betta',            nativeZone: 'amethyst_caverns',       img: null },
+  // Zone 4 new (+5)
+  { id: 'ruby_barracuda',       name: 'Ruby Barracuda',       nativeZone: 'ruby_chasm',             img: null },
+  { id: 'scarlet_shark',        name: 'Scarlet Shark',        nativeZone: 'ruby_chasm',             img: null },
+  { id: 'crimson_moray',        name: 'Crimson Moray',        nativeZone: 'ruby_chasm',             img: null },
+  { id: 'red_emperor',          name: 'Red Emperor',          nativeZone: 'ruby_chasm',             img: null },
+  { id: 'bloodfin_tuna',        name: 'Bloodfin Tuna',        nativeZone: 'ruby_chasm',             img: null },
+  // Zone 5 new (+5)
+  { id: 'aquamarine_sailfish',  name: 'Aquamarine Sailfish',  nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'lagoon_gar',           name: 'Lagoon Gar',           nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'azure_seahorse',       name: 'Azure Seahorse',       nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'glass_marlin',         name: 'Glass Marlin',         nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'wave_surgeon',         name: 'Wave Surgeon',         nativeZone: 'aquamarine_lagoon',      img: null },
+  // Zone 6 new (+5) — opal_butterfly_fish shares display name with opal_butterfly_insect
+  { id: 'opal_butterfly_fish',  name: 'Opal Butterfly',       nativeZone: 'opal_gardens',           img: null },
+  { id: 'moon_carp',            name: 'Moon Carp',            nativeZone: 'opal_gardens',           img: null },
+  { id: 'pearl_eel',            name: 'Pearl Eel',            nativeZone: 'opal_gardens',           img: null },
+  { id: 'iridescent_koi',       name: 'Iridescent Koi',       nativeZone: 'opal_gardens',           img: null },
+  { id: 'halo_ray',             name: 'Halo Ray',             nativeZone: 'opal_gardens',           img: null },
+  // Zone 7 new (+5)
+  { id: 'obsidian_sturgeon',    name: 'Obsidian Sturgeon',    nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'shadow_pike',          name: 'Shadow Pike',          nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'void_catfish',         name: 'Void Catfish',         nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'ash_moray',            name: 'Ash Moray',            nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'basalt_shark',         name: 'Basalt Shark',         nativeZone: 'obsidian_abyss',         img: null },
+  // Zone 8 new (+5)
+  { id: 'topaz_triggerfish',    name: 'Topaz Triggerfish',    nativeZone: 'topaz_rift',             img: null },
+  { id: 'goldscale_perch',      name: 'Goldscale Perch',      nativeZone: 'topaz_rift',             img: null },
+  { id: 'citrine_eel',          name: 'Citrine Eel',          nativeZone: 'topaz_rift',             img: null },
+  { id: 'fault_snapper',        name: 'Fault Snapper',        nativeZone: 'topaz_rift',             img: null },
+  { id: 'auric_carp',           name: 'Auric Carp',           nativeZone: 'topaz_rift',             img: null },
+  // Zone 9 new (+5)
+  { id: 'sapphire_dragonfish',  name: 'Sapphire Dragonfish',  nativeZone: 'sapphire_trench',        img: null },
+  { id: 'deep_blue_cod',        name: 'Deep Blue Cod',        nativeZone: 'sapphire_trench',        img: null },
+  { id: 'royal_ray',            name: 'Royal Ray',            nativeZone: 'sapphire_trench',        img: null },
+  { id: 'frost_eel',            name: 'Frost Eel',            nativeZone: 'sapphire_trench',        img: null },
+  { id: 'trench_leviathan',     name: 'Trench Leviathan',     nativeZone: 'sapphire_trench',        img: null },
+  // Zone 10 new (+5, zone-exclusive)
+  { id: 'diamond_whale',        name: 'Diamond Whale',        nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'blue_prism_shark',     name: 'Blue Prism Shark',     nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'sanctuary_koi',        name: 'Sanctuary Koi',        nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'celestial_eel',        name: 'Celestial Eel',        nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'heart_guardian',       name: 'Heart Guardian',       nativeZone: 'blue_diamond_sanctuary', img: null },
+];
+
+// ─── ABYSS CRYSTAL DATABASE ──────────────────────────────────────────────────
+// 55 unique crystals. Same inheritance pattern as fish.
+
+const ABYSS_CRYSTAL_DB = [
+  { id: 'emerald_shard',         name: 'Emerald Shard',         nativeZone: 'emerald_forest',         img: null },
+  { id: 'living_emerald',        name: 'Living Emerald',        nativeZone: 'emerald_forest',         img: null },
+  { id: 'moss_crystal',          name: 'Moss Crystal',          nativeZone: 'emerald_forest',         img: null },
+  { id: 'root_crystal',          name: 'Root Crystal',          nativeZone: 'emerald_forest',         img: null },
+  { id: 'forest_core',           name: 'Forest Core',           nativeZone: 'emerald_forest',         img: null },
+  { id: 'leaf_prism',            name: 'Leaf Prism',            nativeZone: 'emerald_forest',         img: null },
+  { id: 'green_cluster',         name: 'Green Cluster',         nativeZone: 'emerald_forest',         img: null },
+  { id: 'glow_emerald',          name: 'Glow Emerald',          nativeZone: 'emerald_forest',         img: null },
+  { id: 'ancient_emerald',       name: 'Ancient Emerald',       nativeZone: 'emerald_forest',         img: null },
+  { id: 'wild_emerald',          name: 'Wild Emerald',          nativeZone: 'emerald_forest',         img: null },
+  { id: 'amber_shard',           name: 'Amber Shard',           nativeZone: 'amber_reef',             img: null },
+  { id: 'sun_amber',             name: 'Sun Amber',             nativeZone: 'amber_reef',             img: null },
+  { id: 'honey_crystal',         name: 'Honey Crystal',         nativeZone: 'amber_reef',             img: null },
+  { id: 'golden_resin',          name: 'Golden Resin',          nativeZone: 'amber_reef',             img: null },
+  { id: 'warm_prism',            name: 'Warm Prism',            nativeZone: 'amber_reef',             img: null },
+  { id: 'amethyst_shard',        name: 'Amethyst Shard',        nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'dream_quartz',          name: 'Dream Quartz',          nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'violet_prism',          name: 'Violet Prism',          nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'crystal_bloom',         name: 'Crystal Bloom',         nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'echo_gem',              name: 'Echo Gem',              nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'ruby_shard',            name: 'Ruby Shard',            nativeZone: 'ruby_chasm',             img: null },
+  { id: 'crimson_core',          name: 'Crimson Core',          nativeZone: 'ruby_chasm',             img: null },
+  { id: 'blood_prism',           name: 'Blood Prism',           nativeZone: 'ruby_chasm',             img: null },
+  { id: 'fire_ruby',             name: 'Fire Ruby',             nativeZone: 'ruby_chasm',             img: null },
+  { id: 'scarlet_gem',           name: 'Scarlet Gem',           nativeZone: 'ruby_chasm',             img: null },
+  { id: 'aquamarine_shard',      name: 'Aquamarine Shard',      nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'tide_crystal',          name: 'Tide Crystal',          nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'ocean_prism',           name: 'Ocean Prism',           nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'wave_core',             name: 'Wave Core',             nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'sea_glass_gem',         name: 'Sea Glass Gem',         nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'opal_shard',            name: 'Opal Shard',            nativeZone: 'opal_gardens',           img: null },
+  { id: 'moon_opal',             name: 'Moon Opal',             nativeZone: 'opal_gardens',           img: null },
+  { id: 'rainbow_core',          name: 'Rainbow Core',          nativeZone: 'opal_gardens',           img: null },
+  { id: 'mist_prism',            name: 'Mist Prism',            nativeZone: 'opal_gardens',           img: null },
+  { id: 'white_bloom',           name: 'White Bloom',           nativeZone: 'opal_gardens',           img: null },
+  { id: 'obsidian_spike',        name: 'Obsidian Spike',        nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'void_glass',            name: 'Void Glass',            nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'black_prism',           name: 'Black Prism',           nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'lava_core',             name: 'Lava Core',             nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'night_shard',           name: 'Night Shard',           nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'topaz_cluster',         name: 'Topaz Cluster',         nativeZone: 'topaz_rift',             img: null },
+  { id: 'golden_prism',          name: 'Golden Prism',          nativeZone: 'topaz_rift',             img: null },
+  { id: 'sun_core',              name: 'Sun Core',              nativeZone: 'topaz_rift',             img: null },
+  { id: 'bright_topaz',          name: 'Bright Topaz',          nativeZone: 'topaz_rift',             img: null },
+  { id: 'fault_crystal',         name: 'Fault Crystal',         nativeZone: 'topaz_rift',             img: null },
+  { id: 'sapphire_core',         name: 'Sapphire Core',         nativeZone: 'sapphire_trench',        img: null },
+  { id: 'blue_prism',            name: 'Blue Prism',            nativeZone: 'sapphire_trench',        img: null },
+  { id: 'frozen_sapphire',       name: 'Frozen Sapphire',       nativeZone: 'sapphire_trench',        img: null },
+  { id: 'royal_crystal',         name: 'Royal Crystal',         nativeZone: 'sapphire_trench',        img: null },
+  { id: 'deep_gem',              name: 'Deep Gem',              nativeZone: 'sapphire_trench',        img: null },
+  { id: 'blue_diamond_fragment', name: 'Blue Diamond Fragment', nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'blue_diamond_cluster',  name: 'Blue Diamond Cluster',  nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'perfect_diamond',       name: 'Perfect Diamond',       nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'sanctuary_core',        name: 'Sanctuary Core',        nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'abyss_heart',           name: 'Abyss Heart',           nativeZone: 'blue_diamond_sanctuary', img: null },
+];
+
+// ─── ABYSS INSECT DATABASE ───────────────────────────────────────────────────
+// 55 unique insects. opal_butterfly_insect disambiguates from opal_butterfly_fish.
+
+const ABYSS_INSECT_DB = [
+  { id: 'crystal_beetle',        name: 'Crystal Beetle',     nativeZone: 'emerald_forest',         img: null },
+  { id: 'glow_moth',             name: 'Glow Moth',          nativeZone: 'emerald_forest',         img: null },
+  { id: 'leaf_cricket',          name: 'Leaf Cricket',       nativeZone: 'emerald_forest',         img: null },
+  { id: 'emerald_spider',        name: 'Emerald Spider',     nativeZone: 'emerald_forest',         img: null },
+  { id: 'root_ant',              name: 'Root Ant',           nativeZone: 'emerald_forest',         img: null },
+  { id: 'moss_firefly',          name: 'Moss Firefly',       nativeZone: 'emerald_forest',         img: null },
+  { id: 'fern_hopper',           name: 'Fern Hopper',        nativeZone: 'emerald_forest',         img: null },
+  { id: 'crystal_bee',           name: 'Crystal Bee',        nativeZone: 'emerald_forest',         img: null },
+  { id: 'green_scarab',          name: 'Green Scarab',       nativeZone: 'emerald_forest',         img: null },
+  { id: 'forest_wasp',           name: 'Forest Wasp',        nativeZone: 'emerald_forest',         img: null },
+  { id: 'amber_beetle',          name: 'Amber Beetle',       nativeZone: 'amber_reef',             img: null },
+  { id: 'honey_bee',             name: 'Honey Bee',          nativeZone: 'amber_reef',             img: null },
+  { id: 'golden_mantis',         name: 'Golden Mantis',      nativeZone: 'amber_reef',             img: null },
+  { id: 'reef_cricket',          name: 'Reef Cricket',       nativeZone: 'amber_reef',             img: null },
+  { id: 'sun_hopper',            name: 'Sun Hopper',         nativeZone: 'amber_reef',             img: null },
+  { id: 'amethyst_moth',         name: 'Amethyst Moth',      nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'violet_scarab',         name: 'Violet Scarab',      nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'gem_spider',            name: 'Gem Spider',         nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'purple_wasp',           name: 'Purple Wasp',        nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'echo_cricket',          name: 'Echo Cricket',       nativeZone: 'amethyst_caverns',       img: null },
+  { id: 'ruby_hornet',           name: 'Ruby Hornet',        nativeZone: 'ruby_chasm',             img: null },
+  { id: 'scarlet_beetle',        name: 'Scarlet Beetle',     nativeZone: 'ruby_chasm',             img: null },
+  { id: 'fire_ant',              name: 'Fire Ant',           nativeZone: 'ruby_chasm',             img: null },
+  { id: 'red_mantis',            name: 'Red Mantis',         nativeZone: 'ruby_chasm',             img: null },
+  { id: 'crimson_moth',          name: 'Crimson Moth',       nativeZone: 'ruby_chasm',             img: null },
+  { id: 'lagoon_dragonfly',      name: 'Lagoon Dragonfly',   nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'azure_beetle',          name: 'Azure Beetle',       nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'wave_cricket',          name: 'Wave Cricket',       nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'sea_hopper',            name: 'Sea Hopper',         nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'blue_wasp',             name: 'Blue Wasp',          nativeZone: 'aquamarine_lagoon',      img: null },
+  { id: 'opal_butterfly_insect', name: 'Opal Butterfly',     nativeZone: 'opal_gardens',           img: null },
+  { id: 'moon_moth',             name: 'Moon Moth',          nativeZone: 'opal_gardens',           img: null },
+  { id: 'white_scarab',          name: 'White Scarab',       nativeZone: 'opal_gardens',           img: null },
+  { id: 'rainbow_beetle',        name: 'Rainbow Beetle',     nativeZone: 'opal_gardens',           img: null },
+  { id: 'mist_bee',              name: 'Mist Bee',           nativeZone: 'opal_gardens',           img: null },
+  { id: 'obsidian_beetle',       name: 'Obsidian Beetle',    nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'shadow_spider',         name: 'Shadow Spider',      nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'ash_wasp',              name: 'Ash Wasp',           nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'void_mantis',           name: 'Void Mantis',        nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'dark_firefly',          name: 'Dark Firefly',       nativeZone: 'obsidian_abyss',         img: null },
+  { id: 'topaz_butterfly',       name: 'Topaz Butterfly',    nativeZone: 'topaz_rift',             img: null },
+  { id: 'gold_scarab',           name: 'Gold Scarab',        nativeZone: 'topaz_rift',             img: null },
+  { id: 'sun_beetle',            name: 'Sun Beetle',         nativeZone: 'topaz_rift',             img: null },
+  { id: 'fault_wasp',            name: 'Fault Wasp',         nativeZone: 'topaz_rift',             img: null },
+  { id: 'bright_hopper',         name: 'Bright Hopper',      nativeZone: 'topaz_rift',             img: null },
+  { id: 'sapphire_dragonfly',    name: 'Sapphire Dragonfly', nativeZone: 'sapphire_trench',        img: null },
+  { id: 'royal_scarab',          name: 'Royal Scarab',       nativeZone: 'sapphire_trench',        img: null },
+  { id: 'ice_moth',              name: 'Ice Moth',           nativeZone: 'sapphire_trench',        img: null },
+  { id: 'trench_spider',         name: 'Trench Spider',      nativeZone: 'sapphire_trench',        img: null },
+  { id: 'deep_wasp',             name: 'Deep Wasp',          nativeZone: 'sapphire_trench',        img: null },
+  { id: 'diamond_beetle',        name: 'Diamond Beetle',     nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'prism_butterfly',       name: 'Prism Butterfly',    nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'sanctuary_bee',         name: 'Sanctuary Bee',      nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'blue_scarab',           name: 'Blue Scarab',        nativeZone: 'blue_diamond_sanctuary', img: null },
+  { id: 'heart_firefly',         name: 'Heart Firefly',      nativeZone: 'blue_diamond_sanctuary', img: null },
+];
+
+// ─── ABYSS MYTHIC FISH ───────────────────────────────────────────────────────
+// One per zone. Manual fishing only. Requires equipped Tribe Bobber.
+
+const ABYSS_MYTHIC_FISH = [
+  { id: 'ancient_emerald_leviathan', name: 'Ancient Emerald Leviathan', zone: 'emerald_forest',         img: null },
+  { id: 'amber_reef_colossus',       name: 'Amber Reef Colossus',       zone: 'amber_reef',             img: null },
+  { id: 'amethyst_dream_serpent',    name: 'Amethyst Dream Serpent',    zone: 'amethyst_caverns',       img: null },
+  { id: 'crimson_chasm_tyrant',      name: 'Crimson Chasm Tyrant',      zone: 'ruby_chasm',             img: null },
+  { id: 'lagoon_skywhale',           name: 'Lagoon Skywhale',           zone: 'aquamarine_lagoon',      img: null },
+  { id: 'iridescent_garden_ray',     name: 'Iridescent Garden Ray',     zone: 'opal_gardens',           img: null },
+  { id: 'voidjaw',                   name: 'Voidjaw',                   zone: 'obsidian_abyss',         img: null },
+  { id: 'golden_fault_eel',          name: 'Golden Fault Eel',          zone: 'topaz_rift',             img: null },
+  { id: 'sapphire_trench_warden',    name: 'Sapphire Trench Warden',    zone: 'sapphire_trench',        img: null },
+  { id: 'heart_of_the_abyss',        name: 'Heart of the Abyss',        zone: 'blue_diamond_sanctuary', img: null },
+];
+
+// ─── ABYSS TRIBE BOBBERS ─────────────────────────────────────────────────────
+// Permanent cosmetics. Never consumed. Survive prestige. Enable mythic catch.
+
+const ABYSS_TRIBE_BOBBERS = [
+  { id: 'emerald_root_bobber',     name: 'Emerald Root Bobber',     tribe: 'emerald_wardens',       zone: 'emerald_forest',         permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'amber_coral_bobber',      name: 'Amber Coral Bobber',      tribe: 'amber_reefkin',         zone: 'amber_reef',             permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'amethyst_eye_bobber',     name: 'Amethyst Eye Bobber',     tribe: 'amethyst_seers',        zone: 'amethyst_caverns',       permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'ruby_fang_bobber',        name: 'Ruby Fang Bobber',        tribe: 'ruby_forged',           zone: 'ruby_chasm',             permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'aquamarine_pearl_bobber', name: 'Aquamarine Pearl Bobber', tribe: 'aquamarine_tidefolk',   zone: 'aquamarine_lagoon',      permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'opal_bloom_bobber',       name: 'Opal Bloom Bobber',       tribe: 'opal_gardeners',        zone: 'opal_gardens',           permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'obsidian_spike_bobber',   name: 'Obsidian Spike Bobber',   tribe: 'obsidian_keepers',      zone: 'obsidian_abyss',         permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'topaz_rift_bobber',       name: 'Topaz Rift Bobber',       tribe: 'topaz_riftborn',        zone: 'topaz_rift',             permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'sapphire_trench_bobber',  name: 'Sapphire Trench Bobber',  tribe: 'sapphire_deepwatch',    zone: 'sapphire_trench',        permanent: true, consumable: false, lostOnPrestige: false, img: null },
+  { id: 'blue_diamond_bobber',     name: 'Blue Diamond Bobber',     tribe: 'blue_diamond_ancients', zone: 'blue_diamond_sanctuary', permanent: true, consumable: false, lostOnPrestige: false, img: null },
+];
+
+// ─── ABYSS TRIBES ────────────────────────────────────────────────────────────
+// 10 tribes, one per zone. Reputation and rewards survive prestige.
+// Current-stage catch counters reset on prestige; completed stages do not.
+
+const ABYSS_TRIBES = [
+  {
+    id: 'emerald_wardens', name: 'Emerald Wardens', zone: 'emerald_forest',
+    specialization: 'Storage', expectedCatchsPerSecond: 10000,
+    bobber: 'emerald_root_bobber', mythicFish: 'ancient_emerald_leviathan',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 2592000000,
+        fish: [{id:'salmon',name:'Salmon',qty:1036800000},{id:'tuna',name:'Tuna',qty:777600000},{id:'swordfish',name:'Swordfish',qty:518400000},{id:'marlin',name:'Marlin',qty:259200000}],
+        reward: 'emerald_root_bobber', rewardDesc: 'Emerald Root Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 1728000000,
+        fish: [{id:'salmon',name:'Salmon',qty:691200000},{id:'tuna',name:'Tuna',qty:518400000},{id:'swordfish',name:'Swordfish',qty:345600000},{id:'marlin',name:'Marlin',qty:172800000}],
+        bonus: {stat:'storage',pct:3}, rewardDesc: '+3% Storage' },
+      honored: { targetDays: 4, totalCatches: 3456000000,
+        fish: [{id:'salmon',name:'Salmon',qty:1382400000},{id:'tuna',name:'Tuna',qty:1036800000},{id:'swordfish',name:'Swordfish',qty:691200000},{id:'marlin',name:'Marlin',qty:345600000}],
+        bonus: {stat:'storage',pct:3}, rewardDesc: '+3% Storage' },
+      revered: { targetDays: 7, totalCatches: 6048000000,
+        fish: [{id:'salmon',name:'Salmon',qty:2419200000},{id:'tuna',name:'Tuna',qty:1814400000},{id:'swordfish',name:'Swordfish',qty:1209600000},{id:'marlin',name:'Marlin',qty:604800000}],
+        bonus: {stat:'storage',pct:4}, rewardDesc: '+4% Storage' },
+      exalted: { targetDays: 12, totalCatches: 10368000000,
+        fish: [{id:'salmon',name:'Salmon',qty:4147200000},{id:'tuna',name:'Tuna',qty:3110400000},{id:'swordfish',name:'Swordfish',qty:2073600000},{id:'marlin',name:'Marlin',qty:1036800000}],
+        bonus: {stat:'storage',pct:5}, rewardDesc: '+5% Storage — MAX' },
+    },
+  },
+  {
+    id: 'amber_reefkin', name: 'Amber Reefkin', zone: 'amber_reef',
+    specialization: 'Fish Value', expectedCatchsPerSecond: 20000,
+    bobber: 'amber_coral_bobber', mythicFish: 'amber_reef_colossus',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 5184000000,
+        fish: [{id:'pike',name:'Pike',qty:2073600000},{id:'zander',name:'Zander',qty:1555200000},{id:'catfish',name:'European Catfish',qty:1036800000},{id:'eel',name:'Eel',qty:518400000}],
+        reward: 'amber_coral_bobber', rewardDesc: 'Amber Coral Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 3456000000,
+        fish: [{id:'pike',name:'Pike',qty:1382400000},{id:'zander',name:'Zander',qty:1036800000},{id:'catfish',name:'European Catfish',qty:691200000},{id:'eel',name:'Eel',qty:345600000}],
+        bonus: {stat:'fishValue',pct:2}, rewardDesc: '+2% Fish Value' },
+      honored: { targetDays: 4, totalCatches: 6912000000,
+        fish: [{id:'pike',name:'Pike',qty:2764800000},{id:'zander',name:'Zander',qty:2073600000},{id:'catfish',name:'European Catfish',qty:1382400000},{id:'eel',name:'Eel',qty:691200000}],
+        bonus: {stat:'fishValue',pct:2}, rewardDesc: '+2% Fish Value' },
+      revered: { targetDays: 7, totalCatches: 12096000000,
+        fish: [{id:'pike',name:'Pike',qty:4838400000},{id:'zander',name:'Zander',qty:3628800000},{id:'catfish',name:'European Catfish',qty:2419200000},{id:'eel',name:'Eel',qty:1209600000}],
+        bonus: {stat:'fishValue',pct:3}, rewardDesc: '+3% Fish Value' },
+      exalted: { targetDays: 12, totalCatches: 20736000000,
+        fish: [{id:'pike',name:'Pike',qty:8294400000},{id:'zander',name:'Zander',qty:6220800000},{id:'catfish',name:'European Catfish',qty:4147200000},{id:'eel',name:'Eel',qty:2073600000}],
+        bonus: {stat:'fishValue',pct:5}, rewardDesc: '+5% Fish Value — MAX' },
+    },
+  },
+  {
+    id: 'amethyst_seers', name: 'Amethyst Seers', zone: 'amethyst_caverns',
+    specialization: 'Automation Speed', expectedCatchsPerSecond: 30000,
+    bobber: 'amethyst_eye_bobber', mythicFish: 'amethyst_dream_serpent',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 7776000000,
+        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:3110400000},{id:'roach',name:'Roach',qty:2332800000},{id:'tench',name:'Tench',qty:1555200000},{id:'common_bream',name:'Common Bream',qty:777600000}],
+        reward: 'amethyst_eye_bobber', rewardDesc: 'Amethyst Eye Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 5184000000,
+        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:2073600000},{id:'roach',name:'Roach',qty:1555200000},{id:'tench',name:'Tench',qty:1036800000},{id:'common_bream',name:'Common Bream',qty:518400000}],
+        bonus: {stat:'automationSpeed',pct:2}, rewardDesc: '+2% Automation Speed' },
+      honored: { targetDays: 4, totalCatches: 10368000000,
+        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:4147200000},{id:'roach',name:'Roach',qty:3110400000},{id:'tench',name:'Tench',qty:2073600000},{id:'common_bream',name:'Common Bream',qty:1036800000}],
+        bonus: {stat:'automationSpeed',pct:2}, rewardDesc: '+2% Automation Speed' },
+      revered: { targetDays: 7, totalCatches: 18144000000,
+        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:7257600000},{id:'roach',name:'Roach',qty:5443200000},{id:'tench',name:'Tench',qty:3628800000},{id:'common_bream',name:'Common Bream',qty:1814400000}],
+        bonus: {stat:'automationSpeed',pct:3}, rewardDesc: '+3% Automation Speed' },
+      exalted: { targetDays: 12, totalCatches: 31104000000,
+        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:12441600000},{id:'roach',name:'Roach',qty:9331200000},{id:'tench',name:'Tench',qty:6220800000},{id:'common_bream',name:'Common Bream',qty:3110400000}],
+        bonus: {stat:'automationSpeed',pct:5}, rewardDesc: '+5% Automation Speed — MAX' },
+    },
+  },
+  {
+    id: 'ruby_forged', name: 'Ruby Forged', zone: 'ruby_chasm',
+    specialization: 'Manual Catch Speed', expectedCatchsPerSecond: 40000,
+    bobber: 'ruby_fang_bobber', mythicFish: 'crimson_chasm_tyrant',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 10368000000,
+        fish: [{id:'grayling',name:'Grayling',qty:4147200000},{id:'barbel',name:'Barbel',qty:3110400000},{id:'chub',name:'Chub',qty:2073600000},{id:'burbot',name:'Burbot',qty:1036800000}],
+        reward: 'ruby_fang_bobber', rewardDesc: 'Ruby Fang Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 6912000000,
+        fish: [{id:'grayling',name:'Grayling',qty:2764800000},{id:'barbel',name:'Barbel',qty:2073600000},{id:'chub',name:'Chub',qty:1382400000},{id:'burbot',name:'Burbot',qty:691200000}],
+        bonus: {stat:'manualCatchSpeed',pct:3}, rewardDesc: '+3% Manual Catch Speed' },
+      honored: { targetDays: 4, totalCatches: 13824000000,
+        fish: [{id:'grayling',name:'Grayling',qty:5529600000},{id:'barbel',name:'Barbel',qty:4147200000},{id:'chub',name:'Chub',qty:2764800000},{id:'burbot',name:'Burbot',qty:1382400000}],
+        bonus: {stat:'manualCatchSpeed',pct:3}, rewardDesc: '+3% Manual Catch Speed' },
+      revered: { targetDays: 7, totalCatches: 24192000000,
+        fish: [{id:'grayling',name:'Grayling',qty:9676800000},{id:'barbel',name:'Barbel',qty:7257600000},{id:'chub',name:'Chub',qty:4838400000},{id:'burbot',name:'Burbot',qty:2419200000}],
+        bonus: {stat:'manualCatchSpeed',pct:4}, rewardDesc: '+4% Manual Catch Speed' },
+      exalted: { targetDays: 12, totalCatches: 41472000000,
+        fish: [{id:'grayling',name:'Grayling',qty:16588800000},{id:'barbel',name:'Barbel',qty:12441600000},{id:'chub',name:'Chub',qty:8294400000},{id:'burbot',name:'Burbot',qty:4147200000}],
+        bonus: {stat:'manualCatchSpeed',pct:5}, rewardDesc: '+5% Manual Catch Speed — MAX' },
+    },
+  },
+  {
+    id: 'aquamarine_tidefolk', name: 'Aquamarine Tidefolk', zone: 'aquamarine_lagoon',
+    specialization: 'Offline Income', expectedCatchsPerSecond: 50000,
+    bobber: 'aquamarine_pearl_bobber', mythicFish: 'lagoon_skywhale',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 12960000000,
+        fish: [{id:'large_perch',name:'Large Perch',qty:5184000000},{id:'carp',name:'Carp',qty:3888000000},{id:'whitefish',name:'Whitefish',qty:2592000000},{id:'brown_trout',name:'Brown Trout',qty:1296000000}],
+        reward: 'aquamarine_pearl_bobber', rewardDesc: 'Aquamarine Pearl Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 8640000000,
+        fish: [{id:'large_perch',name:'Large Perch',qty:3456000000},{id:'carp',name:'Carp',qty:2592000000},{id:'whitefish',name:'Whitefish',qty:1728000000},{id:'brown_trout',name:'Brown Trout',qty:864000000}],
+        bonus: {stat:'offlineIncome',pct:3}, rewardDesc: '+3% Offline Income' },
+      honored: { targetDays: 4, totalCatches: 17280000000,
+        fish: [{id:'large_perch',name:'Large Perch',qty:6912000000},{id:'carp',name:'Carp',qty:5184000000},{id:'whitefish',name:'Whitefish',qty:3456000000},{id:'brown_trout',name:'Brown Trout',qty:1728000000}],
+        bonus: {stat:'offlineIncome',pct:3}, rewardDesc: '+3% Offline Income' },
+      revered: { targetDays: 7, totalCatches: 30240000000,
+        fish: [{id:'large_perch',name:'Large Perch',qty:12096000000},{id:'carp',name:'Carp',qty:9072000000},{id:'whitefish',name:'Whitefish',qty:6048000000},{id:'brown_trout',name:'Brown Trout',qty:3024000000}],
+        bonus: {stat:'offlineIncome',pct:4}, rewardDesc: '+4% Offline Income' },
+      exalted: { targetDays: 12, totalCatches: 51840000000,
+        fish: [{id:'large_perch',name:'Large Perch',qty:20736000000},{id:'carp',name:'Carp',qty:15552000000},{id:'whitefish',name:'Whitefish',qty:10368000000},{id:'brown_trout',name:'Brown Trout',qty:5184000000}],
+        bonus: {stat:'offlineIncome',pct:5}, rewardDesc: '+5% Offline Income — MAX' },
+    },
+  },
+  {
+    id: 'opal_gardeners', name: 'Opal Gardeners', zone: 'opal_gardens',
+    specialization: 'Rare/Epic Chance', expectedCatchsPerSecond: 60000,
+    bobber: 'opal_bloom_bobber', mythicFish: 'iridescent_garden_ray',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 15552000000,
+        fish: [{id:'flounder',name:'Flounder',qty:6220800000},{id:'garfish',name:'Garfish',qty:4665600000},{id:'smelt',name:'Smelt',qty:3110400000},{id:'sprat',name:'Sprat',qty:1555200000}],
+        reward: 'opal_bloom_bobber', rewardDesc: 'Opal Bloom Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 10368000000,
+        fish: [{id:'flounder',name:'Flounder',qty:4147200000},{id:'garfish',name:'Garfish',qty:3110400000},{id:'smelt',name:'Smelt',qty:2073600000},{id:'sprat',name:'Sprat',qty:1036800000}],
+        bonus: {stat:'rareEpicChance',pct:0.5}, rewardDesc: '+0.5% Rare/Epic Chance' },
+      honored: { targetDays: 4, totalCatches: 20736000000,
+        fish: [{id:'flounder',name:'Flounder',qty:8294400000},{id:'garfish',name:'Garfish',qty:6220800000},{id:'smelt',name:'Smelt',qty:4147200000},{id:'sprat',name:'Sprat',qty:2073600000}],
+        bonus: {stat:'rareEpicChance',pct:0.5}, rewardDesc: '+0.5% Rare/Epic Chance' },
+      revered: { targetDays: 7, totalCatches: 36288000000,
+        fish: [{id:'flounder',name:'Flounder',qty:14515200000},{id:'garfish',name:'Garfish',qty:10886400000},{id:'smelt',name:'Smelt',qty:7257600000},{id:'sprat',name:'Sprat',qty:3628800000}],
+        bonus: {stat:'rareEpicChance',pct:0.75}, rewardDesc: '+0.75% Rare/Epic Chance' },
+      exalted: { targetDays: 12, totalCatches: 62208000000,
+        fish: [{id:'flounder',name:'Flounder',qty:24883200000},{id:'garfish',name:'Garfish',qty:18662400000},{id:'smelt',name:'Smelt',qty:12441600000},{id:'sprat',name:'Sprat',qty:6220800000}],
+        bonus: {stat:'rareEpicChance',pct:1}, rewardDesc: '+1% Rare/Epic Chance — MAX' },
+    },
+  },
+  {
+    id: 'obsidian_keepers', name: 'Obsidian Keepers', zone: 'obsidian_abyss',
+    specialization: 'Mythic Fish Chance', expectedCatchsPerSecond: 70000,
+    bobber: 'obsidian_spike_bobber', mythicFish: 'voidjaw',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 18144000000,
+        fish: [{id:'haddock',name:'Haddock',qty:7257600000},{id:'redfish',name:'Redfish',qty:5443200000},{id:'wolffish',name:'Wolffish',qty:3628800000},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:1814400000}],
+        reward: 'obsidian_spike_bobber', rewardDesc: 'Obsidian Spike Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 12096000000,
+        fish: [{id:'haddock',name:'Haddock',qty:4838400000},{id:'redfish',name:'Redfish',qty:3628800000},{id:'wolffish',name:'Wolffish',qty:2419200000},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:1209600000}],
+        bonus: {stat:'mythicFishChance',pct:0.25}, rewardDesc: '+0.25% Mythic Fish Chance' },
+      honored: { targetDays: 4, totalCatches: 24192000000,
+        fish: [{id:'haddock',name:'Haddock',qty:9676800000},{id:'redfish',name:'Redfish',qty:7257600000},{id:'wolffish',name:'Wolffish',qty:4838400000},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:2419200000}],
+        bonus: {stat:'mythicFishChance',pct:0.25}, rewardDesc: '+0.25% Mythic Fish Chance' },
+      revered: { targetDays: 7, totalCatches: 42336000000,
+        fish: [{id:'haddock',name:'Haddock',qty:16934400000},{id:'redfish',name:'Redfish',qty:12700800000},{id:'wolffish',name:'Wolffish',qty:8467200000},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:4233600000}],
+        bonus: {stat:'mythicFishChance',pct:0.25}, rewardDesc: '+0.25% Mythic Fish Chance' },
+      exalted: { targetDays: 12, totalCatches: 72576000000,
+        fish: [{id:'haddock',name:'Haddock',qty:29030400000},{id:'redfish',name:'Redfish',qty:21772800000},{id:'wolffish',name:'Wolffish',qty:14515200000},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:7257600000}],
+        bonus: {stat:'mythicFishChance',pct:0.5}, rewardDesc: '+0.5% Mythic Fish Chance — MAX' },
+    },
+  },
+  {
+    id: 'topaz_riftborn', name: 'Topaz Riftborn', zone: 'topaz_rift',
+    specialization: 'Expedition Speed', expectedCatchsPerSecond: 80000,
+    bobber: 'topaz_rift_bobber', mythicFish: 'golden_fault_eel',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 20736000000,
+        fish: [{id:'tuna',name:'Tuna',qty:8294400000},{id:'mahi_mahi',name:'Mahi-Mahi',qty:6220800000},{id:'swordfish',name:'Swordfish',qty:4147200000},{id:'marlin',name:'Marlin',qty:2073600000}],
+        reward: 'topaz_rift_bobber', rewardDesc: 'Topaz Rift Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 13824000000,
+        fish: [{id:'tuna',name:'Tuna',qty:5529600000},{id:'mahi_mahi',name:'Mahi-Mahi',qty:4147200000},{id:'swordfish',name:'Swordfish',qty:2764800000},{id:'marlin',name:'Marlin',qty:1382400000}],
+        bonus: {stat:'expeditionSpeed',pct:5}, rewardDesc: '+5% Expedition Speed' },
+      honored: { targetDays: 4, totalCatches: 27648000000,
+        fish: [{id:'tuna',name:'Tuna',qty:11059200000},{id:'mahi_mahi',name:'Mahi-Mahi',qty:8294400000},{id:'swordfish',name:'Swordfish',qty:5529600000},{id:'marlin',name:'Marlin',qty:2764800000}],
+        bonus: {stat:'expeditionSpeed',pct:5}, rewardDesc: '+5% Expedition Speed' },
+      revered: { targetDays: 7, totalCatches: 48384000000,
+        fish: [{id:'tuna',name:'Tuna',qty:19353600000},{id:'mahi_mahi',name:'Mahi-Mahi',qty:14515200000},{id:'swordfish',name:'Swordfish',qty:9676800000},{id:'marlin',name:'Marlin',qty:4838400000}],
+        bonus: {stat:'expeditionSpeed',pct:7.5}, rewardDesc: '+7.5% Expedition Speed' },
+      exalted: { targetDays: 12, totalCatches: 82944000000,
+        fish: [{id:'tuna',name:'Tuna',qty:33177600000},{id:'mahi_mahi',name:'Mahi-Mahi',qty:24883200000},{id:'swordfish',name:'Swordfish',qty:16588800000},{id:'marlin',name:'Marlin',qty:8294400000}],
+        bonus: {stat:'expeditionSpeed',pct:10}, rewardDesc: '+10% Expedition Speed — MAX' },
+    },
+  },
+  {
+    id: 'sapphire_deepwatch', name: 'Sapphire Deepwatch', zone: 'sapphire_trench',
+    specialization: 'Geode Find Rate', expectedCatchsPerSecond: 90000,
+    bobber: 'sapphire_trench_bobber', mythicFish: 'sapphire_trench_warden',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 23328000000,
+        fish: [{id:'giant_squid',name:'Giant Squid',qty:9331200000},{id:'oarfish',name:'Oarfish',qty:6998400000},{id:'coelacanth',name:'Coelacanth',qty:4665600000},{id:'halibut',name:'Halibut',qty:2332800000}],
+        reward: 'sapphire_trench_bobber', rewardDesc: 'Sapphire Trench Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 15552000000,
+        fish: [{id:'giant_squid',name:'Giant Squid',qty:6220800000},{id:'oarfish',name:'Oarfish',qty:4665600000},{id:'coelacanth',name:'Coelacanth',qty:3110400000},{id:'halibut',name:'Halibut',qty:1555200000}],
+        bonus: {stat:'geodeFindRate',pct:2}, rewardDesc: '+2% Geode Find Rate' },
+      honored: { targetDays: 4, totalCatches: 31104000000,
+        fish: [{id:'giant_squid',name:'Giant Squid',qty:12441600000},{id:'oarfish',name:'Oarfish',qty:9331200000},{id:'coelacanth',name:'Coelacanth',qty:6220800000},{id:'halibut',name:'Halibut',qty:3110400000}],
+        bonus: {stat:'geodeFindRate',pct:2}, rewardDesc: '+2% Geode Find Rate' },
+      revered: { targetDays: 7, totalCatches: 54432000000,
+        fish: [{id:'giant_squid',name:'Giant Squid',qty:21772800000},{id:'oarfish',name:'Oarfish',qty:16329600000},{id:'coelacanth',name:'Coelacanth',qty:10886400000},{id:'halibut',name:'Halibut',qty:5443200000}],
+        bonus: {stat:'geodeFindRate',pct:3}, rewardDesc: '+3% Geode Find Rate' },
+      exalted: { targetDays: 12, totalCatches: 93312000000,
+        fish: [{id:'giant_squid',name:'Giant Squid',qty:37324800000},{id:'oarfish',name:'Oarfish',qty:27993600000},{id:'coelacanth',name:'Coelacanth',qty:18662400000},{id:'halibut',name:'Halibut',qty:9331200000}],
+        bonus: {stat:'geodeFindRate',pct:5}, rewardDesc: '+5% Geode Find Rate — MAX' },
+    },
+  },
+  {
+    id: 'blue_diamond_ancients', name: 'Blue Diamond Ancients', zone: 'blue_diamond_sanctuary',
+    specialization: 'Extra Geode Diamond Chance', expectedCatchsPerSecond: 100000,
+    bobber: 'blue_diamond_bobber', mythicFish: 'heart_of_the_abyss',
+    stages: {
+      initialRequest: { targetDays: 3, totalCatches: 25920000000,
+        fish: [{id:'salmon',name:'Salmon',qty:10368000000},{id:'tuna',name:'Tuna',qty:7776000000},{id:'giant_squid',name:'Giant Squid',qty:5184000000},{id:'oarfish',name:'Oarfish',qty:2592000000}],
+        reward: 'blue_diamond_bobber', rewardDesc: 'Blue Diamond Bobber — unlocks Mythic catch' },
+      friendly: { targetDays: 2, totalCatches: 17280000000,
+        fish: [{id:'salmon',name:'Salmon',qty:6912000000},{id:'tuna',name:'Tuna',qty:5184000000},{id:'giant_squid',name:'Giant Squid',qty:3456000000},{id:'oarfish',name:'Oarfish',qty:1728000000}],
+        bonus: {stat:'geodeExtraDiamondChance',pct:2}, rewardDesc: '+2% Extra Geode Diamond Chance' },
+      honored: { targetDays: 4, totalCatches: 34560000000,
+        fish: [{id:'salmon',name:'Salmon',qty:13824000000},{id:'tuna',name:'Tuna',qty:10368000000},{id:'giant_squid',name:'Giant Squid',qty:6912000000},{id:'oarfish',name:'Oarfish',qty:3456000000}],
+        bonus: {stat:'geodeExtraDiamondChance',pct:3}, rewardDesc: '+3% Extra Geode Diamond Chance' },
+      revered: { targetDays: 7, totalCatches: 60480000000,
+        fish: [{id:'salmon',name:'Salmon',qty:24192000000},{id:'tuna',name:'Tuna',qty:18144000000},{id:'giant_squid',name:'Giant Squid',qty:12096000000},{id:'oarfish',name:'Oarfish',qty:6048000000}],
+        bonus: {stat:'geodeExtraDiamondChance',pct:5}, rewardDesc: '+5% Extra Geode Diamond Chance' },
+      exalted: { targetDays: 12, totalCatches: 103680000000,
+        fish: [{id:'salmon',name:'Salmon',qty:41472000000},{id:'tuna',name:'Tuna',qty:31104000000},{id:'giant_squid',name:'Giant Squid',qty:20736000000},{id:'oarfish',name:'Oarfish',qty:10368000000}],
+        bonus: {stat:'geodeExtraDiamondChance',pct:10}, rewardDesc: '+10% Extra Geode Diamond Chance — MAX' },
+    },
+  },
+];
+
+// ─── UNIVERSAL GEODE ─────────────────────────────────────────────────────────
+// Single definition shared across all 10 zones. Primary repeatable Diamond source.
+
+const ABYSS_UNIVERSAL_GEODE = {
+  id: 'universal_geode', name: 'Abyss Geode',
+  diamondMin: 1, diamondMax: 3, targetFindsPerDay: 10,
+  dropLogic: 'universal', fishdexEntry: 'shared', fishdexCategory: 'geode',
+  img: null,
+};
+
+// ─── PHASE 4 LOOKUP HELPERS ──────────────────────────────────────────────────
+
+function getAbyssZone(id)       { return ABYSS_ZONES.find(function(z) { return z.id === id; }) || null; }
+function getAbyssZoneByOrder(n) { return ABYSS_ZONES.find(function(z) { return z.order === n; }) || null; }
+function getAbyssFish(id)       { return ABYSS_FISH_DB.find(function(f) { return f.id === id; }) || null; }
+function getAbyssCrystal(id)    { return ABYSS_CRYSTAL_DB.find(function(c) { return c.id === id; }) || null; }
+function getAbyssInsect(id)     { return ABYSS_INSECT_DB.find(function(i) { return i.id === id; }) || null; }
+function getAbyssMythicFish(id) { return ABYSS_MYTHIC_FISH.find(function(m) { return m.id === id; }) || null; }
+function getAbyssTribe(id)      { return ABYSS_TRIBES.find(function(t) { return t.id === id; }) || null; }
+function getAbyssTribeBobber(id){ return ABYSS_TRIBE_BOBBERS.find(function(b) { return b.id === id; }) || null; }
+
+function getAbyssFishForZone(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  if (!zone) return [];
+  return zone.fish.map(function(id) { return getAbyssFish(id); }).filter(Boolean);
+}
+function getAbyssCrystalsForZone(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  if (!zone) return [];
+  return zone.crystals.map(function(id) { return getAbyssCrystal(id); }).filter(Boolean);
+}
+function getAbyssInsectsForZone(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  if (!zone) return [];
+  return zone.insects.map(function(id) { return getAbyssInsect(id); }).filter(Boolean);
+}
+function getAbyssTribeForZone(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  return zone ? getAbyssTribe(zone.tribe) : null;
+}
+function getAbyssMythicFishForZone(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  return zone ? getAbyssMythicFish(zone.mythicFish) : null;
+}
+function getAbyssBobberForZone(zoneId) {
+  var zone = getAbyssZone(zoneId);
+  return zone ? getAbyssTribeBobber(zone.bobberReward) : null;
+}
 
 // ─── PLACEHOLDER COMPONENT ────────────────────────────────────────────────────
 // White box, thin dark border, large red question mark. No emoji, no broken-image icon.
@@ -457,6 +1079,17 @@ function _clearMaelstromMissionsOnPrestige() {
   // Permanent stats kept — same principle as fishdex and pearl stats
 }
 
+// ─── ABYSS PRESTIGE HOOK ─────────────────────────────────────────────────────
+// Called from executePrestige() in game.js after _clearMaelstromMissionsOnPrestige().
+// tribeReputation and tribeBobbers survive prestige — only current-request progress resets.
+
+function _clearAbyssOnPrestige() {
+  if (typeof G === 'undefined' || !G.abyss) return;
+  G.abyss.tribeProgress  = {};  // current-stage catch counts reset
+  G.abyss.mythicCatches  = {};  // mythic catch flags reset
+  // tribeReputation, tribeBobbers, and permanent bonuses survive
+}
+
 // ─── DEBUG STATE RESET ────────────────────────────────────────────────────────
 // Clears all Maelstrom state including stabilization. Restores EV timers first.
 // Dev-only — called from Settings debug section.
@@ -735,23 +1368,60 @@ function renderAbyssDebug() {
   const el = document.getElementById('expansion-abyss-content');
   if (!el) return;
   const currentZoneId = getCurrentAbyssZone();
-  const zoneCards = ABYSS_ZONES.map(z => `
-    <div class="expansion-zone-card ${currentZoneId === z.id ? 'selected' : ''}" style="border-color:${z.themeColor}"
-         onclick="selectAbyssZoneDebug('${z.id}')">
-      ${expansionPlaceholder({ width: '100%', height: '55px', label: z.name })}
-      <div class="expansion-zone-name" style="color:${z.themeColor}">${z.name}</div>
-      <div class="expansion-zone-status">[Placeholder · Phase 1]</div>
-    </div>`).join('');
+
+  const zoneRows = ABYSS_ZONES.map(function(z) {
+    const tribe   = getAbyssTribeForZone(z.id);
+    const mythic  = getAbyssMythicFishForZone(z.id);
+    const bobber  = getAbyssBobberForZone(z.id);
+    const isSel   = currentZoneId === z.id;
+    return `<div class="expansion-zone-card ${isSel ? 'selected' : ''}" style="border-color:${z.themeColor};cursor:pointer;"
+                 onclick="selectAbyssZoneDebug('${z.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:${z.themeColor};font-weight:bold;">Zone ${z.order}: ${z.name}</span>
+        <span style="opacity:0.6;font-size:11px;">${z.theme}</span>
+      </div>
+      <div style="display:flex;gap:18px;margin-top:4px;font-size:11px;opacity:0.8;">
+        <span>Fish: ${z.fish.length}</span>
+        <span>Crystals: ${z.crystals.length}</span>
+        <span>Insects: ${z.insects.length}</span>
+        <span>${z.expectedCatchsPerSecond.toLocaleString()}/s</span>
+      </div>
+      <div style="font-size:11px;margin-top:2px;opacity:0.7;">
+        Tribe: <em>${tribe ? tribe.name : z.tribe}</em> &bull;
+        Mythic: <em>${mythic ? mythic.name : z.mythicFish}</em>
+      </div>
+      <div style="font-size:11px;opacity:0.6;">
+        Bobber: ${bobber ? bobber.name : z.bobberReward}
+      </div>
+    </div>`;
+  }).join('');
+
+  const totals = {
+    fish:    ABYSS_FISH_DB.length,
+    crystal: ABYSS_CRYSTAL_DB.length,
+    insect:  ABYSS_INSECT_DB.length,
+    mythic:  ABYSS_MYTHIC_FISH.length,
+    tribe:   ABYSS_TRIBES.length,
+    bobber:  ABYSS_TRIBE_BOBBERS.length,
+  };
+
   el.innerHTML = `
     <div class="expansion-debug-world">
-      <div class="expansion-debug-label" style="color:#7ec8e3;">WORLD: ABYSS (Phase 1 Placeholder)</div>
-      ${currentZoneId
-        ? `<div class="expansion-debug-zone">Selected Zone: <strong>${currentZoneId}</strong></div>`
-        : '<div class="expansion-debug-zone">No zone selected</div>'}
-      ${expansionPlaceholder({ width: '100%', height: '90px', label: 'Abyss Zone Frame' })}
-      <div class="expansion-debug-desc">No Abyss gameplay yet. Architecture only.</div>
-      <div class="expansion-zone-grid">${zoneCards}</div>
-      <div class="expansion-dev-controls">
+      <div class="expansion-debug-label" style="color:#7ec8e3;">WORLD: ABYSS — Phase 4 Data Inspector</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:8px 0;font-size:12px;">
+        <span>Fish DB: <strong>${totals.fish}</strong></span>
+        <span>Crystal DB: <strong>${totals.crystal}</strong></span>
+        <span>Insect DB: <strong>${totals.insect}</strong></span>
+        <span>Mythic: <strong>${totals.mythic}</strong></span>
+        <span>Tribes: <strong>${totals.tribe}</strong></span>
+        <span>Bobbers: <strong>${totals.bobber}</strong></span>
+        <span>Zones: <strong>${ABYSS_ZONES.length}</strong></span>
+      </div>
+      <div style="font-size:11px;opacity:0.6;margin-bottom:8px;">
+        Geode: ${ABYSS_UNIVERSAL_GEODE.id} (${ABYSS_UNIVERSAL_GEODE.diamondMin}–${ABYSS_UNIVERSAL_GEODE.diamondMax} diamonds, target ${ABYSS_UNIVERSAL_GEODE.targetFindsPerDay}/day)
+      </div>
+      <div class="expansion-zone-grid">${zoneRows}</div>
+      <div class="expansion-dev-controls" style="margin-top:12px;">
         <button class="btn-secondary expansion-return-btn" onclick="enterMaelstromDebug()">Return to Maelstrom</button>
         <button class="btn-secondary expansion-return-btn" onclick="resetExpansionDebugState()">Reset &amp; Return to Overworld</button>
       </div>
