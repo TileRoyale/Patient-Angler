@@ -2663,6 +2663,33 @@ html, body {
   font-size: calc((clamp(11px, 2.5vw, 12px)) * var(--font-scale, 1));
 }
 
+.settings-social-row {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0 6px;
+}
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: calc((clamp(12px, 3vw, 14px)) * var(--font-scale, 1));
+  font-weight: bold;
+  color: #fff;
+}
+.btn-discord  { background: #5865F2; }
+.btn-playstore { background: #01875f; }
+.social-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 /* ── Bobber Cosmetics grid (Settings) ────────────────────── */
 .bobber-cosmetics-grid {
   display: grid;
