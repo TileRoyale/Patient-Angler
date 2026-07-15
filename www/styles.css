@@ -1107,6 +1107,14 @@ html, body {
   color: var(--color-text-dim);
   white-space: nowrap;
 }
+.fishdex-center-group {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .fishdex-reset-lure-btn {
   font-family: inherit;
   font-size: calc((clamp(11px,3vw,16px)) * var(--font-scale, 1));
@@ -1119,9 +1127,6 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 .fishdex-reset-lure-btn:active {
   opacity: 0.6;
