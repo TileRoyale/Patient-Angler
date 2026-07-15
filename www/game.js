@@ -1103,6 +1103,15 @@ const TARGETED_LURE_COSTS = [25000, 250000, 2500000, 25000000, 250000000];
 
 function getTargetedLureSlots()  { return G.targetedLureLevel || 0; }
 function isTargetedItem(id)      { return (G.targetedLureTargets || []).includes(id); }
+function updateFishdexLureCount() {
+  const el = document.getElementById('fishdex-lure-count');
+  if (!el) return;
+  const slots  = getTargetedLureSlots();
+  const active = (G.targetedLureTargets || []).length;
+  if (slots === 0) { el.style.display = 'none'; return; }
+  el.textContent   = active + ' / ' + slots + ' targeted';
+  el.style.display = '';
+}
 function isLureEligible(item) {
   // Eligible = automation-catchable: common/uncommon/rare/epic fish, plants, trash. Not legendary, not special/manual-only.
   if (!item) return false;
@@ -1119,6 +1128,7 @@ function resetLureTargets() {
   G.targetedLureTargets = [];
   saveState();
   renderFishdex();
+  updateFishdexLureCount();
   showStatus('Targeted Lure targets cleared.', 1500);
 }
 
@@ -1133,6 +1143,7 @@ function toggleLureTarget(id) {
   }
   saveState();
   renderFishdex();
+  updateFishdexLureCount();
 }
 
 function buyTargetedLure() {
@@ -5418,6 +5429,8 @@ function renderFishdex() {
   const content  = document.getElementById('fishdex-content');
   const progress = document.getElementById('fishdex-progress');
   if (!content) return;
+
+  updateFishdexLureCount();
 
   const zone = _fishdexZone || G.currentZone;
   content.innerHTML = '';
