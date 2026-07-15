@@ -5910,6 +5910,9 @@ function updateGuildOverlay() {
     return;
   }
   el.classList.remove('hidden');
+  el.classList.toggle('golden-contract', !!ord.golden);
+  const header = el.querySelector('.go-header');
+  if (header) header.textContent = ord.golden ? '★ GOLDEN CONTRACT ★' : 'GUILD ORDER';
   const itemsEl = document.getElementById('go-items');
   if (itemsEl) {
     itemsEl.innerHTML = ord.items.map(item => {
