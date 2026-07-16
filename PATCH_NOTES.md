@@ -2,6 +2,20 @@
 
 ---
 
+## v0.8.8 — Build 47 (July 2026)
+
+### New
+- **Diamond Shop** — two permanent upgrades in the Jeweler tab: Automation Upgrade (+10% global automation speed/level) and Storage Upgrade (+10% storage capacity/level). Each costs 100 Diamonds. Max 25 levels; 50 levels unlocked after reaching the Abyss. Survive every Prestige reset.
+- **Rod upgrades independent** — each owned rod now upgrades to its maximum tier freely. No longer blocked by other rods needing to reach the same tier first.
+- **Fishdex help** — mastery popup now explains that catch progress and current medal are visible on each Fishdex entry.
+
+### Fix
+- **Android resume** — added Capacitor `appStateChange` listener as fallback for devices where `visibilitychange` is unreliable. App now recovers correctly after returning from background on all tested Android versions.
+- **Loading screen** — optional subsystems (AdMob, IAP, Auth, Analytics) now wrapped in try/catch. A failed subsystem no longer risks an infinite loading screen.
+- **Special events while backgrounded** — special event timer now pauses when the app is backgrounded. On return, at most one event spawns if the cooldown expired. Previously the timer could fire while the app was hidden, consuming the event without the player seeing it.
+
+---
+
 ## v0.8.7 — Build 46 (July 2026)
 
 ### Fix
