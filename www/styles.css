@@ -2044,6 +2044,20 @@ html, body {
   max-width: min(260px, 50vw);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 208, 69, 0.2);
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+.guild-overlay.golden-contract {
+  border-color: rgba(244,196,48,0.7);
+  animation: overlay-golden-pulse 2.8s ease-in-out infinite;
+}
+@keyframes overlay-golden-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(244,196,48,0.25); }
+  50%       { box-shadow: 0 0 18px rgba(244,196,48,0.55); }
+}
+.guild-overlay.golden-contract .go-header {
+  color: var(--color-gold);
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 .guild-overlay.hidden { display: none; }
 .go-header {
@@ -2905,15 +2919,28 @@ html, body {
 }
 .guild-order-card.golden {
   border-color: var(--color-gold);
-  background: rgba(244,196,48,0.06);
-  box-shadow: 0 0 18px rgba(244,196,48,0.18);
+  background: rgba(244,196,48,0.07);
+  box-shadow: 0 0 24px rgba(244,196,48,0.28);
+  animation: golden-card-pulse 2.8s ease-in-out infinite;
+}
+@keyframes golden-card-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(244,196,48,0.22); }
+  50%       { box-shadow: 0 0 42px rgba(244,196,48,0.52), 0 0 10px rgba(244,196,48,0.2) inset; }
 }
 .guild-golden-banner {
   text-align: center;
-  font-size: calc((clamp(12px, 2.8vw, 14px)) * var(--font-scale, 1));
-  color: var(--color-gold);
+  font-size: calc((clamp(13px, 3vw, 15px)) * var(--font-scale, 1));
+  color: #1a1000;
   font-weight: bold;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  background: linear-gradient(90deg, rgba(244,196,48,0) 0%, rgba(244,196,48,0.88) 18%, #f4c430 50%, rgba(244,196,48,0.88) 82%, rgba(244,196,48,0) 100%);
+  padding: 5px 10px;
+  border-radius: 5px;
+  animation: golden-banner-shimmer 3s ease-in-out infinite;
+}
+@keyframes golden-banner-shimmer {
+  0%, 100% { filter: brightness(1); }
+  50%       { filter: brightness(1.18); }
 }
 .guild-card-title {
   font-size: calc((clamp(14px, 3.2vw, 17px)) * var(--font-scale, 1));

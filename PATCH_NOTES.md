@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.7 — Build 46 (July 2026)
+
+### Fix
+- **Special events** — rewarded ad now loads on demand when the player taps the claim button, instead of pre-loading when the event spawns. This fixes the issue where the app returning from background showed an active event but the ad was unavailable, forcing the player to skip. Ad retries automatically up to 3 times before showing a manual retry option.
+
+---
+
 ## v0.8.6.2 — Build 45 (July 2026)
 
 ### Fix

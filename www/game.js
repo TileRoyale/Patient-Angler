@@ -546,6 +546,7 @@ const DEFAULT_STATE = {
   ownedTransport: [],
   ownedAutomation: [],    // { id, zone, purchasedAt }
   lastSeen: 0,
+  backgroundAt: 0,
   competition: null,
   records: {},
   hofWins: [],
@@ -567,6 +568,7 @@ const DEFAULT_STATE = {
   specialCatchEnd: 0,
   specialCatchNextAt: 0,
   specialEventNextAt: 0,
+  diamondUpgrades: { autoSpeed: 0, storage: 0 },
   starterPackClaimed: false,
   lastShopVisit: 0,
   fishermanLastDialogHour: {},
@@ -884,16 +886,6 @@ function triggerBobberHaptic() {
 
 function getRodTier(id) { return ((G.rodTiers || {})[id]) || 0; }
 
-function getRodMaxUnlockedTier() {
-  const rt = G.rodTiers || {};
-  const owned = (G.ownedRods || ['basic_rod']);
-  const tiers = owned.map(id => rt[id] || 0);
-  const minTier = Math.min(...tiers);
-  if (minTier >= 8)  return 15;
-  if (minTier >= 5)  return 10;
-  return 5;
-}
-
 function getRodNextCost(id) {
   const r = RODS.find(x => x.id === id);
   if (!r) return 0;
@@ -913,10 +905,8 @@ function getRodAbyssSellBonus()      { return 1 + getRodTier('abyss_rod')  * 0.0
 
 function buyRodTier(id) {
   if (!(G.ownedRods || []).includes(id)) { showStatus('Buy this rod first!', 1500); return; }
-  const maxTier = getRodMaxUnlockedTier();
   const curTier = getRodTier(id);
   if (curTier >= 15) { showStatus('Max tier reached!', 1500); return; }
-  if (curTier >= maxTier) { showStatus('Upgrade all owned rods to tier ' + maxTier + ' first!', 2000); return; }
   const cost = getRodNextCost(id);
   if (G.coins < cost) { showStatus('Not enough coins!', 1500); return; }
   _spendCoins(cost);
@@ -985,6 +975,28 @@ function getPearlCompSpiritMult() {
 function getPearlFishWhispererBonus()   { return ((G.pearlUpgrades||{}).fishwhisperer||0) * 0.005; }
 function getPearlGhostBustersReduceMs() { return ((G.pearlUpgrades||{}).ghostbusters||0) * (3600000/24); }
 function getGsExpeditionMs()            { return Math.max(3600000/24, GS_EXPEDITION_MS - getPearlGhostBustersReduceMs()); }
+
+// ─── DIAMOND UPGRADES ────────────────────────────────────────────────────────
+function getAutomationUpgradeLevel()      { return (G.diamondUpgrades || {}).autoSpeed || 0; }
+function getStorageUpgradeLevel()         { return (G.diamondUpgrades || {}).storage   || 0; }
+function getAutomationUpgradeMaxLevel()   { return (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss()) ? 50 : 25; }
+function getStorageUpgradeMaxLevel()      { return (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss()) ? 50 : 25; }
+function getAutomationUpgradeMultiplier() { return 1 + getAutomationUpgradeLevel() * 0.10; }
+function getStorageUpgradeMultiplier()    { return 1 + getStorageUpgradeLevel()    * 0.10; }
+
+function buyDiamondUpgrade(type) {
+  if (!G.diamondUpgrades) G.diamondUpgrades = { autoSpeed: 0, storage: 0 };
+  const lvl    = G.diamondUpgrades[type] || 0;
+  const maxLvl = type === 'autoSpeed' ? getAutomationUpgradeMaxLevel() : getStorageUpgradeMaxLevel();
+  if (lvl >= maxLvl) { showStatus('Maximum level reached!', 1500); return; }
+  const COST = 100;
+  if ((G.diamonds || 0) < COST) { showStatus('Not enough Diamonds!', 1500); return; }
+  G.diamonds = (G.diamonds || 0) - COST;
+  G.diamondUpgrades[type] = lvl + 1;
+  saveState(); updateHUD(); renderShop(activeShopTab);
+  const label = type === 'autoSpeed' ? 'Automation Upgrade' : 'Storage Upgrade';
+  showStatus(label + ' → Level ' + (lvl + 1), 1800);
+}
 
 function pearlUpgradeCost(upg) {
   const lvl = (G.pearlUpgrades || {})[upg.id] || 0;
@@ -1074,7 +1086,7 @@ function executePrestige() {
   // Reset sea comic so it shows again when Sea is re-unlocked after prestige
   G.seaComicSeen = false;
 
-  // Keep: fishdex, masteryData, manualFishdex, diamonds, blackPearls, prestigeCount, pearlUpgrades, quests, stats, records, unlockedBobberCosmetics, equippedBobberCosmetic, premiumBait, sunkenChests, sunkenTreasureUnlocked, sunkenTreasureStats
+  // Keep: fishdex, masteryData, manualFishdex, diamonds, diamondUpgrades, blackPearls, prestigeCount, pearlUpgrades, quests, stats, records, unlockedBobberCosmetics, equippedBobberCosmetic, premiumBait, sunkenChests, sunkenTreasureUnlocked, sunkenTreasureStats
 
   if (typeof _clearMaelstromMissionsOnPrestige === 'function') _clearMaelstromMissionsOnPrestige();
   if (typeof _clearAbyssOnPrestige             === 'function') _clearAbyssOnPrestige();
@@ -1361,7 +1373,7 @@ function storageCapacity() {
     return s ? sum + s.capacity : sum;
   }, 0);
   const tribeStorMult = typeof getTribeStorageMultiplier === 'function' ? getTribeStorageMultiplier() : 1;
-  return Math.round(base * getRodStorageCapacityMult() * getPearlStorageMult() * getMasteryStorageMult() * tribeStorMult * (G.devSupportOwned ? 1.25 : 1));
+  return Math.round(base * getRodStorageCapacityMult() * getPearlStorageMult() * getMasteryStorageMult() * getStorageUpgradeMultiplier() * tribeStorMult * (G.devSupportOwned ? 1.25 : 1));
 }
 
 function isPremiumBaitActive() {
@@ -3235,7 +3247,7 @@ function autoTick() {
 
   // Pre-compute multipliers once per tick (not per unit)
   const tribeAutoMult  = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
-  const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * tribeAutoMult;
+  const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * tribeAutoMult;
   const multiCatch     = getMultiCatch();
   const extraCatchMult = 1 + getPearlExtraCatchChance();
   const typeMults  = {
@@ -3578,6 +3590,35 @@ function renderShop(tab) {
     const sellMult     = (1 + pearls * 0.01).toFixed(2);
     const upgrades     = G.pearlUpgrades || {};
 
+    const _dUpgDefs = [
+      { type:'autoSpeed', label:'Automation Upgrade', desc:'+10% global automation speed per level. Stacks with all other multipliers.', icon:'⚙️' },
+      { type:'storage',   label:'Storage Upgrade',    desc:'+10% global storage capacity per level. Stacks with all other multipliers.',  icon:'🗄️' },
+    ];
+    const diamondUpgradeRows = _dUpgDefs.map(d => {
+      const lvl    = getAutomationUpgradeLevel.apply && d.type === 'autoSpeed' ? getAutomationUpgradeLevel() : getStorageUpgradeLevel();
+      const maxLvl = d.type === 'autoSpeed' ? getAutomationUpgradeMaxLevel() : getStorageUpgradeMaxLevel();
+      const atCap  = lvl >= maxLvl;
+      const COST   = 100;
+      const canAfford = !atCap && (G.diamonds || 0) >= COST;
+      const curEff = `+${(lvl*10)}% ${d.type === 'autoSpeed' ? 'automation speed' : 'storage capacity'}`;
+      const nxtEff = atCap ? '' : `+${((lvl+1)*10)}% ${d.type === 'autoSpeed' ? 'automation speed' : 'storage capacity'}`;
+      const capNote = maxLvl === 25 ? ' (50 after Abyss)' : '';
+      return `
+        <div class="pearl-upgrade-row">
+          <div class="pearl-upgrade-info">
+            <div class="pearl-upgrade-name">${d.label} <span style="color:#5cf;font-size:12px">Lv${lvl}${atCap?` <span style="color:#f0c040">(MAX)</span>`:''}/${maxLvl}${capNote}</span></div>
+            <div class="pearl-upgrade-desc">${d.desc}</div>
+            <div style="font-size:11px;color:#aaa;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em">Current Bonus</div>
+            <div style="font-size:12px;color:#90c890;margin-top:1px">${lvl > 0 ? curEff : 'None'}</div>
+            ${!atCap?`<div style="font-size:11px;color:#aaa;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em">Next Bonus</div><div style="font-size:12px;color:#c8c8c8;margin-top:1px">${nxtEff}</div>`:''}
+          </div>
+          <button class="${canAfford?'btn-shop-buy':'btn-shop-locked'}" ${canAfford?'':'disabled'}
+            onclick="buyDiamondUpgrade('${d.type}')">
+            ${atCap ? 'MAX' : `◆ ${COST}`}
+          </button>
+        </div>`;
+    }).join('');
+
     const upgradeRows = PEARL_UPGRADES.filter(u => !u.requiresSunkenTreasure || G.sunkenTreasureUnlocked).map(u => {
       const lvl    = upgrades[u.id] || 0;
       const atCap  = u.maxLevel !== null && lvl >= u.maxLevel;
@@ -3661,6 +3702,13 @@ function renderShop(tab) {
           </button>
         </div>
         <div class="prestige-section">
+          <div class="prestige-section-title">DIAMOND SHOP</div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:8px;text-align:center">
+            Permanent upgrades — survive Prestige, cost 100 ◆ each
+          </div>
+          ${diamondUpgradeRows}
+        </div>
+        <div class="prestige-section">
           <div class="prestige-section-title">PEARL SHOP</div>
           <div style="font-size:11px;color:#aaa;margin-bottom:8px;text-align:center">
             Spending pearls reduces your passive sell bonus
@@ -3675,9 +3723,7 @@ function makeRodTierItem(rod) {
   const owned    = (G.ownedRods || []).includes(rod.id);
   const equipped = G.currentRod === rod.id;
   const tier     = getRodTier(rod.id);
-  const maxTier  = getRodMaxUnlockedTier();
   const cost     = getRodNextCost(rod.id);
-  const locked   = tier >= maxTier && tier < 15;
   const maxed    = tier >= 15;
 
   const div = document.createElement('div');
@@ -3724,13 +3770,12 @@ function makeRodTierItem(rod) {
     return '';
   })();
 
-  const upgradeDisabled = maxed || locked || G.coins < cost;
-  const upgradeBtnClass = maxed   ? 'btn-shop-equipped'
-                        : locked  ? 'btn-shop-disabled'
-                        : G.coins < cost ? 'btn-shop-locked'
+  const upgradeDisabled = maxed || G.coins < cost;
+  const upgradeBtnClass = maxed             ? 'btn-shop-equipped'
+                        : G.coins < cost    ? 'btn-shop-locked'
                         : 'btn-shop-buy';
-  const upgradeBtnText  = maxed ? 'MAX' : locked ? `T${maxTier}` : 'Upgrade';
-  const priceHtml = maxed || locked ? '' :
+  const upgradeBtnText  = maxed ? 'MAX' : 'Upgrade';
+  const priceHtml = maxed ? '' :
     `<img src="img/icons/Game screen icons/coin_icon.png"><span style="${G.coins < cost ? 'color:#c55' : ''}">${formatCoins(cost)}</span>`;
 
   div.innerHTML = `
@@ -3747,7 +3792,7 @@ function makeRodTierItem(rod) {
     </div>
     <div class="shop-item-price">${priceHtml}</div>
   `;
-  if (!maxed && !locked) div.querySelector('.shop-item-actions button').addEventListener('click', () => buyRodTier(rod.id));
+  if (!maxed) div.querySelector('.shop-item-actions button').addEventListener('click', () => buyRodTier(rod.id));
   return div;
 }
 
@@ -4440,7 +4485,8 @@ function calcFishRate() {
              : aDef.type === 'boat'      ? getRodBoatSpeedMult()
              : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
              : 1;
-    return sum + (getSpeedMult() * tribeAutoMult * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getMultiCatch()) / aDef.rate;
+    const _tribeAutoMult = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
+    return sum + (getSpeedMult() * _tribeAutoMult * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * getMultiCatch()) / aDef.rate;
   }, 0);
 }
 
@@ -4467,7 +4513,7 @@ function getEstimatedHourlyIncome() {
     }
     agg[k].count++;
   }
-  const speedBase = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult();
+  const speedBase = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
   const typeMults = { net: getRodNetSpeedMult(), fisherman: getRodFishermanSpeedMult(), boat: getRodBoatSpeedMult(), fleet: getRodFleetSpeedMult() };
   let perSec = 0;
   for (const { zone, aDef, count } of Object.values(agg)) {
@@ -4710,7 +4756,7 @@ function calculateOfflineProgress() {
                                : aDef.type === 'boat'      ? getRodBoatSpeedMult()
                                : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
                                : 1;
-    const offlineSpd = getSpeedMult() * offlineTypeSpeedMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * _tribeOfflineMult;
+    const offlineSpd = getSpeedMult() * offlineTypeSpeedMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * _tribeOfflineMult;
     const effectiveRate = aDef.rate / offlineSpd;
     // _owOffFraction reduces Overworld share when Abyss zones are also active
     const rawCatches = Math.floor(Math.floor(elapsedSec / effectiveRate) * 0.75 * (1 + getPearlExtraCatchChance()) * getMasteryOfflineMult() * _owOffFraction) * getMultiCatch();
@@ -6129,6 +6175,9 @@ function updateGuildOverlay() {
     return;
   }
   el.classList.remove('hidden');
+  el.classList.toggle('golden-contract', !!ord.golden);
+  const header = el.querySelector('.go-header');
+  if (header) header.textContent = ord.golden ? '★ GOLDEN CONTRACT ★' : 'GUILD ORDER';
   const itemsEl = document.getElementById('go-items');
   if (itemsEl) {
     itemsEl.innerHTML = ord.items.map(item => {
@@ -6824,6 +6873,7 @@ function _renderBonusesTab() {
       src('Bite Speed base',      fmtX(getSpeedMult())),
       src('Pearl Empire Boost',   fmtX(getPearlSpeedMult())),
       src('Zone Mastery',         fmtX(getMasteryAutoSpeedMult())),
+      ...(getAutomationUpgradeLevel() > 0 ? [src('Diamond Auto Upgrade', fmtX(getAutomationUpgradeMultiplier()))] : []),
     ]),
     bon('Net Speed (total)',        fmtX(baseSpeed * getRodNetSpeedMult()), [
       src('Base speed',            fmtX(baseSpeed)),
@@ -6874,6 +6924,7 @@ function _renderBonusesTab() {
       src('Bay Rod tier',           fmtX(getRodStorageCapacityMult())),
       src('Pearl Expanded Holds',   fmtX(getPearlStorageMult())),
       src('Zone Mastery',           fmtX(getMasteryStorageMult())),
+      ...(getStorageUpgradeLevel() > 0 ? [src('Diamond Storage Upgrade', fmtX(getStorageUpgradeMultiplier()))] : []),
       ...(G.devSupportOwned ? [src('Dev Support', '1.25x')] : []),
     ]),
   ]);
@@ -7291,7 +7342,7 @@ const SHOP_HELP_CONTENT = {
     title: 'Fishing Rods',
     body: `<p>Your rod determines how many taps it takes to land a fish. Fewer taps means faster catches.</p>
 <p>Each rod also unlocks access to a new fishing zone when combined with the required transport vehicle.</p>
-<p>Each owned rod can be upgraded up to 15 tiers, unlocking bonus effects like faster automation or higher sell prices. New upgrade tiers unlock as you own more rods.</p>
+<p>Each owned rod can be upgraded up to 15 tiers independently, unlocking bonus effects like faster automation or higher sell prices.</p>
 <p style="color:var(--color-text-dim);font-size:12px;">Rods reset on Prestige — except the progress you've made carries over as Black Pearls.</p>`
   },
   bait: {
@@ -7651,6 +7702,7 @@ async function redeemCode() {
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 function init() {
+  console.log('[Init] stage: start');
   if (!G.diamonds && G.diamonds !== 0) G.diamonds = DEFAULT_STATE.diamonds;
   if (!G.records)      G.records      = {};
   if (!G.hofWins)      G.hofWins      = [];
@@ -7689,6 +7741,13 @@ function init() {
   if (!G.automationTreasureCooldownUntil) G.automationTreasureCooldownUntil = 0;
   if (!G.pearlUpgrades) G.pearlUpgrades = {};
   if (G.pearlUpgrades.treasurehold === undefined) G.pearlUpgrades.treasurehold = 0;
+  // Diamond Upgrades — migrate old saves (level 0 means no effect, safe default)
+  if (G.backgroundAt === undefined) G.backgroundAt = 0;
+  if (!G.diamondUpgrades) G.diamondUpgrades = { autoSpeed: 0, storage: 0 };
+  if (G.diamondUpgrades.autoSpeed === undefined) G.diamondUpgrades.autoSpeed = 0;
+  if (G.diamondUpgrades.storage   === undefined) G.diamondUpgrades.storage   = 0;
+  G.diamondUpgrades.autoSpeed = Math.max(0, Math.min(50, G.diamondUpgrades.autoSpeed || 0));
+  G.diamondUpgrades.storage   = Math.max(0, Math.min(50, G.diamondUpgrades.storage   || 0));
   // Ghost Ship — migrate single ghostShip (old) → ghostShips[] (new)
   if (G.ghostShip !== undefined) {
     if (!G.ghostShips) G.ghostShips = [];
@@ -7777,6 +7836,7 @@ function init() {
     }
   }
   setupBackButton();
+  console.log('[Init] stage: showing loading screen');
   _loadingReadyAt = Date.now() + 1200;
   showScreen('loading');
   setTimeout(() => {
@@ -7800,38 +7860,29 @@ function init() {
   }
   _startAutoSpecialCatch();
   startAutoSellTimer();
-  if (typeof initAdMob     === 'function') initAdMob();
-  if (typeof initIAP       === 'function') initIAP();
-  if (typeof initAuth      === 'function') initAuth();
-  if (typeof initAnalytics === 'function') initAnalytics();
-  if (typeof initAbyssFramework === 'function') initAbyssFramework();
-  loadDialogueData();
+  // Capacitor App lifecycle — fallback for Android devices where visibilitychange is unreliable
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    try {
+      window.Capacitor.Plugins.App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) { _onAppForeground(); } else { _onAppBackground(); }
+      });
+    } catch(e) { console.warn('[Lifecycle] appStateChange listener failed:', e); }
+  }
+  // Optional subsystems — failures are non-fatal and must not block loading
+  try { if (typeof initAdMob          === 'function') initAdMob();          } catch(e) { console.warn('[Init] AdMob failed:', e); }
+  try { if (typeof initIAP            === 'function') initIAP();            } catch(e) { console.warn('[Init] IAP failed:', e); }
+  try { if (typeof initAuth           === 'function') initAuth();           } catch(e) { console.warn('[Init] Auth failed:', e); }
+  try { if (typeof initAnalytics      === 'function') initAnalytics();      } catch(e) { console.warn('[Init] Analytics failed:', e); }
+  try { if (typeof initAbyssFramework === 'function') initAbyssFramework(); } catch(e) { console.warn('[Init] Abyss framework failed:', e); }
+  try { loadDialogueData(); } catch(e) { console.warn('[Init] Dialogue load failed:', e); }
+  console.log('[Init] startup complete');
 }
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
-    G.lastSeen = Date.now();
-    if ((G.stats.lastFishAt || 0) > 0 && Date.now() - G.stats.lastFishAt < 120000) {
-      syncAch('h_last_fish', 1);
-      finalizeQuestUpdate();
-    }
-    saveState();
-    bgMusic.pause();
+    _onAppBackground();
   } else if (document.visibilityState === 'visible') {
-    if (!G.musicMuted && _musicStarted) bgMusic.play().catch(() => {});
-    // Catch up on offline production missed while app was backgrounded
-    calculateOfflineProgress();
-    updateHUD();
-    // Wall-clock expiry — setTimeout stops when app is backgrounded on Android
-    if (_pendingEvent) {
-      const EVENT_WINDOW_MS = 5 * 60 * 1000;
-      if (_eventStartedAt && Date.now() - _eventStartedAt > EVENT_WINDOW_MS) {
-        expireSpecialEvent();
-      } else {
-        // Still valid — ensure ad is loaded (may have been dropped while backgrounded)
-        if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
-      }
-    }
+    _onAppForeground();
   }
 });
 
@@ -7988,8 +8039,6 @@ function triggerSpecialEvent() {
   for (let i = 0; i < _evWeights.length; i++) { _evRand -= _evWeights[i]; if (_evRand <= 0) { _evIdx = i; break; } }
   _pendingEvent    = available[_evIdx];
   _eventStartedAt  = Date.now();
-  // Start loading the ad immediately — gives it ~5 min to load before user taps
-  if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
   const iconEl = document.getElementById('event-side-icon');
   if (iconEl) {
     iconEl.querySelector('.event-side-img').src = _pendingEvent.icon;
@@ -8058,13 +8107,21 @@ function closeSpecialEventPopup() {
 function simulateAdWatch(onReward) {
   const adNote = document.getElementById('se-ad-note');
   const btn    = document.getElementById('se-claim-btn');
+  let   _tries = 0;
 
   function attempt() {
-    if (btn) { btn.disabled = true; btn.textContent = 'Loading ad…'; }
+    _tries++;
+    if (btn) { btn.disabled = true; btn.textContent = _tries === 1 ? 'Loading ad…' : 'Retrying…'; }
     showRewardedAd(onReward, () => {
-      // Ad not ready or dismissed without reward — always allow retry
-      if (adNote) adNote.textContent = 'Ad not ready. Tap to try again.';
-      if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; btn.onclick = attempt; }
+      if (_tries < 3) {
+        // Auto-retry silently up to 3 attempts total
+        if (adNote) adNote.textContent = 'Loading ad…';
+        attempt();
+      } else {
+        // Give up — let player decide to retry manually or skip
+        if (adNote) adNote.textContent = 'Ad not available. Try again or skip.';
+        if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; btn.onclick = () => { _tries = 0; attempt(); }; }
+      }
     });
   }
 
@@ -8604,7 +8661,7 @@ function renderAutoOverview() {
   const body = document.getElementById('auto-overview-body');
   if (!body) return;
 
-  const speedBase  = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult();
+  const speedBase  = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
   const multiCatch = getMultiCatch();
   const extraMult  = 1 + getPearlExtraCatchChance();
   const typeMults  = {

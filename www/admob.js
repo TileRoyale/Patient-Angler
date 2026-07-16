@@ -86,13 +86,13 @@ function _prepareRewarded() {
         _quickRetry = setTimeout(() => {
           _quickRetry = null;
           if (!_rewardedReady && !_preparePromise) _prepareRewarded();
-        }, 5000);
+        }, 3000);
       }
       AM.removeAllListeners().then(resolve).catch(resolve);
     }
 
-    // Timeout — if no event within 20s, give up and quick-retry
-    const timeout = setTimeout(() => done(false), 20000);
+    // Timeout — if no event within 8s, give up and quick-retry
+    const timeout = setTimeout(() => done(false), 8000);
 
     AM.addListener('onRewardedVideoAdLoaded', () => {
       clearTimeout(timeout);

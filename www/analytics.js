@@ -340,6 +340,24 @@ let _anlSending    = false;
 let _anlLastSentAt = 0;
 const ANL_MIN_INTERVAL_MS = 30_000;
 
+// Persist current session time to localStorage on app hide/close,
+// so playtime accumulates even if no server send fires this session.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    try {
+      const stored = JSON.parse(localStorage.getItem(_ANL_STORAGE_KEY) || '{}');
+      const sessionMs = Date.now() - _anlSessionStart;
+      if (sessionMs > 0) {
+        localStorage.setItem(_ANL_STORAGE_KEY, JSON.stringify({
+          ...stored,
+          totalPlayMs: (stored.totalPlayMs || 0) + sessionMs,
+        }));
+        _anlSessionStart = Date.now(); // reset so we never double-count this slice
+      }
+    } catch {}
+  }
+});
+
 function _anlGetDeviceId() {
   const KEY = 'pa_anl_device_id';
   try {
@@ -355,10 +373,10 @@ function _anlGetDeviceId() {
   } catch { return null; }
 }
 
-async function sendAnalyticsSnapshot(trigger) {
+async function sendAnalyticsSnapshot(trigger, force = false) {
   if (_anlSending) return;
   const now = Date.now();
-  if (now - _anlLastSentAt < ANL_MIN_INTERVAL_MS) return;
+  if (!force && now - _anlLastSentAt < ANL_MIN_INTERVAL_MS) return;
 
   const snapshot = buildAnalyticsSnapshot();
   if (!snapshot) return;
@@ -432,7 +450,7 @@ async function anlCheckpoint(reason, force = false) {
   const snap = buildAnalyticsSnapshot();
   if (!snap) return;
   if (!force && !_anlHasMeaningfulChange(snap)) return;
-  await sendAnalyticsSnapshot(reason);
+  await sendAnalyticsSnapshot(reason, force);
 }
 
 // ─── Daily Backup ─────────────────────────────────────────────────────────────
@@ -442,7 +460,7 @@ function _anlDailyCheck() {
     const today = new Date().toDateString();
     if (localStorage.getItem(_ANL_DAILY_KEY) === today) return;
     localStorage.setItem(_ANL_DAILY_KEY, today);
-    setTimeout(() => anlCheckpoint('daily', true), 10_000);
+    setTimeout(() => anlCheckpoint('daily', true), 35_000);
   } catch {}
 }
 
