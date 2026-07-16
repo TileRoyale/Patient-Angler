@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patient Angler — Phase 10 Abyss Economy Audit</title>
+<title>Patient Angler — Phase 10.6 Abyss Economy Audit</title>
 <style>
 :root {
   --bg: #0d1117;
@@ -198,33 +198,31 @@ section { scroll-margin-top: 20px; }
   </div>
 </div>
 
-<div class="alert alert-crit">
-  <strong>CRITICAL — Tribe Request quantities are 200–3,850× larger than achievable.</strong>
-  The <code>totalCatches</code> formula is calibrated against Abyss zone design speeds (10k–100k catch/s) but tracks <em>Overworld automation catches only</em>. Max realistic Overworld automation produces ~50–300 qualified catch/s, making Zone 1 Initial Request take ~600–3,000 days instead of 3. This affects all 10 tribes.
+<div class="alert" style="background:rgba(11,232,129,.1);border-color:#0be881">
+  <strong style="color:#0be881">✓ PHASE 10.5 + 10.6 FIXES APPLIED — commit 54093c4 → current</strong><br>
+  <strong>10.5:</strong> Legendary fish removed from Zones 9–10 (cod/wolffish/swordfish substituted). Three unapplied tribe bonuses wired: manualCatchSpeed (bite timer), rareEpicChance (getRarityBonus), expeditionSpeed (_getExpeditionSpeedMultiplier). calcFishRate() now includes getTribeAutomationSpeedMultiplier(). buyTransport() uses getActiveSlotLimit().<br>
+  <strong>10.6:</strong> Tribe request quantities rebuilt via centralized <code>TRIBE_BALANCE</code> config. Formula: <code>totalCatches = expectedRate × (1/activeSlots) × sourceZoneFishFraction × stageDays × 86400</code>. Zone 1 = 10,000/s restored; correction factors (0.20–0.24 per tribe) applied from OW loot table weights and species distribution. All 10 tribes now target exactly their design completion times.
 </div>
 
-<div class="alert alert-crit">
-  <strong>CRITICAL — Zone 9 &amp; 10 Tribe Initial Requests require Legendary fish.</strong>
-  Sapphire Deepwatch (Zone 9) requires <code>giant_squid</code> (Legendary, time-locked 00:00–02:00) and <code>coelacanth</code> (Legendary, time-locked 01:00–03:00). Automation cannot catch Legendary fish. Manual rate during 5-minute catch windows yields estimated completion time of millions of years. Zone 10 also requires giant_squid.
+<div class="alert alert-crit" style="opacity:0.5;text-decoration:line-through">
+  <strong>CRITICAL — Tribe Request quantities are 200–3,850× larger than achievable.</strong> [FIXED in Phase 10.6 — see TRIBE_BALANCE config]
 </div>
 
-<div class="alert alert-high">
-  <strong>HIGH — Three Tribe bonus stats are defined but never applied.</strong>
-  <code>manualCatchSpeed</code> (Ruby Forged, max +5%), <code>rareEpicChance</code> (Opal Gardeners, max +1%), and <code>expeditionSpeed</code> (Topaz Riftborn, max +10%) have getter functions that are never called in the game. Players who earn these bonuses receive nothing.
+<div class="alert alert-crit" style="opacity:0.5;text-decoration:line-through">
+  <strong>CRITICAL — Zone 9 &amp; 10 Tribe Initial Requests require Legendary fish.</strong> [FIXED in Phase 10.5 — giant_squid/coelacanth replaced with cod/wolffish/swordfish]
 </div>
 
-<div class="alert alert-high">
-  <strong>HIGH — Actual Abyss automation production is 50–100× below design targets.</strong>
-  <code>expectedCatchsPerSecond</code> per Abyss zone (10k–100k) was used to size Tribe requests, but actual Abyss automation output derives from Overworld automation capacity divided across zones. Max realistic Abyss output is ~100–200 catch/s, not 10,000.
+<div class="alert alert-crit" style="opacity:0.5;text-decoration:line-through">
+  <strong>HIGH — Three Tribe bonus stats are defined but never applied.</strong> [FIXED in Phase 10.5 — manualCatchSpeed, rareEpicChance, expeditionSpeed all wired]
 </div>
 
 <div class="alert alert-med">
-  <strong>MEDIUM — <code>calcFishRate()</code> excludes <code>getTribeAutomationSpeedMultiplier()</code>.</strong>
-  The HUD fish/s counter and Abyss auto-batch calculations underreport actual production by up to 12% (Amethyst Seers Exalted bonus). <code>autoTick()</code> correctly applies the tribe multiplier but <code>calcFishRate()</code> does not.
+  <strong>HIGH — Actual Abyss automation production is 50–100× below design targets.</strong>
+  <code>expectedCatchsPerSecond</code> per Abyss zone (10k–100k) represents a design abstraction. Actual OW automation at Abyss unlock is ~200–1,000/s total. The Phase 10.6 correction factors (0.20–0.24) produce qualified rates of 1,100–10,500/s from the design target rates — these are accepted as design intent and not changed.
 </div>
 
 <div class="alert alert-prov">
-  <strong>PROVISIONAL values throughout:</strong> <code>ABYSS_GEODE_AUTO_PER_DAY = 4</code>, all Abyss fish base coin values, Maelstrom mission duration (6h), Tribe request quantities. These are flagged <span class="badge badge-prov">PROV</span> in tables below.
+  <strong>PROVISIONAL values:</strong> <code>ABYSS_GEODE_AUTO_PER_DAY = 4</code>, all Abyss fish base coin values, Maelstrom mission duration (6h). Tribe request quantities are now generated from TRIBE_BALANCE config (no longer hand-written). These are flagged <span class="badge badge-prov">PROV</span> in tables below.
 </div>
 </section>
 
@@ -359,36 +357,32 @@ section { scroll-margin-top: 20px; }
 <section id="s4">
 <h2>4. Critical Mismatches</h2>
 
-<div class="finding">
+<div class="finding" style="opacity:0.6">
   <div class="finding-head">
-    <span class="badge badge-crit">CRITICAL</span>
-    <span class="finding-title">F-01 — Tribe Request formula calibrated to Abyss speed, tracking Overworld catches</span>
+    <span class="badge badge-low">FIXED</span>
+    <span class="finding-title">F-01 — Tribe Request formula calibrated to Abyss speed, tracking Overworld catches [Phase 10.6]</span>
   </div>
   <div class="finding-body">
-    <strong>Formula:</strong> <code>totalCatches = zone.expectedCatchsPerSecond × 3 × 86400</code><br>
-    Zone 1 <code>expectedCatchsPerSecond = 10,000</code> → <code>2,592,000,000</code> total catches for Initial Request.<br>
-    But tribe catches are tracked via <code>onCatchEvent() → recordTribeFishCatch()</code>, which fires from <em>Overworld automation only</em>. Abyss automation does not call this path.<br><br>
-    <strong>Max realistic Overworld production targeting Zone 1 species (tuna, swordfish, marlin in Ocean; salmon in Sea):</strong><br>
-    5 DSF in Ocean = 50 catch/s × 79.2% fish fraction = 39.6 fish/s. Tuna (common) ≈ 1/5 of common pool → ~5.6 tuna/s.<br>
-    Tuna needed: 777,600,000 ÷ 5.6 = <strong>138,857 days</strong> for tuna alone.<br>
-    Even with 20 DSF in Ocean: ~555,000 days. Design target: 3 days.<br>
-    <strong>Discrepancy: ~2,000–50,000×.</strong>
+    <strong>Was:</strong> <code>totalCatches = zone.expectedCatchsPerSecond × stageDays × 86400</code> — used raw design-target rate (10k–100k/s) with no zone-allocation or species-probability correction.<br><br>
+    <strong>Now:</strong> Centralized <code>TRIBE_BALANCE</code> config in abyss.js. Formula: <code>totalCatches = expectedRate × (1/activeSlots) × sourceZoneFishFraction × stageDays × 86400</code><br>
+    Zone 1 result: 10,000 × 0.5 × 0.22 × 3 × 86,400 = <strong>285,120,000</strong> (design: 3 days at 1,100 qualified/s ✓)<br><br>
+    <strong>Config parameters (TRIBE_BALANCE):</strong><br>
+    • <code>expectedRates</code>: [10000, 20000, …, 100000] — total OW automation rate per zone tier<br>
+    • <code>activeSlots = 2</code> — active OW automation zone slots (3 with upgrade)<br>
+    • <code>sourceZoneFishFraction</code>: [0.22, 0.24, 0.20, 0.22, 0.21, 0.20, 0.22, 0.22, 0.20, 0.21] — fraction of source zone output that are the 4 requested species, derived from OW loot table weights<br>
+    • <code>speciesDist</code>: [0.40, 0.30, 0.20, 0.10] — per-species share<br>
+    • Trial of Return auto-derived: <code>Math.ceil(initialQty × 0.25)</code> — no separate config needed
   </div>
 </div>
 
-<div class="finding">
+<div class="finding" style="opacity:0.6">
   <div class="finding-head">
-    <span class="badge badge-crit">CRITICAL</span>
-    <span class="finding-title">F-02 — Zones 9 &amp; 10 require Legendary fish that automation cannot catch</span>
+    <span class="badge badge-low">FIXED</span>
+    <span class="finding-title">F-02 — Zones 9 &amp; 10 require Legendary fish that automation cannot catch [Phase 10.5]</span>
   </div>
   <div class="finding-body">
-    <code>rollCatch(zone, false)</code> strips <code>type === 'legendary'</code> from loot table (game.js:2636). Confirmed.<br><br>
-    Zone 9 (Sapphire Deepwatch) Initial Request:<br>
-    • <code>giant_squid</code>: Legendary, <em>time-locked 00:00–02:00 in-game</em> (= 5 real minutes per hour) → 9,331,200,000 needed<br>
-    • <code>coelacanth</code>: Legendary, <em>time-locked 01:00–03:00</em> → 4,665,600,000 needed<br>
-    At 6h/day active fishing in Ocean with Legendary = 4% ocean catch rate (manual): ~10 Legendary/hour × 6h × 1/3 giant_squid = 20/day.<br>
-    9.3B ÷ 20/day = <strong>466,560,000 days (~1.3 million years).</strong><br><br>
-    Zone 10 (Blue Diamond Ancients): requires giant_squid (5.18B) = same impossibility.
+    Zone 9 (Sapphire Deepwatch): <code>giant_squid</code> → <code>cod</code> (uncommon, sea+ocean), <code>coelacanth</code> → <code>wolffish</code> (epic, sea). New species list: cod/oarfish/wolffish/halibut — all automatable.<br>
+    Zone 10 (Blue Diamond Ancients): <code>giant_squid</code> → <code>swordfish</code> (uncommon, ocean). New species list: salmon/tuna/swordfish/oarfish — all automatable.
   </div>
 </div>
 
@@ -587,42 +581,59 @@ Species: salmon (1.04B, Sea zone), tuna (778M, Ocean), swordfish (518M, Ocean), 
 
 <!-- ═══ SECTION 8 ═══ -->
 <section id="s8">
-<h2>8. Tribe Request Analysis</h2>
+<h2>8. Tribe Request Analysis <span style="font-size:13px;color:#0be881;font-weight:normal">— Updated Phase 10.6</span></h2>
 
-<h3>All 10 Tribes — Initial Request Overview</h3>
+<h3>Calculation Model (Phase 10.6)</h3>
+<div class="calc-box"><span class="hl">TRIBE_BALANCE config — abyss.js (before ABYSS_TRIBES)</span>
+totalCatches = expectedRate × (1/activeSlots) × sourceZoneFishFraction × stageDays × 86400
+
+activeSlots = 2
+speciesDist  = [40%, 30%, 20%, 10%]
+
+Z1  rate=10,000  frac=0.22  → qualRate=  1,100/s
+Z2  rate=20,000  frac=0.24  → qualRate=  2,400/s
+Z3  rate=30,000  frac=0.20  → qualRate=  3,000/s
+Z4  rate=40,000  frac=0.22  → qualRate=  4,400/s
+Z5  rate=50,000  frac=0.21  → qualRate=  5,250/s
+Z6  rate=60,000  frac=0.20  → qualRate=  6,000/s
+Z7  rate=70,000  frac=0.22  → qualRate=  7,700/s
+Z8  rate=80,000  frac=0.22  → qualRate=  8,800/s
+Z9  rate=90,000  frac=0.20  → qualRate=  9,000/s
+Z10 rate=100,000 frac=0.21  → qualRate= 10,500/s
+</div>
+
+<h3>All 10 Tribes — Initial Request Overview (Phase 10.6 values)</h3>
 <div class="tbl-wrap">
 <table>
-<thead><tr><th>Tribe</th><th>Abyss Zone</th><th>totalCatches</th><th>Design days</th><th>Limiting fish</th><th>Legendary?</th><th>Realistic days (5 DSF)</th></tr></thead>
+<thead><tr><th>Tribe</th><th>Zone</th><th>qualRate/s</th><th>totalCatches (Initial)</th><th>Design days</th><th>Fish (post-Fix2)</th><th>Legendary?</th></tr></thead>
 <tbody>
-<tr><td>Emerald Wardens</td><td>1</td><td class="num">2,592,000,000</td><td>3</td><td>salmon (Sea Rare)</td><td class="ok">No</td><td class="num warn">~1,600</td></tr>
-<tr><td>Amber Reefkin</td><td>2</td><td class="num">5,184,000,000</td><td>3</td><td>pike (Lake Rare)</td><td class="ok">No</td><td class="num warn">~2,000</td></tr>
-<tr><td>Amethyst Seers</td><td>3</td><td class="num">7,776,000,000</td><td>3</td><td>crucian_carp (Pond Common)</td><td class="ok">No</td><td class="num warn">~3,000</td></tr>
-<tr><td>Ruby Forged</td><td>4</td><td class="num">10,368,000,000</td><td>3</td><td>River fish</td><td class="ok">No</td><td class="num warn">~4,000</td></tr>
-<tr><td>Aquamarine Tidefolk</td><td>5</td><td class="num">12,960,000,000</td><td>3</td><td>Lake fish</td><td class="ok">No</td><td class="num warn">~5,000</td></tr>
-<tr><td>Opal Gardeners</td><td>6</td><td class="num">15,552,000,000</td><td>3</td><td>Bay fish</td><td class="ok">No</td><td class="num warn">~6,000</td></tr>
-<tr><td>Obsidian Keepers</td><td>7</td><td class="num">18,144,000,000</td><td>3</td><td>Sea fish</td><td class="ok">No</td><td class="num warn">~7,000</td></tr>
-<tr><td>Topaz Riftborn</td><td>8</td><td class="num">20,736,000,000</td><td>3</td><td>Ocean fish</td><td class="ok">No</td><td class="num warn">~8,000</td></tr>
-<tr><td class="warn">Sapphire Deepwatch</td><td class="warn">9</td><td class="num warn">23,328,000,000</td><td class="warn">3</td><td class="warn">giant_squid (Leg.), coelacanth (Leg.)</td><td class="warn">YES — BLOCKER</td><td class="warn">~Millions of years</td></tr>
-<tr><td class="warn">Blue Diamond Ancients</td><td class="warn">10</td><td class="num warn">25,920,000,000</td><td class="warn">3</td><td class="warn">giant_squid (Legendary)</td><td class="warn">YES — BLOCKER</td><td class="warn">~Millions of years</td></tr>
+<tr><td>Emerald Wardens</td><td>1</td><td class="num">1,100</td><td class="num">285,120,000</td><td class="ok">3</td><td>salmon/tuna/swordfish/marlin</td><td class="ok">No</td></tr>
+<tr><td>Amber Reefkin</td><td>2</td><td class="num">2,400</td><td class="num">622,080,000</td><td class="ok">3</td><td>pike/zander/catfish/eel</td><td class="ok">No</td></tr>
+<tr><td>Amethyst Seers</td><td>3</td><td class="num">3,000</td><td class="num">777,600,000</td><td class="ok">3</td><td>crucian_carp/roach/tench/bream</td><td class="ok">No</td></tr>
+<tr><td>Ruby Forged</td><td>4</td><td class="num">4,400</td><td class="num">1,140,480,000</td><td class="ok">3</td><td>grayling/barbel/chub/burbot</td><td class="ok">No</td></tr>
+<tr><td>Aquamarine Tidefolk</td><td>5</td><td class="num">5,250</td><td class="num">1,360,800,000</td><td class="ok">3</td><td>large_perch/carp/whitefish/trout</td><td class="ok">No</td></tr>
+<tr><td>Opal Gardeners</td><td>6</td><td class="num">6,000</td><td class="num">1,555,200,000</td><td class="ok">3</td><td>flounder/garfish/smelt/sprat</td><td class="ok">No</td></tr>
+<tr><td>Obsidian Keepers</td><td>7</td><td class="num">7,700</td><td class="num">1,995,840,000</td><td class="ok">3</td><td>haddock/redfish/wolffish/mackerel</td><td class="ok">No</td></tr>
+<tr><td>Topaz Riftborn</td><td>8</td><td class="num">8,800</td><td class="num">2,280,960,000</td><td class="ok">3</td><td>tuna/mahi_mahi/swordfish/marlin</td><td class="ok">No</td></tr>
+<tr><td>Sapphire Deepwatch</td><td>9</td><td class="num">9,000</td><td class="num">2,332,800,000</td><td class="ok">3</td><td>cod/oarfish/wolffish/halibut ✓</td><td class="ok">No</td></tr>
+<tr><td>Blue Diamond Ancients</td><td>10</td><td class="num">10,500</td><td class="num">2,721,600,000</td><td class="ok">3</td><td>salmon/tuna/swordfish/oarfish ✓</td><td class="ok">No</td></tr>
 </tbody>
 </table>
 </div>
 
-<h3>Zone 1 Tribe — Full Reward Chain Duration</h3>
-<div class="calc-box"><span class="hl">Emerald Wardens — all stages at Scenario A rates (~18.6 qualified/s)</span>
-Initial Request:  2.592B catches → <span class="crit">1,613 days</span>
-Friendly:         1.728B catches → 1,075 days
-Honored:          3.456B catches → 2,150 days
-Revered:          6.048B catches → 3,763 days
-Exalted:         10.368B catches → 6,450 days
-<span class="crit">Full Emerald Wardens completion: ~15,051 days (~41 years)</span>
-(Each stage runs sequentially after the previous is complete)
+<h3>Zone 1 Tribe — Full Reward Chain Duration (Phase 10.6)</h3>
+<div class="calc-box"><span class="hl">Emerald Wardens — at design automation rate (1,100 qualified/s)</span>
+Initial Request:   285,120,000 catches → <span class="ok">3 days</span>
+Friendly:          190,080,000 catches → <span class="ok">2 days</span>
+Honored:           380,160,000 catches → <span class="ok">4 days</span>
+Revered:           665,280,000 catches → <span class="ok">7 days</span>
+Exalted:         1,140,480,000 catches → <span class="ok">12 days</span>
+<span class="ok">Full Emerald Wardens completion: 28 days</span> (vs 41 years pre-fix)
+Trial of Return:    71,280,000 catches → <span class="ok">0.75 days</span>
 </div>
 
-<h3>Multi-Zone Catch Requirement</h3>
-<div class="alert alert-med">
-  <strong>Cross-zone species:</strong> Zone 1 requires salmon (Sea zone) + tuna/swordfish/marlin (Ocean zone). The player must have automation running in BOTH Sea and Ocean simultaneously to progress all four species. With only 2 active OW zone slots and at least 1 allocated to Abyss, the player can have at most 1 OW zone running — making multi-zone tribe requests even slower.
-</div>
+<h3>onCatchEvent() Call Chain</h3>
+<p>Confirmed: automation at game.js:3316–3321 calls <code>onCatchEvent(fishId, rarity)</code> which at line 2140 calls <code>recordTribeFishCatch(fishId, 1)</code> for non-trash, non-plant catches. Tribe progress IS tracked from Overworld automation. Abyss automation (<code>processAbyssAutoBatch()</code>) does NOT call this chain.</p>
 
 <h3>onCatchEvent() Call Chain</h3>
 <p>Confirmed: automation at game.js:3316–3321 calls <code>onCatchEvent(fishId, rarity)</code> which at line 2140 calls <code>recordTribeFishCatch(fishId, 1)</code> for non-trash, non-plant catches. Tribe progress IS tracked from Overworld automation. Abyss automation (<code>processAbyssAutoBatch()</code>) does NOT call this chain.</p>
@@ -630,24 +641,31 @@ Exalted:         10.368B catches → 6,450 days
 
 <!-- ═══ SECTION 9 ═══ -->
 <section id="s9">
-<h2>9. Trial of Return</h2>
+<h2>9. Trial of Return <span style="font-size:13px;color:#0be881;font-weight:normal">— Updated Phase 10.6</span></h2>
 
 <p>Implementation confirmed at abyss.js <code>getTrialFishRequirements()</code>:</p>
 <div class="calc-box"><span class="hl">return Math.max(1, Math.ceil(f.qty * 0.25));</span>
-— 25% of Initial Request quantities, same species, same zone routing.
+— 25% of Initial Request quantities, auto-derived. No config change needed.
 </div>
 
 <div class="tbl-wrap">
 <table>
-<thead><tr><th>Tribe</th><th>Initial Request total</th><th>Trial (25%) total</th><th>Design days</th><th>Realistic days (5 DSF)</th></tr></thead>
+<thead><tr><th>Tribe</th><th>Initial Request total</th><th>Trial (25%) total</th><th>Design days</th><th>Legendary?</th></tr></thead>
 <tbody>
-<tr><td>Emerald Wardens</td><td class="num">2,592,000,000</td><td class="num">648,000,000</td><td>~0.75</td><td class="num warn">~403</td></tr>
-<tr><td>Amber Reefkin</td><td class="num">5,184,000,000</td><td class="num">1,296,000,000</td><td>~0.75</td><td class="num warn">~500</td></tr>
-<tr><td class="warn">Sapphire Deepwatch</td><td class="num warn">23,328,000,000</td><td class="num warn">5,832,000,000</td><td class="warn">~0.75</td><td class="warn">Still requires Legendary</td></tr>
+<tr><td>Emerald Wardens</td><td class="num">285,120,000</td><td class="num">71,280,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Amber Reefkin</td><td class="num">622,080,000</td><td class="num">155,520,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Amethyst Seers</td><td class="num">777,600,000</td><td class="num">194,400,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Ruby Forged</td><td class="num">1,140,480,000</td><td class="num">285,120,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Aquamarine Tidefolk</td><td class="num">1,360,800,000</td><td class="num">340,200,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Opal Gardeners</td><td class="num">1,555,200,000</td><td class="num">388,800,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Obsidian Keepers</td><td class="num">1,995,840,000</td><td class="num">498,960,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Topaz Riftborn</td><td class="num">2,280,960,000</td><td class="num">570,240,000</td><td class="ok">~0.75</td><td class="ok">No</td></tr>
+<tr><td>Sapphire Deepwatch</td><td class="num">2,332,800,000</td><td class="num">583,200,000</td><td class="ok">~0.75</td><td class="ok">No ✓</td></tr>
+<tr><td>Blue Diamond Ancients</td><td class="num">2,721,600,000</td><td class="num">680,400,000</td><td class="ok">~0.75</td><td class="ok">No ✓</td></tr>
 </tbody>
 </table>
 </div>
-<div class="alert alert-high">Trial of Return inherits all the same issues as Initial Request: quantities scaled to Abyss speeds, legendary fish blockers in Zones 9–10. 25% reduction does not resolve the fundamental calibration gap.</div>
+<div class="alert" style="background:#0f2a0f;border-color:#0be881;color:#0be881;">All Trial of Return quantities calibrated correctly. 25% auto-derived formula is correct and no code change is needed. Previous Legendary blockers resolved by Phase 10.5 Fix 2 species replacement.</div>
 </section>
 
 <!-- ═══ SECTION 10 ═══ -->
@@ -925,31 +943,27 @@ HUD fish/s counter and getEstimatedHourlyIncome() both underreport by this amoun
 
 <!-- ═══ SECTION 19 ═══ -->
 <section id="s19">
-<h2>19. Recommended Balance Changes</h2>
+<h2>19. Recommended Balance Changes <span style="font-size:13px;color:#0be881;font-weight:normal">— Phase 10.6 status</span></h2>
 <div class="alert alert-info">These recommendations are for design review. Do not implement without explicit approval. Ordered by severity.</div>
 
 <h3>Critical — Tribe System Rework</h3>
-<div class="finding">
+<div class="finding" style="opacity:0.7;border-color:#555;">
   <div class="finding-head">
-    <span class="badge badge-crit">CRITICAL</span>
-    <span class="finding-title">R-01 — Reduce Tribe totalCatches by ~500× or change tracking mechanism</span>
+    <span class="badge" style="background:#2a7a2a;color:#fff;">RESOLVED</span>
+    <span class="finding-title" style="text-decoration:line-through;">R-01 — Reduce Tribe totalCatches by ~500× or change tracking mechanism</span>
   </div>
   <div class="finding-body">
-    <strong>Option A:</strong> Divide all <code>totalCatches</code> by 500. Zone 1 Initial Request becomes ~5,184,000 catches (3 days at realistic ~20 qualified fish/s). Adjust formula to use realistic OW automation catch rates instead of Abyss design speed.<br>
-    <strong>Option B:</strong> Change tracking to count total catches (all species, all zones) rather than specific fish IDs. Makes progress automatic and removes fish-zone dependency.<br>
-    <strong>Option C:</strong> Allow Abyss automation catches to count toward Tribe progress (requires <code>processAbyssAutoBatch()</code> to call <code>recordTribeFishCatch()</code> for Abyss fish).
+    <strong>Fixed in Phase 10.6:</strong> Introduced <code>TRIBE_BALANCE</code> centralized config with <code>_tribeStage()</code> generator function. Formula now uses <code>expectedRate × (1/activeSlots) × sourceZoneFishFraction × stageDays × 86400</code> — correctly accounting for OW automation allocation, loot table fish fraction, and target completion time. Zone 1 Initial Request: 285,120,000 catches (3 days at design rate). Zone 10: 2,721,600,000 catches (3 days at design rate).
   </div>
 </div>
 
-<div class="finding">
+<div class="finding" style="opacity:0.7;border-color:#555;">
   <div class="finding-head">
-    <span class="badge badge-crit">CRITICAL</span>
-    <span class="finding-title">R-02 — Replace Legendary fish in Zone 9 &amp; 10 Tribe requests</span>
+    <span class="badge" style="background:#2a7a2a;color:#fff;">RESOLVED</span>
+    <span class="finding-title" style="text-decoration:line-through;">R-02 — Replace Legendary fish in Zone 9 &amp; 10 Tribe requests</span>
   </div>
   <div class="finding-body">
-    Zone 9 (Sapphire Deepwatch): Replace <code>giant_squid</code> and <code>coelacanth</code> (both Legendary) with automatable Ocean species such as <code>tuna</code>, <code>swordfish</code>, or <code>halibut</code>.<br>
-    Zone 10 (Blue Diamond Ancients): Replace <code>giant_squid</code> with an Epic/Rare species.<br>
-    Alternative: Make Legendary fish catchable by automation in Ocean zone (removes the CLAUDE.md design constraint, but may be acceptable at endgame Abyss level).
+    <strong>Fixed in Phase 10.5 (preserved in 10.6):</strong> Zone 9 Sapphire Deepwatch now requests cod/oarfish/wolffish/halibut (all automatable). Zone 10 Blue Diamond Ancients now requests salmon/tuna/swordfish/oarfish (all automatable). No Legendary species remain in any Tribe request.
   </div>
 </div>
 

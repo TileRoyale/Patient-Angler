@@ -428,9 +428,70 @@ const ABYSS_TRIBE_BOBBERS = [
   { id: 'blue_diamond_bobber',     name: 'Blue Diamond Bobber',     tribe: 'blue_diamond_ancients', zone: 'blue_diamond_sanctuary', permanent: true, consumable: false, lostOnPrestige: false, img: null },
 ];
 
+// ─── TRIBE BALANCE CONFIGURATION ─────────────────────────────────────────────
+// All request quantities are generated from this config — never hand-written.
+// Tune these parameters to adjust request difficulty without touching tribe data.
+//
+// Model:  qualifiedRate = expectedRate × (1/activeSlots) × sourceZoneFishFraction
+//         totalCatches  = qualifiedRate × stageDays × 86400
+//         per-species   = totalCatches × speciesDist[i]
+//
+// expectedRates     — total OW automation output (catches/s) per zone tier
+// activeSlots       — active OW automation zone slots (2 default, 3 with upgrade)
+// sourceZoneFishFraction — fraction of source zone's output that are the 4 requested
+//                       species; derived from loot table weights + species distribution
+// speciesDist       — 40/30/20/10% split across the 4 fish in each request
+// Trial of Return   — auto-computed as 25% of initialRequest (see getTrialFishRequirements)
+
+const TRIBE_BALANCE = {
+  stageDays: { initialRequest: 3, friendly: 2, honored: 4, revered: 7, exalted: 12 },
+  activeSlots: 2,
+  expectedRates: [10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000],
+  // Per-tribe fraction of source zone output = (rarity weight of requested species) / 100
+  // Z1  emerald:       salmon/tuna/swordfish/marlin       ocean uncommon  ≈22%
+  // Z2  amber:         pike/zander/catfish/eel             lake rare+epic  ≈24%
+  // Z3  amethyst:      crucian_carp/roach/tench/bream      pond common     ≈20%
+  // Z4  ruby:          grayling/barbel/chub/burbot         river uncommon  ≈22%
+  // Z5  aquamarine:    large_perch/carp/whitefish/trout    lake uncommon   ≈21%
+  // Z6  opal:          flounder/garfish/smelt/sprat        bay common      ≈20%
+  // Z7  obsidian:      haddock/redfish/wolffish/mackerel   sea uncommon    ≈22%
+  // Z8  topaz:         tuna/mahi_mahi/swordfish/marlin     ocean uncommon  ≈22%
+  // Z9  sapphire:      cod/oarfish/wolffish/halibut        sea+ocean mix   ≈20%
+  // Z10 blue_diamond:  salmon/tuna/swordfish/oarfish       ocean un+rare   ≈21%
+  sourceZoneFishFraction: [0.22, 0.24, 0.20, 0.22, 0.21, 0.20, 0.22, 0.22, 0.20, 0.21],
+  speciesDist: [0.40, 0.30, 0.20, 0.10],
+};
+
+// Builds a complete stage object with computed quantities
+function _tribeStage(tribeIdx, stageName, fishDefs, extras) {
+  var b = TRIBE_BALANCE;
+  var total = Math.round(
+    b.expectedRates[tribeIdx] * (1 / b.activeSlots) *
+    b.sourceZoneFishFraction[tribeIdx] *
+    b.stageDays[stageName] * 86400
+  );
+  var fish = fishDefs.map(function(f, i) {
+    return { id: f.id, name: f.name, qty: Math.round(total * b.speciesDist[i]) };
+  });
+  var stage = { targetDays: b.stageDays[stageName], totalCatches: total, fish: fish };
+  if (extras) Object.assign(stage, extras);
+  return stage;
+}
+
 // ─── ABYSS TRIBES ────────────────────────────────────────────────────────────
 // 10 tribes, one per zone. Reputation and rewards survive prestige.
 // Current-stage catch counters reset on prestige; completed stages do not.
+
+const _EW = [{id:'salmon',name:'Salmon'},{id:'tuna',name:'Tuna'},{id:'swordfish',name:'Swordfish'},{id:'marlin',name:'Marlin'}];
+const _AR = [{id:'pike',name:'Pike'},{id:'zander',name:'Zander'},{id:'catfish',name:'European Catfish'},{id:'eel',name:'Eel'}];
+const _AS = [{id:'crucian_carp',name:'Crucian Carp'},{id:'roach',name:'Roach'},{id:'tench',name:'Tench'},{id:'common_bream',name:'Common Bream'}];
+const _RF = [{id:'grayling',name:'Grayling'},{id:'barbel',name:'Barbel'},{id:'chub',name:'Chub'},{id:'burbot',name:'Burbot'}];
+const _AT = [{id:'large_perch',name:'Large Perch'},{id:'carp',name:'Carp'},{id:'whitefish',name:'Whitefish'},{id:'brown_trout',name:'Brown Trout'}];
+const _OG = [{id:'flounder',name:'Flounder'},{id:'garfish',name:'Garfish'},{id:'smelt',name:'Smelt'},{id:'sprat',name:'Sprat'}];
+const _OK = [{id:'haddock',name:'Haddock'},{id:'redfish',name:'Redfish'},{id:'wolffish',name:'Wolffish'},{id:'atlantic_mackerel',name:'Atlantic Mackerel'}];
+const _TR = [{id:'tuna',name:'Tuna'},{id:'mahi_mahi',name:'Mahi-Mahi'},{id:'swordfish',name:'Swordfish'},{id:'marlin',name:'Marlin'}];
+const _SD = [{id:'cod',name:'Cod'},{id:'oarfish',name:'Oarfish'},{id:'wolffish',name:'Wolffish'},{id:'halibut',name:'Halibut'}];
+const _BD = [{id:'salmon',name:'Salmon'},{id:'tuna',name:'Tuna'},{id:'swordfish',name:'Swordfish'},{id:'oarfish',name:'Oarfish'}];
 
 const ABYSS_TRIBES = [
   {
@@ -438,21 +499,11 @@ const ABYSS_TRIBES = [
     specialization: 'Storage', expectedCatchsPerSecond: 10000,
     bobber: 'emerald_root_bobber', mythicFish: 'ancient_emerald_leviathan',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'salmon',name:'Salmon',qty:1036800},{id:'tuna',name:'Tuna',qty:777600},{id:'swordfish',name:'Swordfish',qty:518400},{id:'marlin',name:'Marlin',qty:259200}],
-        reward: 'emerald_root_bobber', rewardDesc: 'Emerald Root Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'salmon',name:'Salmon',qty:691200},{id:'tuna',name:'Tuna',qty:518400},{id:'swordfish',name:'Swordfish',qty:345600},{id:'marlin',name:'Marlin',qty:172800}],
-        bonus: {stat:'storage',pct:3}, rewardDesc: '+3% Storage' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'salmon',name:'Salmon',qty:1382400},{id:'tuna',name:'Tuna',qty:1036800},{id:'swordfish',name:'Swordfish',qty:691200},{id:'marlin',name:'Marlin',qty:345600}],
-        bonus: {stat:'storage',pct:3}, rewardDesc: '+3% Storage' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'salmon',name:'Salmon',qty:2419200},{id:'tuna',name:'Tuna',qty:1814400},{id:'swordfish',name:'Swordfish',qty:1209600},{id:'marlin',name:'Marlin',qty:604800}],
-        bonus: {stat:'storage',pct:4}, rewardDesc: '+4% Storage' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'salmon',name:'Salmon',qty:4147200},{id:'tuna',name:'Tuna',qty:3110400},{id:'swordfish',name:'Swordfish',qty:2073600},{id:'marlin',name:'Marlin',qty:1036800}],
-        bonus: {stat:'storage',pct:5}, rewardDesc: '+5% Storage — MAX' },
+      initialRequest: _tribeStage(0,'initialRequest',_EW,{reward:'emerald_root_bobber',rewardDesc:'Emerald Root Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(0,'friendly',      _EW,{bonus:{stat:'storage',pct:3},rewardDesc:'+3% Storage'}),
+      honored:        _tribeStage(0,'honored',        _EW,{bonus:{stat:'storage',pct:3},rewardDesc:'+3% Storage'}),
+      revered:        _tribeStage(0,'revered',        _EW,{bonus:{stat:'storage',pct:4},rewardDesc:'+4% Storage'}),
+      exalted:        _tribeStage(0,'exalted',        _EW,{bonus:{stat:'storage',pct:5},rewardDesc:'+5% Storage — MAX'}),
     },
   },
   {
@@ -460,21 +511,11 @@ const ABYSS_TRIBES = [
     specialization: 'Fish Value', expectedCatchsPerSecond: 20000,
     bobber: 'amber_coral_bobber', mythicFish: 'amber_reef_colossus',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'pike',name:'Pike',qty:1036800},{id:'zander',name:'Zander',qty:777600},{id:'catfish',name:'European Catfish',qty:518400},{id:'eel',name:'Eel',qty:259200}],
-        reward: 'amber_coral_bobber', rewardDesc: 'Amber Coral Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'pike',name:'Pike',qty:691200},{id:'zander',name:'Zander',qty:518400},{id:'catfish',name:'European Catfish',qty:345600},{id:'eel',name:'Eel',qty:172800}],
-        bonus: {stat:'fishValue',pct:2}, rewardDesc: '+2% Fish Value' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'pike',name:'Pike',qty:1382400},{id:'zander',name:'Zander',qty:1036800},{id:'catfish',name:'European Catfish',qty:691200},{id:'eel',name:'Eel',qty:345600}],
-        bonus: {stat:'fishValue',pct:2}, rewardDesc: '+2% Fish Value' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'pike',name:'Pike',qty:2419200},{id:'zander',name:'Zander',qty:1814400},{id:'catfish',name:'European Catfish',qty:1209600},{id:'eel',name:'Eel',qty:604800}],
-        bonus: {stat:'fishValue',pct:3}, rewardDesc: '+3% Fish Value' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'pike',name:'Pike',qty:4147200},{id:'zander',name:'Zander',qty:3110400},{id:'catfish',name:'European Catfish',qty:2073600},{id:'eel',name:'Eel',qty:1036800}],
-        bonus: {stat:'fishValue',pct:5}, rewardDesc: '+5% Fish Value — MAX' },
+      initialRequest: _tribeStage(1,'initialRequest',_AR,{reward:'amber_coral_bobber',rewardDesc:'Amber Coral Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(1,'friendly',      _AR,{bonus:{stat:'fishValue',pct:2},rewardDesc:'+2% Fish Value'}),
+      honored:        _tribeStage(1,'honored',        _AR,{bonus:{stat:'fishValue',pct:2},rewardDesc:'+2% Fish Value'}),
+      revered:        _tribeStage(1,'revered',        _AR,{bonus:{stat:'fishValue',pct:3},rewardDesc:'+3% Fish Value'}),
+      exalted:        _tribeStage(1,'exalted',        _AR,{bonus:{stat:'fishValue',pct:5},rewardDesc:'+5% Fish Value — MAX'}),
     },
   },
   {
@@ -482,21 +523,11 @@ const ABYSS_TRIBES = [
     specialization: 'Automation Speed', expectedCatchsPerSecond: 30000,
     bobber: 'amethyst_eye_bobber', mythicFish: 'amethyst_dream_serpent',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:1036800},{id:'roach',name:'Roach',qty:777600},{id:'tench',name:'Tench',qty:518400},{id:'common_bream',name:'Common Bream',qty:259200}],
-        reward: 'amethyst_eye_bobber', rewardDesc: 'Amethyst Eye Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:691200},{id:'roach',name:'Roach',qty:518400},{id:'tench',name:'Tench',qty:345600},{id:'common_bream',name:'Common Bream',qty:172800}],
-        bonus: {stat:'automationSpeed',pct:2}, rewardDesc: '+2% Automation Speed' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:1382400},{id:'roach',name:'Roach',qty:1036800},{id:'tench',name:'Tench',qty:691200},{id:'common_bream',name:'Common Bream',qty:345600}],
-        bonus: {stat:'automationSpeed',pct:2}, rewardDesc: '+2% Automation Speed' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:2419200},{id:'roach',name:'Roach',qty:1814400},{id:'tench',name:'Tench',qty:1209600},{id:'common_bream',name:'Common Bream',qty:604800}],
-        bonus: {stat:'automationSpeed',pct:3}, rewardDesc: '+3% Automation Speed' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'crucian_carp',name:'Crucian Carp',qty:4147200},{id:'roach',name:'Roach',qty:3110400},{id:'tench',name:'Tench',qty:2073600},{id:'common_bream',name:'Common Bream',qty:1036800}],
-        bonus: {stat:'automationSpeed',pct:5}, rewardDesc: '+5% Automation Speed — MAX' },
+      initialRequest: _tribeStage(2,'initialRequest',_AS,{reward:'amethyst_eye_bobber',rewardDesc:'Amethyst Eye Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(2,'friendly',      _AS,{bonus:{stat:'automationSpeed',pct:2},rewardDesc:'+2% Automation Speed'}),
+      honored:        _tribeStage(2,'honored',        _AS,{bonus:{stat:'automationSpeed',pct:2},rewardDesc:'+2% Automation Speed'}),
+      revered:        _tribeStage(2,'revered',        _AS,{bonus:{stat:'automationSpeed',pct:3},rewardDesc:'+3% Automation Speed'}),
+      exalted:        _tribeStage(2,'exalted',        _AS,{bonus:{stat:'automationSpeed',pct:5},rewardDesc:'+5% Automation Speed — MAX'}),
     },
   },
   {
@@ -504,21 +535,11 @@ const ABYSS_TRIBES = [
     specialization: 'Manual Catch Speed', expectedCatchsPerSecond: 40000,
     bobber: 'ruby_fang_bobber', mythicFish: 'crimson_chasm_tyrant',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'grayling',name:'Grayling',qty:1036800},{id:'barbel',name:'Barbel',qty:777600},{id:'chub',name:'Chub',qty:518400},{id:'burbot',name:'Burbot',qty:259200}],
-        reward: 'ruby_fang_bobber', rewardDesc: 'Ruby Fang Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'grayling',name:'Grayling',qty:691200},{id:'barbel',name:'Barbel',qty:518400},{id:'chub',name:'Chub',qty:345600},{id:'burbot',name:'Burbot',qty:172800}],
-        bonus: {stat:'manualCatchSpeed',pct:3}, rewardDesc: '+3% Manual Catch Speed' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'grayling',name:'Grayling',qty:1382400},{id:'barbel',name:'Barbel',qty:1036800},{id:'chub',name:'Chub',qty:691200},{id:'burbot',name:'Burbot',qty:345600}],
-        bonus: {stat:'manualCatchSpeed',pct:3}, rewardDesc: '+3% Manual Catch Speed' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'grayling',name:'Grayling',qty:2419200},{id:'barbel',name:'Barbel',qty:1814400},{id:'chub',name:'Chub',qty:1209600},{id:'burbot',name:'Burbot',qty:604800}],
-        bonus: {stat:'manualCatchSpeed',pct:4}, rewardDesc: '+4% Manual Catch Speed' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'grayling',name:'Grayling',qty:4147200},{id:'barbel',name:'Barbel',qty:3110400},{id:'chub',name:'Chub',qty:2073600},{id:'burbot',name:'Burbot',qty:1036800}],
-        bonus: {stat:'manualCatchSpeed',pct:5}, rewardDesc: '+5% Manual Catch Speed — MAX' },
+      initialRequest: _tribeStage(3,'initialRequest',_RF,{reward:'ruby_fang_bobber',rewardDesc:'Ruby Fang Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(3,'friendly',      _RF,{bonus:{stat:'manualCatchSpeed',pct:3},rewardDesc:'+3% Manual Catch Speed'}),
+      honored:        _tribeStage(3,'honored',        _RF,{bonus:{stat:'manualCatchSpeed',pct:3},rewardDesc:'+3% Manual Catch Speed'}),
+      revered:        _tribeStage(3,'revered',        _RF,{bonus:{stat:'manualCatchSpeed',pct:4},rewardDesc:'+4% Manual Catch Speed'}),
+      exalted:        _tribeStage(3,'exalted',        _RF,{bonus:{stat:'manualCatchSpeed',pct:5},rewardDesc:'+5% Manual Catch Speed — MAX'}),
     },
   },
   {
@@ -526,21 +547,11 @@ const ABYSS_TRIBES = [
     specialization: 'Offline Income', expectedCatchsPerSecond: 50000,
     bobber: 'aquamarine_pearl_bobber', mythicFish: 'lagoon_skywhale',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'large_perch',name:'Large Perch',qty:1036800},{id:'carp',name:'Carp',qty:777600},{id:'whitefish',name:'Whitefish',qty:518400},{id:'brown_trout',name:'Brown Trout',qty:259200}],
-        reward: 'aquamarine_pearl_bobber', rewardDesc: 'Aquamarine Pearl Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'large_perch',name:'Large Perch',qty:691200},{id:'carp',name:'Carp',qty:518400},{id:'whitefish',name:'Whitefish',qty:345600},{id:'brown_trout',name:'Brown Trout',qty:172800}],
-        bonus: {stat:'offlineIncome',pct:3}, rewardDesc: '+3% Offline Income' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'large_perch',name:'Large Perch',qty:1382400},{id:'carp',name:'Carp',qty:1036800},{id:'whitefish',name:'Whitefish',qty:691200},{id:'brown_trout',name:'Brown Trout',qty:345600}],
-        bonus: {stat:'offlineIncome',pct:3}, rewardDesc: '+3% Offline Income' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'large_perch',name:'Large Perch',qty:2419200},{id:'carp',name:'Carp',qty:1814400},{id:'whitefish',name:'Whitefish',qty:1209600},{id:'brown_trout',name:'Brown Trout',qty:604800}],
-        bonus: {stat:'offlineIncome',pct:4}, rewardDesc: '+4% Offline Income' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'large_perch',name:'Large Perch',qty:4147200},{id:'carp',name:'Carp',qty:3110400},{id:'whitefish',name:'Whitefish',qty:2073600},{id:'brown_trout',name:'Brown Trout',qty:1036800}],
-        bonus: {stat:'offlineIncome',pct:5}, rewardDesc: '+5% Offline Income — MAX' },
+      initialRequest: _tribeStage(4,'initialRequest',_AT,{reward:'aquamarine_pearl_bobber',rewardDesc:'Aquamarine Pearl Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(4,'friendly',      _AT,{bonus:{stat:'offlineIncome',pct:3},rewardDesc:'+3% Offline Income'}),
+      honored:        _tribeStage(4,'honored',        _AT,{bonus:{stat:'offlineIncome',pct:3},rewardDesc:'+3% Offline Income'}),
+      revered:        _tribeStage(4,'revered',        _AT,{bonus:{stat:'offlineIncome',pct:4},rewardDesc:'+4% Offline Income'}),
+      exalted:        _tribeStage(4,'exalted',        _AT,{bonus:{stat:'offlineIncome',pct:5},rewardDesc:'+5% Offline Income — MAX'}),
     },
   },
   {
@@ -548,21 +559,11 @@ const ABYSS_TRIBES = [
     specialization: 'Rare/Epic Chance', expectedCatchsPerSecond: 60000,
     bobber: 'opal_bloom_bobber', mythicFish: 'iridescent_garden_ray',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'flounder',name:'Flounder',qty:1036800},{id:'garfish',name:'Garfish',qty:777600},{id:'smelt',name:'Smelt',qty:518400},{id:'sprat',name:'Sprat',qty:259200}],
-        reward: 'opal_bloom_bobber', rewardDesc: 'Opal Bloom Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'flounder',name:'Flounder',qty:691200},{id:'garfish',name:'Garfish',qty:518400},{id:'smelt',name:'Smelt',qty:345600},{id:'sprat',name:'Sprat',qty:172800}],
-        bonus: {stat:'rareEpicChance',pct:0.5}, rewardDesc: '+0.5% Rare/Epic Chance' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'flounder',name:'Flounder',qty:1382400},{id:'garfish',name:'Garfish',qty:1036800},{id:'smelt',name:'Smelt',qty:691200},{id:'sprat',name:'Sprat',qty:345600}],
-        bonus: {stat:'rareEpicChance',pct:0.5}, rewardDesc: '+0.5% Rare/Epic Chance' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'flounder',name:'Flounder',qty:2419200},{id:'garfish',name:'Garfish',qty:1814400},{id:'smelt',name:'Smelt',qty:1209600},{id:'sprat',name:'Sprat',qty:604800}],
-        bonus: {stat:'rareEpicChance',pct:0.75}, rewardDesc: '+0.75% Rare/Epic Chance' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'flounder',name:'Flounder',qty:4147200},{id:'garfish',name:'Garfish',qty:3110400},{id:'smelt',name:'Smelt',qty:2073600},{id:'sprat',name:'Sprat',qty:1036800}],
-        bonus: {stat:'rareEpicChance',pct:1}, rewardDesc: '+1% Rare/Epic Chance — MAX' },
+      initialRequest: _tribeStage(5,'initialRequest',_OG,{reward:'opal_bloom_bobber',rewardDesc:'Opal Bloom Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(5,'friendly',      _OG,{bonus:{stat:'rareEpicChance',pct:0.5},rewardDesc:'+0.5% Rare/Epic Chance'}),
+      honored:        _tribeStage(5,'honored',        _OG,{bonus:{stat:'rareEpicChance',pct:0.5},rewardDesc:'+0.5% Rare/Epic Chance'}),
+      revered:        _tribeStage(5,'revered',        _OG,{bonus:{stat:'rareEpicChance',pct:0.75},rewardDesc:'+0.75% Rare/Epic Chance'}),
+      exalted:        _tribeStage(5,'exalted',        _OG,{bonus:{stat:'rareEpicChance',pct:1},rewardDesc:'+1% Rare/Epic Chance — MAX'}),
     },
   },
   {
@@ -570,21 +571,11 @@ const ABYSS_TRIBES = [
     specialization: 'Mythic Fish Chance', expectedCatchsPerSecond: 70000,
     bobber: 'obsidian_spike_bobber', mythicFish: 'voidjaw',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'haddock',name:'Haddock',qty:1036800},{id:'redfish',name:'Redfish',qty:777600},{id:'wolffish',name:'Wolffish',qty:518400},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:259200}],
-        reward: 'obsidian_spike_bobber', rewardDesc: 'Obsidian Spike Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'haddock',name:'Haddock',qty:691200},{id:'redfish',name:'Redfish',qty:518400},{id:'wolffish',name:'Wolffish',qty:345600},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:172800}],
-        bonus: {stat:'mythicFishChance',pct:0.25}, rewardDesc: '+0.25% Mythic Fish Chance' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'haddock',name:'Haddock',qty:1382400},{id:'redfish',name:'Redfish',qty:1036800},{id:'wolffish',name:'Wolffish',qty:691200},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:345600}],
-        bonus: {stat:'mythicFishChance',pct:0.25}, rewardDesc: '+0.25% Mythic Fish Chance' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'haddock',name:'Haddock',qty:2419200},{id:'redfish',name:'Redfish',qty:1814400},{id:'wolffish',name:'Wolffish',qty:1209600},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:604800}],
-        bonus: {stat:'mythicFishChance',pct:0.25}, rewardDesc: '+0.25% Mythic Fish Chance' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'haddock',name:'Haddock',qty:4147200},{id:'redfish',name:'Redfish',qty:3110400},{id:'wolffish',name:'Wolffish',qty:2073600},{id:'atlantic_mackerel',name:'Atlantic Mackerel',qty:1036800}],
-        bonus: {stat:'mythicFishChance',pct:0.5}, rewardDesc: '+0.5% Mythic Fish Chance — MAX' },
+      initialRequest: _tribeStage(6,'initialRequest',_OK,{reward:'obsidian_spike_bobber',rewardDesc:'Obsidian Spike Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(6,'friendly',      _OK,{bonus:{stat:'mythicFishChance',pct:0.25},rewardDesc:'+0.25% Mythic Fish Chance'}),
+      honored:        _tribeStage(6,'honored',        _OK,{bonus:{stat:'mythicFishChance',pct:0.25},rewardDesc:'+0.25% Mythic Fish Chance'}),
+      revered:        _tribeStage(6,'revered',        _OK,{bonus:{stat:'mythicFishChance',pct:0.25},rewardDesc:'+0.25% Mythic Fish Chance'}),
+      exalted:        _tribeStage(6,'exalted',        _OK,{bonus:{stat:'mythicFishChance',pct:0.5},rewardDesc:'+0.5% Mythic Fish Chance — MAX'}),
     },
   },
   {
@@ -592,21 +583,11 @@ const ABYSS_TRIBES = [
     specialization: 'Expedition Speed', expectedCatchsPerSecond: 80000,
     bobber: 'topaz_rift_bobber', mythicFish: 'golden_fault_eel',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'tuna',name:'Tuna',qty:1036800},{id:'mahi_mahi',name:'Mahi-Mahi',qty:777600},{id:'swordfish',name:'Swordfish',qty:518400},{id:'marlin',name:'Marlin',qty:259200}],
-        reward: 'topaz_rift_bobber', rewardDesc: 'Topaz Rift Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'tuna',name:'Tuna',qty:691200},{id:'mahi_mahi',name:'Mahi-Mahi',qty:518400},{id:'swordfish',name:'Swordfish',qty:345600},{id:'marlin',name:'Marlin',qty:172800}],
-        bonus: {stat:'expeditionSpeed',pct:5}, rewardDesc: '+5% Expedition Speed' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'tuna',name:'Tuna',qty:1382400},{id:'mahi_mahi',name:'Mahi-Mahi',qty:1036800},{id:'swordfish',name:'Swordfish',qty:691200},{id:'marlin',name:'Marlin',qty:345600}],
-        bonus: {stat:'expeditionSpeed',pct:5}, rewardDesc: '+5% Expedition Speed' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'tuna',name:'Tuna',qty:2419200},{id:'mahi_mahi',name:'Mahi-Mahi',qty:1814400},{id:'swordfish',name:'Swordfish',qty:1209600},{id:'marlin',name:'Marlin',qty:604800}],
-        bonus: {stat:'expeditionSpeed',pct:7.5}, rewardDesc: '+7.5% Expedition Speed' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'tuna',name:'Tuna',qty:4147200},{id:'mahi_mahi',name:'Mahi-Mahi',qty:3110400},{id:'swordfish',name:'Swordfish',qty:2073600},{id:'marlin',name:'Marlin',qty:1036800}],
-        bonus: {stat:'expeditionSpeed',pct:10}, rewardDesc: '+10% Expedition Speed — MAX' },
+      initialRequest: _tribeStage(7,'initialRequest',_TR,{reward:'topaz_rift_bobber',rewardDesc:'Topaz Rift Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(7,'friendly',      _TR,{bonus:{stat:'expeditionSpeed',pct:5},rewardDesc:'+5% Expedition Speed'}),
+      honored:        _tribeStage(7,'honored',        _TR,{bonus:{stat:'expeditionSpeed',pct:5},rewardDesc:'+5% Expedition Speed'}),
+      revered:        _tribeStage(7,'revered',        _TR,{bonus:{stat:'expeditionSpeed',pct:7.5},rewardDesc:'+7.5% Expedition Speed'}),
+      exalted:        _tribeStage(7,'exalted',        _TR,{bonus:{stat:'expeditionSpeed',pct:10},rewardDesc:'+10% Expedition Speed — MAX'}),
     },
   },
   {
@@ -614,21 +595,11 @@ const ABYSS_TRIBES = [
     specialization: 'Geode Find Rate', expectedCatchsPerSecond: 90000,
     bobber: 'sapphire_trench_bobber', mythicFish: 'sapphire_trench_warden',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'cod',name:'Cod',qty:1036800},{id:'oarfish',name:'Oarfish',qty:777600},{id:'wolffish',name:'Wolffish',qty:518400},{id:'halibut',name:'Halibut',qty:259200}],
-        reward: 'sapphire_trench_bobber', rewardDesc: 'Sapphire Trench Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'cod',name:'Cod',qty:691200},{id:'oarfish',name:'Oarfish',qty:518400},{id:'wolffish',name:'Wolffish',qty:345600},{id:'halibut',name:'Halibut',qty:172800}],
-        bonus: {stat:'geodeFindRate',pct:2}, rewardDesc: '+2% Geode Find Rate' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'cod',name:'Cod',qty:1382400},{id:'oarfish',name:'Oarfish',qty:1036800},{id:'wolffish',name:'Wolffish',qty:691200},{id:'halibut',name:'Halibut',qty:345600}],
-        bonus: {stat:'geodeFindRate',pct:2}, rewardDesc: '+2% Geode Find Rate' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'cod',name:'Cod',qty:2419200},{id:'oarfish',name:'Oarfish',qty:1814400},{id:'wolffish',name:'Wolffish',qty:1209600},{id:'halibut',name:'Halibut',qty:604800}],
-        bonus: {stat:'geodeFindRate',pct:3}, rewardDesc: '+3% Geode Find Rate' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'cod',name:'Cod',qty:4147200},{id:'oarfish',name:'Oarfish',qty:3110400},{id:'wolffish',name:'Wolffish',qty:2073600},{id:'halibut',name:'Halibut',qty:1036800}],
-        bonus: {stat:'geodeFindRate',pct:5}, rewardDesc: '+5% Geode Find Rate — MAX' },
+      initialRequest: _tribeStage(8,'initialRequest',_SD,{reward:'sapphire_trench_bobber',rewardDesc:'Sapphire Trench Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(8,'friendly',      _SD,{bonus:{stat:'geodeFindRate',pct:2},rewardDesc:'+2% Geode Find Rate'}),
+      honored:        _tribeStage(8,'honored',        _SD,{bonus:{stat:'geodeFindRate',pct:2},rewardDesc:'+2% Geode Find Rate'}),
+      revered:        _tribeStage(8,'revered',        _SD,{bonus:{stat:'geodeFindRate',pct:3},rewardDesc:'+3% Geode Find Rate'}),
+      exalted:        _tribeStage(8,'exalted',        _SD,{bonus:{stat:'geodeFindRate',pct:5},rewardDesc:'+5% Geode Find Rate — MAX'}),
     },
   },
   {
@@ -636,21 +607,11 @@ const ABYSS_TRIBES = [
     specialization: 'Extra Geode Diamond Chance', expectedCatchsPerSecond: 100000,
     bobber: 'blue_diamond_bobber', mythicFish: 'heart_of_the_abyss',
     stages: {
-      initialRequest: { targetDays: 3, totalCatches: 2592000,
-        fish: [{id:'salmon',name:'Salmon',qty:1036800},{id:'tuna',name:'Tuna',qty:777600},{id:'swordfish',name:'Swordfish',qty:518400},{id:'oarfish',name:'Oarfish',qty:259200}],
-        reward: 'blue_diamond_bobber', rewardDesc: 'Blue Diamond Bobber — unlocks Mythic catch' },
-      friendly: { targetDays: 2, totalCatches: 1728000,
-        fish: [{id:'salmon',name:'Salmon',qty:691200},{id:'tuna',name:'Tuna',qty:518400},{id:'swordfish',name:'Swordfish',qty:345600},{id:'oarfish',name:'Oarfish',qty:172800}],
-        bonus: {stat:'geodeExtraDiamondChance',pct:2}, rewardDesc: '+2% Extra Geode Diamond Chance' },
-      honored: { targetDays: 4, totalCatches: 3456000,
-        fish: [{id:'salmon',name:'Salmon',qty:1382400},{id:'tuna',name:'Tuna',qty:1036800},{id:'swordfish',name:'Swordfish',qty:691200},{id:'oarfish',name:'Oarfish',qty:345600}],
-        bonus: {stat:'geodeExtraDiamondChance',pct:3}, rewardDesc: '+3% Extra Geode Diamond Chance' },
-      revered: { targetDays: 7, totalCatches: 6048000,
-        fish: [{id:'salmon',name:'Salmon',qty:2419200},{id:'tuna',name:'Tuna',qty:1814400},{id:'swordfish',name:'Swordfish',qty:1209600},{id:'oarfish',name:'Oarfish',qty:604800}],
-        bonus: {stat:'geodeExtraDiamondChance',pct:5}, rewardDesc: '+5% Extra Geode Diamond Chance' },
-      exalted: { targetDays: 12, totalCatches: 10368000,
-        fish: [{id:'salmon',name:'Salmon',qty:4147200},{id:'tuna',name:'Tuna',qty:3110400},{id:'swordfish',name:'Swordfish',qty:2073600},{id:'oarfish',name:'Oarfish',qty:1036800}],
-        bonus: {stat:'geodeExtraDiamondChance',pct:10}, rewardDesc: '+10% Extra Geode Diamond Chance — MAX' },
+      initialRequest: _tribeStage(9,'initialRequest',_BD,{reward:'blue_diamond_bobber',rewardDesc:'Blue Diamond Bobber — unlocks Mythic catch'}),
+      friendly:       _tribeStage(9,'friendly',      _BD,{bonus:{stat:'geodeExtraDiamondChance',pct:2},rewardDesc:'+2% Extra Geode Diamond Chance'}),
+      honored:        _tribeStage(9,'honored',        _BD,{bonus:{stat:'geodeExtraDiamondChance',pct:3},rewardDesc:'+3% Extra Geode Diamond Chance'}),
+      revered:        _tribeStage(9,'revered',        _BD,{bonus:{stat:'geodeExtraDiamondChance',pct:5},rewardDesc:'+5% Extra Geode Diamond Chance'}),
+      exalted:        _tribeStage(9,'exalted',        _BD,{bonus:{stat:'geodeExtraDiamondChance',pct:10},rewardDesc:'+10% Extra Geode Diamond Chance — MAX'}),
     },
   },
 ];
