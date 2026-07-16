@@ -665,6 +665,221 @@ function getAbyssBobberForZone(zoneId) {
   return zone ? getAbyssTribeBobber(zone.bobberReward) : null;
 }
 
+// ─── ABYSS ASSET INITIALISATION ──────────────────────────────────────────────
+// Populates img / bg fields from real art files.
+// Completed biomes: Emerald ✅  Amber ✅  Amethyst 🟡 (no insects yet).
+// Missing assets log one console.warn and remain null → placeholder renders.
+
+(function _initAbyssAssets() {
+  var AB = 'img/Abyss assets/';
+
+  // ── Zone backgrounds ───────────────────────────────────────────────────────
+  var ZONE_BGS = {
+    'emerald_forest':   AB + 'Backgrounds/Emerald Abyss.png',
+    'amber_reef':       AB + 'Backgrounds/Amber Abyss.png',
+    'amethyst_caverns': AB + 'Backgrounds/Amethyst Background.png',
+  };
+  ABYSS_ZONES.forEach(function(z) {
+    if (ZONE_BGS[z.id]) z.bg = ZONE_BGS[z.id];
+  });
+
+  // ── Fish — canonical (native-zone) art ────────────────────────────────────
+  var FISH_IMGS = {
+    // Emerald (10)
+    'emerald_glowfin':      AB + 'Fish/Emerald/Glowing anglerfish.png',
+    'crystal_minnow':       AB + 'Fish/Emerald/Glowing minnow.png',
+    'moss_koi':             AB + 'Fish/Emerald/Mossscale Carp.png',
+    'jade_pike':            AB + 'Fish/Emerald/Emerald Pike.png',
+    'leaf_ray':             AB + 'Fish/Emerald/Glowing Greenfin Ray.png',
+    'forest_eel':           AB + 'Fish/Emerald/lantern eel.png',
+    'verdant_carp':         AB + 'Fish/Emerald/Fern-finned loach.png',
+    'root_catfish':         AB + 'Fish/Emerald/Jade Catfish.png',
+    'emerald_disc':         AB + 'Fish/Emerald/cave sturgeon.png',
+    'canopy_guppy':         AB + 'Fish/Emerald/Crystal perch.png',
+    // Amber native (5)
+    'amber_snapper':        AB + 'Fish/Amber/Amber Gar.png',
+    'honey_wrasse':         AB + 'Fish/Amber/Honeyfin Carp.png',
+    'golden_butterflyfish': AB + 'Fish/Amber/Golden Cave Perch.png',
+    'reef_grouper':         AB + 'Fish/Amber/Glow Bream.png',
+    'sunscale_bass':        AB + 'Fish/Amber/Amber Trout.png',
+    // Amethyst native (5)
+    'amethyst_angelfish':   AB + 'Fish/Amethyst/Amethyst Pike.png',
+    'violet_stingray':      AB + 'Fish/Amethyst/Cavern Ray.png',
+    'crystal_loach':        AB + 'Fish/Amethyst/Shadow Loach.png',
+    'purple_lanternfish':   AB + 'Fish/Amethyst/Prism Perch.png',
+    'gem_betta':            AB + 'Fish/Amethyst/Gem Catfish.png',
+  };
+  var FISH_COMPLETE_ZONES = ['emerald_forest','amber_reef','amethyst_caverns'];
+  ABYSS_FISH_DB.forEach(function(f) {
+    if (FISH_IMGS[f.id]) { f.img = FISH_IMGS[f.id]; return; }
+    if (FISH_COMPLETE_ZONES.indexOf(f.nativeZone) >= 0) console.warn('[Abyss] Missing fish art:', f.id);
+  });
+
+  // ── Crystals — canonical art ───────────────────────────────────────────────
+  var CRYSTAL_IMGS = {
+    // Emerald (10)
+    'emerald_shard':   AB + 'Crystals/Emerald/Green Shard.png',
+    'living_emerald':  AB + 'Crystals/Emerald/Living Emerald.png',
+    'moss_crystal':    AB + 'Crystals/Emerald/Moss Gem.png',
+    'root_crystal':    AB + 'Crystals/Emerald/Root Crystal.png',
+    'forest_core':     AB + 'Crystals/Emerald/Forest Quartz.png',
+    'leaf_prism':      AB + 'Crystals/Emerald/Verdant Prism.png',
+    'green_cluster':   AB + 'Crystals/Emerald/Emerald Cluster.png',
+    'glow_emerald':    AB + 'Crystals/Emerald/Cave Emerald.png',
+    'ancient_emerald': AB + 'Crystals/Emerald/Deep Jade.png',
+    'wild_emerald':    AB + 'Crystals/Emerald/Crystal Bloom.png',
+    // Amber native (5)
+    'amber_shard':     AB + 'Crystals/Amber/Burnished Amber.png',
+    'sun_amber':       AB + 'Crystals/Amber/Solar Gem.png',
+    'honey_crystal':   AB + 'Crystals/Amber/Honey Cluster.png',
+    'golden_resin':    AB + 'Crystals/Amber/Ancient Resin.png',
+    'warm_prism':      AB + 'Crystals/Amber/Sun Prism.png',
+    // Amethyst native (5)
+    'amethyst_shard':  AB + 'Crystals/Amethyst/Deep Amethyst.png',
+    'dream_quartz':    AB + 'Crystals/Amethyst/Moon Quartz.png',
+    'violet_prism':    AB + 'Crystals/Amethyst/Twilight Prism.png',
+    'crystal_bloom':   AB + 'Crystals/Amethyst/Star Bloom.png',
+    'echo_gem':        AB + 'Crystals/Amethyst/Echo Shard.png',
+  };
+  var CRYSTAL_COMPLETE_ZONES = ['emerald_forest','amber_reef','amethyst_caverns'];
+  ABYSS_CRYSTAL_DB.forEach(function(c) {
+    if (CRYSTAL_IMGS[c.id]) { c.img = CRYSTAL_IMGS[c.id]; return; }
+    if (CRYSTAL_COMPLETE_ZONES.indexOf(c.nativeZone) >= 0) console.warn('[Abyss] Missing crystal art:', c.id);
+  });
+
+  // ── Insects — canonical art ────────────────────────────────────────────────
+  var INSECT_IMGS = {
+    // Emerald (10)
+    'crystal_beetle': AB + 'Insects/Emerald/Lantern Beetle.png',
+    'glow_moth':      AB + 'Insects/Emerald/Crystal Moth.png',
+    'leaf_cricket':   AB + 'Insects/Emerald/Glow Cricket.png',
+    'emerald_spider': AB + 'Insects/Emerald/Emerald Dragonfly.png',
+    'root_ant':       AB + 'Insects/Emerald/Cave Cicada.png',
+    'moss_firefly':   AB + 'Insects/Emerald/Cave Firefly.png',
+    'fern_hopper':    AB + 'Insects/Emerald/Moss Hopper.png',
+    'crystal_bee':    AB + 'Insects/Emerald/Glow Weevil.png',
+    'green_scarab':   AB + 'Insects/Emerald/Green Scarab.png',
+    'forest_wasp':    AB + 'Insects/Emerald/Moss Beetle.png',
+    // Amber native (5)
+    'amber_beetle':   AB + 'Insects/Amber/Resin Beetle.png',
+    'honey_bee':      AB + 'Insects/Amber/Crystal Bee.png',
+    'golden_mantis':  AB + 'Insects/Amber/Resin Mantis.png',
+    'reef_cricket':   AB + 'Insects/Amber/Resin Hopper.png',
+    'sun_hopper':     AB + 'Insects/Amber/Amber Butterfly.png',
+    // Amethyst: folder empty — all remain null (placeholder)
+  };
+  ABYSS_INSECT_DB.forEach(function(ins) {
+    if (INSECT_IMGS[ins.id]) { ins.img = INSECT_IMGS[ins.id]; return; }
+    if (ins.nativeZone === 'emerald_forest' || ins.nativeZone === 'amber_reef') {
+      console.warn('[Abyss] Missing insect art:', ins.id);
+    }
+  });
+
+  // ── Mythic fish ───────────────────────────────────────────────────────────
+  var MYTHIC_IMGS = {
+    'ancient_emerald_leviathan': AB + 'Mythic fish/Glowfin Leviathan.png',
+    'amber_reef_colossus':       AB + 'Mythic fish/Amber Colossus (Mythic).png',
+    'amethyst_dream_serpent':    AB + 'Mythic fish/Void Oracle (Mythic).png',
+  };
+  var MYTHIC_COMPLETE = ['emerald_forest','amber_reef','amethyst_caverns'];
+  ABYSS_MYTHIC_FISH.forEach(function(m) {
+    if (MYTHIC_IMGS[m.id]) { m.img = MYTHIC_IMGS[m.id]; return; }
+    if (MYTHIC_COMPLETE.indexOf(m.zone) >= 0) console.warn('[Abyss] Missing mythic art:', m.id);
+  });
+
+  // ── Tribe bobbers ─────────────────────────────────────────────────────────
+  var BOBBER_IMGS = {
+    'emerald_root_bobber':  AB + 'Tribe bobbers/Emerald crystal fishing bobber.png',
+    'amber_coral_bobber':   AB + 'Tribe bobbers/Amber Tribe Bobber.png',
+    'amethyst_eye_bobber':  AB + 'Tribe bobbers/Amethyst Tribe Bobber.png',
+  };
+  var BOBBER_COMPLETE_TRIBES = ['emerald_wardens','amber_reefkin','amethyst_seers'];
+  ABYSS_TRIBE_BOBBERS.forEach(function(b) {
+    if (BOBBER_IMGS[b.id]) { b.img = BOBBER_IMGS[b.id]; return; }
+    if (BOBBER_COMPLETE_TRIBES.indexOf(b.tribe) >= 0) console.warn('[Abyss] Missing bobber art:', b.id);
+  });
+})();
+
+// ─── ABYSS ZONE-SPECIFIC ITEM ART ────────────────────────────────────────────
+// Art overrides for items inherited from earlier zones.
+// Keyed by zoneId → category ('fish'|'crystals'|'insects') → itemId → path.
+
+var ABYSS_ZONE_ITEM_ART = {
+  'amber_reef': {
+    fish: {
+      'forest_eel':   'img/Abyss assets/Fish/Amber/Rock Eel.png',
+      'verdant_carp': 'img/Abyss assets/Fish/Amber/Molten Loach.png',
+      'root_catfish': 'img/Abyss assets/Fish/Amber/Bronze Catfish.png',
+      'emerald_disc': 'img/Abyss assets/Fish/Amber/Crystal Chub.png',
+      'canopy_guppy': 'img/Abyss assets/Fish/Amber/Cavern Pike.png',
+    },
+    crystals: {
+      'leaf_prism':     'img/Abyss assets/Crystals/Amber/Warm Quartz.png',
+      'green_cluster':  'img/Abyss assets/Crystals/Amber/Golden Shard.png',
+      'glow_emerald':   'img/Abyss assets/Crystals/Amber/Molten Amber.png',
+      'ancient_emerald':'img/Abyss assets/Crystals/Amber/Fossil Crystal.png',
+      'wild_emerald':   'img/Abyss assets/Crystals/Amber/Amber Heart.png',
+    },
+    insects: {
+      'moss_firefly': 'img/Abyss assets/Insects/Amber/Golden Firefly.png',
+      'fern_hopper':  'img/Abyss assets/Insects/Amber/Amber Cicada.png',
+      'crystal_bee':  'img/Abyss assets/Insects/Amber/Honey Scarab.png',
+      'green_scarab': 'img/Abyss assets/Insects/Amber/Glow Ant.png',
+      'forest_wasp':  'img/Abyss assets/Insects/Amber/Cave Wasp.png',
+    },
+  },
+  'amethyst_caverns': {
+    fish: {
+      'amber_snapper':        'img/Abyss assets/Fish/Amethyst/Amethyst Sturgeon.png',
+      'honey_wrasse':         'img/Abyss assets/Fish/Amethyst/Royal Minnow.png',
+      'golden_butterflyfish': 'img/Abyss assets/Fish/Amethyst/Shard Trout.png',
+      'reef_grouper':         'img/Abyss assets/Fish/Amethyst/Crystal Bream.png',
+      'sunscale_bass':        'img/Abyss assets/Fish/Amethyst/Violet Eel.png',
+    },
+    crystals: {
+      'amber_shard':   'img/Abyss assets/Crystals/Amethyst/Royal Amethyst.png',
+      'sun_amber':     'img/Abyss assets/Crystals/Amethyst/Soul Gem.png',
+      'honey_crystal': 'img/Abyss assets/Crystals/Amethyst/Crown Cluster.png',
+      'golden_resin':  'img/Abyss assets/Crystals/Amethyst/Temple Crystal.png',
+      // warm_prism: no amethyst art yet → placeholder
+    },
+    // insects: Amethyst folder empty → all use placeholder
+  },
+};
+
+// Returns the best available image for item itemId shown in zone zoneId.
+// Checks zone-specific overrides first, then the DB entry's canonical art.
+function _getAbyssItemImg(itemId, zoneId, category) {
+  if (zoneId && ABYSS_ZONE_ITEM_ART[zoneId]) {
+    var za = ABYSS_ZONE_ITEM_ART[zoneId][category];
+    if (za && za[itemId]) return za[itemId];
+  }
+  var db = category === 'fish'     ? ABYSS_FISH_DB    :
+           category === 'crystals' ? ABYSS_CRYSTAL_DB :
+           category === 'insects'  ? ABYSS_INSECT_DB  : null;
+  if (!db) return null;
+  var entry = db.find(function(e) { return e.id === itemId; });
+  return (entry && entry.img) || null;
+}
+
+// Sets the fishing-screen background to the given abyss zone's bg image.
+function _updateAbyssZoneBg(zoneId) {
+  var zone  = getAbyssZone(zoneId);
+  var imgEl = document.getElementById('zone-bg');
+  var area  = document.getElementById('water-area');
+  if (!imgEl || !area) return;
+  var bg = zone && zone.bg;
+  if (bg) {
+    imgEl.src            = bg;
+    imgEl.style.display  = '';
+    area.style.background = '';
+  } else {
+    imgEl.src            = '';
+    imgEl.style.display  = 'none';
+    area.style.background = 'linear-gradient(180deg, ' + (zone ? zone.themeColor + '44' : '#0a1428') + ' 0%, #0a0a1a 100%)';
+  }
+}
+
 // ─── PLACEHOLDER COMPONENT ────────────────────────────────────────────────────
 // White box, thin dark border, large red question mark. No emoji, no broken-image icon.
 // Only call when canAccessMaelstromAndAbyss() is true.
@@ -1669,7 +1884,8 @@ function _renderAbyssGeodeSection(container) {
   container.appendChild(section);
 }
 
-function _renderAbyssCategory(itemIds, db, fdMap, label, color, container) {
+function _renderAbyssCategory(itemIds, db, fdMap, label, color, container, zoneId) {
+  var cat  = label === 'Fish' ? 'fish' : label === 'Crystals' ? 'crystals' : label === 'Insects' ? 'insects' : null;
   var disc = itemIds.filter(function(id) { return fdMap[id] && fdMap[id].discovered; }).length;
 
   var catHeader = document.createElement('div');
@@ -1689,9 +1905,10 @@ function _renderAbyssCategory(itemIds, db, fdMap, label, color, container) {
     cell.className = 'fishdex-cell' + (discovered ? '' : ' locked');
 
     if (discovered && def) {
+      var src = cat ? _getAbyssItemImg(id, zoneId, cat) : (def && def.img);
       cell.innerHTML =
-        (def.img
-          ? '<img src="' + def.img + '" alt="' + def.name + '" class="fishdex-img">'
+        (src
+          ? '<img src="' + src + '" alt="' + def.name + '" class="fishdex-img">'
           : '<div class="fishdex-placeholder" style="color:' + color + '">' + def.name[0].toUpperCase() + '</div>') +
         '<span class="fishdex-rarity-dot" style="background:' + color + '"></span>' +
         '<div class="fishdex-name">' + def.name + '</div>' +
@@ -1725,11 +1942,11 @@ function _renderAbyssBiome(biomeId, container) {
   biomeHeader.innerHTML = '<span>' + (zone.name || biomeId) + '</span><span class="abyss-biome-count">' + biomeDisc + '/' + biomeTotal + '</span>';
   container.appendChild(biomeHeader);
 
-  _renderAbyssCategory(zone.fish,     ABYSS_FISH_DB,    fd.fish,     'Fish',     '#4dd0e1', container);
-  _renderAbyssCategory(zone.crystals, ABYSS_CRYSTAL_DB, fd.crystals, 'Crystals', '#ce93d8', container);
-  _renderAbyssCategory(zone.insects,  ABYSS_INSECT_DB,  fd.insects,  'Insects',  '#a5d6a7', container);
+  _renderAbyssCategory(zone.fish,     ABYSS_FISH_DB,    fd.fish,     'Fish',     '#4dd0e1', container, zone.id);
+  _renderAbyssCategory(zone.crystals, ABYSS_CRYSTAL_DB, fd.crystals, 'Crystals', '#ce93d8', container, zone.id);
+  _renderAbyssCategory(zone.insects,  ABYSS_INSECT_DB,  fd.insects,  'Insects',  '#a5d6a7', container, zone.id);
   if (zone.mythicFish) {
-    _renderAbyssCategory([zone.mythicFish], ABYSS_MYTHIC_FISH, fd.mythics, 'Mythic', '#ffd700', container);
+    _renderAbyssCategory([zone.mythicFish], ABYSS_MYTHIC_FISH, fd.mythics, 'Mythic', '#ffd700', container, zone.id);
   }
 }
 
@@ -2041,8 +2258,17 @@ function renderAbyssTribeBobbers() {
     var card = document.createElement('div');
     card.className = 'bobber-cosm-card' + (equipped ? ' equipped' : '');
     var imgWrap = document.createElement('div');
-    imgWrap.className = 'bobber-cosm-img-wrap tribe-bobber-placeholder';
-    imgWrap.textContent = bobberDef.name[0].toUpperCase();
+    imgWrap.className = 'bobber-cosm-img-wrap';
+    if (bobberDef.img) {
+      var bImg = document.createElement('img');
+      bImg.src       = bobberDef.img;
+      bImg.alt       = bobberDef.name;
+      bImg.className = 'bobber-cosm-img';
+      imgWrap.appendChild(bImg);
+    } else {
+      imgWrap.className += ' tribe-bobber-placeholder';
+      imgWrap.textContent = bobberDef.name[0].toUpperCase();
+    }
     var label = document.createElement('div');
     label.className = 'bobber-cosm-name';
     label.textContent = bobberDef.name;
@@ -2706,6 +2932,7 @@ function renderAbyssZoneSelector() {
     else if (mythicElig)  statusBadge = '<span class="abyss-zone-badge eligible">Mythic Eligible</span>';
 
     return '<div class="abyss-zone-card' + (isCurrent ? ' active-zone' : '') + '" style="border-color:' + z.themeColor + ';cursor:pointer;" onclick="enterAbyssZoneForFishing(\'' + z.id + '\')">' +
+      (z.bg ? '<img class="azc-bg-thumb" src="' + z.bg + '" alt="">' : '<div class="azc-bg-color" style="background:' + z.themeColor + '22;"></div>') +
       '<div class="azc-header">' +
         '<span class="azc-order" style="color:' + z.themeColor + '">Zone ' + z.order + '</span>' +
         '<span class="azc-name">' + z.name + '</span>' + statusBadge +
@@ -2747,6 +2974,7 @@ function enterAbyssZoneForFishing(zoneId) {
   var zone = getAbyssZone(zoneId);
   var hudZone = document.getElementById('hud-zone');
   if (hudZone && zone) hudZone.textContent = zone.name;
+  _updateAbyssZoneBg(zoneId);
   if (typeof saveState === 'function') saveState();
   if (typeof showScreen === 'function') showScreen('fishing');
   if (typeof showStatus === 'function') showStatus('Entered ' + (zone ? zone.name : zoneId) + ' — tap to cast!', 2000);

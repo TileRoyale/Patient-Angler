@@ -4652,7 +4652,12 @@ html, body {
 .azs-subtext { font-size:clamp(10px,2.5vw,13px); color:rgba(255,255,255,0.45); margin-bottom:16px; }
 .abyss-zone-grid { display:flex; flex-direction:column; gap:10px; }
 
-.abyss-zone-card { background:rgba(20,30,50,0.85); border:1px solid rgba(126,200,227,0.18); border-radius:10px; padding:12px 14px; cursor:pointer; transition:border-color 0.15s, background 0.15s; }
+.abyss-zone-card { background:rgba(20,30,50,0.85); border:1px solid rgba(126,200,227,0.18); border-radius:10px; overflow:hidden; cursor:pointer; transition:border-color 0.15s, background 0.15s; }
+.azc-bg-thumb { width:100%; height:55px; object-fit:cover; display:block; }
+.azc-bg-color { width:100%; height:55px; }
+.azc-header, .azc-meta, .azc-tribe, .azc-lock-note { padding:0 14px; }
+.azc-header { padding-top:8px; margin-bottom:6px; }
+.azc-tribe { margin-bottom:10px; }
 .abyss-zone-card:hover:not(.locked) { border-color:rgba(126,200,227,0.6); background:rgba(30,45,70,0.9); }
 .abyss-zone-card.locked { opacity:0.5; cursor:not-allowed; border-color:rgba(255,255,255,0.1); }
 .abyss-zone-card.active-zone { border-color:#f4c430; background:rgba(244,196,48,0.08); }
