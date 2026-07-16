@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.9 — Build 48 (July 2026)
+
+### Fix
+- **Diamond Store** — Automation Upgrade and Storage Upgrade moved from the Jeweler tab to the Diamond Store under a dedicated Permanent Upgrades section. Buy button style now matches Premium Bait and Auto-Seller.
+
+---
+
 ## v0.8.8 — Build 47 (July 2026)
 
 ### New
