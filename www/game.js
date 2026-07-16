@@ -6990,7 +6990,7 @@ function renderDiamondStore() {
           <div class="ds-spend-desc">${d.desc}</div>
           <div style="font-size:12px;color:#90c890;margin-top:2px">${curEff}</div>
         </div>
-        <button class="${canAff ? 'btn-primary ds-spend-btn' : 'btn-shop-locked'}" ${canAff ? '' : 'disabled'}
+        <button class="btn-primary ds-spend-btn" ${canAff ? '' : 'disabled'}
           onclick="buyDiamondUpgrade('${d.type}')">
           ${atCap ? 'MAX' : `100 <img src="img/icons/Diamond icon.png" class="ds-inline-icon" alt="">`}
         </button>
