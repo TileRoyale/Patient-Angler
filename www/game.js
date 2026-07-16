@@ -838,7 +838,7 @@ function getSpeedMult() {
     * (G.devSupportOwned ? 1.25 : 1)
     * (G.removeAds ? 1.25 : 1);
 }
-function getRarityBonus()  { return     getBobberTier('sensitive_bobber') * 0.01; }
+function getRarityBonus()  { return getBobberTier('sensitive_bobber') * 0.01 + (typeof getTribeRareChanceBonus === 'function' ? getTribeRareChanceBonus() : 0); }
 function getSizeShift()    { return     getBobberTier('heavy_bobber'); }
 function getMultiCatch()   { return getBobberTier('electronic_bobber') + 1 + ((G.pearlUpgrades||{}).multicatch||0); }
 
@@ -1456,7 +1456,7 @@ function buyTransport(id) {
   if (_newZone) {
     if (!G.activeAutomationZones) G.activeAutomationZones = [];
     if (!G.activeAutomationZones.includes(_newZone.id)) {
-      if (G.activeAutomationZones.length >= 2) G.activeAutomationZones.shift();
+      if (G.activeAutomationZones.length >= getActiveSlotLimit()) G.activeAutomationZones.shift();
       G.activeAutomationZones.push(_newZone.id);
     }
   }
@@ -3118,13 +3118,14 @@ function startBite() {
   tapCount = 0;
   document.getElementById('tap-counter').textContent = '0 / ' + tapsRequired;
 
+  const _tribeManualMult = typeof getTribeManualCatchSpeedMultiplier === 'function' ? getTribeManualCatchSpeedMultiplier() : 1;
   biteTimer = setTimeout(() => {
     showStatus('The fish got away…', 2000);
     G.stats.castStreak = 0;
     G.stats.trophyStreak = 0;
     syncAch('h_trophy_streak', 0);
     resetFishingState();
-  }, 3000);
+  }, Math.round(3000 * _tribeManualMult));
 }
 
 function tapBobber() {
@@ -3156,10 +3157,11 @@ function tapBobber() {
       presentCatch(c);
     }
   } else {
+    const _tribeManualMult2 = typeof getTribeManualCatchSpeedMultiplier === 'function' ? getTribeManualCatchSpeedMultiplier() : 1;
     biteTimer = setTimeout(() => {
       showStatus('The fish got away…', 2000);
       resetFishingState();
-    }, 3000);
+    }, Math.round(3000 * _tribeManualMult2));
 
     const bobber = document.getElementById('bobber');
     bobber.style.transform = 'translateY(' + (tapCount % 2 === 0 ? '0' : '4px') + ')';
@@ -4429,6 +4431,7 @@ function showCoinFloat(amount, anchorEl) {
 // ─── HUD UPDATE ──────────────────────────────────────────────────────────────
 
 function calcFishRate() {
+  const tribeAutoMult = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
   return G.ownedAutomation.reduce((sum, owned) => {
     const aDef = AUTOMATION.find(x => x.id === owned.id);
     if (!aDef) return sum;
@@ -4437,7 +4440,7 @@ function calcFishRate() {
              : aDef.type === 'boat'      ? getRodBoatSpeedMult()
              : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
              : 1;
-    return sum + (getSpeedMult() * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getMultiCatch()) / aDef.rate;
+    return sum + (getSpeedMult() * tribeAutoMult * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getMultiCatch()) / aDef.rate;
   }, 0);
 }
 
