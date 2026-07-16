@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Angler — Phase 10 Abyss Economy Audit</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --card2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #00e5ff;
+  --c-crit: #ff4d4d;
+  --c-high: #ff9f43;
+  --c-med: #ffd32a;
+  --c-low: #0be881;
+  --c-info: #54a0ff;
+  --c-prov: #c9a0ff;
+  --gold: #f5c542;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+#toc {
+  width: 220px;
+  min-width: 220px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+#toc h3 { color: var(--accent); font-size: 11px; text-transform: uppercase;
+  letter-spacing: .08em; padding: 0 16px 8px; }
+#toc a {
+  display: block;
+  padding: 5px 16px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+}
+#toc a:hover { color: var(--text); border-left-color: var(--accent); background: rgba(0,229,255,.05); }
+#toc .toc-crit { color: var(--c-crit); }
+#toc .toc-sep { height: 1px; background: var(--border); margin: 8px 16px; }
+
+/* Main */
+main { flex: 1; padding: 32px 40px; max-width: 1000px; overflow-x: auto; }
+h1 { color: var(--accent); font-size: 22px; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+h2 { color: var(--text); font-size: 16px; margin: 36px 0 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { color: var(--accent); font-size: 13px; margin: 20px 0 8px; }
+p { margin-bottom: 10px; color: var(--text); }
+
+/* Badges */
+.badge {
+  display: inline-block; padding: 2px 7px; border-radius: 4px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing:.05em;
+}
+.badge-crit { background: rgba(255,77,77,.15); color: var(--c-crit); border: 1px solid var(--c-crit); }
+.badge-high { background: rgba(255,159,67,.15); color: var(--c-high); border: 1px solid var(--c-high); }
+.badge-med  { background: rgba(255,211,42,.15); color: var(--c-med); border: 1px solid var(--c-med); }
+.badge-low  { background: rgba(11,232,129,.15); color: var(--c-low); border: 1px solid var(--c-low); }
+.badge-info { background: rgba(84,160,255,.15); color: var(--c-info); border: 1px solid var(--c-info); }
+.badge-prov { background: rgba(201,160,255,.15); color: var(--c-prov); border: 1px solid var(--c-prov); }
+.badge-ok   { background: rgba(11,232,129,.15); color: var(--c-low); border: 1px solid var(--c-low); }
+
+/* Alert boxes */
+.alert {
+  border-radius: 6px; padding: 12px 16px; margin: 12px 0;
+  border-left: 4px solid;
+}
+.alert-crit { background: rgba(255,77,77,.08); border-color: var(--c-crit); }
+.alert-high { background: rgba(255,159,67,.08); border-color: var(--c-high); }
+.alert-med  { background: rgba(255,211,42,.08); border-color: var(--c-med); }
+.alert-low  { background: rgba(11,232,129,.08); border-color: var(--c-low); }
+.alert-info { background: rgba(84,160,255,.08); border-color: var(--c-info); }
+.alert-prov { background: rgba(201,160,255,.08); border-color: var(--c-prov); }
+.alert strong { color: inherit; }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: var(--card2); color: var(--muted); text-align: left;
+  padding: 7px 10px; font-size: 11px; text-transform: uppercase; letter-spacing:.05em;
+  border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: rgba(255,255,255,.02); }
+td.num { font-family: 'Courier New', monospace; text-align: right; }
+td.warn { color: var(--c-crit); }
+td.ok { color: var(--c-low); }
+td.prov { color: var(--c-prov); }
+td.muted { color: var(--muted); }
+
+/* Code */
+code { font-family: 'Courier New', monospace; background: var(--card2);
+  padding: 1px 5px; border-radius: 3px; font-size: 12px; color: var(--accent); }
+.calc-box {
+  background: var(--card2); border: 1px solid var(--border); border-radius: 6px;
+  padding: 14px 16px; margin: 12px 0; font-family: 'Courier New', monospace;
+  font-size: 12px; line-height: 1.8; white-space: pre-wrap; color: var(--muted);
+}
+.calc-box .hl { color: var(--text); }
+.calc-box .crit { color: var(--c-crit); font-weight: bold; }
+.calc-box .ok   { color: var(--c-low); }
+.calc-box .prov { color: var(--c-prov); }
+
+/* Summary cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; margin: 16px 0; }
+.sum-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.sum-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing:.05em; }
+.sum-card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.sum-card .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Finding rows */
+.finding { border: 1px solid var(--border); border-radius: 6px; margin: 10px 0; overflow: hidden; }
+.finding-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  background: var(--card2); border-bottom: 1px solid var(--border); }
+.finding-title { font-weight: 600; font-size: 13px; flex: 1; }
+.finding-body { padding: 10px 14px; font-size: 13px; color: var(--muted); }
+.finding-body strong { color: var(--text); }
+
+/* Section anchor padding */
+section { scroll-margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<nav id="toc">
+  <h3>Phase 10 Audit</h3>
+  <a href="#s1">1. Executive Summary</a>
+  <a href="#s2">2. Confirmed Code Values</a>
+  <a href="#s3">3. Design vs Code</a>
+  <a href="#s4" class="toc-crit">4. Critical Mismatches</a>
+  <a href="#s5">5. Player Profiles</a>
+  <a href="#s6">6. Maelstrom Timeline</a>
+  <a href="#s7">7. Abyss Zone Timeline</a>
+  <a href="#s8" class="toc-crit">8. Tribe Requests</a>
+  <a href="#s9">9. Trial of Return</a>
+  <a href="#s10">10. Mythic Fish</a>
+  <a href="#s11">11. Coin Economy</a>
+  <a href="#s12">12. Geode &amp; Diamond</a>
+  <a href="#s13">13. Automation &amp; Offline</a>
+  <a href="#s14">14. Active Zone Strategy</a>
+  <a href="#s15">15. Permanent Bonuses</a>
+  <a href="#s16">16. Prestige Matrix</a>
+  <a href="#s17">17. Missing Systems</a>
+  <a href="#s18">18. Performance Risks</a>
+  <a href="#s19">19. Recommended Changes</a>
+  <a href="#s20">20. Design Questions</a>
+  <div class="toc-sep"></div>
+  <a href="#" style="color:var(--muted);font-size:11px;padding:4px 16px;">abyss-development branch</a>
+  <a href="#" style="color:var(--muted);font-size:11px;padding:4px 16px;">Audit: 2026-07-16</a>
+</nav>
+
+<main>
+<h1>Patient Angler — Abyss &amp; Maelstrom Economy Audit</h1>
+<p class="subtitle">Phase 10 · abyss-development branch · 2026-07-16 · Developer use only — not player-facing</p>
+
+<!-- ═══ SECTION 1 ═══ -->
+<section id="s1">
+<h2>1. Executive Summary</h2>
+
+<div class="card-grid">
+  <div class="sum-card">
+    <div class="label">Critical findings</div>
+    <div class="value" style="color:var(--c-crit)">4</div>
+    <div class="sub">Block or break progression</div>
+  </div>
+  <div class="sum-card">
+    <div class="label">High findings</div>
+    <div class="value" style="color:var(--c-high)">5</div>
+    <div class="sub">Material balance impact</div>
+  </div>
+  <div class="sum-card">
+    <div class="label">Medium findings</div>
+    <div class="value" style="color:var(--c-med)">6</div>
+    <div class="sub">Needs pre-launch attention</div>
+  </div>
+  <div class="sum-card">
+    <div class="label">Low / Info</div>
+    <div class="value" style="color:var(--c-low)">5</div>
+    <div class="sub">Minor or informational</div>
+  </div>
+</div>
+
+<div class="alert alert-crit">
+  <strong>CRITICAL — Tribe Request quantities are 200–3,850× larger than achievable.</strong>
+  The <code>totalCatches</code> formula is calibrated against Abyss zone design speeds (10k–100k catch/s) but tracks <em>Overworld automation catches only</em>. Max realistic Overworld automation produces ~50–300 qualified catch/s, making Zone 1 Initial Request take ~600–3,000 days instead of 3. This affects all 10 tribes.
+</div>
+
+<div class="alert alert-crit">
+  <strong>CRITICAL — Zone 9 &amp; 10 Tribe Initial Requests require Legendary fish.</strong>
+  Sapphire Deepwatch (Zone 9) requires <code>giant_squid</code> (Legendary, time-locked 00:00–02:00) and <code>coelacanth</code> (Legendary, time-locked 01:00–03:00). Automation cannot catch Legendary fish. Manual rate during 5-minute catch windows yields estimated completion time of millions of years. Zone 10 also requires giant_squid.
+</div>
+
+<div class="alert alert-high">
+  <strong>HIGH — Three Tribe bonus stats are defined but never applied.</strong>
+  <code>manualCatchSpeed</code> (Ruby Forged, max +5%), <code>rareEpicChance</code> (Opal Gardeners, max +1%), and <code>expeditionSpeed</code> (Topaz Riftborn, max +10%) have getter functions that are never called in the game. Players who earn these bonuses receive nothing.
+</div>
+
+<div class="alert alert-high">
+  <strong>HIGH — Actual Abyss automation production is 50–100× below design targets.</strong>
+  <code>expectedCatchsPerSecond</code> per Abyss zone (10k–100k) was used to size Tribe requests, but actual Abyss automation output derives from Overworld automation capacity divided across zones. Max realistic Abyss output is ~100–200 catch/s, not 10,000.
+</div>
+
+<div class="alert alert-med">
+  <strong>MEDIUM — <code>calcFishRate()</code> excludes <code>getTribeAutomationSpeedMultiplier()</code>.</strong>
+  The HUD fish/s counter and Abyss auto-batch calculations underreport actual production by up to 12% (Amethyst Seers Exalted bonus). <code>autoTick()</code> correctly applies the tribe multiplier but <code>calcFishRate()</code> does not.
+</div>
+
+<div class="alert alert-prov">
+  <strong>PROVISIONAL values throughout:</strong> <code>ABYSS_GEODE_AUTO_PER_DAY = 4</code>, all Abyss fish base coin values, Maelstrom mission duration (6h), Tribe request quantities. These are flagged <span class="badge badge-prov">PROV</span> in tables below.
+</div>
+</section>
+
+<!-- ═══ SECTION 2 ═══ -->
+<section id="s2">
+<h2>2. Confirmed Code Values</h2>
+
+<h3>Automation Units (game.js AUTOMATION array)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>ID</th><th>Type</th><th>Cost (c)</th><th>Rate (s)</th><th>catch/s</th><th>Unlocks At</th></tr></thead>
+<tbody>
+<tr><td><code>fishing_net</code></td><td>net</td><td class="num">100</td><td class="num">60</td><td class="num">0.0167</td><td>pond</td></tr>
+<tr><td><code>reinforced_net</code></td><td>net</td><td class="num">3,000</td><td class="num">45</td><td class="num">0.0222</td><td>river</td></tr>
+<tr><td><code>river_net</code></td><td>net</td><td class="num">15,000</td><td class="num">30</td><td class="num">0.0333</td><td>river</td></tr>
+<tr><td><code>local_fisher</code></td><td>fisherman</td><td class="num">3,000</td><td class="num">30</td><td class="num">0.0333</td><td>river</td></tr>
+<tr><td><code>skilled_fisher</code></td><td>fisherman</td><td class="num">30,000</td><td class="num">15</td><td class="num">0.0667</td><td>lake</td></tr>
+<tr><td><code>veteran_fisher</code></td><td>fisherman</td><td class="num">300,000</td><td class="num">8</td><td class="num">0.125</td><td>lake</td></tr>
+<tr><td><code>row_boat</code></td><td>boat</td><td class="num warn">350,000</td><td class="num">8</td><td class="num">0.125</td><td>bay</td></tr>
+<tr><td><code>motor_boat</code></td><td>boat</td><td class="num warn">1,200,000</td><td class="num">3</td><td class="num">0.333</td><td>bay</td></tr>
+<tr><td><code>fishing_boat</code></td><td>boat</td><td class="num warn">4,000,000</td><td class="num">1.5</td><td class="num">0.667</td><td>sea</td></tr>
+<tr><td><code>small_fleet</code></td><td>fleet</td><td class="num warn">15,000,000</td><td class="num">0.5</td><td class="num">2.0</td><td>sea</td></tr>
+<tr><td><code>large_fleet</code></td><td>fleet</td><td class="num warn">75,000,000</td><td class="num">0.25</td><td class="num">4.0</td><td>ocean</td></tr>
+<tr><td><code>deep_sea_fleet</code></td><td>fleet</td><td class="num">500,000,000</td><td class="num">0.1</td><td class="num">10.0</td><td>ocean</td></tr>
+<tr><td><code>ancient_fisherman</code></td><td>fisherman</td><td class="num muted">0 (Ghost Ship)</td><td class="num">1</td><td class="num">1.0</td><td>sea</td></tr>
+<tr><td><code>ancient_boat</code></td><td>boat</td><td class="num muted">0 (Ghost Ship)</td><td class="num">0.5</td><td class="num">2.0</td><td>sea</td></tr>
+</tbody>
+</table>
+</div>
+<p class="muted" style="font-size:12px">Costs marked <span style="color:var(--c-crit)">red</span> differ from CLAUDE.md spec — see Section 3.</p>
+
+<h3>Abyss Zones (abyss.js ABYSS_ZONES)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Order</th><th>ID</th><th>Name</th><th>Design catch/s</th><th>Fish count</th><th>Tribe</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>emerald_forest</code></td><td>Emerald Forest</td><td class="num">10,000</td><td>10</td><td>Emerald Wardens</td></tr>
+<tr><td>2</td><td><code>amber_reef</code></td><td>Amber Reef</td><td class="num">20,000</td><td>10</td><td>Amber Reefkin</td></tr>
+<tr><td>3</td><td><code>amethyst_caverns</code></td><td>Amethyst Caverns</td><td class="num">30,000</td><td>10</td><td>Amethyst Seers</td></tr>
+<tr><td>4</td><td><code>ruby_chasm</code></td><td>Ruby Chasm</td><td class="num">40,000</td><td>10</td><td>Ruby Forged</td></tr>
+<tr><td>5</td><td><code>aquamarine_lagoon</code></td><td>Aquamarine Lagoon</td><td class="num">50,000</td><td>10</td><td>Aquamarine Tidefolk</td></tr>
+<tr><td>6</td><td><code>opal_gardens</code></td><td>Opal Gardens</td><td class="num">60,000</td><td>10</td><td>Opal Gardeners</td></tr>
+<tr><td>7</td><td><code>obsidian_abyss</code></td><td>Obsidian Abyss</td><td class="num">70,000</td><td>10</td><td>Obsidian Keepers</td></tr>
+<tr><td>8</td><td><code>topaz_rift</code></td><td>Topaz Rift</td><td class="num">80,000</td><td>10</td><td>Topaz Riftborn</td></tr>
+<tr><td>9</td><td><code>sapphire_trench</code></td><td>Sapphire Trench</td><td class="num">90,000</td><td>10</td><td>Sapphire Deepwatch</td></tr>
+<tr><td>10</td><td><code>blue_diamond_sanctuary</code></td><td>Blue Diamond Sanctuary</td><td class="num">100,000</td><td>10</td><td>Blue Diamond Ancients</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Overworld Loot Tables (game.js LOOT_TABLES)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Zone</th><th>Trash%</th><th>Plant%</th><th>Common%</th><th>Uncommon%</th><th>Rare%</th><th>Epic%</th><th>Legendary%</th><th>Fish total%</th></tr></thead>
+<tbody>
+<tr><td>Pond</td><td>30</td><td>20</td><td>35</td><td>10</td><td>4</td><td>1</td><td>—</td><td>50</td></tr>
+<tr><td>River</td><td>25</td><td>18</td><td>36</td><td>13</td><td>6</td><td>2</td><td>—</td><td>57</td></tr>
+<tr><td>Lake</td><td>20</td><td>15</td><td>37</td><td>16</td><td>9</td><td>3</td><td>—</td><td>65</td></tr>
+<tr><td>Bay</td><td>18</td><td>12</td><td>35</td><td>20</td><td>12</td><td>3</td><td>—</td><td>70</td></tr>
+<tr><td>Sea</td><td>15</td><td>10</td><td>33</td><td>22</td><td>15</td><td>5</td><td>—</td><td>75</td></tr>
+<tr><td>Ocean</td><td>12</td><td>8</td><td>28</td><td>22</td><td>18</td><td>8</td><td>4</td><td>80</td></tr>
+</tbody>
+</table>
+</div>
+<p style="font-size:12px;color:var(--muted)">For automation: legendary row is stripped (<code>rollCatch(zone, false)</code> filters <code>type !== 'legendary'</code>). Ocean auto fish total = 76% of 96 total weight ≈ 79.2%.</p>
+
+<h3>Key Constants</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Constant</th><th>Value</th><th>File / Line</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>ABYSS_MYTHIC_TAPS</code></td><td class="num">75</td><td>abyss.js:2514</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>ABYSS_MYTHIC_DURATION</code></td><td class="num">30,000 ms</td><td>abyss.js:2515</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>ABYSS_MYTHIC_CHANCE</code></td><td class="num">0.05 (5%)</td><td>abyss.js:2516</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>ABYSS_MYTHIC_CHANCE_MAX</code></td><td class="num">0.20 (20%)</td><td>abyss.js:2517</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>ABYSS_LOOT_WEIGHTS</code></td><td>fish:60, crystal:25, insect:15</td><td>abyss.js:2519</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>ABYSS_GEODE_BASE_DROP_CHANCE</code></td><td class="num">0.007 (0.7%)</td><td>abyss.js:2851</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>ABYSS_GEODE_AUTO_PER_DAY</code></td><td class="num">4</td><td>abyss.js Phase 9</td><td><span class="badge badge-prov">PROV</span></td></tr>
+<tr><td><code>ABYSS_UNIVERSAL_GEODE.diamondMin/Max</code></td><td>1–3 diamonds</td><td>abyss.js:661</td><td><span class="badge badge-prov">PROV</span></td></tr>
+<tr><td><code>MAELSTROM_MISSION baseDurationMs</code></td><td class="num">6h (21,600,000 ms)</td><td>abyss.js:727</td><td><span class="badge badge-prov">PROV</span></td></tr>
+<tr><td><code>EXPEDITION_VESSEL_BASE_COST</code></td><td class="num">50,000,000</td><td>game.js</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>EXPEDITION_VESSEL_MAX</code></td><td class="num">10</td><td>game.js</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>EXPEDITION_VESSEL_INTERVAL</code></td><td>30h (108,000,000 ms)</td><td>game.js</td><td><span class="badge badge-info">CONFIRMED</span></td></tr>
+<tr><td><code>_getExpeditionSpeedMultiplier()</code></td><td class="num warn">returns 1 (hardcoded)</td><td>abyss.js:809</td><td><span class="badge badge-crit">BUG</span></td></tr>
+<tr><td><code>_ABYSS_FISH_VALUE_BY_ZONE</code></td><td>[200,400,700,1200,2000,3000,4500,6000,8000,12000]</td><td>abyss.js Phase 9</td><td><span class="badge badge-prov">PROV</span></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ═══ SECTION 3 ═══ -->
+<section id="s3">
+<h2>3. Design Spec vs Code</h2>
+
+<h3>Automation Boat &amp; Fleet Costs — CLAUDE.md vs game.js</h3>
+<div class="alert alert-med">The June 2026 economy overhaul updated costs in game.js but CLAUDE.md was not fully synchronized. The code values are authoritative.</div>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>ID</th><th>CLAUDE.md cost</th><th>Code cost</th><th>Ratio</th></tr></thead>
+<tbody>
+<tr><td><code>row_boat</code></td><td class="num">30,000</td><td class="num warn">350,000</td><td class="num warn">11.7×</td></tr>
+<tr><td><code>motor_boat</code></td><td class="num">300,000</td><td class="num warn">1,200,000</td><td class="num warn">4.0×</td></tr>
+<tr><td><code>fishing_boat</code></td><td class="num">3,000,000</td><td class="num warn">4,000,000</td><td class="num warn">1.3×</td></tr>
+<tr><td><code>small_fleet</code></td><td class="num">5,000,000</td><td class="num warn">15,000,000</td><td class="num warn">3.0×</td></tr>
+<tr><td><code>large_fleet</code></td><td class="num">50,000,000</td><td class="num warn">75,000,000</td><td class="num warn">1.5×</td></tr>
+<tr><td><code>deep_sea_fleet</code></td><td class="num">500,000,000</td><td class="num ok">500,000,000</td><td class="num ok">1.0×</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Tribe Request Fish — Zone Mapping &amp; Rarity</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Tribe (Abyss Zone)</th><th>Required OW Fish</th><th>OW Zone</th><th>Rarities</th><th>Automation?</th></tr></thead>
+<tbody>
+<tr><td>Emerald Wardens (Z1)</td><td>salmon, tuna, swordfish, marlin</td><td>sea / ocean</td><td>rare, common, uncommon, rare</td><td class="ok">Yes</td></tr>
+<tr><td>Amber Reefkin (Z2)</td><td>pike, zander, catfish, eel</td><td>river+lake / lake</td><td>rare, uncommon, uncommon, uncommon</td><td class="ok">Yes</td></tr>
+<tr><td>Amethyst Seers (Z3)</td><td>crucian_carp, roach, tench, common_bream</td><td>pond</td><td>common, common, uncommon, common</td><td class="ok">Yes</td></tr>
+<tr><td>Ruby Forged (Z4)</td><td>grayling, barbel, chub, burbot</td><td>river</td><td>various</td><td class="ok">Yes</td></tr>
+<tr><td>Aquamarine Tidefolk (Z5)</td><td>large_perch, carp, whitefish, brown_trout</td><td>lake / river</td><td>various</td><td class="ok">Yes</td></tr>
+<tr><td>Opal Gardeners (Z6)</td><td>flounder, garfish, smelt, sprat</td><td>bay</td><td>various</td><td class="ok">Yes</td></tr>
+<tr><td>Obsidian Keepers (Z7)</td><td>haddock, redfish, wolffish, atlantic_mackerel</td><td>sea</td><td>various</td><td class="ok">Yes</td></tr>
+<tr><td>Topaz Riftborn (Z8)</td><td>tuna, mahi_mahi, swordfish, marlin</td><td>ocean</td><td>common, common, uncommon, rare</td><td class="ok">Yes</td></tr>
+<tr><td>Sapphire Deepwatch (Z9)</td><td>giant_squid, oarfish, coelacanth, halibut</td><td>ocean / sea+ocean</td><td class="warn">Legendary, rare, Legendary, epic</td><td class="warn">giant_squid &amp; coelacanth = NO</td></tr>
+<tr><td>Blue Diamond Ancients (Z10)</td><td>salmon, tuna, giant_squid, oarfish</td><td>sea / ocean</td><td class="warn">rare, common, Legendary, rare</td><td class="warn">giant_squid = NO</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ═══ SECTION 4 ═══ -->
+<section id="s4">
+<h2>4. Critical Mismatches</h2>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">F-01 — Tribe Request formula calibrated to Abyss speed, tracking Overworld catches</span>
+  </div>
+  <div class="finding-body">
+    <strong>Formula:</strong> <code>totalCatches = zone.expectedCatchsPerSecond × 3 × 86400</code><br>
+    Zone 1 <code>expectedCatchsPerSecond = 10,000</code> → <code>2,592,000,000</code> total catches for Initial Request.<br>
+    But tribe catches are tracked via <code>onCatchEvent() → recordTribeFishCatch()</code>, which fires from <em>Overworld automation only</em>. Abyss automation does not call this path.<br><br>
+    <strong>Max realistic Overworld production targeting Zone 1 species (tuna, swordfish, marlin in Ocean; salmon in Sea):</strong><br>
+    5 DSF in Ocean = 50 catch/s × 79.2% fish fraction = 39.6 fish/s. Tuna (common) ≈ 1/5 of common pool → ~5.6 tuna/s.<br>
+    Tuna needed: 777,600,000 ÷ 5.6 = <strong>138,857 days</strong> for tuna alone.<br>
+    Even with 20 DSF in Ocean: ~555,000 days. Design target: 3 days.<br>
+    <strong>Discrepancy: ~2,000–50,000×.</strong>
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">F-02 — Zones 9 &amp; 10 require Legendary fish that automation cannot catch</span>
+  </div>
+  <div class="finding-body">
+    <code>rollCatch(zone, false)</code> strips <code>type === 'legendary'</code> from loot table (game.js:2636). Confirmed.<br><br>
+    Zone 9 (Sapphire Deepwatch) Initial Request:<br>
+    • <code>giant_squid</code>: Legendary, <em>time-locked 00:00–02:00 in-game</em> (= 5 real minutes per hour) → 9,331,200,000 needed<br>
+    • <code>coelacanth</code>: Legendary, <em>time-locked 01:00–03:00</em> → 4,665,600,000 needed<br>
+    At 6h/day active fishing in Ocean with Legendary = 4% ocean catch rate (manual): ~10 Legendary/hour × 6h × 1/3 giant_squid = 20/day.<br>
+    9.3B ÷ 20/day = <strong>466,560,000 days (~1.3 million years).</strong><br><br>
+    Zone 10 (Blue Diamond Ancients): requires giant_squid (5.18B) = same impossibility.
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">F-03 — Abyss automation output is 50–100× below design targets</span>
+  </div>
+  <div class="finding-body">
+    <code>expectedCatchsPerSecond</code> in ABYSS_ZONES (10k–100k) was used to size Tribe requests but the Abyss automation batch in Phase 9 derives from Overworld automation capacity × Abyss zone fraction.<br><br>
+    <strong>Calculation:</strong> With 2 active slots (1 OW, 1 Abyss), Abyss gets 50% of total OW automation output.<br>
+    Max late-game automation: 5 DSF × 6 zones × 10/s × speed multipliers ≈ 300–450 catch/s total.<br>
+    Abyss fraction (50%): ~150–225 catch/s actual Abyss output.<br>
+    Design target for Zone 1: 10,000 catch/s. <strong>Actual: ~200/s. Gap: 50×.</strong><br>
+    Zone 10 design target: 100,000 catch/s. <strong>Actual: ~200/s. Gap: 500×.</strong>
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">F-04 — Abyss fish fill storage in seconds at design production speeds</span>
+  </div>
+  <div class="finding-body">
+    Abyss fish go to <code>G.abyss.abyssFishPile</code>, which counts toward <code>storageCapacity()</code>. When full, ALL automation pauses.<br><br>
+    At Zone 1 design speed (10,000/s): 10,000 × 60% fish = 6,000 fish/s.<br>
+    Harbor Cold Storage (max non-Tribe): 10,000 capacity → fills in <strong>1.67 seconds</strong>.<br>
+    At actual Phase 9 rates (~200/s): 200 × 60% = 120 fish/s → fills in 83 seconds.<br>
+    Player must manually open Market and sell Abyss fish to unblock automation.<br>
+    <strong>No auto-sell mechanism exists for Abyss fish.</strong>
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-high">HIGH</span>
+    <span class="finding-title">F-05 — Three Tribe bonus stats are defined but never applied</span>
+  </div>
+  <div class="finding-body">
+    Getter functions exist in abyss.js but are not called anywhere in game.js:<br>
+    • <code>getTribeManualCatchSpeedMultiplier()</code> → Ruby Forged bonus (up to +5%). Should reduce tap timing window or increase rod speed. <strong>Not called anywhere.</strong><br>
+    • <code>getTribeRareChanceBonus()</code> → Opal Gardeners (up to +1% rare/epic chance). Should feed into <code>getRarityBonus()</code> or <code>rollCatch()</code>. <strong>Not called anywhere.</strong><br>
+    • <code>getTribeExpeditionSpeedMultiplier()</code> → Topaz Riftborn (up to +10%). Defined but <code>_getExpeditionSpeedMultiplier()</code> at abyss.js:809 returns hardcoded <code>1</code> without calling it. <strong>Bypassed.</strong>
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-high">HIGH</span>
+    <span class="finding-title">F-06 — calcFishRate() omits getTribeAutomationSpeedMultiplier()</span>
+  </div>
+  <div class="finding-body">
+    <code>autoTick()</code> applies <code>tribeAutoMult</code> (up to 1.12 at Amethyst Seers Exalted).<br>
+    <code>calcFishRate()</code> at game.js:4431 does not include this multiplier.<br>
+    Result: HUD fish/s display is up to 12% lower than actual production. Also affects <code>getEstimatedHourlyIncome()</code> and Abyss auto-batch estimates that use <code>calcFishRate()</code> as a reference.
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-high">HIGH</span>
+    <span class="finding-title">F-07 — buyTransport() uses hardcoded &gt;= 2 instead of getActiveSlotLimit()</span>
+  </div>
+  <div class="finding-body">
+    At game.js:~1459, <code>buyTransport()</code> auto-activates a newly unlocked zone when <code>G.activeAutomationZones.length >= 2</code>. Should use <code>getActiveSlotLimit()</code> so the third Diamond slot is respected. Currently, buying the third slot does not improve transport auto-activation behavior.
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-med">MEDIUM</span>
+    <span class="finding-title">F-08 — Maelstrom golden crystal: 150 missions required (bottleneck)</span>
+  </div>
+  <div class="finding-body">
+    Golden crystals needed: 15. Expected golden per mission: avg 2 (range 1–3). Golden probability: 5%. <br>
+    Expected total missions to guarantee 15 golden: 15 ÷ 2 ÷ 0.05 = <strong>150 missions</strong>.<br>
+    At 1 vessel, 6h each: 150 × 6 / 24 = 37.5 days. At 2 vessels: 18.75 days. At 5: 7.5 days.<br>
+    This is manageable but golden crystal distribution has high variance (5% weight). See Section 6 for full analysis.
+  </div>
+</div>
+</section>
+
+<!-- ═══ SECTION 5 ═══ -->
+<section id="s5">
+<h2>5. Player Profiles</h2>
+<p>All profiles: F2P, watch ads, no IAP. Based on current code values.</p>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Profile</th><th>Active play/day</th><th>Manual catches/day</th><th>Estimated OW automation at Abyss entry</th></tr></thead>
+<tbody>
+<tr><td><strong>Passive</strong></td><td>30 min</td><td>~150 casts</td><td>3–5 DSF in Ocean, 2–3 Fishing Boats in Sea, older tiers in lower zones</td></tr>
+<tr><td><strong>Average</strong></td><td>2 hours</td><td>~500 casts</td><td>5+ DSF in Ocean, Fishing Boats in Sea+Bay, veteran fishers elsewhere</td></tr>
+<tr><td><strong>Dedicated</strong></td><td>6 hours</td><td>~1,500+ casts</td><td>Multiple DSF across Ocean+Sea, higher tier in all zones, Ghost Ship units</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Daily Diamond Income Estimate (at Abyss Zone 1)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Source</th><th>Passive</th><th>Average</th><th>Dedicated</th></tr></thead>
+<tbody>
+<tr><td>Manual Geodes (0.7% per Abyss catch)</td><td>~1</td><td>~3</td><td>~10 (target)</td></tr>
+<tr><td>Auto Geodes <span class="badge badge-prov">PROV</span></td><td colspan="3" style="text-align:center">4/day flat (if Abyss zone active in slot)</td></tr>
+<tr><td>Avg diamonds per Geode (1–3)</td><td colspan="3" style="text-align:center">avg 2</td></tr>
+<tr><td><strong>Est. total diamonds/day</strong></td><td class="num"><strong>10</strong></td><td class="num"><strong>14</strong></td><td class="num"><strong>28</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p style="font-size:12px;color:var(--muted)">Third automation slot costs 1,000 Diamonds → ~35–100 days to unlock via play alone.</p>
+</section>
+
+<!-- ═══ SECTION 6 ═══ -->
+<section id="s6">
+<h2>6. Maelstrom Timeline</h2>
+
+<h3>Crystal Requirements vs Mission Yield</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Crystal</th><th>Weight%</th><th>Qty needed</th><th>Per mission (avg)</th><th>Missions (this type)</th><th>Total missions needed</th><th>At 1 vessel (days)</th><th>At 2 vessels (days)</th></tr></thead>
+<tbody>
+<tr><td>Azure</td><td class="num">35%</td><td class="num">120</td><td class="num">11</td><td class="num">10.9</td><td class="num">31</td><td class="num">7.8</td><td class="num">3.9</td></tr>
+<tr><td>Emerald</td><td class="num">25%</td><td class="num">90</td><td class="num">8.5</td><td class="num">10.6</td><td class="num">42</td><td class="num">10.5</td><td class="num">5.3</td></tr>
+<tr><td>Amethyst</td><td class="num">20%</td><td class="num">65</td><td class="num">6</td><td class="num">10.8</td><td class="num">54</td><td class="num">13.5</td><td class="num">6.8</td></tr>
+<tr><td>Ruby</td><td class="num">15%</td><td class="num">40</td><td class="num">4.5</td><td class="num">8.9</td><td class="num">59</td><td class="num">14.8</td><td class="num">7.4</td></tr>
+<tr><td class="warn">Golden</td><td class="num warn">5%</td><td class="num warn">15</td><td class="num warn">2</td><td class="num warn">7.5</td><td class="num warn">150</td><td class="num warn">37.5 days</td><td class="num warn">18.75 days</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Golden crystal is the bottleneck</strong> at only 5% spawn weight. All other crystal types complete long before golden reaches 15.</p>
+
+<h3>Expedition Vessel Cost Scaling</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Vessel #</th><th>Cost (50M × 2^n)</th><th>Cumulative cost</th><th>Golden missions/day (all vessels)</th><th>Days to Maelstrom complete</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="num">50,000,000</td><td class="num">50,000,000</td><td class="num prov">0.2</td><td class="num">37.5</td></tr>
+<tr><td>2</td><td class="num">100,000,000</td><td class="num">150,000,000</td><td class="num prov">0.4</td><td class="num">18.8</td></tr>
+<tr><td>3</td><td class="num">200,000,000</td><td class="num">350,000,000</td><td class="num prov">0.6</td><td class="num">12.5</td></tr>
+<tr><td>4</td><td class="num">400,000,000</td><td class="num">750,000,000</td><td class="num prov">0.8</td><td class="num">9.4</td></tr>
+<tr><td>5</td><td class="num">800,000,000</td><td class="num">1,550,000,000</td><td class="num prov">1.0</td><td class="num">7.5</td></tr>
+<tr><td>10</td><td class="num">25,600,000,000</td><td class="num">51,150,000,000</td><td class="num prov">2.0</td><td class="num">3.75</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-med">Vessel 5 costs 800M and requires ~1.55B cumulative investment to unlock. At max Ocean automation (~8.6M coin/day from ZONE_AVG_COIN × DSF estimate), reaching 5 vessels takes ~6 months of passive income. Players will realistically enter Maelstrom with 1–2 vessels → 19–37 days to stabilize.</div>
+
+<h3>Mission Timeline Summary</h3>
+<div class="calc-box"><span class="hl">Maelstrom stabilization = 330 crystals across 5 types.</span>
+Bottleneck: golden (5% weight, need 15, avg 2/mission → 150 total missions).
+
+<span class="prov">1 vessel (base):  150 missions × 6h = 900h = 37.5 days</span>
+<span class="prov">2 vessels:        150 missions ÷ 2 × 6h / 24 = 18.75 days</span>
+<span class="prov">5 vessels:        150 / 5 × 6h / 24 = 7.5 days</span>
+
+Mission interval for "Sunken Treasure" chests (existing): 30h per vessel.
+Maelstrom missions: 6h per vessel. <span class="hl">These are separate queues.</span>
+
+Tribal bonus: <span class="crit">_getExpeditionSpeedMultiplier() returns 1 always (line 809).</span>
+Topaz Riftborn's +10% expedition speed is defined but bypassed.
+</div>
+</section>
+
+<!-- ═══ SECTION 7 ═══ -->
+<section id="s7">
+<h2>7. Abyss Zone Timeline</h2>
+
+<p>Zone unlock path (abyss.js ABYSS_ZONES unlockRequirement):</p>
+<ul style="margin:10px 0 16px 20px;line-height:2">
+  <li>Zone 1 (Emerald Forest): Complete Maelstrom stabilization → ~19–37 days</li>
+  <li>Zone 2 (Amber Reef): Complete Zone 1 Initial Request + catch Zone 1 Mythic</li>
+  <li>Zones 3–10: Each requires previous zone's Initial Request completion + Mythic catch</li>
+</ul>
+
+<div class="alert alert-crit">Because Tribe Initial Requests are 200–3,850× larger than achievable (F-01), all zones beyond Zone 1 are effectively gated behind years of Overworld automation running. Zone 2 would require ~600–3,000 real-world days of continuous play at current formula values.</div>
+
+<h3>Zone 1 Initial Request — Calculation at Various Automation Levels</h3>
+<div class="calc-box"><span class="hl">Required: 2,592,000,000 total catches</span>
+Species: salmon (1.04B, Sea zone), tuna (778M, Ocean), swordfish (518M, Ocean), marlin (259M, Ocean)
+
+<span class="hl">Scenario A — 5 DSF in Ocean, 5 DSF in Sea (max plausible at Abyss entry)</span>
+  Ocean catches/s: 50 × 0.792 = 39.6 fish/s of fish
+  Ocean has ~10 species; tuna (common) ≈ 1/5 common pool = 5.6 tuna/s
+  Similarly swordfish + marlin contribute ~10/s total
+  Sea catches/s: 50 × 0.75 = 37.5 fish/s; salmon (rare in sea, ~2 rare species) ≈ 3 salmon/s
+  Total qualified: ~18.6 qualified species/s
+  Total time: 2,592,000,000 / 18.6 = 139,355,000s = <span class="crit">1,613 days</span>
+
+<span class="hl">Scenario B — 10 DSF in Ocean (theoretical maximum, one zone)</span>
+  Qualified fish: ~23/s  →  <span class="crit">~1,300 days</span>
+
+<span class="hl">Design target: 3 days at 10,000/s</span>
+<span class="crit">Gap: ~430–540×</span>
+</div>
+</section>
+
+<!-- ═══ SECTION 8 ═══ -->
+<section id="s8">
+<h2>8. Tribe Request Analysis</h2>
+
+<h3>All 10 Tribes — Initial Request Overview</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Tribe</th><th>Abyss Zone</th><th>totalCatches</th><th>Design days</th><th>Limiting fish</th><th>Legendary?</th><th>Realistic days (5 DSF)</th></tr></thead>
+<tbody>
+<tr><td>Emerald Wardens</td><td>1</td><td class="num">2,592,000,000</td><td>3</td><td>salmon (Sea Rare)</td><td class="ok">No</td><td class="num warn">~1,600</td></tr>
+<tr><td>Amber Reefkin</td><td>2</td><td class="num">5,184,000,000</td><td>3</td><td>pike (Lake Rare)</td><td class="ok">No</td><td class="num warn">~2,000</td></tr>
+<tr><td>Amethyst Seers</td><td>3</td><td class="num">7,776,000,000</td><td>3</td><td>crucian_carp (Pond Common)</td><td class="ok">No</td><td class="num warn">~3,000</td></tr>
+<tr><td>Ruby Forged</td><td>4</td><td class="num">10,368,000,000</td><td>3</td><td>River fish</td><td class="ok">No</td><td class="num warn">~4,000</td></tr>
+<tr><td>Aquamarine Tidefolk</td><td>5</td><td class="num">12,960,000,000</td><td>3</td><td>Lake fish</td><td class="ok">No</td><td class="num warn">~5,000</td></tr>
+<tr><td>Opal Gardeners</td><td>6</td><td class="num">15,552,000,000</td><td>3</td><td>Bay fish</td><td class="ok">No</td><td class="num warn">~6,000</td></tr>
+<tr><td>Obsidian Keepers</td><td>7</td><td class="num">18,144,000,000</td><td>3</td><td>Sea fish</td><td class="ok">No</td><td class="num warn">~7,000</td></tr>
+<tr><td>Topaz Riftborn</td><td>8</td><td class="num">20,736,000,000</td><td>3</td><td>Ocean fish</td><td class="ok">No</td><td class="num warn">~8,000</td></tr>
+<tr><td class="warn">Sapphire Deepwatch</td><td class="warn">9</td><td class="num warn">23,328,000,000</td><td class="warn">3</td><td class="warn">giant_squid (Leg.), coelacanth (Leg.)</td><td class="warn">YES — BLOCKER</td><td class="warn">~Millions of years</td></tr>
+<tr><td class="warn">Blue Diamond Ancients</td><td class="warn">10</td><td class="num warn">25,920,000,000</td><td class="warn">3</td><td class="warn">giant_squid (Legendary)</td><td class="warn">YES — BLOCKER</td><td class="warn">~Millions of years</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Zone 1 Tribe — Full Reward Chain Duration</h3>
+<div class="calc-box"><span class="hl">Emerald Wardens — all stages at Scenario A rates (~18.6 qualified/s)</span>
+Initial Request:  2.592B catches → <span class="crit">1,613 days</span>
+Friendly:         1.728B catches → 1,075 days
+Honored:          3.456B catches → 2,150 days
+Revered:          6.048B catches → 3,763 days
+Exalted:         10.368B catches → 6,450 days
+<span class="crit">Full Emerald Wardens completion: ~15,051 days (~41 years)</span>
+(Each stage runs sequentially after the previous is complete)
+</div>
+
+<h3>Multi-Zone Catch Requirement</h3>
+<div class="alert alert-med">
+  <strong>Cross-zone species:</strong> Zone 1 requires salmon (Sea zone) + tuna/swordfish/marlin (Ocean zone). The player must have automation running in BOTH Sea and Ocean simultaneously to progress all four species. With only 2 active OW zone slots and at least 1 allocated to Abyss, the player can have at most 1 OW zone running — making multi-zone tribe requests even slower.
+</div>
+
+<h3>onCatchEvent() Call Chain</h3>
+<p>Confirmed: automation at game.js:3316–3321 calls <code>onCatchEvent(fishId, rarity)</code> which at line 2140 calls <code>recordTribeFishCatch(fishId, 1)</code> for non-trash, non-plant catches. Tribe progress IS tracked from Overworld automation. Abyss automation (<code>processAbyssAutoBatch()</code>) does NOT call this chain.</p>
+</section>
+
+<!-- ═══ SECTION 9 ═══ -->
+<section id="s9">
+<h2>9. Trial of Return</h2>
+
+<p>Implementation confirmed at abyss.js <code>getTrialFishRequirements()</code>:</p>
+<div class="calc-box"><span class="hl">return Math.max(1, Math.ceil(f.qty * 0.25));</span>
+— 25% of Initial Request quantities, same species, same zone routing.
+</div>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Tribe</th><th>Initial Request total</th><th>Trial (25%) total</th><th>Design days</th><th>Realistic days (5 DSF)</th></tr></thead>
+<tbody>
+<tr><td>Emerald Wardens</td><td class="num">2,592,000,000</td><td class="num">648,000,000</td><td>~0.75</td><td class="num warn">~403</td></tr>
+<tr><td>Amber Reefkin</td><td class="num">5,184,000,000</td><td class="num">1,296,000,000</td><td>~0.75</td><td class="num warn">~500</td></tr>
+<tr><td class="warn">Sapphire Deepwatch</td><td class="num warn">23,328,000,000</td><td class="num warn">5,832,000,000</td><td class="warn">~0.75</td><td class="warn">Still requires Legendary</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-high">Trial of Return inherits all the same issues as Initial Request: quantities scaled to Abyss speeds, legendary fish blockers in Zones 9–10. 25% reduction does not resolve the fundamental calibration gap.</div>
+</section>
+
+<!-- ═══ SECTION 10 ═══ -->
+<section id="s10">
+<h2>10. Mythic Fish</h2>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Parameter</th><th>Value</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Taps required</td><td class="num">75</td><td>abyss.js:2514</td></tr>
+<tr><td>Time limit</td><td>30 seconds</td><td>abyss.js:2515</td></tr>
+<tr><td>Base spawn chance</td><td class="num">5%</td><td>abyss.js:2516</td></tr>
+<tr><td>Max spawn chance</td><td class="num">20%</td><td>abyss.js:2517</td></tr>
+<tr><td>Tribe bonus (Obsidian Keepers max)</td><td>+0.5%</td><td>abyss.js:2044 — IS APPLIED (line 2573)</td></tr>
+<tr><td>Once per Prestige run</td><td>Yes (<code>mythicCaughtThisRun</code>)</td><td>abyss.js:2528</td></tr>
+<tr><td>Requires Tribe Bobber</td><td>Yes (<code>isAbyssMythicEligible()</code>)</td><td>abyss.js</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Tap rate feasibility:</strong> 75 taps in 30 seconds = 2.5 taps/second. Mobile tap rate is typically 5–8/s, so this is very achievable for most players. The constraint is more about attention/reaction than speed.</p>
+
+<p><strong>Gate path to Mythic eligibility:</strong> Player must complete Tribe Initial Request → receive Tribe Bobber → equip it → Mythic eligible. Given Initial Request timelines (Section 8), Mythic access is gated behind the same 1,600+ day bottleneck.</p>
+
+<div class="alert alert-med">
+  <strong>Obsidian Keepers Mythic bonus (+0.5% max) is correctly wired</strong> via <code>getTribeMythicChanceBonus()</code> called at abyss.js:2573 in <code>rollAbyssMythicChance()</code>. But the effective bonus range (5% → 5.5% → max 20%) means the Obsidian Keepers bonus is tiny compared to base chance. Consider whether +0.5% meaningfully differentiates Obsidian Keepers.
+</div>
+</section>
+
+<!-- ═══ SECTION 11 ═══ -->
+<section id="s11">
+<h2>11. Catch &amp; Coin Economy</h2>
+
+<h3>ZONE_AVG_COIN (game.js:2444)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Zone</th><th>Avg coin/catch</th><th>At 10 DSF (10/s each = 100/s total, 75% fish)</th><th>Daily income</th></tr></thead>
+<tbody>
+<tr><td>Pond</td><td class="num">4</td><td class="num">75/s</td><td class="num">25,920,000/day</td></tr>
+<tr><td>River</td><td class="num">10</td><td colspan="2" class="muted">Lower automation tiers, less relevant at late game</td></tr>
+<tr><td>Lake</td><td class="num">22</td><td colspan="2" class="muted">—</td></tr>
+<tr><td>Bay</td><td class="num">50</td><td colspan="2" class="muted">—</td></tr>
+<tr><td>Sea</td><td class="num">110</td><td colspan="2" class="muted">—</td></tr>
+<tr><td>Ocean</td><td class="num">220</td><td class="num">~75 fish/s (no legendary)</td><td class="num">~1.43B/day</td></tr>
+<tr><td class="prov">Abyss (ZONE_AVG_COIN)</td><td class="num prov">500</td><td class="num prov">(separate fish pile)</td><td class="num prov">—</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Abyss Fish Flat Value (PROVISIONAL)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Abyss Zone</th><th>Fish value/coin</th><th>At 200 auto-fish/s (Zone 1 estimate)</th><th>Daily Abyss coin income</th></tr></thead>
+<tbody>
+<tr><td>1 (Emerald)</td><td class="num prov">200</td><td class="num">200/s</td><td class="num prov">17,280,000/day</td></tr>
+<tr><td>5 (Aquamarine)</td><td class="num prov">2,000</td><td class="num">200/s</td><td class="num prov">172,800,000/day</td></tr>
+<tr><td>10 (Blue Diamond)</td><td class="num prov">12,000</td><td class="num">200/s</td><td class="num prov">1,036,800,000/day</td></tr>
+</tbody>
+</table>
+</div>
+<p style="font-size:12px;color:var(--muted)">These coin values require the player to regularly visit Market and sell Abyss fish (no auto-sell). At 200/s and Harbor Cold Storage (10k cap), storage fills in 83 seconds.</p>
+
+<div class="alert alert-info">
+  <strong>Key insight:</strong> Even Zone 10 Abyss fish at ~200/s = ~1B coins/day. This is less than max Ocean automation (~1.43B/day at 10 DSF). Abyss fish income supplements but does not eclipse Overworld income at realistic Phase 9 production speeds.
+</div>
+</section>
+
+<!-- ═══ SECTION 12 ═══ -->
+<section id="s12">
+<h2>12. Geode &amp; Diamond Economy</h2>
+
+<h3>Manual Geode Drop Rate Analysis</h3>
+<div class="calc-box"><span class="hl">ABYSS_GEODE_BASE_DROP_CHANCE = 0.007 (0.7% per manual Abyss catch)</span>
+Target: 10 geodes/day (ABYSS_UNIVERSAL_GEODE.targetFindsPerDay)
+
+To hit target: 10 / 0.007 = 1,429 manual Abyss catches/day
+1,429 / 3,600 = 0.397 catches/second = 1 catch per 2.5 seconds
+
+A player making 1 cast every 4–6 seconds (typical active fishing):
+  → 600–900 catches in 6h active session → 4.2–6.3 geodes/day (<span class="hl">below 10 target</span>)
+
+Dedicated player at 1 cast/2s for 6h:
+  → 10,800 catches → 75.6 geodes/day (well above target with tribe bonus)
+
+<span class="hl">Tribe geodeFindRate bonus (Sapphire Deepwatch, max +5%):</span>
+0.007 × 1.05 = 0.00735 — marginal improvement. <span class="ok">IS correctly applied in code.</span>
+</div>
+
+<h3>Auto Geode Rate</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Source</th><th>Rate</th><th>Status</th><th>Daily diamonds</th></tr></thead>
+<tbody>
+<tr><td>Auto Geodes <span class="badge badge-prov">PROV</span></td><td>4/day when Abyss zone active</td><td><span class="badge badge-prov">PROVISIONAL</span></td><td class="num prov">8 (avg 2 per geode)</td></tr>
+<tr><td>Manual Geodes (Average profile)</td><td>~3/day</td><td><span class="badge badge-ok">Working</span></td><td class="num">6</td></tr>
+<tr><td>Manual Geodes (Dedicated profile)</td><td>~10/day</td><td><span class="badge badge-ok">Working</span></td><td class="num">20</td></tr>
+<tr><td>Blue Diamond Ancients bonus (+10% extra diamond chance)</td><td>+1 diamond per geode at max</td><td><span class="badge badge-ok">IS applied</span></td><td class="num">+4–7 at max</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Diamond Costs vs Income</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Expenditure</th><th>Cost (Diamonds)</th><th>Days to afford (Average profile, 14 D/day)</th></tr></thead>
+<tbody>
+<tr><td>Third automation slot</td><td class="num">1,000</td><td class="num">71</td></tr>
+<tr><td>Premium Bait (single)</td><td class="num prov">2 (current code) / 5 (CLAUDE.md)</td><td class="num prov">&lt;1</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-info">The Diamond Shop beyond the third automation slot is not yet implemented. CLAUDE.md mentions "Automation Speed levels, Storage levels" as Diamond purchases but no <code>DIAMOND_SHOP</code> array or equivalent exists in code. This is a Phase 5 / future feature.</div>
+</section>
+
+<!-- ═══ SECTION 13 ═══ -->
+<section id="s13">
+<h2>13. Automation &amp; Offline Progress</h2>
+
+<h3>Zone Slot System</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>State</th><th>Max slots</th><th>Source</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Default</td><td>2</td><td><code>getActiveSlotLimit()</code></td><td>Overworld + Abyss zones share the pool</td></tr>
+<tr><td>Third slot purchased (1,000 Diamonds)</td><td>3</td><td><code>G.thirdAutoSlotUnlocked</code></td><td>Permanent, survives Prestige</td></tr>
+<tr><td>buyTransport() auto-activate</td><td class="warn">Still hardcoded &gt;= 2</td><td>game.js:~1459</td><td class="warn">Bug: doesn't respect 3rd slot</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Proportional Zone Split</h3>
+<div class="calc-box"><span class="hl">Abyss fraction = 1 - (owZoneCount / totalActiveZoneCount)</span>
+
+Example: 1 OW zone + 1 Abyss zone → Abyss gets 50% of total automation output.
+Example: 2 OW zones + 1 Abyss zone (3-slot) → Abyss gets 33%.
+Example: 0 OW zones + 2 Abyss zones → Abyss gets 100%.
+
+This split is consistent in autoTick() and calculateOfflineProgress(). ✓
+</div>
+
+<h3>calcFishRate() vs autoTick() Mismatch</h3>
+<div class="calc-box"><span class="hl">autoTick() speedBase:</span>
+  getSpeedMult() × getPearlSpeedMult() × getMasteryAutoSpeedMult() × <span class="crit">tribeAutoMult</span>
+
+<span class="hl">calcFishRate() per unit:</span>
+  getSpeedMult() × tm × getPearlSpeedMult() × getMasteryAutoSpeedMult() × getMultiCatch()
+  <span class="crit">← tribeAutoMult MISSING</span>
+
+At Amethyst Seers Exalted (+5% auto speed): calcFishRate() is 5% below actual.
+HUD fish/s counter and getEstimatedHourlyIncome() both underreport by this amount.
+</div>
+
+<h3>Offline Progress</h3>
+<p>Offline progress correctly applies <code>getTribeOfflineIncomeMultiplier()</code> (Aquamarine Tidefolk, max +5%), Tribe Storage multiplier via <code>storageCapacity()</code>, and Abyss zone fraction. The offline Abyss catch batch also calls <code>_advanceAbyssGeodeAutoProgress(elapsedMs, ...)</code>. Offline cap remains the storage capacity limit.</p>
+</section>
+
+<!-- ═══ SECTION 14 ═══ -->
+<section id="s14">
+<h2>14. Active Zone Strategy</h2>
+
+<p>With 2 slots, player must choose between:</p>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Configuration</th><th>OW income</th><th>Abyss fish income</th><th>Tribe progress</th><th>Geode automation</th></tr></thead>
+<tbody>
+<tr><td>2 OW zones + 0 Abyss</td><td>High</td><td>None</td><td>Fast (both OW zones)</td><td>None</td></tr>
+<tr><td>1 OW zone + 1 Abyss</td><td>Medium</td><td>Medium</td><td>Slow (1 OW zone)</td><td>4/day</td></tr>
+<tr><td>0 OW zones + 2 Abyss</td><td>None</td><td>High</td><td>Stopped</td><td>8/day</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-high">Because Tribe progress requires specific Overworld fish, dedicating slots to Abyss zones actively slows Tribe completion. This creates a tension the current quantities make unresolvable in a reasonable timeframe regardless of slot configuration.</div>
+</section>
+
+<!-- ═══ SECTION 15 ═══ -->
+<section id="s15">
+<h2>15. Permanent Bonuses — Applied vs Unapplied</h2>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Tribe</th><th>Bonus Stat</th><th>Max Value</th><th>Getter</th><th>Applied In Code?</th><th>Call Site</th></tr></thead>
+<tbody>
+<tr><td>Emerald Wardens</td><td>storage</td><td>+15%</td><td><code>getTribeStorageMultiplier()</code></td><td class="ok">YES</td><td>storageCapacity()</td></tr>
+<tr><td>Amber Reefkin</td><td>fishValue</td><td>+12%</td><td><code>getTribeFishValueMultiplier()</code></td><td class="ok">YES</td><td>game.js:4143</td></tr>
+<tr><td>Amethyst Seers</td><td>automationSpeed</td><td>+12%</td><td><code>getTribeAutomationSpeedMultiplier()</code></td><td class="ok">YES</td><td>autoTick() speedBase</td></tr>
+<tr><td class="warn">Ruby Forged</td><td class="warn">manualCatchSpeed</td><td class="warn">+15%</td><td><code>getTribeManualCatchSpeedMultiplier()</code></td><td class="warn">NO</td><td class="warn">Not called anywhere</td></tr>
+<tr><td>Aquamarine Tidefolk</td><td>offlineIncome</td><td>+15%</td><td><code>getTribeOfflineIncomeMultiplier()</code></td><td class="ok">YES</td><td>calculateOfflineProgress()</td></tr>
+<tr><td class="warn">Opal Gardeners</td><td class="warn">rareEpicChance</td><td class="warn">+2.75%</td><td><code>getTribeRareChanceBonus()</code></td><td class="warn">NO</td><td class="warn">Not called in rollCatch()</td></tr>
+<tr><td>Obsidian Keepers</td><td>mythicFishChance</td><td>+1%</td><td><code>getTribeMythicChanceBonus()</code></td><td class="ok">YES</td><td>abyss.js:2573</td></tr>
+<tr><td class="warn">Topaz Riftborn</td><td class="warn">expeditionSpeed</td><td class="warn">+27.5%</td><td><code>getTribeExpeditionSpeedMultiplier()</code></td><td class="warn">BYPASSED</td><td class="warn">_getExpeditionSpeedMultiplier() returns 1</td></tr>
+<tr><td>Sapphire Deepwatch</td><td>geodeFindRate</td><td>+14%</td><td><code>getTribeGeodeFindRateMultiplier()</code></td><td class="ok">YES</td><td>getAbyssGeodeDropChance() + auto progress</td></tr>
+<tr><td>Blue Diamond Ancients</td><td>geodeExtraDiamondChance</td><td>+20%</td><td><code>getTribeExtraGeodeDiamondChance()</code></td><td class="ok">YES</td><td>_generateGeodeReward()</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="alert alert-high">3 of 10 unique tribe bonus stats are unapplied. Ruby Forged (manual catch speed), Opal Gardeners (rare/epic chance), and Topaz Riftborn (expedition speed) grant no functional benefit despite players completing their tribe chains to earn them.</div>
+</section>
+
+<!-- ═══ SECTION 16 ═══ -->
+<section id="s16">
+<h2>16. Prestige Matrix</h2>
+
+<h3>What Resets on Prestige (_clearAbyssOnPrestige)</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>State</th><th>Resets?</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Tribe progress (initial, friendly, honored, revered, exalted)</td><td class="warn">YES</td><td>tribeInitialCompleted, tribeTrialProgress etc all cleared</td></tr>
+<tr><td>Tribe bobbers</td><td class="warn">YES — revoked</td><td>Tribal bobbers removed from unlockedBobberCosmetics</td></tr>
+<tr><td>Abyss zone unlocks (currentRun.unlockedZones)</td><td class="warn">YES</td><td>Back to Zone 1 only</td></tr>
+<tr><td>Active automation zones (Abyss IDs only)</td><td class="warn">YES — Abyss IDs stripped</td><td>Phase 9 prestige hook filters ABYSS_ZONES IDs from activeAutomationZones</td></tr>
+<tr><td>Abyss fish pile (abyssFishPile)</td><td class="ok">Implied YES (tribe state cleared)</td><td>Not explicitly reset — verify in code</td></tr>
+<tr><td>Maelstrom stabilization progress</td><td class="ok">YES</td><td>clearAbyssState() resets G.maelstrom</td></tr>
+<tr><td>G.abyss.geodes.owned</td><td class="warn">Check needed</td><td>Geode inventory may persist across prestige — design unclear</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>What Persists on Prestige</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>State</th><th>Persists?</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>thirdAutoSlotUnlocked (Diamond purchase)</td><td class="ok">YES</td><td>Phase 9 design — permanent</td></tr>
+<tr><td>Geode inventory (owned count)</td><td class="ok prov">PROBABLY — verify</td><td>Not cleared in _clearAbyssOnPrestige</td></tr>
+<tr><td>Overworld state (coins, automation, zones)</td><td class="ok">YES</td><td>Prestige only resets Abyss</td></tr>
+<tr><td>Permanent tribe bonuses (storage/fishValue/etc)</td><td class="warn">Resets with tribe progress</td><td>Bonuses depend on tribe stage level</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-med">If tribe bonuses reset on prestige but the player must spend thousands of days re-earning them (given current Tribe request sizes), the prestige loop is not viable as a game mechanic. The reward for prestige needs to meaningfully compensate for the tribe progress loss.</div>
+</section>
+
+<!-- ═══ SECTION 17 ═══ -->
+<section id="s17">
+<h2>17. Missing / Unimplemented Systems</h2>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>System</th><th>Status</th><th>Severity</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Diamond Shop (automation speed, storage upgrades)</td><td>Not implemented</td><td><span class="badge badge-med">MEDIUM</span></td><td>CLAUDE.md mentions these; only 3rd slot exists in code</td></tr>
+<tr><td>Expedition speed via Tribe bonus</td><td>Getter defined, not called</td><td><span class="badge badge-high">HIGH</span></td><td><code>_getExpeditionSpeedMultiplier()</code> returns 1 always</td></tr>
+<tr><td>Manual catch speed bonus (Ruby Forged)</td><td>Getter defined, not called</td><td><span class="badge badge-high">HIGH</span></td><td>No application in bobber tap timing or cast speed</td></tr>
+<tr><td>Rare/Epic chance bonus (Opal Gardeners)</td><td>Getter defined, not called</td><td><span class="badge badge-high">HIGH</span></td><td>Not fed into getRarityBonus() or rollCatch()</td></tr>
+<tr><td>Abyss fish auto-sell</td><td>Not implemented</td><td><span class="badge badge-high">HIGH</span></td><td>Fish pile fills storage in seconds at production speed</td></tr>
+<tr><td>Abyss fish Fishdex entries (per species)</td><td>Assets missing (img: null)</td><td><span class="badge badge-med">MEDIUM</span></td><td>All 55 ABYSS_FISH_DB entries have img: null</td></tr>
+<tr><td>Maelstrom crystal art</td><td>Missing</td><td><span class="badge badge-med">MEDIUM</span></td><td>MAELSTROM_CRYSTALS all have icon: null</td></tr>
+<tr><td>Abyss zone background art</td><td>Missing (bg: null in all zones)</td><td><span class="badge badge-med">MEDIUM</span></td><td>All 10 ABYSS_ZONES have bg: null</td></tr>
+<tr><td>Abyss fish ZONE_AVG_COIN integration</td><td>Separate pile, not in ZONE_AVG_COIN path</td><td><span class="badge badge-low">LOW</span></td><td>Offline income estimate doesn't include Abyss fish coins</td></tr>
+<tr><td>G.abyss.abyssFishPile persist verification</td><td>Added Phase 9, needs full save/load cycle test</td><td><span class="badge badge-low">LOW</span></td><td>Migration block added; smoke test not confirmed</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ═══ SECTION 18 ═══ -->
+<section id="s18">
+<h2>18. Performance Risks</h2>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Risk</th><th>Severity</th><th>Trigger</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Storage fill blocking automation</td><td><span class="badge badge-crit">CRITICAL</span></td><td>200 Abyss fish/s → fills 10k storage in 83s</td><td>Player must sell constantly or all automation pauses</td></tr>
+<tr><td>processAbyssAutoBatch with large counts</td><td><span class="badge badge-med">MEDIUM</span></td><td>After long offline period with large elapsed time</td><td>Stochastic loop over large batch counts — should be capped</td></tr>
+<tr><td>Large abyssFishPile object with 55 species</td><td><span class="badge badge-low">LOW</span></td><td>Late game with many zones active</td><td>Object size stays manageable — at most 55 keys</td></tr>
+<tr><td>autoTick() call frequency vs Abyss batch overhead</td><td><span class="badge badge-low">LOW</span></td><td>Every 1000ms tick with multiple Abyss zones</td><td>Single batch per tick regardless of zone count — efficient</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ═══ SECTION 19 ═══ -->
+<section id="s19">
+<h2>19. Recommended Balance Changes</h2>
+<div class="alert alert-info">These recommendations are for design review. Do not implement without explicit approval. Ordered by severity.</div>
+
+<h3>Critical — Tribe System Rework</h3>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">R-01 — Reduce Tribe totalCatches by ~500× or change tracking mechanism</span>
+  </div>
+  <div class="finding-body">
+    <strong>Option A:</strong> Divide all <code>totalCatches</code> by 500. Zone 1 Initial Request becomes ~5,184,000 catches (3 days at realistic ~20 qualified fish/s). Adjust formula to use realistic OW automation catch rates instead of Abyss design speed.<br>
+    <strong>Option B:</strong> Change tracking to count total catches (all species, all zones) rather than specific fish IDs. Makes progress automatic and removes fish-zone dependency.<br>
+    <strong>Option C:</strong> Allow Abyss automation catches to count toward Tribe progress (requires <code>processAbyssAutoBatch()</code> to call <code>recordTribeFishCatch()</code> for Abyss fish).
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">R-02 — Replace Legendary fish in Zone 9 &amp; 10 Tribe requests</span>
+  </div>
+  <div class="finding-body">
+    Zone 9 (Sapphire Deepwatch): Replace <code>giant_squid</code> and <code>coelacanth</code> (both Legendary) with automatable Ocean species such as <code>tuna</code>, <code>swordfish</code>, or <code>halibut</code>.<br>
+    Zone 10 (Blue Diamond Ancients): Replace <code>giant_squid</code> with an Epic/Rare species.<br>
+    Alternative: Make Legendary fish catchable by automation in Ocean zone (removes the CLAUDE.md design constraint, but may be acceptable at endgame Abyss level).
+  </div>
+</div>
+
+<h3>Critical — Storage &amp; Abyss Fish</h3>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-crit">CRITICAL</span>
+    <span class="finding-title">R-03 — Add Abyss fish auto-sell toggle or separate Abyss storage</span>
+  </div>
+  <div class="finding-body">
+    Players cannot reasonably sell Abyss fish fast enough to prevent storage from blocking automation. Options:<br>
+    <strong>A:</strong> Add auto-sell toggle for Abyss fish (like trash auto-sell) — sells at base flat price each tick.<br>
+    <strong>B:</strong> Give Abyss fish a separate storage capacity that does not count toward the main storage limit.<br>
+    <strong>C:</strong> Implement periodic auto-sell timer for Abyss fish pile (e.g., sell oldest automatically when pile exceeds threshold).
+  </div>
+</div>
+
+<h3>High — Apply Missing Bonuses</h3>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-high">HIGH</span>
+    <span class="finding-title">R-04 — Wire three unapplied Tribe bonus getters</span>
+  </div>
+  <div class="finding-body">
+    1. <code>getTribeManualCatchSpeedMultiplier()</code> → apply to bobber tap window or cast cooldown timer.<br>
+    2. <code>getTribeRareChanceBonus()</code> → add to <code>getRarityBonus()</code> return value or inside <code>rollCatch()</code> rarity calculation.<br>
+    3. <code>getTribeExpeditionSpeedMultiplier()</code> → replace <code>return 1</code> in <code>_getExpeditionSpeedMultiplier()</code> with a call to the tribe getter.
+  </div>
+</div>
+
+<h3>High — Fix calcFishRate()</h3>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-high">HIGH</span>
+    <span class="finding-title">R-05 — Add getTribeAutomationSpeedMultiplier() to calcFishRate()</span>
+  </div>
+  <div class="finding-body">
+    Multiply per-unit rate by <code>typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1</code> inside <code>calcFishRate()</code> to match <code>autoTick()</code> behavior. HUD and income estimates will then be accurate.
+  </div>
+</div>
+
+<h3>Medium</h3>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-med">MEDIUM</span>
+    <span class="finding-title">R-06 — Fix buyTransport() to use getActiveSlotLimit()</span>
+  </div>
+  <div class="finding-body">
+    Replace hardcoded <code>>= 2</code> at game.js:~1459 with <code>>= getActiveSlotLimit()</code>.
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-med">MEDIUM</span>
+    <span class="finding-title">R-07 — Sync CLAUDE.md automation costs with code</span>
+  </div>
+  <div class="finding-body">
+    Update CLAUDE.md Automation — Boats table with code values: row_boat 350k, motor_boat 1.2M, fishing_boat 4M, small_fleet 15M, large_fleet 75M.
+  </div>
+</div>
+
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge badge-med">MEDIUM</span>
+    <span class="finding-title">R-08 — Verify G.abyss.abyssFishPile reset on Prestige</span>
+  </div>
+  <div class="finding-body">
+    Confirm <code>_clearAbyssOnPrestige()</code> explicitly zeroes <code>G.abyss.abyssFishPile</code>. Also confirm <code>G.abyss.geodes.owned</code> persist/reset behavior matches design intent. Add to save migration smoke test.
+  </div>
+</div>
+</section>
+
+<!-- ═══ SECTION 20 ═══ -->
+<section id="s20">
+<h2>20. Questions Requiring Design Approval</h2>
+
+<ol style="line-height:2.2;padding-left:20px">
+  <li><strong>Tribe Tracking Mechanism:</strong> Should Tribe progress track specific Overworld fish IDs (current), total catches of any fish, or include Abyss catches? The current model makes zones 1–10 take centuries at realistic rates.</li>
+  <li><strong>Tribe Request Quantity Formula:</strong> Should <code>totalCatches</code> be recalculated using realistic OW automation rates rather than Abyss zone design speeds? Or is the intent that tribes take years of passive accumulation?</li>
+  <li><strong>Zone 9 &amp; 10 Legendary fish:</strong> Should giant_squid and coelacanth be replaceable with non-legendary species, or should automation eventually be allowed to catch legendaries in Abyss context?</li>
+  <li><strong>Abyss automation production model:</strong> Is the Phase 9 proportional-split model (OW auto capacity ÷ zones) intended long-term, or will there be a dedicated Abyss automation shop with its own units reaching 10k–100k catch/s?</li>
+  <li><strong>Abyss fish storage:</strong> Should Abyss fish occupy the shared storage, have a separate Abyss inventory, or auto-sell immediately?</li>
+  <li><strong>Prestige and tribe bonuses:</strong> Should tribe stage bonuses persist across prestige (permanent) or reset (current behavior)? If they reset and take 40+ years to re-earn, prestige is not a viable loop.</li>
+  <li><strong>ABYSS_GEODE_AUTO_PER_DAY = 4:</strong> Is this still the intended rate? Dedicated players earn ~75 manual geodes/day; auto adds only 4 more — is that the right balance?</li>
+  <li><strong>Abyss fish coin values [PROVISIONAL]:</strong> Are Zone 1 = 200c and Zone 10 = 12,000c the approved values, or pending economy review?</li>
+  <li><strong>Maelstrom mission duration (6h) [PROVISIONAL]:</strong> Is this finalized? At 2 vessels it takes ~19 days; at 1 vessel ~37 days. Is that the target pacing for the pre-Abyss gate?</li>
+  <li><strong>Diamond Premium Bait cost:</strong> Code says 2 Diamonds; CLAUDE.md says 5 Diamonds (single pack). Which is authoritative?</li>
+  <li><strong>Expedition Vessel chests vs Maelstrom missions:</strong> Are these two separate vessel queues (30h chests + 6h Maelstrom missions) running in parallel on the same vessels, or different vessel fleets?</li>
+  <li><strong>Multi-zone tribe species:</strong> Zone 1 requires salmon (Sea zone) + tuna/swordfish/marlin (Ocean zone). Was it intended that players need automation in 2+ Overworld zones simultaneously to progress one tribe?</li>
+</ol>
+</section>
+
+<hr style="border-color:var(--border);margin:40px 0">
+<p style="color:var(--muted);font-size:12px">Generated: 2026-07-16 · abyss-development branch · Patient Angler: Idle Fishing · Recapsa OÜ / Henly Games</p>
+<p style="color:var(--muted);font-size:12px">This file is a developer audit tool. Do not ship in production builds. Do not add to game navigation.</p>
+<div style="height:40px"></div>
+</main>
+</body>
+</html>
