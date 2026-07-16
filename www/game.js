@@ -955,7 +955,7 @@ function buyDiamondUpgrade(type) {
   if ((G.diamonds || 0) < COST) { showStatus('Not enough Diamonds!', 1500); return; }
   G.diamonds = (G.diamonds || 0) - COST;
   G.diamondUpgrades[type] = lvl + 1;
-  saveState(); updateHUD(); renderShop(activeShopTab);
+  saveState(); updateHUD(); renderShop(activeShopTab); renderDiamondStore();
   const label = type === 'autoSpeed' ? 'Automation Upgrade' : 'Storage Upgrade';
   showStatus(label + ' → Level ' + (lvl + 1), 1800);
 }
@@ -3476,34 +3476,6 @@ function renderShop(tab) {
     const sellMult     = (1 + pearls * 0.01).toFixed(2);
     const upgrades     = G.pearlUpgrades || {};
 
-    const _dUpgDefs = [
-      { type:'autoSpeed', label:'Automation Upgrade', desc:'+10% global automation speed per level. Stacks with all other multipliers.', icon:'⚙️' },
-      { type:'storage',   label:'Storage Upgrade',    desc:'+10% global storage capacity per level. Stacks with all other multipliers.',  icon:'🗄️' },
-    ];
-    const diamondUpgradeRows = _dUpgDefs.map(d => {
-      const lvl    = getAutomationUpgradeLevel.apply && d.type === 'autoSpeed' ? getAutomationUpgradeLevel() : getStorageUpgradeLevel();
-      const maxLvl = d.type === 'autoSpeed' ? getAutomationUpgradeMaxLevel() : getStorageUpgradeMaxLevel();
-      const atCap  = lvl >= maxLvl;
-      const COST   = 100;
-      const canAfford = !atCap && (G.diamonds || 0) >= COST;
-      const curEff = `+${(lvl*10)}% ${d.type === 'autoSpeed' ? 'automation speed' : 'storage capacity'}`;
-      const nxtEff = atCap ? '' : `+${((lvl+1)*10)}% ${d.type === 'autoSpeed' ? 'automation speed' : 'storage capacity'}`;
-      const capNote = maxLvl === 25 ? ' (50 after Abyss)' : '';
-      return `
-        <div class="pearl-upgrade-row">
-          <div class="pearl-upgrade-info">
-            <div class="pearl-upgrade-name">${d.label} <span style="color:#5cf;font-size:12px">Lv${lvl}${atCap?` <span style="color:#f0c040">(MAX)</span>`:''}/${maxLvl}${capNote}</span></div>
-            <div class="pearl-upgrade-desc">${d.desc}</div>
-            <div style="font-size:11px;color:#aaa;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em">Current Bonus</div>
-            <div style="font-size:12px;color:#90c890;margin-top:1px">${lvl > 0 ? curEff : 'None'}</div>
-            ${!atCap?`<div style="font-size:11px;color:#aaa;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em">Next Bonus</div><div style="font-size:12px;color:#c8c8c8;margin-top:1px">${nxtEff}</div>`:''}
-          </div>
-          <button class="${canAfford?'btn-shop-buy':'btn-shop-locked'}" ${canAfford?'':'disabled'}
-            onclick="buyDiamondUpgrade('${d.type}')">
-            ${atCap ? 'MAX' : `◆ ${COST}`}
-          </button>
-        </div>`;
-    }).join('');
 
     const upgradeRows = PEARL_UPGRADES.filter(u => !u.requiresSunkenTreasure || G.sunkenTreasureUnlocked).map(u => {
       const lvl    = upgrades[u.id] || 0;
@@ -3586,13 +3558,6 @@ function renderShop(tab) {
             onclick="doPrestige()">
             ${eligible?'PRESTIGE (+'+reward+' Pearl'+(reward>1?'s':'')+')'  :'Reach '+formatCoins(threshold)+' coins first'}
           </button>
-        </div>
-        <div class="prestige-section">
-          <div class="prestige-section-title">DIAMOND SHOP</div>
-          <div style="font-size:11px;color:#aaa;margin-bottom:8px;text-align:center">
-            Permanent upgrades — survive Prestige, cost 100 ◆ each
-          </div>
-          ${diamondUpgradeRows}
         </div>
         <div class="prestige-section">
           <div class="prestige-section-title">PEARL SHOP</div>
@@ -7005,7 +6970,38 @@ function renderDiamondStore() {
         </div>
         <button class="btn-primary ds-premium-btn" onclick="buyDevSupport()">25.99€</button>
       </div>`;
-  html += `</div>
+  html += `</div>`;
+
+  const _permUpgDefs = [
+    { type:'autoSpeed', label:'Automation Upgrade', desc:'+10% global automation speed per level. Survives Prestige.' },
+    { type:'storage',   label:'Storage Upgrade',    desc:'+10% global storage capacity per level. Survives Prestige.' },
+  ];
+  const permUpgradeRows = _permUpgDefs.map(d => {
+    const lvl     = d.type === 'autoSpeed' ? getAutomationUpgradeLevel() : getStorageUpgradeLevel();
+    const maxLvl  = d.type === 'autoSpeed' ? getAutomationUpgradeMaxLevel() : getStorageUpgradeMaxLevel();
+    const atCap   = lvl >= maxLvl;
+    const COST    = 100;
+    const canAff  = !atCap && bal >= COST;
+    const curEff  = lvl > 0 ? `+${lvl*10}% ${d.type === 'autoSpeed' ? 'automation speed' : 'storage capacity'}` : 'None yet';
+    return `
+      <div class="ds-spend-row">
+        <div class="ds-spend-info">
+          <div class="ds-spend-name">${d.label} <span style="color:#5cf;font-size:12px">Lv ${lvl}/${maxLvl}${atCap ? ' <span style="color:#f0c040">(MAX)</span>' : ''}</span></div>
+          <div class="ds-spend-desc">${d.desc}</div>
+          <div style="font-size:12px;color:#90c890;margin-top:2px">${curEff}</div>
+        </div>
+        <button class="${canAff ? 'btn-primary ds-spend-btn' : 'btn-shop-locked'}" ${canAff ? '' : 'disabled'}
+          onclick="buyDiamondUpgrade('${d.type}')">
+          ${atCap ? 'MAX' : `100 <img src="img/icons/Diamond icon.png" class="ds-inline-icon" alt="">`}
+        </button>
+      </div>`;
+  }).join('');
+
+  html += `
+    <div class="ds-section-label">Permanent Upgrades</div>
+    <div class="ds-spend-list">
+      ${permUpgradeRows}
+    </div>
 
     <div class="ds-section-label">Spend Diamonds</div>
     <div class="ds-spend-list">
