@@ -1102,7 +1102,13 @@ function _clearAbyssOnPrestige() {
   }
   // Reset current run (zone unlocks + mythic catches this run)
   a.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
-  // tribeReputation, tribeInitialCompleted, tribeBonusesClaimed, tribeBobbers, fishdex all survive
+  // tribeReputation, tribeInitialCompleted, tribeBonusesClaimed, tribeBobbers, fishdex, geodes survive
+  // Remove Abyss biome zones from active automation slots — run reset means they're no longer unlocked
+  if (typeof ABYSS_ZONES !== 'undefined' && Array.isArray(G.activeAutomationZones)) {
+    var _abyssIdSet = {};
+    ABYSS_ZONES.forEach(function(z) { _abyssIdSet[z.id] = true; });
+    G.activeAutomationZones = G.activeAutomationZones.filter(function(id) { return !_abyssIdSet[id]; });
+  }
 }
 
 // ─── DEBUG STATE RESET ────────────────────────────────────────────────────────
@@ -1506,6 +1512,24 @@ function renderAbyssDebugSettings() {
       <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce(3)">Force 3 ◆</button>
       <button class="btn-secondary-sm" onclick="_debugAbyssOpenGeodeForce(4)">Force 4 ◆ (max)</button>
       <button class="btn-secondary-sm" onclick="_debugAbyssResetGeodes()">Reset Geodes</button>
+    </div>
+    <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Abyss Automation (Phase 9)</strong></div>
+    <div class="settings-info-row dim" style="font-size:10px;margin-bottom:4px;opacity:0.6;">
+      Abyss catch/s: ${typeof getAbyssAutoCatchsPerSec==='function'?getAbyssAutoCatchsPerSec().toFixed(2):'0'} ·
+      Active biomes: ${typeof getActiveAbyssZonesForAuto==='function'?getActiveAbyssZonesForAuto().length:'0'} ·
+      Auto ◆/day: ${(ABYSS_GEODE_AUTO_PER_DAY*(typeof getTribeGeodeFindRateMultiplier==='function'?getTribeGeodeFindRateMultiplier():1)).toFixed(2)} ·
+      Progress: ${typeof G!=='undefined'&&G.abyss&&G.abyss.geodes?((G.abyss.geodes.automationProgress||0)*100).toFixed(1):'0'}% ·
+      Fish pile: ${typeof abyssFishPileTotal==='function'?abyssFishPileTotal():'0'} ·
+      3rd slot: ${typeof G!=='undefined'&&G.thirdAutoSlotUnlocked?'YES':'NO'}
+    </div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="_debugSimAbyssAuto(60)">Sim 1 min</button>
+      <button class="btn-secondary-sm" onclick="_debugSimAbyssAuto(3600)">Sim 1 hour</button>
+      <button class="btn-secondary-sm" onclick="_debugSimAbyssAuto(86400)">Sim 24h</button>
+      <button class="btn-secondary-sm" onclick="_debugAddAbyssGeodeAutoProgress(0.5)">+0.5 Auto ◆ Progress</button>
+      <button class="btn-secondary-sm" onclick="_debugCompleteNextAutoGeode()">Complete Next ◆</button>
+      <button class="btn-secondary-sm" onclick="_debugBuyThirdSlot()">Force 3rd Slot</button>
+      <button class="btn-secondary-sm" onclick="_debugResetAbyssAutoState()">Reset Auto State</button>
     </div>` : ''}`;
 }
 
@@ -3019,6 +3043,326 @@ function _debugAbyssResetGeodes() {
     var ms = document.getElementById('screen-market');
     if (ms && ms.classList.contains('active')) renderMarket();
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PHASE 9 — ABYSS AUTOMATION PRODUCTION
+// Batched catch generation; time-normalized Geode model; Tribe bonus integration.
+// Third automation slot (1000 Diamonds) state lives in G.thirdAutoSlotUnlocked.
+// Abyss fish sell for coins; Crystals and Insects auto-discard (Fishdex only).
+// [PROVISIONAL] economy constants marked — subject to balancing audit.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── PROVISIONAL ABYSS FISH BASE VALUES ──────────────────────────────────────
+// [PROVISIONAL] Scales ~2× per zone (Zone 1→Zone 10). Economy audit pending.
+var _ABYSS_FISH_VALUE_BY_ZONE = [200, 400, 700, 1200, 2000, 3000, 4500, 6000, 8000, 12000];
+
+function getAbyssFishBaseValue(fishId) {
+  var fish = ABYSS_FISH_DB.find(function(f) { return f.id === fishId; });
+  if (!fish) return 200;
+  var z = ABYSS_ZONES.find(function(z) { return z.id === fish.nativeZone; });
+  var order = z ? z.order : 1;
+  return _ABYSS_FISH_VALUE_BY_ZONE[Math.min(order - 1, _ABYSS_FISH_VALUE_BY_ZONE.length - 1)];
+}
+
+// ─── ABYSS FISH PILE HELPERS ──────────────────────────────────────────────────
+// G.abyss.abyssFishPile = { fishId: qty } — sellable Abyss fish in shared storage.
+// Crystals and Insects: discarded, counted only in Fishdex.
+
+function _ensureAbyssFishPile() {
+  if (!G.abyss) G.abyss = {};
+  if (!G.abyss.abyssFishPile || typeof G.abyss.abyssFishPile !== 'object')
+    G.abyss.abyssFishPile = {};
+}
+
+function abyssFishPileTotal() {
+  if (!G.abyss || !G.abyss.abyssFishPile) return 0;
+  return Object.values(G.abyss.abyssFishPile).reduce(function(s, q) { return s + (q || 0); }, 0);
+}
+
+function sellAbyssFish(fishId, qty) {
+  if (!canAccessMaelstromAndAbyss()) return;
+  _ensureAbyssFishPile();
+  var pile = G.abyss.abyssFishPile;
+  var have = pile[fishId] || 0;
+  qty = Math.min(qty, have);
+  if (qty <= 0) return;
+  var val  = getAbyssFishBaseValue(fishId);
+  var tribeFV  = typeof getTribeFishValueMultiplier === 'function' ? getTribeFishValueMultiplier() : 1;
+  var sellBonus= typeof getRodSellBonus            === 'function' ? getRodSellBonus()            : 1;
+  var total = Math.round(val * tribeFV * sellBonus * qty);
+  pile[fishId] -= qty;
+  if (typeof _earnCoins  === 'function') _earnCoins(total);
+  if (typeof saveState   === 'function') saveState();
+  if (typeof updateHUD   === 'function') updateHUD();
+  var ms = document.getElementById('screen-market');
+  if (ms && ms.classList.contains('active') && typeof renderMarket === 'function') renderMarket();
+}
+
+function sellAllAbyssFish() {
+  if (!canAccessMaelstromAndAbyss()) return 0;
+  _ensureAbyssFishPile();
+  var pile     = G.abyss.abyssFishPile;
+  var tribeFV  = typeof getTribeFishValueMultiplier === 'function' ? getTribeFishValueMultiplier() : 1;
+  var sellBonus= typeof getRodSellBonus            === 'function' ? getRodSellBonus()            : 1;
+  var total = 0;
+  Object.keys(pile).forEach(function(id) {
+    var qty = pile[id] || 0;
+    if (qty <= 0) return;
+    total += Math.round(getAbyssFishBaseValue(id) * tribeFV * sellBonus * qty);
+    pile[id] = 0;
+  });
+  if (total > 0 && typeof _earnCoins === 'function') _earnCoins(total);
+  return total;
+}
+
+// ─── ACTIVE ABYSS ZONE HELPERS ────────────────────────────────────────────────
+
+function getActiveAbyssZonesForAuto() {
+  if (!canAccessMaelstromAndAbyss()) return [];
+  var active = G.activeAutomationZones || [];
+  var unlockedThisRun = (G.abyss && G.abyss.currentRun)
+    ? (G.abyss.currentRun.unlockedZones || ['emerald_forest'])
+    : ['emerald_forest'];
+  return active.filter(function(id) {
+    return ABYSS_ZONES.some(function(z) { return z.id === id; }) && unlockedThisRun.includes(id);
+  });
+}
+
+// ─── BATCH DISTRIBUTION ───────────────────────────────────────────────────────
+// Distributes `total` items uniformly across `pool` array.
+// Returns plain object { id: count }. Sum of values === total.
+
+function _batchDistributeUniform(total, pool) {
+  var result = {};
+  if (!pool || !pool.length || total <= 0) return result;
+  var n = pool.length;
+  var base = Math.floor(total / n);
+  var remainder = total - base * n;
+  var indices = [];
+  for (var i = 0; i < n; i++) indices.push(i);
+  for (var j = n - 1; j > 0; j--) {
+    var k = Math.floor(Math.random() * (j + 1));
+    var tmp = indices[j]; indices[j] = indices[k]; indices[k] = tmp;
+  }
+  for (var i = 0; i < n; i++) {
+    result[pool[i]] = base + (i < remainder ? 1 : 0);
+  }
+  return result;
+}
+
+// ─── ABYSS AUTO BATCH PROCESSOR ───────────────────────────────────────────────
+// Called from game.js autoTick() and calculateOfflineProgress() for each Abyss zone.
+// `count` — total catches to process. Batched: does NOT loop once per catch.
+
+function processAbyssAutoBatch(zoneId, count) {
+  if (!canAccessMaelstromAndAbyss() || !count || count <= 0) return;
+  var zone = ABYSS_ZONES.find(function(z) { return z.id === zoneId; });
+  if (!zone) return;
+  _ensureAbyssFishPile();
+
+  var total = ABYSS_LOOT_WEIGHTS.fish + ABYSS_LOOT_WEIGHTS.crystal + ABYSS_LOOT_WEIGHTS.insect;
+  var fishExp    = count * ABYSS_LOOT_WEIGHTS.fish    / total;
+  var crystalExp = count * ABYSS_LOOT_WEIGHTS.crystal / total;
+  var fishCount    = Math.floor(fishExp);    if (Math.random() < (fishExp    - fishCount))    fishCount++;
+  var crystalCount = Math.floor(crystalExp); if (Math.random() < (crystalExp - crystalCount)) crystalCount++;
+  var insectCount  = count - fishCount - crystalCount;
+  if (insectCount < 0) { fishCount += insectCount; insectCount = 0; }
+
+  // Fish → Abyss fish pile + Fishdex
+  if (fishCount > 0 && zone.fish && zone.fish.length) {
+    var fishDist = _batchDistributeUniform(fishCount, zone.fish);
+    var pile = G.abyss.abyssFishPile;
+    Object.keys(fishDist).forEach(function(id) {
+      var qty = fishDist[id];
+      if (qty <= 0) return;
+      pile[id] = (pile[id] || 0) + qty;
+      if (typeof recordAbyssFishCatch === 'function') recordAbyssFishCatch(id, qty);
+    });
+  }
+
+  // Crystals → Fishdex only (auto-discard, worthless)
+  if (crystalCount > 0 && zone.crystals && zone.crystals.length) {
+    var crystalDist = _batchDistributeUniform(crystalCount, zone.crystals);
+    Object.keys(crystalDist).forEach(function(id) {
+      var qty = crystalDist[id];
+      if (qty > 0 && typeof recordAbyssCrystalFound === 'function') recordAbyssCrystalFound(id, qty);
+    });
+  }
+
+  // Insects → Fishdex only (auto-discard, worthless)
+  if (insectCount > 0 && zone.insects && zone.insects.length) {
+    var insectDist = _batchDistributeUniform(insectCount, zone.insects);
+    Object.keys(insectDist).forEach(function(id) {
+      var qty = insectDist[id];
+      if (qty > 0 && typeof recordAbyssInsectFound === 'function') recordAbyssInsectFound(id, qty);
+    });
+  }
+}
+
+// ─── AUTOMATION GEODE MODEL (time-normalized) ─────────────────────────────────
+// [PROVISIONAL] 4 Geodes/day while ≥1 Abyss zone active above min threshold.
+// Multiple active Abyss zones do NOT multiply the rate (prevents slot-count explosion).
+// Sapphire Deepwatch Tribe Find Rate bonus applied multiplicatively.
+// Fractional progress survives Prestige and reload.
+
+var ABYSS_GEODE_AUTO_PER_DAY        = 4;    // [PROVISIONAL] automation Geodes per real day
+var ABYSS_GEODE_AUTO_MIN_CATCH_RATE = 1.0;  // minimum catch/s to Abyss zones before progress runs
+
+function _ensureAbyssGeodeAutoProgress() {
+  _ensureAbyssGeodeInventory();
+  var inv = G.abyss.geodes;
+  if (typeof inv.automationProgress !== 'number' || !isFinite(inv.automationProgress) || inv.automationProgress < 0)
+    inv.automationProgress = 0;
+}
+
+function _getAbyssGeodeAutoMsPerGeode() {
+  var mult = typeof getTribeGeodeFindRateMultiplier === 'function' ? getTribeGeodeFindRateMultiplier() : 1;
+  var perDay = Math.max(0.001, ABYSS_GEODE_AUTO_PER_DAY * mult);
+  return 86400000 / perDay;
+}
+
+// Called once per autoTick (elapsedMs≈1000) and from calculateOfflineProgress.
+function _advanceAbyssGeodeAutoProgress(elapsedMs, abyssZones, abyssRate) {
+  if (!canAccessMaelstromAndAbyss() || elapsedMs <= 0) return;
+  if (!abyssZones || !abyssZones.length) return;
+  if (abyssRate < ABYSS_GEODE_AUTO_MIN_CATCH_RATE) return;
+
+  _ensureAbyssGeodeAutoProgress();
+  var msPerGeode = _getAbyssGeodeAutoMsPerGeode();
+  var progress   = elapsedMs / msPerGeode;
+  G.abyss.geodes.automationProgress = (G.abyss.geodes.automationProgress || 0) + progress;
+
+  var toGrant = Math.floor(G.abyss.geodes.automationProgress);
+  if (toGrant > 0) {
+    G.abyss.geodes.automationProgress -= toGrant;
+    _grantAbyssAutoGeodes(toGrant);
+  }
+}
+
+function _grantAbyssAutoGeodes(count) {
+  if (count <= 0) return;
+  _ensureAbyssGeodeInventory();
+  _ensureAbyssFishdexState();
+  G.abyss.geodes.owned = (G.abyss.geodes.owned || 0) + count;
+  if (typeof recordAbyssGeodeFound === 'function') recordAbyssGeodeFound(count);
+  if (typeof saveState === 'function') saveState();
+  var ms = document.getElementById('screen-market');
+  if (ms && ms.classList.contains('active') && typeof renderMarket === 'function') renderMarket();
+}
+
+// ─── ZONE AUTO CARD RENDERER ─────────────────────────────────────────────────
+// Called from game.js renderZones() to append Abyss biome cards below Overworld.
+
+function renderAbyssZoneAutoCards() {
+  if (!canAccessMaelstromAndAbyss()) return '';
+  var unlockedThisRun = (G.abyss && G.abyss.currentRun)
+    ? (G.abyss.currentRun.unlockedZones || ['emerald_forest'])
+    : ['emerald_forest'];
+  var activeZones = G.activeAutomationZones || [];
+  var slotLimit   = typeof getActiveSlotLimit === 'function' ? getActiveSlotLimit() : 2;
+  var cards = '';
+  ABYSS_ZONES.forEach(function(zone) {
+    var isUnlocked = unlockedThisRun.includes(zone.id);
+    var isActive   = activeZones.includes(zone.id);
+    var isFull     = !isActive && activeZones.length >= slotLimit;
+    var btnHtml;
+    if (!isUnlocked) {
+      btnHtml = '<button class="btn-zone-auto btn-zone-auto-full" disabled>Locked</button>';
+    } else if (isActive) {
+      btnHtml = '<button class="btn-zone-auto btn-zone-auto-on" onclick="toggleZoneAuto(\'' + zone.id + '\')">Auto ✓</button>';
+    } else if (isFull) {
+      btnHtml = '<button class="btn-zone-auto btn-zone-auto-full" disabled>Auto Full</button>';
+    } else {
+      btnHtml = '<button class="btn-zone-auto" onclick="toggleZoneAuto(\'' + zone.id + '\')">Set Auto</button>';
+    }
+    cards += '<div class="zone-card zone-card-abyss' + (!isUnlocked ? ' zone-card-locked' : '') + '" style="--zc:' + zone.themeColor + '">' +
+      '<div class="zone-color-bar"></div>' +
+      '<div class="zone-card-body">' +
+        '<div class="zone-card-text">' +
+          '<div class="zone-card-head">' +
+            '<span class="zone-card-name">' + zone.name + '</span>' +
+            '<span class="zone-world-badge">Abyss</span>' +
+            '<span class="zone-depth">' + (isUnlocked ? 'Zone ' + zone.order : 'Locked') + '</span>' +
+          '</div>' +
+          '<div class="zone-card-desc">' + zone.atmosphere + '</div>' +
+          (!isUnlocked ? '<div class="zone-reqs"><div class="zone-req">' + zone.unlockRequirement + '</div></div>' : '') +
+        '</div>' +
+        '<div class="zone-auto-col">' + btnHtml + '</div>' +
+      '</div>' +
+      '<div class="zone-card-right"></div>' +
+      '</div>';
+  });
+  return cards ? '<div class="zone-abyss-divider">Abyss Biomes</div>' + cards : '';
+}
+
+// ─── PHASE 9 DEBUG TOOLS ──────────────────────────────────────────────────────
+
+function _debugSimAbyssAuto(seconds) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  var abyssZones = getActiveAbyssZonesForAuto();
+  if (!abyssZones.length) {
+    if (typeof showStatus === 'function') showStatus('No active Abyss zones — select one in Zones.', 1800); return;
+  }
+  var totalRate = typeof calcFishRate === 'function' ? calcFishRate() : 0;
+  var totalActive = (G.activeAutomationZones || []).length || 1;
+  var perZoneRate = totalRate / totalActive;
+  var totals = {};
+  abyssZones.forEach(function(zid) {
+    var catches = Math.round(perZoneRate * seconds);
+    if (catches <= 0) return;
+    processAbyssAutoBatch(zid, catches);
+    totals[zid] = catches;
+  });
+  var abyssRate = abyssZones.length * perZoneRate;
+  _advanceAbyssGeodeAutoProgress(seconds * 1000, abyssZones, abyssRate);
+  if (typeof saveState  === 'function') saveState();
+  if (typeof updateHUD  === 'function') updateHUD();
+  var ms = document.getElementById('screen-market');
+  if (ms && ms.classList.contains('active') && typeof renderMarket === 'function') renderMarket();
+  var labels = Object.entries(totals).map(function(kv) { return kv[0].split('_')[0] + '=' + kv[1]; }).join(', ');
+  if (typeof showStatus === 'function') showStatus('Simulated ' + seconds + 's Abyss auto: ' + labels, 3000);
+}
+
+function _debugAddAbyssGeodeAutoProgress(amount) {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssGeodeAutoProgress();
+  G.abyss.geodes.automationProgress = (G.abyss.geodes.automationProgress || 0) + amount;
+  var toGrant = Math.floor(G.abyss.geodes.automationProgress);
+  if (toGrant > 0) {
+    G.abyss.geodes.automationProgress -= toGrant;
+    _grantAbyssAutoGeodes(toGrant);
+  }
+  if (typeof saveState  === 'function') saveState();
+  if (typeof showStatus === 'function') showStatus('Debug: +' + amount + ' Geode auto progress → granted ' + toGrant, 2000);
+}
+
+function _debugCompleteNextAutoGeode() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssGeodeAutoProgress();
+  var needed = 1 - (G.abyss.geodes.automationProgress || 0);
+  _debugAddAbyssGeodeAutoProgress(Math.max(needed + 0.001, 0.01));
+}
+
+function _debugResetAbyssAutoState() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  _ensureAbyssFishPile();
+  _ensureAbyssGeodeAutoProgress();
+  G.abyss.abyssFishPile             = {};
+  G.abyss.geodes.automationProgress = 0;
+  if (typeof saveState  === 'function') saveState();
+  if (typeof showStatus === 'function') showStatus('Debug: Abyss automation state reset.', 1500);
+  var ms = document.getElementById('screen-market');
+  if (ms && ms.classList.contains('active') && typeof renderMarket === 'function') renderMarket();
+}
+
+function _debugBuyThirdSlot() {
+  if (!isLocalAbyssDebugEnabled()) return;
+  if (G.thirdAutoSlotUnlocked) { if (typeof showStatus === 'function') showStatus('Third slot already unlocked.', 1000); return; }
+  G.thirdAutoSlotUnlocked = true;
+  if (typeof saveState   === 'function') saveState();
+  if (typeof renderZones === 'function') renderZones();
+  if (typeof showStatus  === 'function') showStatus('Debug: Third automation slot unlocked.', 1500);
 }
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────

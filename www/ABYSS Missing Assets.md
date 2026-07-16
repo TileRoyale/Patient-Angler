@@ -177,3 +177,21 @@ Phase 8 implements the universal Geode drop, Market integration, and opening pop
 - `openAbyssGeode()` in `abyss.js` calls `showGeodeOpenPopup()`. When `abyss_geode_opening.gif` is available, integrate it the same way as `Sunken treasure opening no background.gif` in `_showChestOpenPopup()` — load via `_loadGifOnce()` and set `img#geode-open-gif` src.
 - Add `<img id="geode-open-gif">` inside `#geode-open-overlay` in `index.html` at the same time. Until then the pulsing ◆ placeholder in `.geode-placeholder-icon` serves.
 - The `img/icons/Abyss/geode_placeholder.png` listed in Abyss — General section above is the generic placeholder for collect screens. `abyss_geode.png` is the Fishdex-specific icon. These may share the same final art file if art team decides on one design.
+
+---
+
+## Abyss Automation — Phase 9
+
+Phase 9 adds Abyss biome automation zones, Abyss fish pile selling, time-normalized Geode auto-accumulation, and the third automation slot. Placeholder assets used for all Abyss fish icons until art is produced.
+
+| Category | Asset Name | Suggested Filename | Expected Folder | Dimensions / Aspect | Description | Feature / Screen | Status |
+|---|---|---|---|---|---|---|---|
+| Icon | Abyss Fish Placeholder (Market row) | `abyss_fish_placeholder.png` | `img/icons/Abyss/` | 48×48 | Generic dark fish silhouette with cyan bio-luminescent outline; used in Market Abyss Fish section rows until per-species sprites exist | Market — Abyss Fish section | Placeholder (◆ text) |
+| Sprite | Abyss Zone Card Preview Images (×10) | `zone_preview_emerald_forest.png` … `zone_preview_blue_diamond_sanctuary.png` | `img/icons/Abyss/Zones/` | 80×80 | Thumbnail preview art for each Abyss biome zone card shown in the Zones screen Abyss Biomes section; one per biome | Zones screen — Abyss Biomes section | Missing |
+| Icon | Third Automation Slot Unlock Icon | `third_slot_unlock.png` | `img/icons/Abyss/` | 48×48 | Icon representing the permanent third zone slot purchase (1000 Diamonds); shown in Zone auto slot UI / Shop button if added | Zones screen — slot limit badge | Missing |
+| Sprite | Per-species Abyss Fish Icons (×55) | `abyss_fish_[id].png` | `img/fish/abyss/` | 48×48 or 32×32 | One sprite per Abyss fish species (55 total across 10 biomes); should match the bioluminescent aesthetic of each biome | Market Abyss Fish rows · Abyss Fishdex | Missing |
+
+### Integration notes
+- When `abyss_fish_placeholder.png` is available, replace the `◆` text placeholder in `.abyss-fish-icon` by setting `background-image` or rendering `<img>` inside the div. The class `.abyss-fish-icon` in `styles.css` is already the target element.
+- Per-species Abyss fish icons: when individual files exist, update `getAbyssFishBaseValue()` or add a separate `getAbyssFishIconPath(fishId)` helper in `abyss.js` that resolves `img/fish/abyss/${fishId}.png`. The Market render loop in `game.js renderMarket()` can then swap the `◆` text for an `<img>`.
+- Zone card preview images: `renderAbyssZoneAutoCards()` in `abyss.js` renders zone cards with a plain color bar (`--zc` theme color). When zone preview PNGs exist, add an `<img class="zone-preview-img">` inside `.zone-card-abyss` in `renderAbyssZoneAutoCards()` the same way Overworld zone cards use `.zone-preview-img`.

@@ -579,6 +579,7 @@ const DEFAULT_STATE = {
   masteryData: {},
   manualFishdex: {}, // { fishId: { discovered, firstCaughtDate, totalCatches, largestWeight, bestSize, trophyCount } }
   activeAutomationZones: null,  // null = all unlocked zones; array of ≤2 zone IDs when player configures
+  thirdAutoSlotUnlocked: false, // permanent — survives Prestige; unlocked for 1000 Diamonds
   autoSellEnd: 0,
   autoSellPermanent: false,
   autoSellEnabled: true,
@@ -840,6 +841,19 @@ function getSpeedMult() {
 function getRarityBonus()  { return     getBobberTier('sensitive_bobber') * 0.01; }
 function getSizeShift()    { return     getBobberTier('heavy_bobber'); }
 function getMultiCatch()   { return getBobberTier('electronic_bobber') + 1 + ((G.pearlUpgrades||{}).multicatch||0); }
+
+function getActiveSlotLimit() { return G.thirdAutoSlotUnlocked ? 3 : 2; }
+
+function buyThirdAutomationSlot() {
+  if (G.thirdAutoSlotUnlocked) { showStatus('Already purchased.', 1500); return; }
+  const cost = 1000;
+  if ((G.diamonds || 0) < cost) { showStatus('Need ' + cost + ' ◆ Diamonds.', 1500); return; }
+  G.diamonds -= cost;
+  G.thirdAutoSlotUnlocked = true;
+  saveState(); updateHUD();
+  showStatus('Third automation zone slot unlocked permanently!', 2500);
+  if (document.getElementById('screen-zones').classList.contains('active')) renderZones();
+}
 
 function buyBobberTier(id) {
   const maxTier = getBobberMaxUnlockedTier();
@@ -1346,7 +1360,8 @@ function storageCapacity() {
     const s = STORAGE_ITEMS.find(x => x.id === owned.id);
     return s ? sum + s.capacity : sum;
   }, 0);
-  return Math.round(base * getRodStorageCapacityMult() * getPearlStorageMult() * getMasteryStorageMult() * (G.devSupportOwned ? 1.25 : 1));
+  const tribeStorMult = typeof getTribeStorageMultiplier === 'function' ? getTribeStorageMultiplier() : 1;
+  return Math.round(base * getRodStorageCapacityMult() * getPearlStorageMult() * getMasteryStorageMult() * tribeStorMult * (G.devSupportOwned ? 1.25 : 1));
 }
 
 function isPremiumBaitActive() {
@@ -1827,11 +1842,19 @@ function closeZonesHelp() { document.getElementById('zones-help-overlay').classL
 
 function toggleZoneAuto(zoneId) {
   if (!G.activeAutomationZones) G.activeAutomationZones = [];
+  // Gate Abyss biome IDs: must be accessible and unlocked in the current run
+  const isAbyssBiome = typeof ABYSS_ZONES !== 'undefined' && ABYSS_ZONES.some(z => z.id === zoneId);
+  if (isAbyssBiome) {
+    if (typeof canAccessMaelstromAndAbyss !== 'function' || !canAccessMaelstromAndAbyss()) return;
+    const unlockedRun = (G.abyss && G.abyss.currentRun) ? (G.abyss.currentRun.unlockedZones || []) : [];
+    if (!unlockedRun.includes(zoneId)) return;
+  }
+  const limit = getActiveSlotLimit();
   const idx = G.activeAutomationZones.indexOf(zoneId);
   if (idx >= 0) {
     G.activeAutomationZones.splice(idx, 1);
   } else {
-    if (G.activeAutomationZones.length >= 2) return;
+    if (G.activeAutomationZones.length >= limit) return;
     G.activeAutomationZones.push(zoneId);
   }
   saveState();
@@ -1899,9 +1922,9 @@ function renderZones() {
 
     let autoZoneBtn = '';
     if (unlocked) {
-      const activeZones = G.activeAutomationZones || [];
+      const activeZones  = G.activeAutomationZones || [];
       const isAutoActive = activeZones.includes(zone.id);
-      const isFull = !isAutoActive && activeZones.length >= 2;
+      const isFull       = !isAutoActive && activeZones.length >= getActiveSlotLimit();
       if (isAutoActive) {
         autoZoneBtn = '<button class="btn-zone-auto btn-zone-auto-on js-auto-toggle">Auto ✓</button>';
       } else if (isFull) {
@@ -1943,6 +1966,16 @@ function renderZones() {
 
     el.appendChild(div);
   });
+
+  // Abyss biome zone cards — rendered only when the Abyss expansion is accessible
+  if (typeof renderAbyssZoneAutoCards === 'function') {
+    const abyssHtml = renderAbyssZoneAutoCards();
+    if (abyssHtml) {
+      const abyssWrap = document.createElement('div');
+      abyssWrap.innerHTML = abyssHtml;
+      while (abyssWrap.firstChild) el.appendChild(abyssWrap.firstChild);
+    }
+  }
 }
 
 // ─── QUEST SYSTEM ────────────────────────────────────────────────────────────
@@ -2173,8 +2206,10 @@ function onStorageFullEvent() {
 
 function fishPileKey(fishId, size) { return fishId + '|' + size; }
 function fishPileTotal() {
+  const abyssTotal = typeof abyssFishPileTotal === 'function' ? abyssFishPileTotal() : 0;
   return Object.values(G.fishPile || {}).reduce((s, q) => s + q, 0)
-       + (G.trophyPile || []).length;
+       + (G.trophyPile || []).length
+       + abyssTotal;
 }
 function fishPileValue(fishId, size) {
   const f = FISH_DB.find(x => x.id === fishId);
@@ -3197,7 +3232,8 @@ function autoTick() {
   let changed = false;
 
   // Pre-compute multipliers once per tick (not per unit)
-  const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult();
+  const tribeAutoMult  = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
+  const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * tribeAutoMult;
   const multiCatch     = getMultiCatch();
   const extraCatchMult = 1 + getPearlExtraCatchChance();
   const typeMults  = {
@@ -3208,8 +3244,11 @@ function autoTick() {
   };
 
   const _allUnlockedZones = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
-  const _tickZones = (G.activeAutomationZones || []).filter(z => _allUnlockedZones.includes(z));
-  if (!_tickZones.length) return; // no active zones — skip tick entirely
+  const _tickZones      = (G.activeAutomationZones || []).filter(z => _allUnlockedZones.includes(z));
+  const _tickAbyssZones = typeof getActiveAbyssZonesForAuto === 'function' ? getActiveAbyssZonesForAuto() : [];
+  const _totalZones     = _tickZones.length + _tickAbyssZones.length;
+  if (!_totalZones) return; // no active zones — skip tick entirely
+  const _owFraction   = _tickZones.length / _totalZones;
   const _tickRandZone = () => _tickZones[Math.floor(Math.random() * _tickZones.length)];
 
   // Aggregate by automation id only (zone ignored — all units of same type work together)
@@ -3227,6 +3266,7 @@ function autoTick() {
   // Max catches per tick prevents CPU spikes with extreme automation counts
   const MAX_PER_TICK = 150;
   let tickTotal = 0;
+  let _abyssExpectedTotal = 0;
 
   for (const { aDef, count } of Object.values(agg)) {
     if (tickTotal >= MAX_PER_TICK) break;
@@ -3234,45 +3274,68 @@ function autoTick() {
     const spd = speedBase * (typeMults[aDef.type] || 1);
     const ratePerUnit = spd / aDef.rate;
     const expected = count * ratePerUnit * extraCatchMult;
-    let catches = Math.floor(expected);
-    if (Math.random() < (expected - catches)) catches++;
-    catches = Math.min(catches, MAX_PER_TICK - tickTotal);
-    if (catches <= 0) continue;
 
-    changed = true;
-    tickTotal += catches;
-    G.stats.autoCatchTotal = (G.stats.autoCatchTotal || 0) + catches * multiCatch;
-    const _atKey = 'autoCatch' + aDef.type.charAt(0).toUpperCase() + aDef.type.slice(1);
-    G.stats[_atKey] = (G.stats[_atKey] || 0) + catches * multiCatch;
+    // Accumulate expected Abyss share for batch processing after the loop
+    _abyssExpectedTotal += expected * (1 - _owFraction);
 
-    const _firstCatch = rollCatch(_tickRandZone());
+    // Overworld portion of this unit's output
+    if (_tickZones.length > 0 && _owFraction > 0) {
+      const owExpected = expected * _owFraction;
+      let catches = Math.floor(owExpected);
+      if (Math.random() < (owExpected - catches)) catches++;
+      catches = Math.min(catches, MAX_PER_TICK - tickTotal);
+      if (catches <= 0) continue;
 
-    for (let i = 0; i < catches; i++) {
-      if (fishPileTotal() >= storageCapacity()) break;
-      const c = (i === 0) ? _firstCatch : rollCatch(_tickRandZone());
-      if (c.rarity === 'trash') {
-        G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + multiCatch;
-        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-      } else if (c.rarity === 'plant') {
-        G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + multiCatch;
-        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-      } else {
-        const space = storageCapacity() - fishPileTotal();
-        if (space <= 0) break;
-        const qty = Math.min(multiCatch, space);
-        const autoSize = c.isTrophy ? 'Large' : c.size;
-        const _k = fishPileKey(c.fishId, autoSize);
-        G.fishPile[_k] = (G.fishPile[_k] || 0) + qty;
-        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-        checkStorageFull();
-        _spawnTickForCatch(aDef.type, c.rarity, qty);
+      changed = true;
+      tickTotal += catches;
+      G.stats.autoCatchTotal = (G.stats.autoCatchTotal || 0) + catches * multiCatch;
+      const _atKey = 'autoCatch' + aDef.type.charAt(0).toUpperCase() + aDef.type.slice(1);
+      G.stats[_atKey] = (G.stats[_atKey] || 0) + catches * multiCatch;
+
+      const _firstCatch = rollCatch(_tickRandZone());
+
+      for (let i = 0; i < catches; i++) {
+        if (fishPileTotal() >= storageCapacity()) break;
+        const c = (i === 0) ? _firstCatch : rollCatch(_tickRandZone());
+        if (c.rarity === 'trash') {
+          G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + multiCatch;
+          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+        } else if (c.rarity === 'plant') {
+          G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + multiCatch;
+          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+        } else {
+          const space = storageCapacity() - fishPileTotal();
+          if (space <= 0) break;
+          const qty = Math.min(multiCatch, space);
+          const autoSize = c.isTrophy ? 'Large' : c.size;
+          const _k = fishPileKey(c.fishId, autoSize);
+          G.fishPile[_k] = (G.fishPile[_k] || 0) + qty;
+          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+          checkStorageFull();
+          _spawnTickForCatch(aDef.type, c.rarity, qty);
+          onCatchEvent(c.fishId, c.rarity);
+          incrementMastery(c.fishId);
+          continue;
+        }
+        _spawnTickForCatch(aDef.type, c.rarity, multiCatch);
         onCatchEvent(c.fishId, c.rarity);
         incrementMastery(c.fishId);
-        continue;
       }
-      _spawnTickForCatch(aDef.type, c.rarity, multiCatch);
-      onCatchEvent(c.fishId, c.rarity);
-      incrementMastery(c.fishId);
+    }
+  }
+
+  // Abyss automation batch — one stochastic batch per tick across all active Abyss biomes
+  if (_tickAbyssZones.length > 0 && _abyssExpectedTotal > 0 && typeof processAbyssAutoBatch === 'function') {
+    let abyssCatches = Math.floor(_abyssExpectedTotal);
+    if (Math.random() < (_abyssExpectedTotal - abyssCatches)) abyssCatches++;
+    if (abyssCatches > 0 && fishPileTotal() < storageCapacity()) {
+      const _abRandZone = _tickAbyssZones[Math.floor(Math.random() * _tickAbyssZones.length)];
+      processAbyssAutoBatch(_abRandZone, abyssCatches * multiCatch);
+      changed = true;
+    }
+    // Time-normalized Geode accumulation — one 1000ms tick per autoTick call
+    if (typeof _advanceAbyssGeodeAutoProgress === 'function') {
+      _advanceAbyssGeodeAutoProgress(1000, _tickAbyssZones, _abyssExpectedTotal * multiCatch);
     }
   }
 
@@ -3283,8 +3346,8 @@ function autoTick() {
     if (document.getElementById('screen-market').classList.contains('active')) renderMarket();
   }
 
-  // Automation Sunken Treasure Chest roll — checked once per tick regardless of catch count
-  if (G.sunkenTreasureUnlocked && tickTotal > 0 && Date.now() > (G.automationTreasureCooldownUntil || 0)) {
+  // Automation Sunken Treasure Chest roll — Overworld zones only, once per tick
+  if (G.sunkenTreasureUnlocked && tickTotal > 0 && _tickZones.length > 0 && Date.now() > (G.automationTreasureCooldownUntil || 0)) {
     const p = 1.16e-9; // 0.000000116% per catch
     if (Math.random() < 1 - Math.pow(1 - p, tickTotal)) {
       const randZone = _tickRandZone();
@@ -4069,6 +4132,37 @@ function renderMarket() {
     }
   }
 
+  // ── Abyss Fish section — flat price, no demand system ──────────
+  if (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss() &&
+      typeof abyssFishPileTotal === 'function' && abyssFishPileTotal() > 0) {
+    mkHeader('Abyss Fish');
+    const abyssFishEntries = Object.entries((G.abyss && G.abyss.abyssFishPile) || {}).filter(([,q]) => q > 0);
+    abyssFishEntries.forEach(([id, qty]) => {
+      const abF      = typeof ABYSS_FISH_DB !== 'undefined' ? ABYSS_FISH_DB.find(x => x.id === id) : null;
+      const baseVal  = typeof getAbyssFishBaseValue === 'function' ? getAbyssFishBaseValue(id) : 200;
+      const tribeFV  = typeof getTribeFishValueMultiplier === 'function' ? getTribeFishValueMultiplier() : 1;
+      const sellBns  = typeof getRodSellBonus === 'function' ? getRodSellBonus() : 1;
+      const sellVal  = Math.round(baseVal * tribeFV * sellBns);
+      const aDiv = document.createElement('div');
+      aDiv.className = 'storage-item';
+      aDiv.innerHTML = `
+        <div class="storage-item-img abyss-fish-icon">◆</div>
+        <div class="storage-item-info">
+          <div class="storage-item-name">${abF ? abF.name : id}</div>
+          <div class="storage-item-meta">Abyss Fish · ×${qty}</div>
+        </div>
+        <div class="storage-item-demand">
+          <div class="storage-item-value">${sellVal}c${qty > 1 ? ' <span style="color:var(--color-text-dim)">×' + qty + '</span>' : ''}</div>
+        </div>
+        <button class="btn-sell-one">Sell</button>
+      `;
+      aDiv.querySelector('.btn-sell-one').addEventListener('click', () => {
+        if (typeof sellAbyssFish === 'function') sellAbyssFish(id, qty);
+      });
+      inv.appendChild(aDiv);
+    });
+  }
+
   // ── Fish section (stacked by species + size) ──────────────────
   const fishEntries = Object.entries(G.fishPile || {}).filter(([,q]) => q > 0);
   if (fishEntries.length) {
@@ -4215,6 +4309,11 @@ document.getElementById('btn-sell-all').addEventListener('click', () => {
       G.fishPile[key] = 0;
     }
   });
+  // Sell all Abyss fish (flat price, no demand)
+  if (typeof sellAllAbyssFish === 'function') {
+    const abyssTotal = sellAllAbyssFish();
+    if (abyssTotal) total += abyssTotal;
+  }
   _earnCoins(total);
   if (typeof tutHook === 'function') tutHook('sell', total);
   if (total > 0) showCoinFloat(total);
@@ -4258,6 +4357,11 @@ function doAutoSell() {
     G.diamonds = (G.diamonds || 0) + Math.max(1, Math.round(getRodDiamondMult()));
   });
   G.trophyPile = [];
+  // Sell all Abyss fish (flat price, no demand)
+  if (typeof sellAllAbyssFish === 'function') {
+    const abyssTotal = sellAllAbyssFish() || 0;
+    if (abyssTotal > 0) total += abyssTotal;
+  }
   _earnCoins(total);
   if (total > 0) {
     showCoinFloat(total);
@@ -4585,10 +4689,15 @@ function calculateOfflineProgress() {
   const OFFLINE_ITER_BUDGET = 200000;
   let itersUsed = 0;
 
+  const _tribeOfflineMult = typeof getTribeOfflineIncomeMultiplier === 'function' ? getTribeOfflineIncomeMultiplier() : 1;
+
   const _offAllUnlocked  = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
-  const _offZones = (G.activeAutomationZones || []).filter(z => _offAllUnlocked.includes(z));
-  const _offRandZone = () => _offZones.length ? _offZones[Math.floor(Math.random() * _offZones.length)] : _offAllUnlocked[0];
-  const _offAvgCoin  = _offZones.reduce((s, zid) => s + (ZONE_AVG_COIN[zid] || 4), 0) / Math.max(1, _offZones.length);
+  const _offZones      = (G.activeAutomationZones || []).filter(z => _offAllUnlocked.includes(z));
+  const _offAbyssZones = typeof getActiveAbyssZonesForAuto === 'function' ? getActiveAbyssZonesForAuto() : [];
+  const _offTotalZones = _offZones.length + _offAbyssZones.length;
+  const _owOffFraction = _offTotalZones > 0 ? _offZones.length / _offTotalZones : 1;
+  const _offRandZone   = () => _offZones.length ? _offZones[Math.floor(Math.random() * _offZones.length)] : _offAllUnlocked[0];
+  const _offAvgCoin    = _offZones.reduce((s, zid) => s + (ZONE_AVG_COIN[zid] || 4), 0) / Math.max(1, _offZones.length);
 
   G.ownedAutomation.forEach(owned => {
     const aDef = AUTOMATION.find(x => x.id === owned.id);
@@ -4598,9 +4707,10 @@ function calculateOfflineProgress() {
                                : aDef.type === 'boat'      ? getRodBoatSpeedMult()
                                : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
                                : 1;
-    const offlineSpd = getSpeedMult() * offlineTypeSpeedMult * getPearlSpeedMult() * getMasteryAutoSpeedMult();
+    const offlineSpd = getSpeedMult() * offlineTypeSpeedMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * _tribeOfflineMult;
     const effectiveRate = aDef.rate / offlineSpd;
-    const rawCatches = Math.floor(Math.floor(elapsedSec / effectiveRate) * 0.75 * (1 + getPearlExtraCatchChance()) * getMasteryOfflineMult()) * getMultiCatch();
+    // _owOffFraction reduces Overworld share when Abyss zones are also active
+    const rawCatches = Math.floor(Math.floor(elapsedSec / effectiveRate) * 0.75 * (1 + getPearlExtraCatchChance()) * getMasteryOfflineMult() * _owOffFraction) * getMultiCatch();
 
     const toProcess = Math.min(rawCatches, OFFLINE_ITER_BUDGET - itersUsed);
     itersUsed += toProcess;
@@ -4641,6 +4751,27 @@ function calculateOfflineProgress() {
       totalCaught += overflow;
     }
   });
+
+  // Abyss offline catches — proportional share of total production for active Abyss biomes
+  if (_offAbyssZones.length > 0 && typeof processAbyssAutoBatch === 'function') {
+    const _offTotalRate  = typeof calcFishRate === 'function' ? calcFishRate() : 0;
+    const _abFraction    = 1 - _owOffFraction;
+    const _abCatchPerSec = _offTotalRate * _abFraction;
+    const _rawAbCatches  = Math.floor(_abCatchPerSec * elapsedSec * 0.75 * _tribeOfflineMult) * getMultiCatch();
+    if (_rawAbCatches > 0 && fishPileTotal() < storageCapacity()) {
+      const _perZone = Math.floor(_rawAbCatches / _offAbyssZones.length);
+      if (_perZone > 0) {
+        _offAbyssZones.forEach(zid => {
+          processAbyssAutoBatch(zid, _perZone);
+          totalCaught += _perZone;
+        });
+      }
+    }
+    // Advance time-normalized Geode progress for the full offline elapsed duration
+    if (typeof _advanceAbyssGeodeAutoProgress === 'function') {
+      _advanceAbyssGeodeAutoProgress(elapsedMs, _offAbyssZones, _abCatchPerSec);
+    }
+  }
 
   // Sell offline catches immediately if auto-sell is active
   if (isAutoSellActive() && totalCaught > 0) {
@@ -7599,6 +7730,21 @@ function init() {
   if (typeof G.abyss.geodes.owned !== 'number'               || !isFinite(G.abyss.geodes.owned)               || G.abyss.geodes.owned < 0)               G.abyss.geodes.owned               = 0;
   if (typeof G.abyss.geodes.totalDiamondsEarned !== 'number' || !isFinite(G.abyss.geodes.totalDiamondsEarned) || G.abyss.geodes.totalDiamondsEarned < 0) G.abyss.geodes.totalDiamondsEarned = 0;
   if (!G.abyss.currentRun) G.abyss.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
+  // Phase 9 — Abyss automation state
+  if (typeof G.thirdAutoSlotUnlocked !== 'boolean') G.thirdAutoSlotUnlocked = false;
+  if (!G.abyss.abyssFishPile || typeof G.abyss.abyssFishPile !== 'object') G.abyss.abyssFishPile = {};
+  if (typeof G.abyss.geodes.automationProgress !== 'number' || !isFinite(G.abyss.geodes.automationProgress) || G.abyss.geodes.automationProgress < 0) G.abyss.geodes.automationProgress = 0;
+  // Sanitize active automation zones: remove Abyss zones not unlocked in current run
+  if (typeof ABYSS_ZONES !== 'undefined' && Array.isArray(G.activeAutomationZones) && G.abyss.currentRun) {
+    const _validAbyssZones = new Set(G.abyss.currentRun.unlockedZones || ['emerald_forest']);
+    const _abyssIds        = new Set(ABYSS_ZONES.map(z => z.id));
+    G.activeAutomationZones = G.activeAutomationZones.filter(id => !_abyssIds.has(id) || _validAbyssZones.has(id));
+  }
+  // Clamp array to slot limit (catches saves written before 3rd-slot purchase)
+  const _slotLimitMig = G.thirdAutoSlotUnlocked ? 3 : 2;
+  if (Array.isArray(G.activeAutomationZones) && G.activeAutomationZones.length > _slotLimitMig) {
+    G.activeAutomationZones = G.activeAutomationZones.slice(-_slotLimitMig);
+  }
   if (!G.currentWorld) G.currentWorld = 'overworld';
 
   isPremiumBaitActive(); // clears expired bait
