@@ -3662,7 +3662,7 @@ html, body {
 .ds-spend-info { flex: 1; }
 .ds-spend-name { font-size: calc((clamp(11px,2.7vw,13px)) * var(--font-scale, 1)); font-weight: bold; color: #eee; }
 .ds-spend-desc { font-size: calc((clamp(9px,2.2vw,11px)) * var(--font-scale, 1)); color: #888; margin-top: 2px; }
-.ds-spend-btn  { width: auto; min-width: 50px; max-width: 72px; font-size: calc((clamp(11px,2.7vw,13px)) * var(--font-scale, 1)); padding: 7px 8px; color: #7ec8e3; white-space: nowrap; display: inline-block; }
+.ds-spend-btn  { width: auto; min-width: 72px; max-width: 110px; font-size: calc((clamp(11px,2.7vw,13px)) * var(--font-scale, 1)); padding: 7px 8px; color: #7ec8e3; white-space: nowrap; display: inline-block; }
 
 .ds-inline-icon {
   width: 14px;
