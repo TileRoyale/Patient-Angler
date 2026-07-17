@@ -2,6 +2,13 @@
 
 ---
 
+## v0.9.1 — Build 53 (July 2026)
+
+### Fix
+- **Legendary catch popup scrollable** — on small or landscape screens the golden legendary catch popup now scrolls vertically so all content (fish image, name, description, first-discovery bonus, sell button) is always reachable.
+
+---
+
 ## v0.9.0 — Build 52 (July 2026)
 
 ### New
