@@ -556,6 +556,7 @@ const DEFAULT_STATE = {
   prestigeCount: 0,
   pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0 },
   seaComicSeen:                    false,
+  maelstromComicSeen:              false,
   sunkenTreasureUnlocked:          false,
   sunkenChests:                    [],
   automationTreasureCooldownUntil: 0,
@@ -1873,11 +1874,35 @@ function toggleZoneAuto(zoneId) {
   renderZones();
 }
 
+let _zonesActiveTab = 'overworld'; // session only
+
+function _switchZonesTab(tab) {
+  _zonesActiveTab = tab;
+  renderZones();
+}
+
 function renderZones() {
   const el = document.getElementById('zones-content');
   if (!el) return;
   el.innerHTML = '';
 
+  const _abyssOk = typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss();
+  if (!_abyssOk && _zonesActiveTab !== 'overworld') _zonesActiveTab = 'overworld';
+
+  if (_abyssOk) {
+    const _tabBar = document.createElement('div');
+    _tabBar.className = 'zones-tab-bar';
+    ['overworld', 'abyss'].forEach(function(t) {
+      const btn = document.createElement('button');
+      btn.className = 'zones-tab' + (t === _zonesActiveTab ? ' zones-tab-active' : '');
+      btn.textContent = t === 'overworld' ? 'Overworld' : 'Abyss';
+      btn.addEventListener('click', function() { _switchZonesTab(t); });
+      _tabBar.appendChild(btn);
+    });
+    el.appendChild(_tabBar);
+  }
+
+  if (!_abyssOk || _zonesActiveTab === 'overworld') {
   ZONE_DATA.forEach(zone => {
     const unlocked = isZoneUnlocked(zone.id);
     const isCurrent = G.currentZone === zone.id;
@@ -1979,13 +2004,46 @@ function renderZones() {
     el.appendChild(div);
   });
 
-  // Abyss biome zone cards — rendered only when the Abyss expansion is accessible
-  if (typeof renderAbyssZoneAutoCards === 'function') {
-    const abyssHtml = renderAbyssZoneAutoCards();
-    if (abyssHtml) {
-      const abyssWrap = document.createElement('div');
-      abyssWrap.innerHTML = abyssHtml;
-      while (abyssWrap.firstChild) el.appendChild(abyssWrap.firstChild);
+  if (_abyssOk) {
+    const _mz = typeof MAELSTROM_ZONE !== 'undefined' ? MAELSTROM_ZONE : {};
+    const _mzName  = _mz.name       || 'The Maelstrom';
+    const _mzColor = _mz.themeColor || '#8b00ff';
+    const _mzBg = _mz.bg
+      ? '<img class="zone-preview-img" src="' + _mz.bg + '" alt="">'
+      : '<div class="zone-preview-color" style="background:' + _mzColor + '"></div>';
+    const _mzActive = typeof isInMaelstrom === 'function' && isInMaelstrom();
+    const _mzBtn = _mzActive
+      ? '<button class="btn-zone btn-zone-active" disabled>Active</button>'
+      : '<button class="btn-zone btn-zone-switch js-enter-mael">Enter</button>';
+    const _mCard = document.createElement('div');
+    _mCard.className = 'zone-card zone-card-abyss' + (_mzActive ? ' zone-card-active' : '');
+    _mCard.style.setProperty('--zc', _mzColor);
+    _mCard.innerHTML =
+      '<div class="zone-color-bar"></div>' +
+      '<div class="zone-card-body">' +
+        '<div class="zone-card-text">' +
+          '<div class="zone-card-head">' +
+            '<span class="zone-card-name">' + _mzName + '</span>' +
+            '<span class="zone-world-badge" style="background:rgba(139,0,255,0.25);color:#d580ff">Maelstrom</span>' +
+            '<span class="zone-depth">Expansion</span>' +
+          '</div>' +
+          '<div class="zone-card-desc">A roiling vortex of dark energy. Something ancient stirs within.</div>' +
+        '</div>' +
+        _mzBg +
+      '</div>' +
+      '<div class="zone-card-right">' + _mzBtn + '</div>';
+    const _mBtn = _mCard.querySelector('.js-enter-mael');
+    if (_mBtn) _mBtn.addEventListener('click', function() { enterMaelstromFromZones(); });
+    el.appendChild(_mCard);
+  }
+
+  } else {
+    if (typeof renderAbyssZoneAutoCards === 'function') {
+      let _abyssHtml = renderAbyssZoneAutoCards();
+      _abyssHtml = _abyssHtml.replace('<div class="zone-abyss-divider">Abyss Biomes</div>', '');
+      const _abyssWrap = document.createElement('div');
+      _abyssWrap.innerHTML = _abyssHtml;
+      while (_abyssWrap.firstChild) el.appendChild(_abyssWrap.firstChild);
     }
   }
 }
@@ -4902,6 +4960,26 @@ function showSeaComicPopup() {
 function closeSeaComicPopup() {
   const overlay = document.getElementById('sea-comic-overlay');
   if (overlay) overlay.classList.add('hidden');
+}
+
+function enterMaelstromFromZones() {
+  if (typeof canAccessMaelstromAndAbyss !== 'function' || !canAccessMaelstromAndAbyss()) return;
+  if (!G.maelstromComicSeen) {
+    G.maelstromComicSeen = true;
+    saveState();
+    showMaelstromComicPopup();
+    return;
+  }
+  if (typeof enterMaelstromDebug === 'function') enterMaelstromDebug();
+}
+function showMaelstromComicPopup() {
+  const overlay = document.getElementById('maelstrom-comic-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+}
+function closeMaelstromComicPopup() {
+  const overlay = document.getElementById('maelstrom-comic-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  if (typeof enterMaelstromDebug === 'function') enterMaelstromDebug();
 }
 
 // ── Expedition Vessel ─────────────────────────────────────────────────────────

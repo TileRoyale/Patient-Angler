@@ -71,7 +71,7 @@ const MAELSTROM_ZONE = {
   id:         'maelstrom',
   name:       'The Maelstrom',
   themeColor: '#8b00ff',
-  bg:         null,   // Missing — see ABYSS Missing Assets.md
+  bg:         'img/backgrounds/Maelstrom_beginning.png',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
