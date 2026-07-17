@@ -1002,8 +1002,9 @@ function executePrestige() {
   G.currentRod         = 'basic_rod';
   G.ownedRods          = ['basic_rod'];
   G.ownedStorage       = [];
-  G.ownedTransport     = [];
-  G.ownedAutomation    = [];
+  G.ownedTransport          = [];
+  G.ownedAutomation         = [];
+  G.activeAutomationZones   = ['pond'];
   G.fishPile           = {};
   G.trophyPile         = [];
   G.plantPile          = {};
