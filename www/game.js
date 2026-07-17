@@ -583,6 +583,7 @@ const DEFAULT_STATE = {
   manualFishdex: {}, // { fishId: { discovered, firstCaughtDate, totalCatches, largestWeight, bestSize, trophyCount } }
   activeAutomationZones: null,  // null = all unlocked zones; array of ≤2 zone IDs when player configures
   thirdAutoSlotUnlocked: false, // permanent — survives Prestige; unlocked for 1000 Diamonds
+  devCodeUsed: false,
   autoSellEnd: 0,
   autoSellPermanent: false,
   autoSellEnabled: true,
@@ -7552,8 +7553,27 @@ function applyBobberScale() {
 
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
 
+const _DEV_CODE = 'DEVANGLER';
+
+function redeemDevCode() {
+  const input = document.getElementById('dev-code-input');
+  if (!input) return;
+  if (input.value.trim().toUpperCase() !== _DEV_CODE) {
+    input.style.borderColor = '#c0392b';
+    setTimeout(() => { input.style.borderColor = ''; }, 800);
+    return;
+  }
+  G.coins += 10_000 * 1_000_000_000;
+  G.devCodeUsed = true;
+  saveState();
+  updateHUD();
+  renderSettings();
+}
+
 function renderSettings() {
   if (typeof renderAbyssDebugSettings === 'function') renderAbyssDebugSettings();
+  const devSec = document.getElementById('dev-code-section');
+  if (devSec) devSec.style.display = G.devCodeUsed ? 'none' : '';
   const muteBtn = document.getElementById('btn-music-mute');
   if (muteBtn) {
     muteBtn.textContent = G.musicMuted ? 'OFF' : 'ON';
