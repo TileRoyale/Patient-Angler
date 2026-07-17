@@ -2,6 +2,13 @@
 
 ---
 
+## v0.8.11 — Build 50 (July 2026)
+
+### Fix
+- **Hauling Nets no longer boosts manual fishing** — Hauling Nets (pearl upgrade) was incorrectly multiplying catches during active fishing as well as automation. It now only affects automation catches as intended. Electric Bobber continues to give +1 catch to manual fishing.
+
+---
+
 ## v0.8.10 — Build 49 (July 2026)
 
 ### Fix
