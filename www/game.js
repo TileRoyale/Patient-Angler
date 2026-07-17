@@ -4222,7 +4222,7 @@ function doAutoSell() {
   }
 }
 
-const AUTO_SELL_INTERVAL_MS = 3 * 3600 * 1000; // 72 in-game hours = 3 real hours
+const AUTO_SELL_INTERVAL_MS = 3600 * 1000; // 24 in-game hours = 1 real hour
 
 function startAutoSellTimer() {
   const checkSell = () => {
@@ -4522,7 +4522,7 @@ function calculateOfflineProgress() {
     totalTrash:  0,
     totalEpic:   0,
     totalCaught: 0,
-    coins:       0, // coins earned this session (overflow + auto-sell)
+    coins:       0, // coins earned from scheduled Auto-Seller sales this offline window
     elapsedMs,
   };
 
@@ -4547,18 +4547,9 @@ function calculateOfflineProgress() {
     }
   }
 
-  // Clear storage first so offline catches have maximum room
-  if (isAutoSellActive()) doAutoSell();
-
-  // Global iteration budget prevents UI freeze for extreme automation setups.
-  // Catches beyond the budget are converted to coins at zone average value.
-  const OFFLINE_ITER_BUDGET = 200000;
-  let itersUsed = 0;
-
   const _offAllUnlocked  = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
   const _offZones = (G.activeAutomationZones || []).filter(z => _offAllUnlocked.includes(z));
   const _offRandZone = () => _offZones.length ? _offZones[Math.floor(Math.random() * _offZones.length)] : _offAllUnlocked[0];
-  const _offAvgCoin  = _offZones.reduce((s, zid) => s + (ZONE_AVG_COIN[zid] || 4), 0) / Math.max(1, _offZones.length);
 
   // Pre-cache catch pools by zone to avoid repeated FISH_DB.filter() calls inside the 200k-iteration loop.
   // Without this, each rollCatch() does up to 3 × 180-item filter passes → ~108M ops for large offline windows.
@@ -4590,74 +4581,109 @@ function calculateOfflineProgress() {
     return { fishId: item.id, rarity: type, size, isTrophy: false };
   }
 
-  G.ownedAutomation.forEach(owned => {
+  // Pre-compute per-unit effective catch rates (avoids re-computing multipliers in the inner loop)
+  const _offUnits = G.ownedAutomation.map(owned => {
     const aDef = AUTOMATION.find(x => x.id === owned.id);
-    if (!aDef) return;
-    const offlineTypeSpeedMult = aDef.type === 'net'       ? getRodNetSpeedMult()
-                               : aDef.type === 'fisherman' ? getRodFishermanSpeedMult()
-                               : aDef.type === 'boat'      ? getRodBoatSpeedMult()
-                               : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
-                               : 1;
-    const offlineSpd = getSpeedMult() * offlineTypeSpeedMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
-    const effectiveRate = aDef.rate / offlineSpd;
-    const rawCatches = Math.floor(Math.floor(elapsedSec / effectiveRate) * 0.75 * (1 + getPearlExtraCatchChance()) * getMasteryOfflineMult()) * getMultiCatch();
+    if (!aDef) return null;
+    const typeMult = aDef.type === 'net'       ? getRodNetSpeedMult()
+                   : aDef.type === 'fisherman' ? getRodFishermanSpeedMult()
+                   : aDef.type === 'boat'      ? getRodBoatSpeedMult()
+                   : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
+                   : 1;
+    const spd = getSpeedMult() * typeMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
+    return { aDef, effectiveRate: aDef.rate / spd };
+  }).filter(Boolean);
 
-    const toProcess = Math.min(rawCatches, OFFLINE_ITER_BUDGET - itersUsed);
-    itersUsed += toProcess;
+  // Total catches produced by all units in a given window (seconds)
+  function _catchesInSec(sec) {
+    return _offUnits.reduce((total, u) => {
+      return total + Math.floor(
+        Math.floor(sec / u.effectiveRate) * 0.75
+        * (1 + getPearlExtraCatchChance())
+        * getMasteryOfflineMult()
+      ) * getMultiCatch();
+    }, 0);
+  }
 
-    for (let i = 0; i < toProcess; i++) {
-      const c = _fastOfflineRoll(_offRandZone());
-      if (c.rarity === 'trash') {
-        G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + 1;
-        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-        incrementMastery(c.fishId);
-        _sess.trash[c.fishId] = (_sess.trash[c.fishId] || 0) + 1;
-        _sess.totalTrash++;
-        _sess.totalCaught++;
-      } else if (c.rarity === 'plant') {
-        G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + 1;
-        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-        incrementMastery(c.fishId);
-        _sess.plants[c.fishId] = (_sess.plants[c.fishId] || 0) + 1;
-        _sess.totalPlant++;
-        _sess.totalCaught++;
-      } else {
-        if (fishPileTotal() >= storageCapacity()) {
-          break; // Storage full — stop for this unit (auto-sell runs on its own 3h cycle)
+  // Build timeline of scheduled Auto-Seller events within the offline window.
+  // Only interval-based sell events free storage — storage-full alone never triggers a sell.
+  const _offlineStartAbs = now - elapsedMs;
+  const _autoSellOn = isAutoSellActive();
+  const _sellTimesRelSec = []; // seconds from _offlineStartAbs
+
+  if (_autoSellOn) {
+    let nextSell = G.autoSellNextAt || 0;
+    if (nextSell < _offlineStartAbs) {
+      const intervals = Math.ceil((_offlineStartAbs - nextSell) / AUTO_SELL_INTERVAL_MS);
+      nextSell += intervals * AUTO_SELL_INTERVAL_MS;
+    }
+    while (nextSell < now) {
+      _sellTimesRelSec.push((nextSell - _offlineStartAbs) / 1000);
+      nextSell += AUTO_SELL_INTERVAL_MS;
+    }
+    G.autoSellNextAt = nextSell; // first sell time after player returns
+  }
+
+  // Phase-by-phase simulation: automation runs until storage fills or the next sell event.
+  // At each scheduled sell event, doAutoSell() empties storage and automation resumes.
+  const OFFLINE_ITER_BUDGET = 200000;
+  let itersUsed = 0;
+  let phaseStartSec = 0;
+  const _phaseEnds = [..._sellTimesRelSec, elapsedSec]; // last entry is always elapsedSec
+
+  for (let pi = 0; pi < _phaseEnds.length; pi++) {
+    if (itersUsed >= OFFLINE_ITER_BUDGET) break;
+
+    const phaseEndSec = _phaseEnds[pi];
+    const phaseSec = Math.max(0, phaseEndSec - phaseStartSec);
+
+    if (phaseSec > 0) {
+      if (fishPileTotal() >= storageCapacity() && !_autoSellOn) break; // full, no future sales
+
+      const phaseCatches = _catchesInSec(phaseSec);
+      const toProcess = Math.min(phaseCatches, OFFLINE_ITER_BUDGET - itersUsed);
+      itersUsed += toProcess;
+
+      for (let i = 0; i < toProcess; i++) {
+        if (fishPileTotal() >= storageCapacity()) break; // storage full — wait for next sell event
+        const c = _fastOfflineRoll(_offRandZone());
+        if (c.rarity === 'trash') {
+          G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + 1;
+          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+          incrementMastery(c.fishId);
+          _sess.trash[c.fishId] = (_sess.trash[c.fishId] || 0) + 1;
+          _sess.totalTrash++;
+          _sess.totalCaught++;
+        } else if (c.rarity === 'plant') {
+          G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + 1;
+          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+          incrementMastery(c.fishId);
+          _sess.plants[c.fishId] = (_sess.plants[c.fishId] || 0) + 1;
+          _sess.totalPlant++;
+          _sess.totalCaught++;
+        } else {
+          // Automation cannot catch trophies — treat as Large
+          const autoSize = c.isTrophy ? 'Large' : c.size;
+          const _k = fishPileKey(c.fishId, autoSize);
+          G.fishPile[_k] = (G.fishPile[_k] || 0) + 1;
+          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+          incrementMastery(c.fishId);
+          _sess.fish[c.fishId] = (_sess.fish[c.fishId] || 0) + 1;
+          _sess.totalFish++;
+          if (c.rarity === 'epic' || c.rarity === 'legendary') _sess.totalEpic++;
+          _sess.totalCaught++;
         }
-        // Automation cannot catch trophies — treat as Large
-        const autoSize = c.isTrophy ? 'Large' : c.size;
-        const _k = fishPileKey(c.fishId, autoSize);
-        G.fishPile[_k] = (G.fishPile[_k] || 0) + 1;
-        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-        incrementMastery(c.fishId);
-        _sess.fish[c.fishId] = (_sess.fish[c.fishId] || 0) + 1;
-        _sess.totalFish++;
-        if (c.rarity === 'epic' || c.rarity === 'legendary') _sess.totalEpic++;
-        _sess.totalCaught++;
       }
     }
 
-    // Catches beyond the iteration budget: convert to coins at zone average value.
-    // Overflow coins are tracked separately and added to _sess.coins BEFORE auto-sell
-    // so the final coin accumulation is not overwritten.
-    const overflow = rawCatches - toProcess;
-    if (overflow > 0 && isAutoSellActive()) {
-      const avgVal = _offAvgCoin * getRodSellBonus() * getBlackPearlBonus();
-      const overflowCoins = Math.round(overflow * avgVal);
-      G.coins = (G.coins || 0) + overflowCoins;
-      _sess.coins += overflowCoins;
-      // Count overflow as fish for lifetime stats (best-effort, no item-level detail)
-      _sess.totalFish += overflow;
-      _sess.totalCaught += overflow;
-    }
-  });
+    phaseStartSec = phaseEndSec;
 
-  // Sell offline catches — accumulate coins on top of any overflow already counted
-  if (isAutoSellActive() && _sess.totalCaught > 0) {
-    const coinsBefore = G.coins;
-    doAutoSell();
-    _sess.coins += Math.max(0, G.coins - coinsBefore);
+    // Fire the scheduled sell at this boundary (all boundaries except the last = elapsedSec)
+    if (_autoSellOn && pi < _phaseEnds.length - 1) {
+      const coinsBefore = G.coins;
+      doAutoSell();
+      _sess.coins += Math.max(0, G.coins - coinsBefore);
+    }
   }
 
   // Batch-update lifetime stats for parity with online autoTick() (which calls onCatchEvent per catch)
@@ -7067,14 +7093,14 @@ function renderDiamondStore() {
       <div class="ds-premium-row ds-premium-owned">
         <div class="ds-premium-info">
           <div class="ds-premium-name">Permanent Auto-Seller</div>
-          <div class="ds-premium-desc">Owned — sells all catch once every 72 in-game hours (every 3 real hours) · toggleable on/off</div>
+          <div class="ds-premium-desc">Owned — sells all catch once every 24 in-game hours (every 1 real hour) · toggleable on/off</div>
         </div>
         <button class="btn-toggle ${G.autoSellEnabled ? '' : 'off'}" onclick="toggleAutoSell()">${G.autoSellEnabled ? 'ON' : 'OFF'}</button>
       </div>` : `
       <div class="ds-premium-row">
         <div class="ds-premium-info">
           <div class="ds-premium-name">Permanent Auto-Seller</div>
-          <div class="ds-premium-desc">Sells all catch once every 72 in-game hours (every 3 real hours) · toggleable on/off</div>
+          <div class="ds-premium-desc">Sells all catch once every 24 in-game hours (every 1 real hour) · toggleable on/off</div>
         </div>
         <button class="btn-primary ds-premium-btn" onclick="buyPermanentAutoSell()">25.99€</button>
       </div>`;
@@ -7142,7 +7168,7 @@ function renderDiamondStore() {
         <img src="img/icons/Game screen icons/Shop.png" class="ds-spend-icon" alt="">
         <div class="ds-spend-info">
           <div class="ds-spend-name">Auto-Seller (6h)</div>
-          <div class="ds-spend-desc">Automatically sells your catch every 3 hours while active. Duration: 6 hours.</div>
+          <div class="ds-spend-desc">Automatically sells your catch every 1 real hour (24 in-game hours) while active. Duration: 6 hours.</div>
         </div>
         <button class="btn-primary ds-spend-btn" onclick="confirmDiamondPurchase('Auto-Seller (6h)', 10, buyTempAutoSell)">10 <img src="img/icons/Diamond icon.png" class="ds-inline-icon" alt=""></button>
       </div>
