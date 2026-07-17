@@ -3561,7 +3561,7 @@ function renderShop(tab) {
           <div class="prestige-section-title">PRESTIGE</div>
           <div class="prestige-info-row"><span>Times prestiged</span><span>${count}</span></div>
           <div class="prestige-info-row"><span>Required coins</span><span style="color:#d4a0ff">${formatCoins(threshold)}</span></div>
-          <div class="prestige-info-row"><span>Current coins</span><span style="color:${eligible?'#f0c040':'#e0e0e0'}">${formatCoins(currentCoins)}</span></div>
+          <div class="prestige-info-row"><span>Current pearls</span><span style="color:#d4a0ff">${pearls} ${PEARL_IMG}</span></div>
           <div class="prestige-info-row"><span>Est. Pearl reward</span><span style="color:#d4a0ff">+${reward} ${PEARL_IMG}</span></div>
           <div style="font-size:11px;color:#888;margin:6px 0 10px;text-align:center">
             Pearls = √(coins/2,000) · Resets coins, automation, storage, zones
@@ -4376,7 +4376,8 @@ function updateHUD() {
   document.getElementById('hud-coins').textContent = formatCoins(G.coins);
   document.getElementById('hud-storage').textContent =
     fishPileTotal() + '/' + storageCapacity();
-  document.getElementById('shop-coins').textContent = formatCoins(G.coins);
+  const _scEl = document.getElementById('shop-coins');
+  if (_scEl) _scEl.textContent = activeShopTab === 'jeweler' ? (G.blackPearls || 0) : formatCoins(G.coins);
 
   const diamEl = document.getElementById('hud-diamonds');
   if (diamEl) diamEl.textContent = G.diamonds || 0;
