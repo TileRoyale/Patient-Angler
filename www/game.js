@@ -1835,16 +1835,9 @@ function renderZones() {
   if (!el) return;
   el.innerHTML = '';
 
-  // Auto-zone status bar
-  const activeZones = G.activeAutomationZones || [];
-  const maxZones = 2;
-  const bar = document.createElement('div');
-  bar.className = 'zones-auto-bar';
-  bar.innerHTML =
-    '<span class="zones-auto-bar-label">Active automation</span>' +
-    '<span class="zones-auto-bar-count">' + activeZones.length + ' / ' + maxZones + '</span>' +
-    '<button class="zones-auto-reset-btn" onclick="resetAutoZonesToPond()">Reset to Pond</button>';
-  el.appendChild(bar);
+  // Update header counter
+  const _countEl = document.getElementById('zones-auto-count');
+  if (_countEl) _countEl.textContent = (G.activeAutomationZones || []).length + ' / 2';
 
   ZONE_DATA.forEach(zone => {
     const unlocked = isZoneUnlocked(zone.id);
