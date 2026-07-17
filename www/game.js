@@ -4147,9 +4147,9 @@ function renderMarket() {
               <div class="storage-item-meta">Legendary ${qty > 1 ? '· ×' + qty : ''}</div>
             </div>
             <div class="storage-item-demand">
-              <div class="storage-item-value" style="color:#d4a0ff">10 ◆</div>
+              <div class="storage-item-value" style="color:#d4a0ff">10 ${PEARL_IMG}</div>
             </div>
-            <button class="btn-sell-one btn-sell-legendary">Sell for 10 ◆</button>
+            <button class="btn-sell-one btn-sell-legendary">Sell for 10 ${PEARL_IMG}</button>
           `;
           div.querySelector('.btn-sell-legendary').addEventListener('click', () => sellLegendaryFish(key));
         } else {
@@ -7965,7 +7965,32 @@ function init() {
   try { if (typeof initAuth      === 'function') initAuth();       } catch(e) { console.warn('[Init] Auth failed:', e); }
   try { if (typeof initAnalytics === 'function') initAnalytics();  } catch(e) { console.warn('[Init] Analytics failed:', e); }
   try { loadDialogueData(); } catch(e) { console.warn('[Init] Dialogue load failed:', e); }
+  // Show debug tools on localhost only
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    const dbgBtn = document.getElementById('debug-legendary-btn');
+    if (dbgBtn) dbgBtn.style.display = 'block';
+  }
   console.log('[Init] startup complete');
+}
+
+function debugCatchAllLegendary() {
+  const legendaries = FISH_DB.filter(f => f.w1legendary);
+  let added = 0;
+  for (const fish of legendaries) {
+    const key = fishPileKey(fish.id, 'Large');
+    const alreadyHave = G.fishPile[key] || 0;
+    G.fishPile[key] = alreadyHave + 1;
+    const isFirst = !G.fishdex.includes(fish.id);
+    if (isFirst) G.fishdex.push(fish.id);
+    incrementMastery(fish.id);
+    _queueLegendaryPopup({ fishId: fish.id, name: fish.name, img: fish.img, zone: fish.zone, isFirst });
+    added++;
+  }
+  saveState();
+  updateHUD();
+  renderMarket();
+  showStatus('DEBUG: ' + added + ' legendary fish added to storage.', 3000);
+  setTimeout(_drainLegendaryPopups, 300);
 }
 
 // ─── BACKGROUND / FOREGROUND LIFECYCLE ───────────────────────────────────────
