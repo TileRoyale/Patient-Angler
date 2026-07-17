@@ -2,6 +2,15 @@
 
 ---
 
+## v0.9.0 — Build 52 (July 2026)
+
+### New
+- **World 1 Legendary Fish** — 18 ultra-rare legendary fish hidden across all 6 zones (3 per zone). Each has a 1-in-50,000,000 chance per cast, catchable by manual fishing, automation, and offline progress. Catching a new species for the first time grants a permanent +1% Prestige Black Pearl bonus (up to +18% total across all 18 fish). Legendary fish sell for 10 Black Pearls each — never auto-sold, must be sold manually from the Market.
+- **Golden Legendary catch popup** — a special full-screen golden popup appears on every legendary catch, showing the fish, zone, lore description, and first-discovery bonus if applicable. Automation and offline catches queue their popups and show them one-by-one.
+- **Legendary Fishdex section** — each zone's mastery panel now shows legendary fish progress (X / 3) and your current Prestige Pearl bonus from legendary discoveries.
+
+---
+
 ## v0.8.12 — Build 51 (July 2026)
 
 ### Fix
