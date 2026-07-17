@@ -1323,13 +1323,15 @@ function _resolveExpedition(exp) {
   var loot = _rollExpeditionLoot();
 
   if (typeof G !== 'undefined' && G.maelstrom) {
-    var crystals = G.maelstrom.crystals;
+    var prog  = G.maelstrom.stabilizationProgress;
+    var total = 0;
     Object.keys(loot).forEach(function(id) {
-      crystals[id] = (crystals[id] || 0) + loot[id];
+      prog[id] = (prog[id] || 0) + loot[id];
+      total   += loot[id];
     });
-    var total = Object.values(loot).reduce(function(s, v) { return s + v; }, 0);
     G.maelstrom.stats = G.maelstrom.stats || {};
     G.maelstrom.stats.crystalsRecovered = (G.maelstrom.stats.crystalsRecovered || 0) + total;
+    _checkStabilizationCompletion();
   }
 
   exp.resolved = true;
@@ -1463,13 +1465,15 @@ function sendInstantExpedition() {
 
   var loot = _rollExpeditionLoot();
   if (G.maelstrom) {
-    var crystals = G.maelstrom.crystals;
+    var prog  = G.maelstrom.stabilizationProgress;
+    var total = 0;
     Object.keys(loot).forEach(function(id) {
-      crystals[id] = (crystals[id] || 0) + loot[id];
+      prog[id] = (prog[id] || 0) + loot[id];
+      total   += loot[id];
     });
-    var total = Object.values(loot).reduce(function(s, v) { return s + v; }, 0);
     G.maelstrom.stats = G.maelstrom.stats || {};
     G.maelstrom.stats.crystalsRecovered = (G.maelstrom.stats.crystalsRecovered || 0) + total;
+    _checkStabilizationCompletion();
   }
 
   if (typeof saveState === 'function') saveState();
@@ -1626,12 +1630,14 @@ function _resetMaelstromDebugState() {
 function _debugAddCrystals() {
   if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
   if (typeof G === 'undefined' || !G.maelstrom) return;
+  var prog = G.maelstrom.stabilizationProgress;
   MAELSTROM_CRYSTALS.forEach(function(c) {
-    G.maelstrom.crystals[c.id] = (G.maelstrom.crystals[c.id] || 0) + 10;
+    prog[c.id] = (prog[c.id] || 0) + 10;
   });
+  _checkStabilizationCompletion();
   if (typeof saveState === 'function') saveState();
   if (isInMaelstrom()) renderMaelstromDebug();
-  if (typeof showStatus === 'function') showStatus('+10 of each crystal added.', 1500);
+  if (typeof showStatus === 'function') showStatus('+10 of each crystal contributed.', 1500);
 }
 
 function _debugCompleteStabilization() {
@@ -1717,7 +1723,6 @@ function renderMaelstromDebug() {
   _maelstromEnsureExpeditions();
   el.innerHTML =
     '<div class="mael-screen">'
-    + _renderCrystalInventory()
     + _renderExpeditionPanel()
     + _renderStabilizationPanel()
     + _renderAbyssEntrance()
@@ -1789,7 +1794,6 @@ function _renderStabilizationPanel() {
   if (typeof G === 'undefined' || !G.maelstrom) return '';
   const req       = _maelstromStabReq();
   const prog      = G.maelstrom.stabilizationProgress || {};
-  const crystals  = G.maelstrom.crystals || {};
   const stabilized = G.maelstrom.stabilized;
 
   // Overall progress
@@ -1802,21 +1806,14 @@ function _renderStabilizationPanel() {
     const contributed = Math.min(prog[c.id] || 0, req[c.id]);
     const pct         = Math.min(100, Math.round(contributed / req[c.id] * 100));
     const complete    = contributed >= req[c.id];
-    const inInventory = crystals[c.id] || 0;
     return `<div class="mael-stab-row">
       <span class="mael-crystal-dot" style="background:${c.color};"></span>
       <span class="mael-stab-label">${c.name.replace(' Crystal', '')}</span>
       <span class="mael-stab-count${complete ? ' complete' : ''}">${contributed}/${req[c.id]}</span>
       <div class="mael-stab-bar-wrap"><div class="mael-stab-bar" style="width:${pct}%;background:${c.color};"></div></div>
-      ${complete
-        ? '<span class="mael-stab-check">&#10003;</span>'
-        : `<span class="mael-stab-inv">(+${inInventory})</span>`
-      }
+      ${complete ? '<span class="mael-stab-check">&#10003;</span>' : ''}
     </div>`;
   }).join('');
-
-  const btnDisabled = stabilized ? 'disabled' : '';
-  const btnLabel    = stabilized ? 'Fully Stabilized' : 'Contribute Crystals';
 
   return `<div class="mael-panel">
     <div class="mael-panel-title">Maelstrom Stabilization${stabilized ? ' — COMPLETE' : ''}</div>
@@ -1827,7 +1824,6 @@ function _renderStabilizationPanel() {
       </div>
     </div>
     ${crystalRows}
-    <button class="mael-contribute-btn" onclick="contributeCrystals()" ${btnDisabled}>${btnLabel}</button>
   </div>`;
 }
 
@@ -3872,6 +3868,25 @@ function initAbyssFramework() {
   renderAbyssDebugSettings();
 
   if (!canAccessMaelstromAndAbyss()) return;
+
+  // Migrate: sweep any crystals sitting in the old inventory into stabilization progress
+  if (typeof G !== 'undefined' && G.maelstrom && G.maelstrom.crystals) {
+    var _inv  = G.maelstrom.crystals;
+    var _prog = G.maelstrom.stabilizationProgress;
+    var _migrated = false;
+    Object.keys(_inv).forEach(function(id) {
+      var amt = _inv[id] || 0;
+      if (amt > 0) {
+        _prog[id] = (_prog[id] || 0) + amt;
+        _inv[id]  = 0;
+        _migrated = true;
+      }
+    });
+    if (_migrated) {
+      _checkStabilizationCompletion();
+      if (typeof saveState === 'function') saveState();
+    }
+  }
 
   // Process missions that completed while the app was closed
   _processMaelstromMissions();
