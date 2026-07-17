@@ -698,6 +698,15 @@
     </div>
   </div>
 
+  <!-- Offline session summary popup -->
+  <div class="special-event-overlay hidden" id="offline-summary-overlay" onclick="if(event.target===this)closeOfflineSummary()">
+    <div class="special-event-card" style="text-align:center;padding:20px 18px;max-width:280px">
+      <div class="se-title" style="margin-bottom:10px">Welcome Back!</div>
+      <div id="offline-summary-body" style="width:100%;margin-bottom:16px;font-size:13px;display:flex;flex-direction:column;gap:5px;align-items:center"></div>
+      <button class="btn-primary pc-ok-btn" onclick="closeOfflineSummary()">OK</button>
+    </div>
+  </div>
+
   <!-- Ghost Ship reward popup -->
   <div class="special-event-overlay hidden" id="ghost-ship-reward-overlay" onclick="if(event.target===this)gsClaimReward()">
     <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px">

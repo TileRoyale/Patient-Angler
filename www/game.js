@@ -4485,7 +4485,6 @@ function startClock() {
 function calculateOfflineProgress() {
   const now = Date.now();
   const lastSeen = G.lastSeen || 0;
-  G.lastSeen = now;
 
   // Ghost Ship advance — advance all ships while offline
   if (lastSeen) {
@@ -4501,11 +4500,31 @@ function calculateOfflineProgress() {
     }
   }
 
+  // Save the updated timestamp BEFORE processing catches (idempotency: a crash between
+  // here and the end of processing cannot cause the same interval to replay on next start).
+  G.lastSeen = now;
+  saveState();
+
   if (!lastSeen || !G.ownedAutomation.length) return;
 
-  const elapsedMs = now - lastSeen;
+  const elapsedMs = Math.max(0, now - lastSeen);
   const elapsedSec = Math.min(elapsedMs / 1000, 43200); // cap at 12h
   if (elapsedSec < 10) return;
+
+  // Per-session result — freshly created each call, never read from a persistent field.
+  // Discarded after the popup is shown; never accumulated across sessions.
+  const _sess = {
+    fish:    {},   // { fishId: count } — items generated this session
+    plants:  {},   // { plantId: count }
+    trash:   {},   // { trashId: count }
+    totalFish:   0,
+    totalPlant:  0,
+    totalTrash:  0,
+    totalEpic:   0,
+    totalCaught: 0,
+    coins:       0, // coins earned this session (overflow + auto-sell)
+    elapsedMs,
+  };
 
   // Expedition vessel offline catch-up (max one chest per vessel, never lost)
   if (G.expeditionVessels && G.expeditionVessels.length) {
@@ -4531,8 +4550,6 @@ function calculateOfflineProgress() {
   // Clear storage first so offline catches have maximum room
   if (isAutoSellActive()) doAutoSell();
 
-  let totalCaught = 0;
-  let offlineCoinsEarned = 0;
   // Global iteration budget prevents UI freeze for extreme automation setups.
   // Catches beyond the budget are converted to coins at zone average value.
   const OFFLINE_ITER_BUDGET = 200000;
@@ -4594,12 +4611,16 @@ function calculateOfflineProgress() {
         G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + 1;
         if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
         incrementMastery(c.fishId);
-        totalCaught++;
+        _sess.trash[c.fishId] = (_sess.trash[c.fishId] || 0) + 1;
+        _sess.totalTrash++;
+        _sess.totalCaught++;
       } else if (c.rarity === 'plant') {
         G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + 1;
         if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
         incrementMastery(c.fishId);
-        totalCaught++;
+        _sess.plants[c.fishId] = (_sess.plants[c.fishId] || 0) + 1;
+        _sess.totalPlant++;
+        _sess.totalCaught++;
       } else {
         if (fishPileTotal() >= storageCapacity()) {
           break; // Storage full — stop for this unit (auto-sell runs on its own 3h cycle)
@@ -4610,37 +4631,94 @@ function calculateOfflineProgress() {
         G.fishPile[_k] = (G.fishPile[_k] || 0) + 1;
         if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
         incrementMastery(c.fishId);
-        totalCaught++;
+        _sess.fish[c.fishId] = (_sess.fish[c.fishId] || 0) + 1;
+        _sess.totalFish++;
+        if (c.rarity === 'epic' || c.rarity === 'legendary') _sess.totalEpic++;
+        _sess.totalCaught++;
       }
     }
 
-    // Catches beyond the iteration budget: convert to coins at zone average value
+    // Catches beyond the iteration budget: convert to coins at zone average value.
+    // Overflow coins are tracked separately and added to _sess.coins BEFORE auto-sell
+    // so the final coin accumulation is not overwritten.
     const overflow = rawCatches - toProcess;
     if (overflow > 0 && isAutoSellActive()) {
       const avgVal = _offAvgCoin * getRodSellBonus() * getBlackPearlBonus();
       const overflowCoins = Math.round(overflow * avgVal);
       G.coins = (G.coins || 0) + overflowCoins;
-      offlineCoinsEarned += overflowCoins;
-      totalCaught += overflow;
+      _sess.coins += overflowCoins;
+      // Count overflow as fish for lifetime stats (best-effort, no item-level detail)
+      _sess.totalFish += overflow;
+      _sess.totalCaught += overflow;
     }
   });
 
-  // Sell offline catches immediately if auto-sell is active
-  if (isAutoSellActive() && totalCaught > 0) {
+  // Sell offline catches — accumulate coins on top of any overflow already counted
+  if (isAutoSellActive() && _sess.totalCaught > 0) {
     const coinsBefore = G.coins;
     doAutoSell();
-    offlineCoinsEarned = G.coins - coinsBefore;
+    _sess.coins += Math.max(0, G.coins - coinsBefore);
   }
 
-  if (totalCaught > 0) G.stats.offlineFishTotal = (G.stats.offlineFishTotal || 0) + totalCaught;
+  // Batch-update lifetime stats for parity with online autoTick() (which calls onCatchEvent per catch)
+  G.stats.totalFish  = (G.stats.totalFish  || 0) + _sess.totalFish;
+  G.stats.totalTrash = (G.stats.totalTrash || 0) + _sess.totalTrash;
+  G.stats.totalEpic  = (G.stats.totalEpic  || 0) + _sess.totalEpic;
+  G.stats.autoCatchTotal = (G.stats.autoCatchTotal || 0) + _sess.totalCaught;
+  if (_sess.totalCaught > 0) G.stats.offlineFishTotal = (G.stats.offlineFishTotal || 0) + _sess.totalCaught;
+
+  // Batch-update daily quest progress for fish and trash (same categories autoTick tracks via onCatchEvent)
+  if (_sess.totalCaught > 0) {
+    (G.quests.dailyIds || []).forEach(id => {
+      const qd = DAILY_QUESTS.find(q => q.id === id);
+      if (!qd) return;
+      const p = G.quests.dp[id];
+      if (!p || p.claimed || p.prog >= qd.goal) return;
+      if      (qd.type === 'fish')  p.prog = Math.min(p.prog + _sess.totalFish,  qd.goal);
+      else if (qd.type === 'trash') p.prog = Math.min(p.prog + _sess.totalTrash, qd.goal);
+    });
+    const wq = WEEKLY_QUESTS.find(q => q.id === G.quests.weeklyId);
+    if (wq && !G.quests.wp.claimed) {
+      if      (wq.type === 'fish')  G.quests.wp.prog = Math.min(G.quests.wp.prog + _sess.totalFish,  wq.goal);
+      else if (wq.type === 'trash') G.quests.wp.prog = Math.min(G.quests.wp.prog + _sess.totalTrash, wq.goal);
+    }
+  }
+
   saveState();
 
-  if (totalCaught > 0) {
-    setTimeout(() => {
-      const coinsPart = offlineCoinsEarned > 0 ? ' · +' + formatCoins(offlineCoinsEarned) + 'c sold' : '';
-      showStatus('Welcome back! ' + totalCaught + ' catches while you were away' + coinsPart, 5000);
-    }, 600);
+  if (_sess.totalCaught > 0) {
+    setTimeout(() => _showOfflineSummary(_sess), 800);
   }
+}
+
+function _showOfflineSummary(sess) {
+  const h   = Math.floor(sess.elapsedMs / 3600000);
+  const m   = Math.floor((sess.elapsedMs % 3600000) / 60000);
+  const dur = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+
+  const ov = document.getElementById('offline-summary-overlay');
+  if (ov) {
+    let rows = '<div style="color:var(--color-text-dim);font-size:11px;margin-bottom:8px">Away for ' + dur + '</div>';
+    if (sess.totalFish  > 0) rows += '<div>' + sess.totalFish.toLocaleString()  + ' fish</div>';
+    if (sess.totalTrash > 0) rows += '<div>' + sess.totalTrash.toLocaleString() + ' trash</div>';
+    if (sess.totalPlant > 0) rows += '<div>' + sess.totalPlant.toLocaleString() + ' plants</div>';
+    if (sess.coins      > 0) rows += '<div style="color:var(--color-gold)">+' + formatCoins(sess.coins) + 'c sold</div>';
+    document.getElementById('offline-summary-body').innerHTML = rows;
+    ov.classList.remove('hidden');
+    return;
+  }
+  // Fallback for any environment where the overlay element is missing
+  const parts = [];
+  if (sess.totalFish  > 0) parts.push(sess.totalFish.toLocaleString()  + ' fish');
+  if (sess.totalTrash > 0) parts.push(sess.totalTrash.toLocaleString() + ' trash');
+  if (sess.totalPlant > 0) parts.push(sess.totalPlant.toLocaleString() + ' plants');
+  if (sess.coins      > 0) parts.push('+' + formatCoins(sess.coins)    + 'c sold');
+  showStatus('Welcome back (' + dur + ')! ' + parts.join(' · '), 6000);
+}
+
+function closeOfflineSummary() {
+  const ov = document.getElementById('offline-summary-overlay');
+  if (ov) ov.classList.add('hidden');
 }
 
 // ─── SUNKEN TREASURE CHESTS ───────────────────────────────────────────────────
