@@ -4867,9 +4867,19 @@ html, body {
 
 .mael-exp-btn {
   flex-shrink: 0;
+  display: inline-block !important;
+  width: auto !important;
   font-size: 12px;
-  padding: 8px 14px;
-  min-width: 54px;
+  padding: 6px 16px;
+  min-width: 0;
+  border-radius: 30px;
+  background: var(--color-gold);
+  color: #1a0e00;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: 0.04em;
 }
 
 .mael-exp-list-header {
@@ -4911,11 +4921,9 @@ html, body {
 }
 
 .mael-stab-label {
-  flex: 0 0 72px;
+  flex: 0 0 96px;
   font-size: 11px;
   color: #ccc;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

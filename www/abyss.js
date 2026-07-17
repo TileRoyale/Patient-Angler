@@ -1782,7 +1782,7 @@ function _renderExpeditionPanel() {
         + '<div class="mael-exp-buy-label">Instant Expedition</div>'
         + '<div class="mael-exp-buy-cost">' + fc(instantCost) + 'c • Immediate</div>'
       + '</div>'
-      + '<button class="btn-secondary mael-exp-btn"'
+      + '<button class="btn-primary mael-exp-btn"'
         + (canInstant ? '' : ' disabled') + ' onclick="sendInstantExpedition()">Send</button>'
     + '</div>'
     + listSection
