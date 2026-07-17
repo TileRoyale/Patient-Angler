@@ -1574,6 +1574,40 @@ html, body {
 .hidden { display: none !important; }
 
 /* ── Zones screen ── */
+.zones-auto-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(101,67,33,0.45);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.zones-auto-bar-label {
+  font-size: calc(clamp(11px,2.6vw,13px) * var(--font-scale,1));
+  color: #c8a96e;
+  flex: 1;
+}
+.zones-auto-bar-count {
+  font-size: calc(clamp(12px,2.8vw,14px) * var(--font-scale,1));
+  color: #f4c430;
+  font-weight: bold;
+  min-width: 36px;
+  text-align: center;
+}
+.zones-auto-reset-btn {
+  padding: 5px 12px;
+  background: rgba(180,80,30,0.7);
+  border: 1px solid rgba(220,120,60,0.5);
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: calc(clamp(10px,2.4vw,12px) * var(--font-scale,1));
+  font-weight: bold;
+  cursor: pointer;
+}
+.zones-auto-reset-btn:active { opacity: 0.7; }
+
 .zones-scroll {
   flex: 1;
   overflow-y: auto;

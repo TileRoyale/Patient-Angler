@@ -1824,10 +1824,27 @@ function toggleZoneAuto(zoneId) {
   renderZones();
 }
 
+function resetAutoZonesToPond() {
+  G.activeAutomationZones = ['pond'];
+  saveState();
+  renderZones();
+}
+
 function renderZones() {
   const el = document.getElementById('zones-content');
   if (!el) return;
   el.innerHTML = '';
+
+  // Auto-zone status bar
+  const activeZones = G.activeAutomationZones || [];
+  const maxZones = 2;
+  const bar = document.createElement('div');
+  bar.className = 'zones-auto-bar';
+  bar.innerHTML =
+    '<span class="zones-auto-bar-label">Active automation</span>' +
+    '<span class="zones-auto-bar-count">' + activeZones.length + ' / ' + maxZones + '</span>' +
+    '<button class="zones-auto-reset-btn" onclick="resetAutoZonesToPond()">Reset to Pond</button>';
+  el.appendChild(bar);
 
   ZONE_DATA.forEach(zone => {
     const unlocked = isZoneUnlocked(zone.id);
