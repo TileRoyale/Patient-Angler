@@ -844,7 +844,8 @@ function getSpeedMult() {
 }
 function getRarityBonus()  { return getBobberTier('sensitive_bobber') * 0.01 + (typeof getTribeRareChanceBonus === 'function' ? getTribeRareChanceBonus() : 0); }
 function getSizeShift()    { return     getBobberTier('heavy_bobber'); }
-function getMultiCatch()   { return getBobberTier('electronic_bobber') + 1 + ((G.pearlUpgrades||{}).multicatch||0); }
+function getMultiCatch()       { return getBobberTier('electronic_bobber') + 1 + ((G.pearlUpgrades||{}).multicatch||0); }
+function getManualMultiCatch() { return getBobberTier('electronic_bobber') + 1; }
 
 function getActiveSlotLimit() { return G.thirdAutoSlotUnlocked ? 3 : 2; }
 
@@ -2844,7 +2845,7 @@ function presentCatch(c) {
   img.src = c.img || '';
   img.style.display = c.img ? 'block' : 'none';
   name.textContent = c.name;
-  const _multi = getMultiCatch();
+  const _multi = getManualMultiCatch();
   if (isFishFight)   size.textContent = 'Fish Fight Catch' + (_multi > 1 ? ' ×' + _multi : '');
   else if (c.isTrophy) size.textContent = 'Trophy · ' + formatWeight(c.weightG);
   else if (isTrash)  size.textContent = 'Goes to Market' + (_multi > 1 ? ' ×' + _multi : '');
@@ -2889,7 +2890,7 @@ document.getElementById('btn-catch-ok').addEventListener('click', () => {
   if (!currentCatch) return;
   const c = currentCatch;
   const _exc  = getPearlExtraCatchChance();
-  const multi = getMultiCatch() + (_exc > 0 && Math.random() < _exc ? 1 : 0);
+  const multi = getManualMultiCatch() + (_exc > 0 && Math.random() < _exc ? 1 : 0);
   c._multi = multi;
 
   trackManualCatch(c);
