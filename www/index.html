@@ -388,7 +388,10 @@
   <div id="screen-zones" class="screen">
     <div class="panel-header">
       <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
-      <h2>Zones</h2>
+      <div class="zones-header-auto">
+        <button class="zones-auto-reset-btn" onclick="resetAutoZonesToPond()">Reset active automation to Pond!</button>
+        <span id="zones-auto-count">0 / 2</span>
+      </div>
       <button class="guild-help-btn" onclick="openZonesHelp()" aria-label="How automation zones work" style="margin-left:6px;">?</button>
     </div>
     <div id="zones-content" class="zones-scroll"></div>

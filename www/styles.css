@@ -1574,6 +1574,33 @@ html, body {
 .hidden { display: none !important; }
 
 /* ── Zones screen ── */
+.zones-header-auto {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+#zones-auto-count {
+  font-size: calc(clamp(11px,2.6vw,13px) * var(--font-scale,1));
+  color: #f4c430;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.zones-auto-reset-btn {
+  padding: 4px 10px;
+  background: rgba(180,80,30,0.7);
+  border: 1px solid rgba(220,120,60,0.5);
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: calc(clamp(10px,2.4vw,12px) * var(--font-scale,1));
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.zones-auto-reset-btn:active { opacity: 0.7; }
+
 .zones-scroll {
   flex: 1;
   overflow-y: auto;
