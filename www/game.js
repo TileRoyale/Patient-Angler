@@ -1881,6 +1881,12 @@ function _switchZonesTab(tab) {
   renderZones();
 }
 
+function resetAutoZonesToPond() {
+  G.activeAutomationZones = ['pond'];
+  saveState();
+  renderZones();
+}
+
 function renderZones() {
   const el = document.getElementById('zones-content');
   if (!el) return;
@@ -1903,6 +1909,17 @@ function renderZones() {
   }
 
   if (!_abyssOk || _zonesActiveTab === 'overworld') {
+
+  // Auto-zone status bar
+  const _activeZones = G.activeAutomationZones || [];
+  const _bar = document.createElement('div');
+  _bar.className = 'zones-auto-bar';
+  _bar.innerHTML =
+    '<span class="zones-auto-bar-label">Active automation</span>' +
+    '<span class="zones-auto-bar-count">' + _activeZones.length + ' / 2</span>' +
+    '<button class="zones-auto-reset-btn" onclick="resetAutoZonesToPond()">Reset to Pond</button>';
+  el.appendChild(_bar);
+
   ZONE_DATA.forEach(zone => {
     const unlocked = isZoneUnlocked(zone.id);
     const isCurrent = G.currentZone === zone.id;
