@@ -7553,27 +7553,8 @@ function applyBobberScale() {
 
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
 
-const _DEV_CODE = 'DEVANGLER';
-
-function redeemDevCode() {
-  const input = document.getElementById('dev-code-input');
-  if (!input) return;
-  if (input.value.trim().toUpperCase() !== _DEV_CODE) {
-    input.style.borderColor = '#c0392b';
-    setTimeout(() => { input.style.borderColor = ''; }, 800);
-    return;
-  }
-  G.coins += 10_000 * 1_000_000_000;
-  G.devCodeUsed = true;
-  saveState();
-  updateHUD();
-  renderSettings();
-}
-
 function renderSettings() {
   if (typeof renderAbyssDebugSettings === 'function') renderAbyssDebugSettings();
-  const devSec = document.getElementById('dev-code-section');
-  if (devSec) devSec.style.display = G.devCodeUsed ? 'none' : '';
   const muteBtn = document.getElementById('btn-music-mute');
   if (muteBtn) {
     muteBtn.textContent = G.musicMuted ? 'OFF' : 'ON';
@@ -7773,6 +7754,22 @@ async function redeemCode() {
   const code = (input.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   input.value = '';
   if (!code) return;
+
+  if (code === 'DEVANGLER') {
+    if (G.devCodeUsed) {
+      result.textContent = 'Code already redeemed.';
+      result.className   = 'redeem-result redeem-fail';
+      setTimeout(() => { if (result) result.textContent = ''; }, 3000);
+      return;
+    }
+    G.coins += 10_000 * 1_000_000_000;
+    G.devCodeUsed = true;
+    saveState(); updateHUD();
+    result.textContent = 'Dev code redeemed! +10,000B coins!';
+    result.className   = 'redeem-result redeem-ok';
+    setTimeout(() => { if (result) result.textContent = ''; }, 4000);
+    return;
+  }
 
   if (!isSignedIn()) {
     result.textContent = 'Sign in with Google first to redeem codes.';

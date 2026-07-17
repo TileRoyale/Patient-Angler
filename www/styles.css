@@ -2735,38 +2735,6 @@ html, body {
   border: none;
 }
 
-.dev-code-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 8px;
-}
-.dev-code-input {
-  flex: 1;
-  padding: 7px 10px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px;
-  color: #fff;
-  font-family: inherit;
-  font-size: calc(clamp(11px,2.6vw,13px) * var(--font-scale,1));
-  outline: none;
-  transition: border-color 0.2s;
-}
-.dev-code-input:focus { border-color: rgba(244,196,48,0.5); }
-.btn-dev-redeem {
-  padding: 7px 14px;
-  background: rgba(46,100,50,0.7);
-  border: 1px solid rgba(76,175,80,0.4);
-  border-radius: 6px;
-  color: #fff;
-  font-family: inherit;
-  font-size: calc(clamp(10px,2.4vw,12px) * var(--font-scale,1));
-  font-weight: bold;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.btn-dev-redeem:active { opacity: 0.7; }
 
 .btn-danger {
   font-family: 'Pixeloid', monospace;
