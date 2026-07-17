@@ -104,9 +104,9 @@ const FISH_DB = [
   { id:'swordfish',          name:'Swordfish',           rarity:'uncommon', baseValue:154,     zone:'ocean', zones:['ocean'], img:'img/fish/Swordfish.png' },
   { id:'marlin',             name:'Marlin',              rarity:'rare',     baseValue:336,     zone:'ocean', zones:['ocean'], img:'img/fish/Marlin.png' },
   { id:'mahi_mahi',          name:'Mahi-Mahi',           rarity:'common',   baseValue:46,      zone:'ocean', zones:['ocean'], img:'img/fish/Mahi-Mahi.png' },
-  { id:'giant_squid',        name:'Giant Squid',         rarity:'legendary', baseValue:392,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2} },
+  { id:'giant_squid',        name:'Giant Squid',         rarity:'legendary', baseValue:392,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2}, manualOnly:true },
   { id:'oarfish',            name:'Oarfish',             rarity:'rare',     baseValue:294,     zone:'ocean', zones:['ocean'], img:'img/fish/Oarfish.png' },
-  { id:'coelacanth',         name:'Coelacanth',          rarity:'legendary', baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Coelacanth.png', timeWindow:{from:1,to:3} },
+  { id:'coelacanth',         name:'Coelacanth',          rarity:'legendary', baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Coelacanth.png', timeWindow:{from:1,to:3}, manualOnly:true },
   // ── Time-specific (special = not in base Excel table, shown separately in Fishdex) ──
   { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:4,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
   { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:3,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
@@ -115,6 +115,25 @@ const FISH_DB = [
   { id:'evening_catfish', name:'Evening Catfish', rarity:'uncommon', baseValue:25,   zone:'lake',  zones:['lake'],  img:'img/fish/Evening Catfish.png', timeWindow:{from:18,to:22}, special:true },
   { id:'night_pike',      name:'Night Pike',      rarity:'rare',     baseValue:42,   zone:'lake',  zones:['lake'],  img:'img/fish/Night Pike.png',      timeWindow:{from:22,to:2},  special:true },
   { id:'predawn_zander',  name:'Pre-dawn Zander', rarity:'rare',     baseValue:28,   zone:'lake',  zones:['lake'],  img:'img/fish/Pre-dawn Zander.png', timeWindow:{from:3,to:5},   special:true },
+  // ── World 1 Legendary fish (w1legendary:true — independent 1/50M per-catch roll, catchable by automation) ──
+  { id:'crimson_crown_perch',  name:'Crimson Crown Perch',  rarity:'legendary', baseValue:0, zone:'pond',  zones:['pond'],  img:'img/fish/ultra rare fish/Pond/Crimson Crown Perch.png',   w1legendary:true },
+  { id:'golden_veil_carp',     name:'Golden Veil Carp',     rarity:'legendary', baseValue:0, zone:'pond',  zones:['pond'],  img:'img/fish/ultra rare fish/Pond/Golden Veil Carp.png',       w1legendary:true },
+  { id:'silver_ribbon_loach',  name:'Silver Ribbon Loach',  rarity:'legendary', baseValue:0, zone:'pond',  zones:['pond'],  img:'img/fish/ultra rare fish/Pond/Silver Ribbon Loach.png',    w1legendary:true },
+  { id:'emerald_grayling',     name:'Emerald Grayling',     rarity:'legendary', baseValue:0, zone:'river', zones:['river'], img:'img/fish/ultra rare fish/River/Emerald Grayling.png',       w1legendary:true },
+  { id:'marbleback_barbel',    name:'Marbleback Barbel',    rarity:'legendary', baseValue:0, zone:'river', zones:['river'], img:'img/fish/ultra rare fish/River/Marbleback Barbel.png',      w1legendary:true },
+  { id:'redfin_chub',          name:'Redfin Chub',          rarity:'legendary', baseValue:0, zone:'river', zones:['river'], img:'img/fish/ultra rare fish/River/Redfin Chub.png',            w1legendary:true },
+  { id:'blueglass_char',       name:'Blueglass Char',       rarity:'legendary', baseValue:0, zone:'lake',  zones:['lake'],  img:'img/fish/ultra rare fish/Lake/Blueglass Char.png',          w1legendary:true },
+  { id:'copperplate_bream',    name:'Copperplate Bream',    rarity:'legendary', baseValue:0, zone:'lake',  zones:['lake'],  img:'img/fish/ultra rare fish/Lake/Copperplate Bream.png',       w1legendary:true },
+  { id:'frostback_pike',       name:'Frostback Pike',       rarity:'legendary', baseValue:0, zone:'lake',  zones:['lake'],  img:'img/fish/ultra rare fish/Lake/Frostback Pike.png',          w1legendary:true },
+  { id:'copperbelly_mullet',   name:'Copperbelly Mullet',   rarity:'legendary', baseValue:0, zone:'bay',   zones:['bay'],   img:'img/fish/ultra rare fish/Bay/Copperbelly Mullet.png',       w1legendary:true },
+  { id:'golden_flounder',      name:'Golden Flounder',      rarity:'legendary', baseValue:0, zone:'bay',   zones:['bay'],   img:'img/fish/ultra rare fish/Bay/Golden Flounder.png',          w1legendary:true },
+  { id:'silver_needlefish',    name:'Silver Needlefish',    rarity:'legendary', baseValue:0, zone:'bay',   zones:['bay'],   img:'img/fish/ultra rare fish/Bay/Silver Needlefish.png',        w1legendary:true },
+  { id:'arctic_wolffish',      name:'Arctic Wolffish',      rarity:'legendary', baseValue:0, zone:'sea',   zones:['sea'],   img:'img/fish/ultra rare fish/Sea/Arctic Wolffish.png',          w1legendary:true },
+  { id:'crimson_rockfish',     name:'Crimson Rockfish',     rarity:'legendary', baseValue:0, zone:'sea',   zones:['sea'],   img:'img/fish/ultra rare fish/Sea/Crimson Rockfish.png',         w1legendary:true },
+  { id:'stormscale_cod',       name:'Stormscale Cod',       rarity:'legendary', baseValue:0, zone:'sea',   zones:['sea'],   img:'img/fish/ultra rare fish/Sea/Stormscale Cod.png',           w1legendary:true },
+  { id:'obsidian_moonfish',    name:'Obsidian Moonfish',    rarity:'legendary', baseValue:0, zone:'ocean', zones:['ocean'], img:'img/fish/ultra rare fish/Ocean/Obsidian Moonfish.png',      w1legendary:true },
+  { id:'sapphire_spearfish',   name:'Sapphire Spearfish',   rarity:'legendary', baseValue:0, zone:'ocean', zones:['ocean'], img:'img/fish/ultra rare fish/Ocean/Sapphire Spearfish.png',     w1legendary:true },
+  { id:'suncrest_mahi',        name:'Suncrest Mahi',        rarity:'legendary', baseValue:0, zone:'ocean', zones:['ocean'], img:'img/fish/ultra rare fish/Ocean/Suncrest Mahi.png',          w1legendary:true },
 ];
 
 // Weight ranges in grams per species (realistic world records as upper bound)
@@ -765,9 +784,54 @@ function getPlayerName() {
 
 // Fish that can only be caught by active manual fishing.
 // Automation must never produce these.
+// Note: w1legendary fish are NOT manualOnly — they use independent probability and
+// are catchable by automation and offline. Only fish with explicit manualOnly:true are excluded.
 function isManualOnlyFish(f) {
   if (!f) return false;
-  return f.rarity === 'legendary' || !!f.special || !!f.manualOnly;
+  return !!f.special || !!f.manualOnly;
+}
+
+// ─── WORLD 1 LEGENDARY HELPERS ───────────────────────────────────────────────
+
+function isW1LegendaryId(fishId) {
+  const f = FISH_DB.find(x => x.id === fishId);
+  return !!(f && f.w1legendary);
+}
+
+// In-session queue for Legendary catch popups (not persisted — fish/discovery already persisted).
+// Filled by manual catch confirm, auto-tick, and offline progress; drained by the popup UI.
+let _legendaryPopupQueue = [];
+
+function _queueLegendaryPopup(info) {
+  // info: { fishId, name, img, zone, isFirst, desc }
+  _legendaryPopupQueue.push(info);
+}
+
+function _drainLegendaryPopups() {
+  if (_legendaryPopupQueue.length === 0) return;
+  const next = _legendaryPopupQueue.shift();
+  if (next) _displayLegendaryPopup(next);
+}
+
+// Count unique W1 Legendary species discovered (used for Prestige bonus)
+function getLegendaryPrestigeBonus() {
+  return FISH_DB.filter(f => f.w1legendary && G.fishdex.includes(f.id)).length;
+}
+
+// Apply W1 legendary independent pre-roll (1 in 50,000,000 per fish per catch).
+// Returns a catch object if a legendary triggers, or null.
+function _rollW1Legendary(zone) {
+  const pool = FISH_DB.filter(f => f.w1legendary && f.zones.includes(zone));
+  for (const fish of pool) {
+    if (Math.random() < 1 / 50000000) {
+      return {
+        fishId: fish.id, name: fish.name, rarity: 'legendary', w1legendary: true,
+        size: 'Large', sizeMult: 1.5, value: 0, caughtAt: Date.now(),
+        img: fish.img, autoSell: false, isTrophy: false, zone,
+      };
+    }
+  }
+  return null;
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -1016,7 +1080,11 @@ function pearlUpgradeCost(upg) {
   return Math.ceil(upg.baseCost * Math.pow(upg.growthRate, lvl));
 }
 
-function prestigePearlReward()   { return Math.max(1, Math.floor(Math.sqrt((G.coins || 0) / 2000))); } // sqrt — 15k→2p, 50k→5p, 1M→22p
+function prestigePearlReward() {
+  const base  = Math.max(1, Math.floor(Math.sqrt((G.coins || 0) / 2000))); // sqrt — 15k→2p, 50k→5p, 1M→22p
+  const legPct = getLegendaryPrestigeBonus(); // +1% per unique W1 legendary discovered
+  return legPct > 0 ? Math.max(1, Math.floor(base * (1 + legPct / 100))) : base;
+}
 function canPrestige()           { return (G.coins || 0) >= prestigeThreshold(); }
 
 function doPrestige() {
@@ -2481,9 +2549,14 @@ function trackManualFishdexEntry(c) {
   if (c.isTrophy) prev.trophyCount = (prev.trophyCount || 0) + 1;
   G.manualFishdex[c.fishId] = prev;
 
-  if (isFirstCatch && fish.rarity === 'legendary') {
+  if (isFirstCatch && fish.rarity === 'legendary' && !fish.w1legendary) {
+    // Existing manual-only legendaries (giant squid, coelacanth) give +3 diamonds
     G.diamonds = (G.diamonds || 0) + 3;
     showStatus('LEGENDARY CATCH! +3 Diamonds earned!', 4000);
+  }
+  if (fish.w1legendary) {
+    // Queue the golden legendary popup; show after the normal catch popup closes
+    _queueLegendaryPopup({ fishId: fish.id, name: fish.name, img: fish.img, zone: c.zone || G.currentZone, isFirst: isFirstCatch });
   }
 }
 
@@ -2505,6 +2578,10 @@ function migrateManualFishdex() {
       }
     }
   });
+  // Sanitize: remove any W1 legendary IDs from targeted lure targets (not targetable)
+  if (G.targetedLureTargets && G.targetedLureTargets.length > 0) {
+    G.targetedLureTargets = G.targetedLureTargets.filter(id => !isW1LegendaryId(id));
+  }
 }
 
 function finalizeQuestUpdate() {
@@ -2719,9 +2796,18 @@ function makeQuestCard(name, desc, prog, goal, baseReward, seconds, claimed, onC
 
 function rollCatch(zone, isManual) {
   zone = zone || G.currentZone;
+
+  // W1 Legendary independent pre-roll: 1/50,000,000 per fish, independent of loot table.
+  // Applies to both manual and automation catches. Not affected by rarity bonuses or targeting.
+  if (fishPileTotal() < storageCapacity()) {
+    const legC = _rollW1Legendary(zone);
+    if (legC) return legC;
+  }
+
   let lootTable = (LOOT_TABLES[zone] || LOOT_TABLES.pond).map(e => ({ ...e }));
 
-  // Legendary fish require active fishing — automation never catches them
+  // Existing manual-only legendaries (giant_squid, coelacanth) use loot table weight.
+  // W1 legendary are handled above via independent roll, never in the weight table.
   if (!isManual) lootTable = lootTable.filter(e => e.type !== 'legendary');
 
   // Manual fishing: no plants, only 5% trash, +25% rarity bonus on non-common
@@ -2939,6 +3025,8 @@ document.getElementById('btn-catch-ok').addEventListener('click', () => {
   document.getElementById('catch-popup').classList.add('hidden');
   currentCatch = null;
   if (typeof tutHook === 'function') tutHook('catch_ok', null);
+  // Show queued legendary popups (e.g. from a W1 legendary just confirmed)
+  setTimeout(_drainLegendaryPopups, 150);
   resetFishingState();
 });
 
@@ -3398,10 +3486,15 @@ function autoTick() {
           const space = storageCapacity() - fishPileTotal();
           if (space <= 0) break;
           const qty = Math.min(multiCatch, space);
-          const autoSize = c.isTrophy ? 'Large' : c.size;
+          const autoSize = c.isTrophy ? 'Large' : (c.w1legendary ? 'Large' : c.size);
           const _k = fishPileKey(c.fishId, autoSize);
+          const isFirstW1 = c.w1legendary && !G.fishdex.includes(c.fishId);
           G.fishPile[_k] = (G.fishPile[_k] || 0) + qty;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+          if (c.w1legendary) {
+            _queueLegendaryPopup({ fishId:c.fishId, name:c.name, img:c.img, zone:c.zone || G.currentZone, isFirst:isFirstW1 });
+            setTimeout(_drainLegendaryPopups, 500);
+          }
           checkStorageFull();
           _spawnTickForCatch(aDef.type, c.rarity, qty);
           onCatchEvent(c.fishId, c.rarity);
@@ -3742,6 +3835,7 @@ function renderShop(tab) {
           <div class="prestige-info-row"><span>Required coins</span><span style="color:#d4a0ff">${formatCoins(threshold)}</span></div>
           <div class="prestige-info-row"><span>Current coins</span><span style="color:${eligible?'#f0c040':'#e0e0e0'}">${formatCoins(currentCoins)}</span></div>
           <div class="prestige-info-row"><span>Est. Pearl reward</span><span style="color:#d4a0ff">+${reward} ${PEARL_IMG}</span></div>
+          ${(() => { const lp = getLegendaryPrestigeBonus(); return lp > 0 ? `<div class="prestige-info-row"><span>Legendary bonus</span><span style="color:#f4c430">+${lp}% ${PEARL_IMG}</span></div>` : ''; })()}
           <div style="font-size:11px;color:#888;margin:6px 0 10px;text-align:center">
             Pearls = √(coins/2,000) · Resets coins, automation, storage, zones
           </div>
@@ -4137,6 +4231,7 @@ function renderMarket() {
   const trashTotal = Object.values(G.trashPile || {}).reduce((s, q) => s + q, 0);
   const fishTotal  = Object.entries(G.fishPile || {}).reduce((s, [key, qty]) => {
     const [fishId, size] = key.split('|');
+    if (isW1LegendaryId(fishId)) return s; // legendary excluded from Sell All
     return s + fishPileValue(fishId, size) * qty;
   }, 0);
   const sellAllVal = trashTotal + fishTotal;
@@ -4267,22 +4362,43 @@ function renderMarket() {
         const val = fishPileValue(fishId, size);
         return { key, fishId, size, qty, val, f };
       })
-      .sort((a, b) => b.val - a.val)
+      .sort((a, b) => {
+        // W1 legendary always show at top so player notices them
+        if (a.f && a.f.w1legendary && !(b.f && b.f.w1legendary)) return -1;
+        if (b.f && b.f.w1legendary && !(a.f && a.f.w1legendary)) return 1;
+        return b.val - a.val;
+      })
       .forEach(({ key, fishId, size, qty, val, f }) => {
+        const isLeg = !!(f && f.w1legendary);
         const div = document.createElement('div');
-        div.className = 'storage-item';
-        div.innerHTML = `
-          <img class="storage-item-img" src="${f?.img || ''}" alt="" ${!f?.img ? 'style="display:none"' : ''}>
-          <div class="storage-item-info">
-            <div class="storage-item-name">${f?.name || fishId}</div>
-            <div class="storage-item-meta">${size === 'FishFight' ? 'Fish Fight' : size} · ${f?.rarity || ''}</div>
-          </div>
-          <div class="storage-item-demand">
-            <div class="storage-item-value">${val}c ${qty > 1 ? '<span style="color:var(--color-text-dim)">×' + qty + '</span>' : ''}</div>
-          </div>
-          <button class="btn-sell-one">Sell</button>
-        `;
-        div.querySelector('.btn-sell-one').addEventListener('click', () => sellFish(key, 1));
+        div.className = 'storage-item' + (isLeg ? ' storage-item-legendary' : '');
+        if (isLeg) {
+          div.innerHTML = `
+            <img class="storage-item-img" src="${f.img || ''}" alt="" ${!f.img ? 'style="display:none"' : ''}>
+            <div class="storage-item-info">
+              <div class="storage-item-name" style="color:#f4c430;font-weight:bold">${f.name}</div>
+              <div class="storage-item-meta">Legendary ${qty > 1 ? '· ×' + qty : ''}</div>
+            </div>
+            <div class="storage-item-demand">
+              <div class="storage-item-value" style="color:#d4a0ff">10 ◆</div>
+            </div>
+            <button class="btn-sell-one btn-sell-legendary">Sell for 10 ◆</button>
+          `;
+          div.querySelector('.btn-sell-legendary').addEventListener('click', () => sellLegendaryFish(key));
+        } else {
+          div.innerHTML = `
+            <img class="storage-item-img" src="${f?.img || ''}" alt="" ${!f?.img ? 'style="display:none"' : ''}>
+            <div class="storage-item-info">
+              <div class="storage-item-name">${f?.name || fishId}</div>
+              <div class="storage-item-meta">${size === 'FishFight' ? 'Fish Fight' : size} · ${f?.rarity || ''}</div>
+            </div>
+            <div class="storage-item-demand">
+              <div class="storage-item-value">${val}c ${qty > 1 ? '<span style="color:var(--color-text-dim)">×' + qty + '</span>' : ''}</div>
+            </div>
+            <button class="btn-sell-one">Sell</button>
+          `;
+          div.querySelector('.btn-sell-one').addEventListener('click', () => sellFish(key, 1));
+        }
         inv.appendChild(div);
       });
   }
@@ -4357,10 +4473,26 @@ function sellTrophy(idx) {
   saveState(); updateHUD(); renderMarket();
 }
 
+function sellLegendaryFish(key) {
+  const available = G.fishPile[key] || 0;
+  if (!available) return;
+  const [fishId] = key.split('|');
+  const fish = FISH_DB.find(f => f.id === fishId);
+  G.fishPile[key] = available - 1;
+  G.blackPearls = (G.blackPearls || 0) + 10;
+  // Discovery and prestige bonus are retained — selling never removes them
+  const pearlImg = typeof PEARL_IMG !== 'undefined' ? PEARL_IMG : '◆';
+  showStatus((fish ? fish.name : 'Legendary Fish') + ' sold for 10 Black Pearls!', 3000);
+  checkStorageFull();
+  finalizeQuestUpdate();
+  saveState(); updateHUD(); renderMarket();
+}
+
 function sellFish(key, qty, btnEl) {
   const available = G.fishPile[key] || 0;
   if (!available) return;
   const [fishId, size] = key.split('|');
+  if (isW1LegendaryId(fishId)) { sellLegendaryFish(key); return; }
   const val = fishPileValue(fishId, size);
   const selling = Math.min(qty, available);
   const earned = val * selling;
@@ -4389,10 +4521,11 @@ document.getElementById('btn-sell-all').addEventListener('click', () => {
   });
   // Discard all plants (0c)
   Object.keys(G.plantPile || {}).forEach(id => { G.plantPile[id] = 0; });
-  // Sell all fish
+  // Sell all fish (W1 Legendary are skipped — must be sold manually for 10 Black Pearls each)
   Object.entries(G.fishPile || {}).forEach(([key, qty]) => {
     if (qty > 0) {
       const [fishId, size] = key.split('|');
+      if (isW1LegendaryId(fishId)) return;
       const val = fishPileValue(fishId, size);
       if (val > (G.stats.bestFishSold || 0)) G.stats.bestFishSold = val;
       if (size === 'FishFight') G.stats.fishFightCoinsEarned = (G.stats.fishFightCoinsEarned || 0) + val * qty;
@@ -4437,6 +4570,7 @@ function doAutoSell() {
   Object.entries(G.fishPile || {}).forEach(([key, qty]) => {
     if (qty > 0) {
       const [fishId, size] = key.split('|');
+      if (isW1LegendaryId(fishId)) return; // W1 Legendary never auto-sold — player must sell manually for 10 Black Pearls
       const val = fishPileValue(fishId, size);
       if (val > (G.stats.bestFishSold || 0)) G.stats.bestFishSold = val;
       if (size === 'FishFight') G.stats.fishFightCoinsEarned = (G.stats.fishFightCoinsEarned || 0) + val * qty;
@@ -4812,6 +4946,8 @@ function calculateOfflineProgress() {
     });
     _offPools[zone + '|trash'] = TRASH_DB.filter(function(t) { return t.zones.includes(zone); });
     _offPools[zone + '|plant'] = PLANT_DB.filter(function(p) { return p.zones.includes(zone); });
+    // Pre-cache W1 legendary pool per zone for independent offline pre-roll
+    _offPools[zone + '|w1leg'] = FISH_DB.filter(function(f) { return f.w1legendary && f.zones.includes(zone); });
   });
 
   function _fastOfflineRoll(zone) {
@@ -4896,7 +5032,28 @@ function calculateOfflineProgress() {
 
       for (let i = 0; i < toProcess; i++) {
         if (fishPileTotal() >= storageCapacity()) break; // storage full — wait for next sell event
-        const c = _fastOfflineRoll(_offRandZone());
+        const _offZone = _offRandZone();
+
+        // W1 Legendary independent pre-roll (same 1/50M probability as online)
+        const _w1legPool = _offPools[_offZone + '|w1leg'] || [];
+        let _w1legCaught = null;
+        for (const _lf of _w1legPool) {
+          if (Math.random() < 1 / 50000000) { _w1legCaught = _lf; break; }
+        }
+        if (_w1legCaught) {
+          const _isFirstOff = !G.fishdex.includes(_w1legCaught.id);
+          const _legKey = fishPileKey(_w1legCaught.id, 'Large');
+          G.fishPile[_legKey] = (G.fishPile[_legKey] || 0) + 1;
+          if (!G.fishdex.includes(_w1legCaught.id)) G.fishdex.push(_w1legCaught.id);
+          incrementMastery(_w1legCaught.id);
+          // Queue popup to show when player returns (in-session queue, not persisted)
+          _queueLegendaryPopup({ fishId:_w1legCaught.id, name:_w1legCaught.name, img:_w1legCaught.img, zone:_offZone, isFirst:_isFirstOff });
+          _sess.totalCaught++;
+          _sess.totalFish++;
+          continue;
+        }
+
+        const c = _fastOfflineRoll(_offZone);
         if (c.rarity === 'trash') {
           G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + 1;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
@@ -4984,11 +5141,39 @@ function calculateOfflineProgress() {
   saveState();
 
   if (_sess.totalCaught > 0) {
-    setTimeout(() => {
-      const coinsPart = _sess.coins > 0 ? ' · +' + formatCoins(_sess.coins) + 'c sold' : '';
-      showStatus('Welcome back! ' + _sess.totalCaught + ' catches while you were away' + coinsPart, 5000);
-    }, 600);
+    setTimeout(() => _showOfflineSummary(_sess), 800);
   }
+}
+
+function _showOfflineSummary(sess) {
+  const h   = Math.floor(sess.elapsedMs / 3600000);
+  const m   = Math.floor((sess.elapsedMs % 3600000) / 60000);
+  const dur = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+
+  const ov = document.getElementById('offline-summary-overlay');
+  if (ov) {
+    let rows = '<div style="color:var(--color-text-dim);font-size:11px;margin-bottom:8px">Away for ' + dur + '</div>';
+    if (sess.totalFish  > 0) rows += '<div>' + sess.totalFish.toLocaleString()  + ' fish</div>';
+    if (sess.totalTrash > 0) rows += '<div>' + sess.totalTrash.toLocaleString() + ' trash</div>';
+    if (sess.totalPlant > 0) rows += '<div>' + sess.totalPlant.toLocaleString() + ' plants</div>';
+    if (sess.coins      > 0) rows += '<div style="color:var(--color-gold)">+' + formatCoins(sess.coins) + 'c sold</div>';
+    document.getElementById('offline-summary-body').innerHTML = rows;
+    ov.classList.remove('hidden');
+    return;
+  }
+  // Fallback for any environment where the overlay element is missing
+  const parts = [];
+  if (sess.totalFish  > 0) parts.push(sess.totalFish.toLocaleString()  + ' fish');
+  if (sess.totalTrash > 0) parts.push(sess.totalTrash.toLocaleString() + ' trash');
+  if (sess.totalPlant > 0) parts.push(sess.totalPlant.toLocaleString() + ' plants');
+  if (sess.coins      > 0) parts.push('+' + formatCoins(sess.coins)    + 'c sold');
+  showStatus('Welcome back (' + dur + ')! ' + parts.join(' · '), 6000);
+}
+
+function closeOfflineSummary() {
+  const ov = document.getElementById('offline-summary-overlay');
+  if (ov) ov.classList.add('hidden');
+  setTimeout(_drainLegendaryPopups, 200);
 }
 
 // ─── SUNKEN TREASURE CHESTS ───────────────────────────────────────────────────
@@ -5695,10 +5880,24 @@ function _renderMasteryPanel(zone, container) {
     const unlocked = pts >= MASTERY_THRESHOLDS[i];
     return `<span class="mastery-bonus-tag${unlocked ? ' unlocked' : ''}">${b.label}</span>`;
   }).join('');
+
+  // Legendary progress for this zone
+  const w1Pool    = FISH_DB.filter(f => f.w1legendary && f.zones.includes(zone));
+  const w1Caught  = w1Pool.filter(f => G.fishdex.includes(f.id)).length;
+  const w1Total   = w1Pool.length;
+  const legBonus  = w1Caught; // +1% each
+  const legColor  = w1Caught === w1Total && w1Total > 0 ? '#f4c430' : '#c0a0ff';
+  const legHtml   = w1Total > 0 ? `
+    <div class="legendary-zone-progress" style="margin-top:8px;padding-top:8px;border-top:1px solid #333">
+      <span style="color:${legColor};font-weight:bold">&#9733; Legendary Fish: ${w1Caught} / ${w1Total}</span>
+      <span style="color:#d4a0ff;margin-left:8px">Prestige Pearl Bonus: +${legBonus}%</span>
+    </div>` : '';
+
   panel.innerHTML = `
     <div class="mastery-zone-title">Automation Mastery <span class="mastery-zone-pts">${pts}/${maxPts} pts</span></div>
     <div class="mastery-zone-bar-wrap"><div class="mastery-zone-bar" style="width:${pct}%"></div></div>
     <div class="mastery-bonus-row">${bonusRows}</div>
+    ${legHtml}
   `;
   container.appendChild(panel);
 }
@@ -5895,7 +6094,13 @@ function renderFishdex() {
         cell.appendChild(masteryEl);
       }
 
-      if (caught && (G.targetedLureLevel || 0) > 0 && isLureEligible(item)) {
+      if (caught && item.w1legendary && (G.targetedLureLevel || 0) > 0) {
+        // W1 Legendary cannot be targeted — show static label instead of targeting button
+        const ntEl = document.createElement('div');
+        ntEl.textContent = 'Not targetable';
+        ntEl.setAttribute('style', 'color:#666;font-size:10px;margin-top:3px;text-align:center');
+        cell.appendChild(ntEl);
+      } else if (caught && (G.targetedLureLevel || 0) > 0 && isLureEligible(item)) {
         const targeted  = isTargetedItem(item.id);
         const slotsLeft = getTargetedLureSlots() - (G.targetedLureTargets || []).length;
         const canTarget = targeted || slotsLeft > 0;
@@ -7538,6 +7743,41 @@ function openCompHelp()    { document.getElementById('comp-help-overlay').classL
 function closeCompHelp()   { document.getElementById('comp-help-overlay').classList.add('hidden'); }
 function openFishdexHelp() { document.getElementById('fishdex-help-overlay').classList.remove('hidden'); }
 function closeFishdexHelp(){ document.getElementById('fishdex-help-overlay').classList.add('hidden'); }
+
+// ─── LEGENDARY CATCH POPUP ───────────────────────────────────────────────────
+function _displayLegendaryPopup(info) {
+  const overlay  = document.getElementById('legendary-catch-overlay');
+  if (!overlay) return;
+
+  const fishDef = FISH_DB.find(f => f.id === info.fishId);
+  const zoneObj = (typeof ZONE_DATA !== 'undefined' ? ZONE_DATA : []).find(z => z.id === info.zone);
+  const desc    = (() => {
+    const entry = typeof _fishdexInfoEntry === 'function' ? _fishdexInfoEntry(info.fishId) : null;
+    return (entry && entry.description) || '';
+  })();
+
+  const imgEl   = document.getElementById('legendary-catch-img');
+  const nameEl  = document.getElementById('legendary-catch-name');
+  const zoneEl  = document.getElementById('legendary-catch-zone');
+  const descEl  = document.getElementById('legendary-catch-desc');
+  const fdEl    = document.getElementById('legendary-first-disc');
+
+  if (imgEl)  { imgEl.src = info.img || (fishDef && fishDef.img) || ''; imgEl.alt = info.name || ''; }
+  if (nameEl)  nameEl.textContent = info.name || '';
+  if (zoneEl)  zoneEl.textContent = zoneObj ? zoneObj.name : (info.zone || '');
+  if (descEl)  descEl.textContent = desc;
+  if (fdEl)   { fdEl.classList.toggle('hidden', !info.isFirst); }
+
+  overlay.classList.remove('hidden');
+  playSfx(typeof sfxFishCaught !== 'undefined' ? sfxFishCaught : null);
+}
+
+function closeLegendaryCatchPopup() {
+  const overlay = document.getElementById('legendary-catch-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  // Show next queued popup (for multiple offline legendary catches)
+  setTimeout(_drainLegendaryPopups, 200);
+}
 
 const SHOP_HELP_CONTENT = {
   rods: {

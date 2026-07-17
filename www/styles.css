@@ -5015,3 +5015,134 @@ html, body {
   font-weight: bold;
   color: #fff;
 }
+
+/* ─── LEGENDARY FISH GOLDEN CATCH POPUP ────────────────────────────────────── */
+.legendary-catch-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: legOverlayIn 0.35s ease;
+}
+.legendary-catch-overlay.hidden { display: none; }
+@keyframes legOverlayIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+.legendary-catch-card {
+  background: linear-gradient(160deg, #1a1000 0%, #2a1800 60%, #0a0800 100%);
+  border: 2px solid #f4c430;
+  border-radius: 18px;
+  padding: 28px 24px 22px;
+  max-width: 340px;
+  width: 92%;
+  text-align: center;
+  box-shadow: 0 0 40px #f4c43055, 0 0 80px #f4c43022;
+  animation: legCardIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+  overflow: hidden;
+}
+@keyframes legCardIn {
+  from { transform: scale(0.6) translateY(40px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+.legendary-catch-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 20%, #f4c43018 0%, transparent 70%);
+  pointer-events: none;
+}
+.legendary-catch-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #f4c430;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.legendary-catch-img {
+  width: clamp(140px, 50vw, 220px);
+  height: clamp(100px, 35vw, 160px);
+  object-fit: contain;
+  image-rendering: auto;
+  display: block;
+  margin: 0 auto 12px;
+  filter: drop-shadow(0 0 12px #f4c43066);
+}
+.legendary-catch-name {
+  font-size: 22px;
+  font-weight: bold;
+  color: #f4c430;
+  margin-bottom: 6px;
+  text-shadow: 0 0 12px #f4c43088;
+}
+.legendary-catch-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #b8860b, #f4c430, #b8860b);
+  color: #1a0800;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  padding: 3px 14px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+.legendary-catch-zone {
+  font-size: 12px;
+  color: #c0a060;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.legendary-catch-desc {
+  font-size: 13px;
+  color: #d0b880;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  font-style: italic;
+}
+.legendary-first-disc {
+  background: rgba(244,196,48,0.12);
+  border: 1px solid #f4c43066;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+.legendary-first-disc.hidden { display: none; }
+.legendary-fd-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #f4c430;
+  margin-bottom: 4px;
+}
+.legendary-fd-body {
+  font-size: 14px;
+  color: #d4a0ff;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.legendary-fd-note {
+  font-size: 11px;
+  color: #a080c0;
+  line-height: 1.4;
+}
+.legendary-catch-btn {
+  width: 100%;
+  padding: 11px 0;
+  font-size: 16px;
+  background: linear-gradient(90deg, #8b6914, #f4c430, #8b6914);
+  color: #1a0800;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.legendary-catch-btn:active { filter: brightness(0.85); }
+.storage-item-legendary {
+  border-left: 3px solid #f4c430;
+  background: rgba(244,196,48,0.06);
+}

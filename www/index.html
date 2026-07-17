@@ -826,17 +826,30 @@
       <div class="se-title" style="margin-bottom:12px;">Fishdex &amp; Mastery</div>
       <div class="guild-help-body">
         <p>Catch each fish, plant, or trash item to unlock its Fishdex entry. Catching the same species repeatedly builds up its <strong>Mastery</strong>.</p>
-        <p>Mastery tiers per species:</p>
-        <div style="font-size:12px;line-height:1.8;margin:6px 0 10px;">
-          <div>Bronze — 100 catches (1 pt)</div>
-          <div>Silver — 1,000 catches (2 pts)</div>
-          <div>Gold — 10,000 catches (3 pts)</div>
-          <div>Platinum — 100,000 catches (4 pts)</div>
-          <div>Diamond — 1,000,000 catches (5 pts)</div>
+        <hr style="border:none;border-top:1px solid #333;margin:10px 0 8px;">
+        <p style="margin-bottom:4px;"><strong>Step 1 — Earn medals per species</strong></p>
+        <p style="margin-bottom:6px;">Every catch of the same item counts toward that item's personal catch total. Hit these milestones to earn a medal:</p>
+        <div style="font-size:12px;line-height:1.9;margin:0 0 10px 4px;">
+          <div><span style="color:#cd7f32;font-weight:bold;">Bronze</span> — 200 catches → <strong>1 pt</strong></div>
+          <div><span style="color:#c0c0c0;font-weight:bold;">Silver</span> — 2,000 catches → <strong>2 pts</strong></div>
+          <div><span style="color:#f4c430;font-weight:bold;">Gold</span> — 20,000 catches → <strong>3 pts</strong></div>
+          <div><span style="color:#7ecfff;font-weight:bold;">Platinum</span> — 200,000 catches → <strong>4 pts</strong></div>
+          <div><span style="color:#a8f4ff;font-weight:bold;">Diamond</span> — 2,000,000 catches → <strong>5 pts</strong></div>
         </div>
-        <p>Mastery points accumulate per zone. Reaching point thresholds unlocks permanent zone bonuses — better sell prices, faster automation, higher rare fish chances, and more.</p>
-        <p>Your current progress is always visible in the Fishdex. Each entry shows a small catch-count bar and a medal icon indicating your current Mastery tier for that species.</p>
-        <p style="color:var(--color-text-dim);font-size:12px;">Mastery is never reset, even after Prestige.</p>
+        <p style="margin-bottom:6px;">Each entry in the Fishdex shows its current medal and a progress bar toward the next tier.</p>
+        <hr style="border:none;border-top:1px solid #333;margin:10px 0 8px;">
+        <p style="margin-bottom:4px;"><strong>Step 2 — Zone point total unlocks bonuses</strong></p>
+        <p style="margin-bottom:6px;">All medals in a zone add their points to that zone's running total. Crossing these thresholds unlocks a permanent bonus for that zone:</p>
+        <div style="font-size:12px;line-height:1.9;margin:0 0 10px 4px;">
+          <div>25 pts → Bonus 1</div>
+          <div>50 pts → Bonus 2</div>
+          <div>75 pts → Bonus 3</div>
+          <div>100 pts → Bonus 4</div>
+          <div>125 pts → Bonus 5</div>
+          <div>150 pts → Bonus 6</div>
+        </div>
+        <p>Bonuses include better sell prices, more storage, faster automation, higher rare fish chances, and more. Open the Mastery bar at the top of any zone's Fishdex tab to see exactly which bonuses are active.</p>
+        <p style="color:var(--color-text-dim);font-size:12px;margin-top:8px;">Mastery progress is never reset, even after Prestige.</p>
         <hr style="border:none;border-top:1px solid #333;margin:12px 0;">
         <p><strong>Targeted Lure</strong> (available in Bait shop) lets you mark specific fish as targets. Targeted fish appear more often in your catches.</p>
         <p>Each Targeted Lure level gives you one extra target slot. Open any caught fish in the Fishdex and tap <em>Target</em> to add it. Tap again to remove it.</p>
@@ -863,6 +876,24 @@
   <div id="fishdex-detail-overlay" class="fishdex-detail-overlay hidden" onclick="closeFishdexDetail()">
     <div class="fdp-panel" onclick="event.stopPropagation()">
       <!-- populated by openFishdexDetail() -->
+    </div>
+  </div>
+
+  <!-- Legendary fish golden catch popup -->
+  <div id="legendary-catch-overlay" class="legendary-catch-overlay hidden">
+    <div class="legendary-catch-card">
+      <div class="legendary-catch-title">LEGENDARY CATCH!</div>
+      <img id="legendary-catch-img" class="legendary-catch-img" src="" alt="">
+      <div id="legendary-catch-name" class="legendary-catch-name"></div>
+      <div class="legendary-catch-badge">LEGENDARY</div>
+      <div id="legendary-catch-zone" class="legendary-catch-zone"></div>
+      <div id="legendary-catch-desc" class="legendary-catch-desc"></div>
+      <div id="legendary-first-disc" class="legendary-first-disc hidden">
+        <div class="legendary-fd-title">NEW LEGENDARY FISH!</div>
+        <div class="legendary-fd-body">Permanent Prestige Pearl Bonus +1%</div>
+        <div class="legendary-fd-note">This bonus increases your Pearl reward the next time you Prestige.<br>It does not award Black Pearls now.</div>
+      </div>
+      <button class="btn-primary legendary-catch-btn" onclick="closeLegendaryCatchPopup()">Amazing!</button>
     </div>
   </div>
 
