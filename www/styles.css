@@ -4915,7 +4915,7 @@ html, body {
 /* Stabilization Panel */
 .mael-stab-row {
   display: grid;
-  grid-template-columns: 12px 100px 52px 1fr 14px;
+  grid-template-columns: 12px 132px 52px 1fr 14px;
   align-items: center;
   column-gap: 6px;
   margin-bottom: 5px;
