@@ -4768,7 +4768,6 @@ html, body {
   align-items: flex-start;
   gap: 10px;
   padding: 10px 10px 20px;
-  min-height: 100%;
   box-sizing: border-box;
 }
 
@@ -4915,7 +4914,7 @@ html, body {
 /* Stabilization Panel */
 .mael-stab-row {
   display: grid;
-  grid-template-columns: 12px 132px 52px 1fr 14px;
+  grid-template-columns: 12px 132px 64px 1fr 14px;
   align-items: center;
   column-gap: 6px;
   margin-bottom: 5px;
