@@ -2,6 +2,15 @@
 
 ---
 
+## v0.8.12 — Build 51 (July 2026)
+
+### Fix
+- **Auto-Seller interval corrected** — Auto-Seller now fires every 1 real hour (24 in-game hours) instead of every 3 real hours.
+- **Storage-full stops automation correctly** — when storage is full, automation no longer converts excess catches into average-value coins. Catches stop until the next scheduled Auto-Seller sale frees space, matching the intended storage/spoilage design.
+- **Offline simulation uses sell timeline** — offline progress is now simulated in phases between scheduled Auto-Seller events. Automation pauses at storage-full and resumes after each scheduled sale, so offline catch results are consistent with what the game would have produced in real time.
+
+---
+
 ## v0.8.11 — Build 50 (July 2026)
 
 ### Fix
