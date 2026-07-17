@@ -71,7 +71,11 @@ const MAELSTROM_ZONE = {
   id:         'maelstrom',
   name:       'The Maelstrom',
   themeColor: '#8b00ff',
-  bg:         'img/backgrounds/Maelstrom_beginning.png',
+  get bg() {
+    return (typeof G !== 'undefined' && G.maelstrom && G.maelstrom.stabilized)
+      ? 'img/backgrounds/Maelstrom_completed.png'
+      : 'img/backgrounds/Maelstrom_beginning.png';
+  },
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -903,44 +907,64 @@ const MAELSTROM_MISSION_CONFIG = {
   baseDurationMs: 6 * 60 * 60 * 1000,  // 6 real hours (Phase 3 provisional)
 
   // Weighted probabilities for crystal type selection.
-  // Sum = 100; values are relative weights, not percentages.
+  // Sum = 100; earlier zones are more common.
   crystalWeights: {
-    azure:    35,
-    emerald:  25,
-    amethyst: 20,
-    ruby:     15,
-    golden:   5,
+    emerald:      16,
+    amber:        15,
+    amethyst:     13,
+    ruby:         12,
+    aquamarine:   11,
+    opal:         10,
+    obsidian:      8,
+    topaz:         7,
+    sapphire:      5,
+    blue_diamond:  3,
   },
 
   // Crystal quantity range per completed mission, indexed by crystal type.
   crystalAmounts: {
-    azure:    { min: 8,  max: 14 },
-    emerald:  { min: 6,  max: 11 },
-    amethyst: { min: 4,  max: 8  },
-    ruby:     { min: 3,  max: 6  },
-    golden:   { min: 1,  max: 3  },
+    emerald:     { min: 8, max: 15 },
+    amber:       { min: 8, max: 15 },
+    amethyst:    { min: 6, max: 12 },
+    ruby:        { min: 6, max: 12 },
+    aquamarine:  { min: 5, max: 10 },
+    opal:        { min: 5, max: 10 },
+    obsidian:    { min: 3, max: 7  },
+    topaz:       { min: 3, max: 7  },
+    sapphire:    { min: 2, max: 5  },
+    blue_diamond:{ min: 1, max: 3  },
   },
 };
 
 // Stabilization requirements. Stored in code only — never in the player save.
 // Player save tracks contributed amounts in G.maelstrom.stabilizationProgress.
 const MAELSTROM_STAB_REQUIREMENTS = {
-  azure:    120,
-  emerald:  90,
-  amethyst: 65,
-  ruby:     40,
-  golden:   15,
+  emerald:      100,
+  amber:        100,
+  amethyst:     100,
+  ruby:         100,
+  aquamarine:   100,
+  opal:         100,
+  obsidian:     100,
+  topaz:        100,
+  sapphire:     100,
+  blue_diamond: 100,
 };
-// Total required: 330 crystals across all types.
+// Total required: 1000 crystals across all 10 types.
 
 // ─── CRYSTAL REGISTRY ────────────────────────────────────────────────────────
 
 const MAELSTROM_CRYSTALS = [
-  { id: 'azure',    name: 'Azure Crystal',    color: '#1a8fd4', icon: null },  // crystal_blue.png — Missing
-  { id: 'emerald',  name: 'Emerald Crystal',  color: '#1aa352', icon: null },  // crystal_green.png — Missing
-  { id: 'amethyst', name: 'Amethyst Crystal', color: '#8b34c8', icon: null },  // crystal_purple.png — Missing
-  { id: 'ruby',     name: 'Ruby Crystal',     color: '#c43030', icon: null },  // crystal_red.png — Missing
-  { id: 'golden',   name: 'Golden Crystal',   color: '#c49a00', icon: null },  // crystal_gold.png — Missing
+  { id: 'emerald',      name: 'Emerald Crystal',      color: '#10b981', icon: null },
+  { id: 'amber',        name: 'Amber Crystal',         color: '#f59e0b', icon: null },
+  { id: 'amethyst',     name: 'Amethyst Crystal',      color: '#8b34c8', icon: null },
+  { id: 'ruby',         name: 'Ruby Crystal',          color: '#dc2626', icon: null },
+  { id: 'aquamarine',   name: 'Aquamarine Crystal',    color: '#06b6d4', icon: null },
+  { id: 'opal',         name: 'Opal Crystal',          color: '#c7d2fe', icon: null },
+  { id: 'obsidian',     name: 'Obsidian Crystal',      color: '#374151', icon: null },
+  { id: 'topaz',        name: 'Topaz Crystal',         color: '#f97316', icon: null },
+  { id: 'sapphire',     name: 'Sapphire Crystal',      color: '#1e3a8a', icon: null },
+  { id: 'blue_diamond', name: 'Blue Diamond Crystal',  color: '#3b82f6', icon: null },
 ];
 
 // ─── SMALL HELPERS ────────────────────────────────────────────────────────────
@@ -1029,7 +1053,8 @@ function _startMaelstromUITimer() {
   if (_maelstromUIInterval) return;
   _maelstromUIInterval = setInterval(function() {
     if (isInMaelstrom()) {
-      _processMaelstromMissions(); // catch completions
+      _processMaelstromMissions();
+      _processCompletedExpeditions();
       renderMaelstromDebug();
     }
   }, 5000);
@@ -1237,7 +1262,291 @@ function _checkStabilizationCompletion() {
   G.maelstrom.stabilized                   = true;
   G.maelstrom.abyssEntranceUnlocked        = true;
   G.maelstrom.stabilizationCompletionShown = false; // cleared so render shows the banner once
+  _updateMaelstromBg();
   if (typeof saveState === 'function') saveState();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAELSTROM EXPEDITION SYSTEM
+// Coin-funded expeditions. No vessel required. Unlimited simultaneous.
+// Normal:  10 × Ocean unlock price, 24 real-hour timer.
+// Instant: 100 × Ocean unlock price, immediate loot.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── PRICING ─────────────────────────────────────────────────────────────────
+
+function _getOceanUnlockPrice() {
+  if (typeof TRANSPORT === 'undefined') return 1000000000;
+  var rv = TRANSPORT.find(function(t) { return t.id === 'research_vessel'; });
+  return rv ? rv.cost : 1000000000;
+}
+
+function _normalExpeditionCost()  { return _getOceanUnlockPrice() * 10;  }
+function _instantExpeditionCost() { return _getOceanUnlockPrice() * 100; }
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+
+var EXPEDITION_DURATION_MS       = 24 * 60 * 60 * 1000;
+var EXPEDITION_CRYSTALS_PER_ROLL = 10;
+var EXPEDITION_ROLLS             = 3;
+
+// ─── STATE GUARD ─────────────────────────────────────────────────────────────
+
+function _maelstromEnsureExpeditions() {
+  if (typeof G === 'undefined' || !G.maelstrom) return false;
+  if (!Array.isArray(G.maelstrom.expeditions)) G.maelstrom.expeditions = [];
+  return true;
+}
+
+// ─── LOOT GENERATION ─────────────────────────────────────────────────────────
+
+function _rollExpeditionLoot() {
+  // 3 independent uniform rolls, 10 crystals each. Duplicates allowed.
+  var totals = {};
+  for (var i = 0; i < EXPEDITION_ROLLS; i++) {
+    var idx = Math.floor(Math.random() * MAELSTROM_CRYSTALS.length);
+    var id  = MAELSTROM_CRYSTALS[idx].id;
+    totals[id] = (totals[id] || 0) + EXPEDITION_CRYSTALS_PER_ROLL;
+  }
+  return totals;
+}
+
+// ─── RESOLUTION (idempotent) ──────────────────────────────────────────────────
+
+var _resolvingExpedition = {};
+
+function _resolveExpedition(exp) {
+  if (!exp || exp.resolved) return null;
+  if (_resolvingExpedition[exp.id]) return null;
+  _resolvingExpedition[exp.id] = true;
+
+  var loot = _rollExpeditionLoot();
+
+  if (typeof G !== 'undefined' && G.maelstrom) {
+    var crystals = G.maelstrom.crystals;
+    Object.keys(loot).forEach(function(id) {
+      crystals[id] = (crystals[id] || 0) + loot[id];
+    });
+    var total = Object.values(loot).reduce(function(s, v) { return s + v; }, 0);
+    G.maelstrom.stats = G.maelstrom.stats || {};
+    G.maelstrom.stats.crystalsRecovered = (G.maelstrom.stats.crystalsRecovered || 0) + total;
+  }
+
+  exp.resolved = true;
+  delete _resolvingExpedition[exp.id];
+  return loot;
+}
+
+// ─── POPUP QUEUE ─────────────────────────────────────────────────────────────
+
+var _maelstromLootQueue   = [];
+var _maelstromLootShowing = false;
+
+function _queueExpeditionLoot(loot) {
+  _maelstromLootQueue.push(loot);
+  if (!_maelstromLootShowing) _showNextExpeditionLoot();
+}
+
+function _showNextExpeditionLoot() {
+  if (_maelstromLootQueue.length === 0) { _maelstromLootShowing = false; return; }
+  _maelstromLootShowing = true;
+  var loot    = _maelstromLootQueue[0];
+  var body    = document.getElementById('mael-loot-body');
+  var overlay = document.getElementById('mael-loot-overlay');
+  if (!body || !overlay) {
+    _maelstromLootQueue.length = 0;
+    _maelstromLootShowing = false;
+    return;
+  }
+  var lines = Object.keys(loot).map(function(id) {
+    var crystal = MAELSTROM_CRYSTALS.find(function(c) { return c.id === id; });
+    var color   = crystal ? crystal.color : '#aaa';
+    var name    = crystal ? crystal.name  : id;
+    return '<div class="mael-loot-line">'
+      + '<span class="mael-loot-dot" style="background:' + color + '"></span>'
+      + '<span class="mael-loot-name">' + name + '</span>'
+      + '<span class="mael-loot-qty">\xd7' + loot[id] + '</span>'
+      + '</div>';
+  }).join('');
+  body.innerHTML = lines;
+  overlay.classList.remove('hidden');
+}
+
+function collectExpeditionLoot() {
+  _maelstromLootQueue.shift();
+  var ov = document.getElementById('mael-loot-overlay');
+  if (ov) ov.classList.add('hidden');
+  _maelstromLootShowing = false;
+  setTimeout(function() { _showNextExpeditionLoot(); }, 120);
+}
+
+// ─── PROCESS COMPLETED EXPEDITIONS ───────────────────────────────────────────
+
+function _processCompletedExpeditions() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (!_maelstromEnsureExpeditions()) return;
+  var now    = Date.now();
+  var queued = [];
+
+  G.maelstrom.expeditions.forEach(function(exp) {
+    if (!exp.resolved && exp.returnsAt <= now) {
+      var loot = _resolveExpedition(exp);
+      if (loot) queued.push(loot);
+    }
+  });
+
+  G.maelstrom.expeditions = G.maelstrom.expeditions.filter(function(e) { return !e.resolved; });
+
+  if (queued.length > 0) {
+    if (typeof saveState === 'function') saveState();
+    queued.forEach(function(loot) { _queueExpeditionLoot(loot); });
+    if (isInMaelstrom()) renderMaelstromDebug();
+  }
+}
+
+// ─── SEND NORMAL EXPEDITION ───────────────────────────────────────────────────
+
+var _sendingExpedition = false;
+
+function sendMaelstromExpedition() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (_sendingExpedition) return;
+  _sendingExpedition = true;
+
+  if (typeof G === 'undefined') { _sendingExpedition = false; return; }
+  var cost = _normalExpeditionCost();
+  if (G.coins < cost) {
+    if (typeof showStatus === 'function') showStatus('Not enough coins!', 1500);
+    _sendingExpedition = false;
+    renderMaelstromDebug();
+    return;
+  }
+  if (!_maelstromEnsureExpeditions()) { _sendingExpedition = false; return; }
+
+  if (typeof _spendCoins === 'function') _spendCoins(cost); else G.coins -= cost;
+
+  var now = Date.now();
+  G.maelstrom.expeditions.push({
+    id:        'mex_' + now + '_' + Math.random().toString(36).slice(2, 7),
+    startedAt: now,
+    returnsAt: now + EXPEDITION_DURATION_MS,
+    resolved:  false,
+  });
+
+  if (typeof saveState === 'function') saveState();
+  if (typeof showStatus === 'function') showStatus('Expedition launched! Returns in 24 hours.', 2000);
+  _sendingExpedition = false;
+  renderMaelstromDebug();
+  if (typeof updateHUD === 'function') updateHUD();
+}
+
+// ─── INSTANT EXPEDITION ───────────────────────────────────────────────────────
+
+var _sendingInstant = false;
+
+function sendInstantExpedition() {
+  if (!canAccessMaelstromAndAbyss()) return;
+  if (_sendingInstant) return;
+  _sendingInstant = true;
+
+  if (typeof G === 'undefined') { _sendingInstant = false; return; }
+  var cost = _instantExpeditionCost();
+  if (G.coins < cost) {
+    if (typeof showStatus === 'function') showStatus('Not enough coins!', 1500);
+    _sendingInstant = false;
+    renderMaelstromDebug();
+    return;
+  }
+  if (!_maelstromEnsureExpeditions()) { _sendingInstant = false; return; }
+
+  if (typeof _spendCoins === 'function') _spendCoins(cost); else G.coins -= cost;
+
+  var loot = _rollExpeditionLoot();
+  if (G.maelstrom) {
+    var crystals = G.maelstrom.crystals;
+    Object.keys(loot).forEach(function(id) {
+      crystals[id] = (crystals[id] || 0) + loot[id];
+    });
+    var total = Object.values(loot).reduce(function(s, v) { return s + v; }, 0);
+    G.maelstrom.stats = G.maelstrom.stats || {};
+    G.maelstrom.stats.crystalsRecovered = (G.maelstrom.stats.crystalsRecovered || 0) + total;
+  }
+
+  if (typeof saveState === 'function') saveState();
+  _sendingInstant = false;
+  renderMaelstromDebug();
+  if (typeof updateHUD === 'function') updateHUD();
+  _queueExpeditionLoot(loot);
+}
+
+// ─── DEBUG EXPEDITION TOOLS (local dev only) ──────────────────────────────────
+
+function _debugAddExpeditionCoins() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (typeof G === 'undefined') return;
+  var amount = _instantExpeditionCost() * 10;
+  if (typeof _earnCoins === 'function') _earnCoins(amount); else G.coins += amount;
+  if (typeof saveState === 'function') saveState();
+  if (typeof updateHUD === 'function') updateHUD();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('Added coins for expeditions.', 1500);
+}
+
+function _debugStartExpedition() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (!_maelstromEnsureExpeditions()) return;
+  var now = Date.now();
+  G.maelstrom.expeditions.push({
+    id: 'mex_dbg_' + now, startedAt: now,
+    returnsAt: now + EXPEDITION_DURATION_MS, resolved: false,
+  });
+  if (typeof saveState === 'function') saveState();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('Debug expedition started.', 1500);
+}
+
+function _debugStart10Expeditions() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (!_maelstromEnsureExpeditions()) return;
+  var now = Date.now();
+  for (var i = 0; i < 10; i++) {
+    G.maelstrom.expeditions.push({
+      id: 'mex_dbg_' + now + '_' + i, startedAt: now,
+      returnsAt: now + EXPEDITION_DURATION_MS, resolved: false,
+    });
+  }
+  if (typeof saveState === 'function') saveState();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('10 debug expeditions started.', 1500);
+}
+
+function _debugCompleteNextExpedition() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (!_maelstromEnsureExpeditions()) return;
+  var exp = G.maelstrom.expeditions.find(function(e) { return !e.resolved; });
+  if (!exp) { if (typeof showStatus === 'function') showStatus('No active expeditions.', 1500); return; }
+  exp.returnsAt = Date.now() - 1;
+  _processCompletedExpeditions();
+  if (isInMaelstrom()) renderMaelstromDebug();
+}
+
+function _debugCompleteAllExpeditions() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (!_maelstromEnsureExpeditions()) return;
+  G.maelstrom.expeditions.forEach(function(e) { e.returnsAt = Date.now() - 1; });
+  _processCompletedExpeditions();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('All expeditions completed.', 1500);
+}
+
+function _debugSimulate24h() {
+  if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
+  if (!_maelstromEnsureExpeditions()) return;
+  var offset = EXPEDITION_DURATION_MS;
+  G.maelstrom.expeditions.forEach(function(e) { e.returnsAt -= offset; });
+  _processCompletedExpeditions();
+  if (isInMaelstrom()) renderMaelstromDebug();
+  if (typeof showStatus === 'function') showStatus('Simulated 24 hours forward.', 1500);
 }
 
 // ─── PRESTIGE HOOK ────────────────────────────────────────────────────────────
@@ -1247,8 +1556,9 @@ function _checkStabilizationCompletion() {
 function _clearMaelstromMissionsOnPrestige() {
   if (typeof G === 'undefined' || !G.maelstrom) return;
   G.maelstrom.crystalMissions              = [];
-  G.maelstrom.crystals                     = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  G.maelstrom.stabilizationProgress        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.expeditions                  = [];
+  G.maelstrom.crystals                     = { emerald:0, amber:0, amethyst:0, ruby:0, aquamarine:0, opal:0, obsidian:0, topaz:0, sapphire:0, blue_diamond:0 };
+  G.maelstrom.stabilizationProgress        = { emerald:0, amber:0, amethyst:0, ruby:0, aquamarine:0, opal:0, obsidian:0, topaz:0, sapphire:0, blue_diamond:0 };
   G.maelstrom.stabilized                   = false;
   G.maelstrom.abyssEntranceUnlocked        = false;
   G.maelstrom.stabilizationCompletionShown = false;
@@ -1300,8 +1610,9 @@ function _resetMaelstromDebugState() {
   });
 
   G.maelstrom.crystalMissions              = [];
-  G.maelstrom.crystals                     = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
-  G.maelstrom.stabilizationProgress        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.expeditions                  = [];
+  G.maelstrom.crystals                     = { emerald:0, amber:0, amethyst:0, ruby:0, aquamarine:0, opal:0, obsidian:0, topaz:0, sapphire:0, blue_diamond:0 };
+  G.maelstrom.stabilizationProgress        = { emerald:0, amber:0, amethyst:0, ruby:0, aquamarine:0, opal:0, obsidian:0, topaz:0, sapphire:0, blue_diamond:0 };
   G.maelstrom.stabilized                   = false;
   G.maelstrom.abyssEntranceUnlocked        = false;
   G.maelstrom.stabilizationCompletionShown = false;
@@ -1340,7 +1651,7 @@ function _debugCompleteStabilization() {
 function _debugClearStabilization() {
   if (!isLocalDevelopmentEnvironment() || !canAccessMaelstromAndAbyss()) return;
   if (typeof G === 'undefined' || !G.maelstrom) return;
-  G.maelstrom.stabilizationProgress        = { azure:0, emerald:0, amethyst:0, ruby:0, golden:0 };
+  G.maelstrom.stabilizationProgress        = { emerald:0, amber:0, amethyst:0, ruby:0, aquamarine:0, opal:0, obsidian:0, topaz:0, sapphire:0, blue_diamond:0 };
   G.maelstrom.stabilized                   = false;
   G.maelstrom.abyssEntranceUnlocked        = false;
   G.maelstrom.stabilizationCompletionShown = false;
@@ -1351,11 +1662,18 @@ function _debugClearStabilization() {
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
 
+function _updateMaelstromBg() {
+  var el = document.getElementById('maelstrom-bg');
+  if (el) el.src = MAELSTROM_ZONE.bg;
+}
+
 function enterMaelstromDebug() {
   if (!canAccessMaelstromAndAbyss()) return;
   G.currentWorld = 'maelstrom';
-  _processMaelstromMissions(); // catch any that completed since last check
+  _processMaelstromMissions();
+  _processCompletedExpeditions();
   _startMaelstromUITimer();
+  _updateMaelstromBg();
   if (typeof showScreen === 'function') showScreen('expansion-maelstrom');
 }
 
@@ -1394,93 +1712,77 @@ function selectAbyssZoneDebug(zoneId) {
 
 function renderMaelstromDebug() {
   if (!canAccessMaelstromAndAbyss()) { if (typeof showScreen === 'function') showScreen('fishing'); return; }
-  const el = document.getElementById('expansion-maelstrom-content');
+  var el = document.getElementById('expansion-maelstrom-content');
   if (!el) return;
-  el.innerHTML = `
-    <div class="mael-screen">
-      <div class="mael-header" style="color:${MAELSTROM_ZONE.themeColor}">
-        The Maelstrom <span class="mael-debug-tag">DEBUG</span>
-      </div>
-      ${expansionPlaceholder({ width: '100%', height: '90px', label: 'Maelstrom Background' })}
-      ${_renderCrystalInventory()}
-      ${_renderMissionPanel()}
-      ${_renderStabilizationPanel()}
-      ${_renderAbyssEntrance()}
-      <div class="mael-controls">
-        <button class="btn-secondary expansion-return-btn" onclick="leaveExpansionWorld()">Return to Overworld</button>
-      </div>
-    </div>`;
+  _maelstromEnsureExpeditions();
+  el.innerHTML =
+    '<div class="mael-screen">'
+    + _renderCrystalInventory()
+    + _renderExpeditionPanel()
+    + _renderStabilizationPanel()
+    + _renderAbyssEntrance()
+    + '</div>';
 }
 
 function _renderCrystalInventory() {
   if (typeof G === 'undefined' || !G.maelstrom) return '';
-  const crystals = G.maelstrom.crystals || {};
-  const rows = MAELSTROM_CRYSTALS.map(function(c) {
-    return `<div class="mael-crystal-row">
-      <span class="mael-crystal-dot" style="background:${c.color};"></span>
-      <span class="mael-crystal-name">${c.name}</span>
-      <span class="mael-crystal-amt">${crystals[c.id] || 0}</span>
-    </div>`;
+  var crystals = G.maelstrom.crystals || {};
+  var cards = MAELSTROM_CRYSTALS.map(function(c) {
+    return '<div class="mael-crystal-card">'
+      + '<span class="mael-crystal-dot" style="background:' + c.color + '"></span>'
+      + '<span class="mael-crystal-name">' + c.name.replace(' Crystal', '') + '</span>'
+      + '<span class="mael-crystal-amt">' + (crystals[c.id] || 0) + '</span>'
+      + '</div>';
   }).join('');
-  return `<div class="mael-panel">
-    <div class="mael-panel-title">Crystal Inventory</div>
-    ${rows}
-  </div>`;
+  return '<div class="mael-panel">'
+    + '<div class="mael-panel-title">Crystal Inventory</div>'
+    + '<div class="mael-crystal-grid">' + cards + '</div>'
+    + '</div>';
 }
 
-function _renderMissionPanel() {
-  if (typeof G === 'undefined') return '';
-  const vessels  = G.expeditionVessels || [];
-  const missions = (G.maelstrom && G.maelstrom.crystalMissions) || [];
-  const stats    = (G.maelstrom && G.maelstrom.stats) || {};
-  const now      = Date.now();
+function _renderExpeditionPanel() {
+  if (!_maelstromEnsureExpeditions()) return '';
+  var exps        = G.maelstrom.expeditions;
+  var now         = Date.now();
+  var normalCost  = _normalExpeditionCost();
+  var instantCost = _instantExpeditionCost();
+  var canNormal   = G.coins >= normalCost;
+  var canInstant  = G.coins >= instantCost;
+  var fc          = typeof formatCoins === 'function' ? formatCoins : function(n) { return n; };
 
-  if (vessels.length === 0) {
-    return `<div class="mael-panel">
-      <div class="mael-panel-title">Expedition Vessel Missions</div>
-      <div class="mael-panel-note">No Expedition Vessels owned. Purchase one from the Shop (Ocean zone required).</div>
-    </div>`;
-  }
-
-  const vesselRows = vessels.map(function(v) {
-    const mission = missions.find(function(m) { return m.vesselId === v.id; });
-    if (mission) {
-      const remaining = mission.completesAt - now;
-      const complete  = mission.status === 'complete' || (remaining <= 0 && mission.rewardGenerated);
-
-      if (complete && mission.rewardGenerated) {
-        return `<div class="mael-vessel-row mael-vessel-complete">
-          <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
-          <span class="mael-vessel-status ready">Complete!</span>
-          <span class="mael-vessel-crystal" style="color:${_crystalColor(mission.crystalType)}">
-            ${_crystalName(mission.crystalType)} x${mission.crystalAmount}
-          </span>
-          <button class="mael-collect-btn" onclick="collectMaelstromMission('${mission.id}')">Collect</button>
-        </div>`;
-      } else {
-        return `<div class="mael-vessel-row">
-          <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
-          <span class="mael-vessel-status">Searching the Maelstrom...</span>
-          <span class="mael-vessel-countdown">${_formatMsCountdown(Math.max(0, remaining))}</span>
-          <button class="mael-recall-btn" onclick="recallMaelstromMission('${mission.id}')">Recall</button>
-        </div>`;
-      }
-    } else {
-      return `<div class="mael-vessel-row">
-        <span class="mael-vessel-label">EV ${v.id.slice(-4)}</span>
-        <span class="mael-vessel-status">${_evStatusLabel(v)}</span>
-        <button class="mael-dispatch-btn" onclick="assignVesselToMaelstrom('${v.id}')">Dispatch</button>
-      </div>`;
-    }
+  var activeRows = exps.map(function(exp, i) {
+    var remaining = Math.max(0, exp.returnsAt - now);
+    return '<div class="mael-exp-row">'
+      + '<span class="mael-exp-num">Expedition #' + (i + 1) + '</span>'
+      + '<span class="mael-exp-timer">Returns in: ' + _formatMsCountdown(remaining) + '</span>'
+      + '</div>';
   }).join('');
 
-  return `<div class="mael-panel">
-    <div class="mael-panel-title">Expedition Vessel Missions</div>
-    ${vesselRows}
-    <div class="mael-panel-stats">
-      ${stats.missionsCompleted || 0} missions completed &bull; ${stats.crystalsRecovered || 0} crystals recovered
-    </div>
-  </div>`;
+  var listSection = exps.length > 0
+    ? '<div class="mael-exp-list-header">Active Expeditions (' + exps.length + ')</div>'
+      + '<div class="mael-exp-list">' + activeRows + '</div>'
+    : '<div class="mael-panel-note">No active expeditions.</div>';
+
+  return '<div class="mael-panel">'
+    + '<div class="mael-panel-title">Expeditions</div>'
+    + '<div class="mael-exp-buy-row">'
+      + '<div class="mael-exp-buy-info">'
+        + '<div class="mael-exp-buy-label">Send Expedition</div>'
+        + '<div class="mael-exp-buy-cost">' + fc(normalCost) + 'c • 24 hours</div>'
+      + '</div>'
+      + '<button class="btn-primary mael-exp-btn"'
+        + (canNormal ? '' : ' disabled') + ' onclick="sendMaelstromExpedition()">Send</button>'
+    + '</div>'
+    + '<div class="mael-exp-buy-row" style="border-bottom:none">'
+      + '<div class="mael-exp-buy-info">'
+        + '<div class="mael-exp-buy-label">Instant Expedition</div>'
+        + '<div class="mael-exp-buy-cost">' + fc(instantCost) + 'c • Immediate</div>'
+      + '</div>'
+      + '<button class="btn-secondary mael-exp-btn"'
+        + (canInstant ? '' : ' disabled') + ' onclick="sendInstantExpedition()">Send</button>'
+    + '</div>'
+    + listSection
+    + '</div>';
 }
 
 function _renderStabilizationPanel() {
@@ -1653,6 +1955,15 @@ function renderAbyssDebugSettings() {
       <button class="btn-secondary-sm" onclick="_debugAddCrystals()">+10 Each Crystal</button>
       <button class="btn-secondary-sm" onclick="_debugCompleteStabilization()">Complete Stabilization</button>
       <button class="btn-secondary-sm" onclick="_debugClearStabilization()">Clear Stabilization</button>
+    </div>
+    <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Maelstrom Expeditions</strong></div>
+    <div class="mael-debug-helpers">
+      <button class="btn-secondary-sm" onclick="_debugAddExpeditionCoins()">Add Coins</button>
+      <button class="btn-secondary-sm" onclick="_debugStartExpedition()">Start 1 Expedition</button>
+      <button class="btn-secondary-sm" onclick="_debugStart10Expeditions()">Start 10 Expeditions</button>
+      <button class="btn-secondary-sm" onclick="_debugCompleteNextExpedition()">Complete Next</button>
+      <button class="btn-secondary-sm" onclick="_debugCompleteAllExpeditions()">Complete All</button>
+      <button class="btn-secondary-sm" onclick="_debugSimulate24h()">Simulate 24h</button>
     </div>
     <div class="settings-info-row dim" style="margin-top:10px;margin-bottom:4px;"><strong>Abyss Fishdex</strong></div>
     <div class="mael-debug-helpers">
@@ -3564,6 +3875,9 @@ function initAbyssFramework() {
 
   // Process missions that completed while the app was closed
   _processMaelstromMissions();
+
+  // Process timed expeditions that completed while the app was closed
+  _processCompletedExpeditions();
 
   // Sanity check: stabilize if requirements are met but flag was not set
   // (handles crash-during-save or cross-save edge cases)

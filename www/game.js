@@ -784,9 +784,13 @@ function randInt(min, max) {
 }
 
 function formatCoins(n) {
-  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-  return String(n);
+  if (n >= 1e18) return (n/1e18).toFixed(1) + 'Qi';  // Quintillion
+  if (n >= 1e15) return (n/1e15).toFixed(1) + 'Qa';  // Quadrillion
+  if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';   // Trillion
+  if (n >= 1e9)  return (n/1e9).toFixed(1)  + 'B';   // Billion
+  if (n >= 1e6)  return (n/1e6).toFixed(1)  + 'M';   // Million
+  if (n >= 1e3)  return (n/1e3).toFixed(1)  + 'K';   // Thousand
+  return String(Math.floor(n));
 }
 
 function rarityClass(r) {
@@ -2023,12 +2027,12 @@ function renderZones() {
     const _mzBg = _mz.bg
       ? '<img class="zone-preview-img" src="' + _mz.bg + '" alt="">'
       : '<div class="zone-preview-color" style="background:' + _mzColor + '"></div>';
-    const _mzActive = typeof isInMaelstrom === 'function' && isInMaelstrom();
-    const _mzBtn = _mzActive
-      ? '<button class="btn-zone btn-zone-active" disabled>Active</button>'
-      : '<button class="btn-zone btn-zone-switch js-enter-mael">Enter</button>';
+    const _mzBtn = '<button class="btn-zone btn-zone-switch js-enter-mael">Enter</button>';
+    const _mzComicBtn = G.maelstromComicSeen
+      ? '<button class="btn-zone-comic js-mael-comic" title="View Maelstrom comic">📖</button>'
+      : '';
     const _mCard = document.createElement('div');
-    _mCard.className = 'zone-card zone-card-abyss' + (_mzActive ? ' zone-card-active' : '');
+    _mCard.className = 'zone-card zone-card-abyss';
     _mCard.style.setProperty('--zc', _mzColor);
     _mCard.innerHTML =
       '<div class="zone-color-bar"></div>' +
@@ -2036,6 +2040,7 @@ function renderZones() {
         '<div class="zone-card-text">' +
           '<div class="zone-card-head">' +
             '<span class="zone-card-name">' + _mzName + '</span>' +
+            _mzComicBtn +
             '<span class="zone-world-badge" style="background:rgba(139,0,255,0.25);color:#d580ff">Maelstrom</span>' +
             '<span class="zone-depth">Expansion</span>' +
           '</div>' +
@@ -2046,6 +2051,8 @@ function renderZones() {
       '<div class="zone-card-right">' + _mzBtn + '</div>';
     const _mBtn = _mCard.querySelector('.js-enter-mael');
     if (_mBtn) _mBtn.addEventListener('click', function() { enterMaelstromFromZones(); });
+    const _mComicBtn = _mCard.querySelector('.js-mael-comic');
+    if (_mComicBtn) _mComicBtn.addEventListener('click', function() { showMaelstromComicPopup(); });
     el.appendChild(_mCard);
   }
 
@@ -7943,7 +7950,7 @@ function init() {
   if (Array.isArray(G.activeAutomationZones) && G.activeAutomationZones.length > _slotLimitMig) {
     G.activeAutomationZones = G.activeAutomationZones.slice(-_slotLimitMig);
   }
-  if (!G.currentWorld) G.currentWorld = 'overworld';
+  G.currentWorld = 'overworld'; // always start on overworld; expansion screens restored manually
 
   isPremiumBaitActive(); // clears expired bait
   applyFontScale();
@@ -8023,6 +8030,8 @@ function _onAppBackground() {
 function _onAppForeground() {
   calculateOfflineProgress();
   updateHUD();
+  if (typeof _processCompletedExpeditions === 'function') _processCompletedExpeditions();
+  if (typeof isInMaelstrom === 'function' && isInMaelstrom() && typeof renderMaelstromDebug === 'function') renderMaelstromDebug();
 }
 
 document.addEventListener('visibilitychange', () => {

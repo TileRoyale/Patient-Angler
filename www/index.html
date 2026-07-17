@@ -462,8 +462,9 @@
 
   <!-- SCREEN: EXPANSION — MAELSTROM (full-screen fishing overlay) -->
   <div id="screen-expansion-maelstrom" class="screen screen-expansion">
+    <img src="img/backgrounds/Maelstrom_beginning.png" id="maelstrom-bg" class="maelstrom-bg" alt="">
     <div class="expansion-back-row">
-      <button class="btn-back" data-screen="fishing"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <button class="btn-back" onclick="leaveExpansionWorld()"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
       <span class="expansion-title">Maelstrom</span>
     </div>
     <div id="expansion-maelstrom-content"></div>
@@ -776,6 +777,16 @@
           <img src="img/icons/Menu exit icon.png" alt="Close">
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Maelstrom expedition loot popup -->
+  <div class="special-event-overlay hidden" id="mael-loot-overlay" onclick="if(event.target===this)collectExpeditionLoot()">
+    <div class="special-event-card" style="padding:20px 18px;max-width:300px">
+      <div class="se-title" style="color:#c080ff;margin-bottom:4px">Expedition Returned</div>
+      <div style="font-size:12px;color:var(--color-text-dim);margin-bottom:14px">Your expedition has returned with crystals.</div>
+      <div id="mael-loot-body" style="width:100%;margin-bottom:16px"></div>
+      <button class="btn-primary pc-ok-btn" onclick="collectExpeditionLoot()">Collect</button>
     </div>
   </div>
 
