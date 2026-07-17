@@ -1725,7 +1725,6 @@ function renderMaelstromDebug() {
     '<div class="mael-screen">'
     + _renderExpeditionPanel()
     + _renderStabilizationPanel()
-    + _renderAbyssEntrance()
     + '</div>';
 }
 
@@ -1815,6 +1814,10 @@ function _renderStabilizationPanel() {
     </div>`;
   }).join('');
 
+  const abyssBtn = stabilized
+    ? `<button class="mael-abyss-btn" onclick="enterAbyssDebug(null)">Enter the Abyss</button>`
+    : '';
+
   return `<div class="mael-panel">
     <div class="mael-panel-title">Maelstrom Stabilization${stabilized ? ' — COMPLETE' : ''}</div>
     <div class="mael-stab-overall">
@@ -1824,6 +1827,7 @@ function _renderStabilizationPanel() {
       </div>
     </div>
     ${crystalRows}
+    ${abyssBtn}
   </div>`;
 }
 
