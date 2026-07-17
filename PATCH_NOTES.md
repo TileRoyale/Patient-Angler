@@ -2,6 +2,15 @@
 
 ---
 
+## v0.8.10 — Build 49 (July 2026)
+
+### Fix
+- **Offline progress loading delay** — large offline windows (4 h+) no longer cause a 20–25 second freeze on app launch. Fish catch pools are now pre-cached per zone before the processing loop instead of filtering the full database on every iteration.
+- **Storage not filling on resume** — app returning from background now correctly recalculates offline catches. Previously the background/foreground handlers were registered but never defined, so the offline timer was never applied when the app resumed without a cold restart.
+- **Jeweler tab shows coins** — the currency counter in the shop header now displays Black Pearls (with pearl icon) when the Jeweler tab is open, and switches back to coins for all other tabs.
+
+---
+
 ## v0.8.9 — Build 48 (July 2026)
 
 ### Fix

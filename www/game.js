@@ -3364,7 +3364,11 @@ document.querySelectorAll('.shop-tab-icon').forEach(tab => {
 
 function renderShop(tab) {
   const el = document.getElementById('shop-content');
-  document.getElementById('shop-coins').textContent = formatCoins(G.coins);
+  const _isJeweler = tab === 'jeweler';
+  const _shopCoinsEl = document.getElementById('shop-coins');
+  const _shopIconEl  = document.getElementById('shop-coin-icon');
+  if (_shopCoinsEl) _shopCoinsEl.textContent = _isJeweler ? (G.blackPearls || 0) : formatCoins(G.coins);
+  if (_shopIconEl)  _shopIconEl.src = _isJeweler ? 'img/icons/Black pearl icon.png' : 'img/icons/Game screen icons/coin_icon.png';
   document.getElementById('shop-panel-title').textContent = SHOP_TAB_TITLES[tab] || tab.toUpperCase();
   el.innerHTML = '';
 
@@ -4527,6 +4531,36 @@ function calculateOfflineProgress() {
   const _offRandZone = () => _offZones.length ? _offZones[Math.floor(Math.random() * _offZones.length)] : _offAllUnlocked[0];
   const _offAvgCoin  = _offZones.reduce((s, zid) => s + (ZONE_AVG_COIN[zid] || 4), 0) / Math.max(1, _offZones.length);
 
+  // Pre-cache catch pools by zone to avoid repeated FISH_DB.filter() calls inside the 200k-iteration loop.
+  // Without this, each rollCatch() does up to 3 × 180-item filter passes → ~108M ops for large offline windows.
+  const _zonesToCache = [...new Set([..._offZones, ..._offAllUnlocked])];
+  const _offPools = {};
+  const _offLootTables = {};
+  _zonesToCache.forEach(function(zone) {
+    _offLootTables[zone] = (LOOT_TABLES[zone] || LOOT_TABLES.pond).filter(function(e) { return e.type !== 'legendary'; });
+    ['common','uncommon','rare','epic'].forEach(function(rarity) {
+      let pool = FISH_DB.filter(function(f) { return f.rarity === rarity && f.zones.includes(zone) && !isManualOnlyFish(f); });
+      if (!pool.length) pool = FISH_DB.filter(function(f) { return f.zones.includes(zone) && !isManualOnlyFish(f); });
+      _offPools[zone + '|' + rarity] = pool;
+    });
+    _offPools[zone + '|trash'] = TRASH_DB.filter(function(t) { return t.zones.includes(zone); });
+    _offPools[zone + '|plant'] = PLANT_DB.filter(function(p) { return p.zones.includes(zone); });
+  });
+
+  function _fastOfflineRoll(zone) {
+    const lt = _offLootTables[zone] || _offLootTables[_offAllUnlocked[0]] || [];
+    const roll = weightedRandom(lt);
+    const type = roll ? roll.type : 'common';
+    const pool = _offPools[zone + '|' + type] || [];
+    if (!pool.length) return { fishId: 'old_boot', name: 'Old Boot', rarity: 'trash' };
+    const item = pool[randInt(0, pool.length - 1)];
+    if (type === 'trash') return { fishId: item.id, name: item.name, rarity: 'trash' };
+    if (type === 'plant') return { fishId: item.id, name: item.name, rarity: 'plant' };
+    const sizeRow = weightedRandom(SIZE_TABLE);
+    const size = sizeRow.size === 'Trophy' ? 'Large' : sizeRow.size;
+    return { fishId: item.id, rarity: type, size, isTrophy: false };
+  }
+
   G.ownedAutomation.forEach(owned => {
     const aDef = AUTOMATION.find(x => x.id === owned.id);
     if (!aDef) return;
@@ -4543,7 +4577,7 @@ function calculateOfflineProgress() {
     itersUsed += toProcess;
 
     for (let i = 0; i < toProcess; i++) {
-      const c = rollCatch(_offRandZone());
+      const c = _fastOfflineRoll(_offRandZone());
       if (c.rarity === 'trash') {
         G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + 1;
         if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
