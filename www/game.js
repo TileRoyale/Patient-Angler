@@ -317,11 +317,11 @@ const RODS = [
   { id:'river_rod',  name:'River Rod',  clicks:18, cost:9000,        zone:'river', baseTierCost:5000,    tierDesc:'+10% Net automation speed / tier',        img:'img/icons/Shop/Rods/River Rod.png' },
   { id:'lake_rod',   name:'Lake Rod',   clicks:16, cost:90000,       zone:'lake',  baseTierCost:25000,   tierDesc:'+10% Fisherman speed / tier',             img:'img/icons/Shop/Rods/Lake Rod.png' },
   { id:'bay_rod',    name:'Bay Rod',    clicks:14, cost:900000,      zone:'bay',   baseTierCost:100000,  tierDesc:'+12% storage capacity / tier',            img:'img/icons/Shop/Rods/Bay Rod.png' },
-  { id:'sea_rod',    name:'Sea Rod',    clicks:12, cost:125000000,   zone:'sea',   baseTierCost:500000,   tierCosts:[250000000,2500000000,25000000000],          tierDesc:'+10% Boat automation speed / tier',       img:'img/icons/Shop/Rods/Sea Rod.png' },
-  { id:'ocean_rod',  name:'Ocean Rod',  clicks:10, cost:6250000000,  zone:'ocean', baseTierCost:2500000,  tierCosts:[12500000000,125000000000,1250000000000],    tierDesc:'+10% Fleet speed / tier',                 img:'img/icons/Shop/Rods/Ocean Rod.png' },
-  { id:'carbon_rod', name:'Carbon Rod', clicks:8,  cost:1000000000,  zone:'all',   baseTierCost:10000000, tierCosts:[2000000000,20000000000,200000000000],       tierDesc:'+3% Legendary catch chance / tier',       img:'img/icons/Shop/Rods/Carbon Rod.png' },
-  { id:'mythic_rod', name:'Mythic Rod', clicks:6,  cost:2500000000,  zone:'abyss', baseTierCost:50000000, tierCosts:[5000000000,50000000000,500000000000],       tierDesc:'+8% Diamond earnings / tier',             img:'img/icons/Shop/Rods/Mythic Rod.png' },
-  { id:'abyss_rod',  name:'Abyss Rod',  clicks:4,  cost:7500000000,  zone:'abyss', baseTierCost:200000000,tierCosts:[15000000000,150000000000,1500000000000],    tierDesc:'+8% Abyss fish sell value / tier',        img:'img/icons/Shop/Rods/Abyss Rod.png' },
+  { id:'sea_rod',    name:'Sea Rod',    clicks:12, cost:625000000,        zone:'sea',   baseTierCost:500000,    tierCosts:[1250000000,12500000000,125000000000],                      tierDesc:'+10% Boat automation speed / tier',       img:'img/icons/Shop/Rods/Sea Rod.png' },
+  { id:'ocean_rod',  name:'Ocean Rod',  clicks:10, cost:62500000000,      zone:'ocean', baseTierCost:2500000,   tierCosts:[125000000000,1250000000000,12500000000000],                tierDesc:'+10% Fleet speed / tier',                 img:'img/icons/Shop/Rods/Ocean Rod.png' },
+  { id:'carbon_rod', name:'Carbon Rod', clicks:8,  cost:250000000000,     zone:'all',   baseTierCost:10000000,  tierCosts:[500000000000,5000000000000,50000000000000],               tierDesc:'+3% Legendary catch chance / tier',       img:'img/icons/Shop/Rods/Carbon Rod.png' },
+  { id:'mythic_rod', name:'Mythic Rod', clicks:6,  cost:1000000000000,    zone:'abyss', baseTierCost:50000000,  tierCosts:[2000000000000,20000000000000,200000000000000],            tierDesc:'+8% Diamond earnings / tier',             img:'img/icons/Shop/Rods/Mythic Rod.png' },
+  { id:'abyss_rod',  name:'Abyss Rod',  clicks:4,  cost:10000000000000,   zone:'abyss', baseTierCost:200000000, tierCosts:[20000000000000,200000000000000,2000000000000000],         tierDesc:'+8% Abyss fish sell value / tier',        img:'img/icons/Shop/Rods/Abyss Rod.png' },
 ];
 
 const STORAGE_ITEMS = [
@@ -330,8 +330,8 @@ const STORAGE_ITEMS = [
   { id:'coolerbox',     name:'Cooler Box',           cost:600,    capacity:50,    unlocksAt:'river', desc:'+50 fish slots',     img:'img/icons/Shop/Storage/Cooler Box.png' },
   { id:'fridge',        name:'Portable Fridge',      cost:2000,   capacity:150,   unlocksAt:'river', desc:'+150 fish slots',    img:'img/icons/Shop/Storage/Portable Fridge.png' },
   { id:'freezer',       name:'Chest Freezer',        cost:10000,  capacity:500,   unlocksAt:'bay',   desc:'+500 fish slots',    img:'img/icons/Shop/Storage/Chest Freezer.png' },
-  { id:'walkinfreezer', name:'Walk-in Freezer',      cost:50000,  capacity:2000,  unlocksAt:'sea',   desc:'+2000 fish slots',   img:'img/icons/Shop/Storage/Walk-in Freezer.png' },
-  { id:'harborcs',      name:'Harbor Cold Storage',  cost:250000, capacity:10000, unlocksAt:'sea',   desc:'+10000 fish slots',  img:'img/icons/Shop/Storage/Harbor Cold Storage.png' },
+  { id:'walkinfreezer', name:'Walk-in Freezer',      cost:50000000,  capacity:2000,  unlocksAt:'sea',   desc:'+2000 fish slots',   img:'img/icons/Shop/Storage/Walk-in Freezer.png' },
+  { id:'harborcs',      name:'Harbor Cold Storage',  cost:250000000, capacity:10000, unlocksAt:'sea',   desc:'+10000 fish slots',  img:'img/icons/Shop/Storage/Harbor Cold Storage.png' },
 ];
 
 const BOBBERS = [
@@ -368,9 +368,9 @@ const AUTOMATION = [
   { id:'motor_boat',     name:'Motor Boat',     cost:1200000,    rate:3,    desc:'1 catch / 3s',    unlocksAt:'bay',   type:'boat',       img:'img/icons/Shop/Automation/Motor Boat.png' },
   { id:'fishing_boat',   name:'Fishing Boat',   cost:4000000,    rate:1.5,  desc:'1 catch / 1.5s',  unlocksAt:'bay',   type:'boat',       img:'img/icons/Shop/Automation/Fishing Boat.png' },
   // Fleets — unlocks at Sea
-  { id:'small_fleet',    name:'Small Fleet',    cost:15000000,   rate:0.5,  desc:'2 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Small Fleet.png' },
-  { id:'large_fleet',    name:'Large Fleet',    cost:75000000,   rate:0.25, desc:'4 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Large Fleet.png' },
-  { id:'deep_sea_fleet', name:'Deep Sea Fleet', cost:500000000,  rate:0.1,  desc:'10 catches / s',  unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Deep Sea Fleet.png' },
+  { id:'small_fleet',    name:'Small Fleet',    cost:125000000,  rate:0.5,  desc:'2 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Small Fleet.png' },
+  { id:'large_fleet',    name:'Large Fleet',    cost:500000000,  rate:0.25, desc:'4 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Large Fleet.png' },
+  { id:'deep_sea_fleet', name:'Deep Sea Fleet', cost:2500000000, rate:0.1,  desc:'10 catches / s',  unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Deep Sea Fleet.png' },
   // Ghost Ship expedition rewards — unlocks at Sea, cannot be purchased
   { id:'ancient_fisherman', name:'Ancient Fisherman',   cost:0, rate:1,   desc:'1 catch / s',     unlocksAt:'sea', type:'fisherman', ghostOnly:true, img:'img/icons/Shop/Automation/Ancient fisherman.png' },
   { id:'ancient_boat',      name:'Ancient Fishing Boat', cost:0, rate:0.5, desc:'2 catches / s',   unlocksAt:'sea', type:'boat',      ghostOnly:true, img:'img/icons/Shop/Automation/Ancient fishing boat.png' },
@@ -526,8 +526,8 @@ const TRANSPORT = [
   { id:'waders',           name:'Waders',           cost:6000,      zone:'river', desc:'Wade into the River' },
   { id:'rowing_boat',      name:'Rowing Boat',       cost:60000,     zone:'lake',  desc:'Row out to the Lake' },
   { id:'speedboat',        name:'Speedboat',         cost:600000,    zone:'bay',   desc:'Speed out to the Bay' },
-  { id:'fishing_vessel',   name:'Fishing Vessel',    cost:20000000,  zone:'sea',   desc:'Sail out to the Sea' },
-  { id:'research_vessel',  name:'Research Vessel',   cost:1000000000, zone:'ocean', desc:'Venture to the Ocean' },
+  { id:'fishing_vessel',   name:'Fishing Vessel',    cost:100000000,  zone:'sea',   desc:'Sail out to the Sea' },
+  { id:'research_vessel',  name:'Research Vessel',   cost:10000000000, zone:'ocean', desc:'Venture to the Ocean' },
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
@@ -574,7 +574,7 @@ const DEFAULT_STATE = {
   hofLastReset: 0,
   blackPearls: 0,
   prestigeCount: 0,
-  pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0 },
+  pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0, startingcapital:0 },
   seaComicSeen:                    false,
   sunkenTreasureUnlocked:          false,
   sunkenChests:                    [],
@@ -835,8 +835,11 @@ function formatCoins(n) {
     }
     return String(n);
   }
-  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  if (n >= 1e15) return (n/1e15).toFixed(1) + 'Qa';
+  if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';
+  if (n >= 1e9)  return (n/1e9).toFixed(1)  + 'B';
+  if (n >= 1e6)  return (n/1e6).toFixed(1)  + 'M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1)  + 'K';
   return String(n);
 }
 
@@ -972,6 +975,7 @@ const PEARL_UPGRADES = [
   { id:'fishwhisperer',name:'Fish Whisperer',      desc:'Higher chance to catch Trophy fish (+0.5% per level).',                         costs:[6,10,16,25,38,58,88,132,198,297],               growthRate:1.50, maxLevel:null },
   { id:'treasurehold',  name:'Treasure Hold',       desc:'Carry 1 extra Sunken Treasure Chest per level. Requires Sea zone.',               costs:[10], growthRate:5, maxLevel:null, requiresSunkenTreasure:true },
   { id:'ghostbusters',  name:'Ghost Busters',        desc:'Ghost Ship returns 1 in-game hour faster per level (−1h/level, max 50 levels).',   costs:[10,20,40,80,160,320,640,1280,2560,5120,10240,20480,40960,81920,163840,327680,655360,1310720,2621440,5242880,10485760,20971520,41943040,83886080,167772160,335544320,671088640,1342177280,2684354560,5368709120,10737418240,21474836480,42949672960,85899345920,171798691840,343597383680,687194767360,1374389534720,2748779069440,5497558138880,10995116277760,21990232555520,43980465111040,87960930222080,175921860444160,351843720888320,703687441776640,1407374883553280,2814749767106560,5629499534213120], maxLevel:50 },
+  { id:'startingcapital', name:'Starting Capital',    desc:'Start each prestige run with +2000 coins per level.',                                  linearStep:2,  maxLevel:null },
 ];
 
 const PEARL_IMG = `<img src="img/icons/Black pearl icon.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px">`;
@@ -1013,6 +1017,7 @@ function getPearlCompSpiritMult() {
 }
 function getPearlFishWhispererBonus()   { return ((G.pearlUpgrades||{}).fishwhisperer||0) * 0.005; }
 function getPearlGhostBustersReduceMs() { return ((G.pearlUpgrades||{}).ghostbusters||0) * (3600000/24); }
+function getPearlStartingCapital()      { return ((G.pearlUpgrades||{}).startingcapital||0) * 2000; }
 function getGsExpeditionMs()            { return Math.max(3600000/24, GS_EXPEDITION_MS - getPearlGhostBustersReduceMs()); }
 
 // ─── DIAMOND UPGRADES ────────────────────────────────────────────────────────
@@ -1039,6 +1044,7 @@ function buyDiamondUpgrade(type) {
 
 function pearlUpgradeCost(upg) {
   const lvl = (G.pearlUpgrades || {})[upg.id] || 0;
+  if (upg.linearStep !== undefined) return (lvl + 1) * upg.linearStep;
   if (upg.costs) {
     if (lvl < upg.costs.length) return upg.costs[lvl];
     // unlimited upgrades: extrapolate beyond table
@@ -1085,7 +1091,7 @@ function executePrestige() {
   syncAch('h_pearls',   G.blackPearls);
 
   // Reset progression
-  G.coins              = 0;
+  G.coins              = getPearlStartingCapital();
   G.currentZone        = 'pond';
   G.currentRod         = 'basic_rod';
   G.ownedRods          = ['basic_rod'];
@@ -5133,19 +5139,32 @@ function closeSeaComicPopup() {
 
 // ── Expedition Vessel ─────────────────────────────────────────────────────────
 
-const EXPEDITION_VESSEL_BASE_COST = 50000000;  // 50M; scales ×2 per vessel
-const EXPEDITION_VESSEL_MAX       = 10;
-const EXPEDITION_VESSEL_INTERVAL  = 30 * 3600000; // 30 real hours = 30 in-game days
+const EXPEDITION_VESSEL_PRICES = [
+  1000000000,    //  #1 —   1B  (meaningful first investment at Sea)
+  5000000000,    //  #2 —   5B
+  20000000000,   //  #3 —  20B
+  100000000000,  //  #4 — 100B
+  500000000000,  //  #5 — 500B  (bridge to Ocean)
+  2000000000000, //  #6 —   2T
+  8000000000000, //  #7 —   8T
+  25000000000000,//  #8 —  25T
+  75000000000000,//  #9 —  75T
+  200000000000000,// #10 — 200T  (endgame)
+];
+const EXPEDITION_VESSEL_MAX      = 10;
+const EXPEDITION_VESSEL_INTERVAL = 30 * 3600000; // 30 real hours = 30 in-game days
 
 function expeditionVesselCost() {
-  return EXPEDITION_VESSEL_BASE_COST * Math.pow(2, (G.expeditionVessels || []).length);
+  const idx = (G.expeditionVessels || []).length;
+  return EXPEDITION_VESSEL_PRICES[Math.min(idx, EXPEDITION_VESSEL_PRICES.length - 1)];
 }
 
 function _evBulkCost(qty) {
   const count = (G.expeditionVessels || []).length;
   let total = 0;
   for (let i = 0; i < qty; i++) {
-    total += EXPEDITION_VESSEL_BASE_COST * Math.pow(2, count + i);
+    const idx = Math.min(count + i, EXPEDITION_VESSEL_PRICES.length - 1);
+    total += EXPEDITION_VESSEL_PRICES[idx];
   }
   return applyDiscount(total);
 }

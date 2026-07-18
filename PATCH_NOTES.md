@@ -2,6 +2,25 @@
 
 ---
 
+## v0.9.3.0 — Build 57 (July 2026)
+
+### Balance — Late-game economy overhaul
+- **Sea / Ocean progression significantly slower** — Sea Rod 125M → 625M, Ocean Rod 6.25B → 62.5B. Bay → Sea now takes approximately 5× longer; Sea → Ocean approximately 10× longer.
+- **Transport costs updated** — Fishing Vessel 20M → 100M, Research Vessel 1B → 10B.
+- **Fleets more expensive** — Small Fleet 15M → 125M, Large Fleet 75M → 500M, Deep Sea Fleet 500M → 2.5B. Fleet production rates unchanged.
+- **Sea-tier storage repriced** — Walk-in Freezer 50K → 50M, Harbor Cold Storage 250K → 250M. Capacities unchanged.
+- **Rod hierarchy fixed** — Carbon Rod and Mythic Rod now cost more than Ocean Rod (1B and 2.5B were both cheaper than Ocean Rod). New costs: Carbon Rod 250B, Mythic Rod 1T, Abyss Rod 10T.
+- **Rod upgrade costs updated** — all Sea+ rod tier upgrades repriced to match new rod costs.
+- **Expedition Vessels completely rebalanced** — hand-tuned curve replaces simple ×2 doubling. New prices: 1B / 5B / 20B / 100B / 500B / 2T / 8T / 25T / 75T / 200T. First vessel is now a meaningful Sea investment; last vessels belong to Ocean endgame.
+
+### New
+- **Starting Capital (Jeweler upgrade)** — new pearl upgrade. Each level grants +2000 starting coins after every prestige. Cost: 2 pearls at level 1, +2 pearls per subsequent level.
+
+### Fix
+- **Coin display now shows B / T / Qa** — large coin amounts previously displayed as e.g. "6250.0M" instead of "6.25B". Billions, trillions, and quadrillions now format correctly.
+
+---
+
 ## v0.9.2.1 — Build 55 (July 2026)
 
 ### Performance
