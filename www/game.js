@@ -5381,6 +5381,38 @@ function _gsScheduleNext() {
   _gsSpawnTimeout = setTimeout(_gsSpawnRoll, GS_SPAWN_INTERVAL_MS);
 }
 
+// Lightweight timer re-attach — called on foreground resume to recover killed Android setTimeouts.
+// Does NOT re-render ships (use _gsStartup for that).
+function _gsReattachTimer() {
+  if (!G.sunkenTreasureUnlocked) return;
+  if (_gsSpawnTimeout) return; // timer still alive, nothing to do
+  const now = Date.now();
+  if (!G.ghostShipNextSpawnAt || G.ghostShipNextSpawnAt <= 0) {
+    _gsScheduleNext();
+  } else if (now >= G.ghostShipNextSpawnAt) {
+    G.ghostShipNextSpawnAt = 0;
+    setTimeout(_gsSpawnRoll, 1500);
+  } else {
+    const delay = Math.min(G.ghostShipNextSpawnAt - now, GS_SPAWN_INTERVAL_MS);
+    _gsSpawnTimeout = setTimeout(_gsSpawnRoll, delay);
+  }
+}
+
+function _gsReattachTimer() {
+  if (!G.sunkenTreasureUnlocked) return;
+  if (_gsSpawnTimeout) return;
+  const now = Date.now();
+  if (!G.ghostShipNextSpawnAt || G.ghostShipNextSpawnAt <= 0) {
+    _gsScheduleNext();
+  } else if (now >= G.ghostShipNextSpawnAt) {
+    G.ghostShipNextSpawnAt = 0;
+    setTimeout(_gsSpawnRoll, 1500);
+  } else {
+    const delay = Math.min(G.ghostShipNextSpawnAt - now, GS_SPAWN_INTERVAL_MS);
+    _gsSpawnTimeout = setTimeout(_gsSpawnRoll, delay);
+  }
+}
+
 function _gsStartup() {
   if (_gsSpawnTimeout) { clearTimeout(_gsSpawnTimeout); _gsSpawnTimeout = null; }
   if (!G.sunkenTreasureUnlocked) return;
@@ -8157,6 +8189,11 @@ function _onAppForeground() {
   } else {
     scheduleNextSpecialEvent();
   }
+  // Re-attach GS spawn timer — Android kills long setTimeouts while backgrounded, so the timer
+  // may be gone even when the spawn deadline hasn't passed yet. Reattach without re-rendering ships.
+  _gsReattachTimer();
+  if (typeof _processCompletedExpeditions === 'function') _processCompletedExpeditions();
+  if (typeof isInMaelstrom === 'function' && isInMaelstrom() && typeof renderMaelstromDebug === 'function') renderMaelstromDebug();
 }
 
 document.addEventListener('visibilitychange', () => {
