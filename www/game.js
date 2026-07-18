@@ -1100,6 +1100,13 @@ function closePrestigeConfirm() {
   document.getElementById('prestige-confirm-overlay').classList.add('hidden');
 }
 
+function showStorageFullPopup() {
+  document.getElementById('storage-full-overlay').classList.remove('hidden');
+}
+function closeStorageFullPopup() {
+  document.getElementById('storage-full-overlay').classList.add('hidden');
+}
+
 function executePrestige() {
   closePrestigeConfirm();
   const pearls = prestigePearlReward();
@@ -2919,7 +2926,7 @@ function presentCatch(c) {
 
   // Check storage capacity (fish only — trash/plants and Fish Fight always accepted)
   if (!c.isFishFight && c.rarity !== 'trash' && c.rarity !== 'plant' && fishPileTotal() >= storageCapacity()) {
-    showStatus('Storage full! Sell some fish first.', 2500);
+    showStorageFullPopup();
     resetFishingState();
     return;
   }
