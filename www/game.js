@@ -542,6 +542,7 @@ const DEFAULT_STATE = {
   premiumBaitActive: false,
   premiumBaitEnd: 0,
   seagullBaitCount: 0,
+  numberFormat: 'normal',
   soundEnabled: true,
   hapticsEnabled: true,
   tickersEnabled: true,
@@ -826,6 +827,14 @@ function randInt(min, max) {
 }
 
 function formatCoins(n) {
+  if (G.numberFormat === 'scientific') {
+    if (n >= 1000) {
+      const exp = Math.floor(Math.log10(n));
+      const coef = n / Math.pow(10, exp);
+      return coef.toFixed(2).replace(/\.?0+$/, '') + 'e' + exp;
+    }
+    return String(n);
+  }
   if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
   if (n >= 1000) return (n/1000).toFixed(1) + 'K';
   return String(n);
@@ -7720,6 +7729,18 @@ function renderSettings() {
       G.hapticsEnabled = G.hapticsEnabled === false ? true : false;
       saveState();
       renderSettings();
+    };
+  }
+  const numFmtBtn = document.getElementById('btn-numformat-toggle');
+  if (numFmtBtn) {
+    const isSci = G.numberFormat === 'scientific';
+    numFmtBtn.textContent = isSci ? 'Scientific' : 'Normal';
+    numFmtBtn.classList.toggle('off', isSci);
+    numFmtBtn.onclick = () => {
+      G.numberFormat = isSci ? 'normal' : 'scientific';
+      saveState();
+      renderSettings();
+      updateHUD();
     };
   }
   const tickersBtn = document.getElementById('btn-tickers-toggle');
