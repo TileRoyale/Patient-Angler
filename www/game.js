@@ -460,7 +460,7 @@ const ACHIEVEMENTS = [
   { id:'ach_gs_boat',       name:'Ancient Fleet',      desc:'Receive an Ancient Fishing Boat from the Ghost Ship.',      type:'h_gs_boat',         goal:1,    reward:300 },
   { id:'ach_gs_100',        name:'Legendary Pirate',   desc:'Complete 100 Ghost Ship expeditions.',                      type:'h_gs_expeditions',  goal:100,  reward:1500, hidden:true },
   { id:'ach_gs_all_units',  name:'Full Crew',          desc:'Own all 3 Ghost Ship unit types at once.',                  type:'h_gs_all_units',    goal:1,    reward:500,  hidden:true },
-  { id:'ach_gs_ghostbust',  name:'Ghost Buster',       desc:'Max out the Ghost Busters pearl upgrade.',                  type:'h_gs_ghostbusters', goal:20,   reward:1000, hidden:true },
+  { id:'ach_gs_ghostbust',  name:'Ghost Buster',       desc:'Max out the Ghost Busters pearl upgrade.',                  type:'h_gs_ghostbusters', goal:50,   reward:1000, hidden:true },
   // ── Sunken Treasure Chest ─────────────────────────────────────────────────────
   { id:'ach_chest_first',   name:'Treasure Hunter',    desc:'Open your first Sunken Treasure Chest.',                    type:'h_chest_opened',    goal:1,    reward:200 },
   { id:'ach_chest_10',      name:'Wreck Diver',        desc:'Open 10 Sunken Treasure Chests.',                           type:'h_chest_opened',    goal:10,   reward:400 },
@@ -969,7 +969,7 @@ const PEARL_UPGRADES = [
   { id:'compspirit',   name:'Competition Spirit',  desc:'Earn more coins from competitions (+10% per level, +2% after Lv10).',           costs:[4,6,9,13,19,28,40,58,84,120],                   growthRate:1.43, maxLevel:null },
   { id:'fishwhisperer',name:'Fish Whisperer',      desc:'Higher chance to catch Trophy fish (+0.5% per level).',                         costs:[6,10,16,25,38,58,88,132,198,297],               growthRate:1.50, maxLevel:null },
   { id:'treasurehold',  name:'Treasure Hold',       desc:'Carry 1 extra Sunken Treasure Chest per level. Requires Sea zone.',               costs:[10], growthRate:5, maxLevel:null, requiresSunkenTreasure:true },
-  { id:'ghostbusters',  name:'Ghost Busters',        desc:'Ghost Ship returns 1 in-game hour faster per level (−1h/level, max 20 levels).',   costs:[10,20,40,80,160,320,640,1280,2560,5120,10240,20480,40960,81920,163840,327680,655360,1310720,2621440,5242880], maxLevel:20 },
+  { id:'ghostbusters',  name:'Ghost Busters',        desc:'Ghost Ship returns 1 in-game hour faster per level (−1h/level, max 50 levels).',   costs:[10,20,40,80,160,320,640,1280,2560,5120,10240,20480,40960,81920,163840,327680,655360,1310720,2621440,5242880,10485760,20971520,41943040,83886080,167772160,335544320,671088640,1342177280,2684354560,5368709120,10737418240,21474836480,42949672960,85899345920,171798691840,343597383680,687194767360,1374389534720,2748779069440,5497558138880,10995116277760,21990232555520,43980465111040,87960930222080,175921860444160,351843720888320,703687441776640,1407374883553280,2814749767106560,5629499534213120], maxLevel:50 },
 ];
 
 const PEARL_IMG = `<img src="img/icons/Black pearl icon.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px">`;
@@ -5286,8 +5286,8 @@ async function _loadGifOnce(url) {
 
 const GS_ELIGIBLE_ZONES    = ['sea', 'ocean'];
 const GS_IDLE_MS           = Math.round(8 / 24 * 3600000);  // 8 in-game h = 20 real min
-const GS_EXPEDITION_MS     = 3600000;                        // 24 in-game h = 1 real hour
-const GS_SPAWN_INTERVAL_MS = 2 * 3600000;                   // roll every 2 real hours
+const GS_EXPEDITION_MS     = 3 * 3600000;                    // 72 in-game h = 3 real hours
+const GS_SPAWN_INTERVAL_MS = 1 * 3600000;                   // roll every 1 real hour
 const GS_SPAWN_CHANCE      = 0.60;
 
 const GS_SPAWN_POSITIONS = {
@@ -6078,7 +6078,9 @@ function _guildGetEligibleFish() {
     .map(z => z.id);
   return FISH_DB.filter(f => {
     if (!f.zones.some(z => zones.includes(z))) return false;
-    if (isManualOnlyFish(f)) return false; // excludes legendary, special, manualOnly
+    if (isManualOnlyFish(f)) return false;
+    if (f.w1legendary) return false; // legendary fish are 1-in-50M, not achievable in a guild order
+    if (f.rarity === 'legendary') return false;
     return true;
   });
 }
