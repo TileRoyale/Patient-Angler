@@ -4542,7 +4542,7 @@ function estimateAutoHourlyIncome() {
 function updateHUD() {
   document.getElementById('hud-coins').textContent = formatCoins(G.coins);
   document.getElementById('hud-storage').textContent =
-    fishPileTotal() + '/' + storageCapacity();
+    formatCoins(fishPileTotal()) + '/' + formatCoins(storageCapacity());
   const _scEl = document.getElementById('shop-coins');
   if (_scEl) _scEl.textContent = activeShopTab === 'jeweler' ? (G.blackPearls || 0) : formatCoins(G.coins);
 
@@ -4563,9 +4563,14 @@ function updateHUD() {
   const rate = calcFishRate();
   const rateEl = document.getElementById('hud-fishrate');
   if (rateEl) {
-    rateEl.textContent = rate > 0
-      ? (rate >= 10 ? Math.round(rate) : rate < 0.1 ? rate.toFixed(2) : rate.toFixed(1)) + ' catch/s'
-      : '';
+    if (rate > 0) {
+      const rateStr = rate < 1
+        ? (rate < 0.1 ? rate.toFixed(2) : rate.toFixed(1))
+        : formatCoins(Math.round(rate));
+      rateEl.textContent = rateStr + ' catch/s';
+    } else {
+      rateEl.textContent = '';
+    }
   }
 }
 
