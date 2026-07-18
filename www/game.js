@@ -3340,7 +3340,7 @@ function autoTick() {
       } else {
         const space = storageCapacity() - fishPileTotal();
         if (space <= 0) break;
-        const qty = Math.min(multiCatch, space);
+        const qty = c.w1legendary ? 1 : Math.min(multiCatch, space);
         const autoSize = c.isTrophy ? 'Large' : (c.w1legendary ? 'Large' : c.size);
         const _k = fishPileKey(c.fishId, autoSize);
         const isFirstW1 = c.w1legendary && !G.fishdex.includes(c.fishId);
@@ -4755,9 +4755,10 @@ function calculateOfflineProgress() {
         Math.floor(sec / u.effectiveRate) * 0.75
         * (1 + getPearlExtraCatchChance())
         * getMasteryOfflineMult()
-      ) * getMultiCatch();
+      );
     }, 0);
   }
+  const _offMultiCatch = getMultiCatch(); // captured once; stable across all phases
 
   // Build timeline of scheduled Auto-Seller events within the offline window.
   // Only interval-based sell events free storage — storage-full alone never triggers a sell.
@@ -4823,30 +4824,31 @@ function calculateOfflineProgress() {
 
         const c = _fastOfflineRoll(_offZone);
         if (c.rarity === 'trash') {
-          G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + 1;
+          G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + _offMultiCatch;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
           incrementMastery(c.fishId);
-          _sess.trash[c.fishId] = (_sess.trash[c.fishId] || 0) + 1;
-          _sess.totalTrash++;
-          _sess.totalCaught++;
+          _sess.trash[c.fishId] = (_sess.trash[c.fishId] || 0) + _offMultiCatch;
+          _sess.totalTrash += _offMultiCatch;
+          _sess.totalCaught += _offMultiCatch;
         } else if (c.rarity === 'plant') {
-          G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + 1;
+          G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + _offMultiCatch;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
           incrementMastery(c.fishId);
-          _sess.plants[c.fishId] = (_sess.plants[c.fishId] || 0) + 1;
-          _sess.totalPlant++;
-          _sess.totalCaught++;
+          _sess.plants[c.fishId] = (_sess.plants[c.fishId] || 0) + _offMultiCatch;
+          _sess.totalPlant += _offMultiCatch;
+          _sess.totalCaught += _offMultiCatch;
         } else {
           // Automation cannot catch trophies — treat as Large
           const autoSize = c.isTrophy ? 'Large' : c.size;
           const _k = fishPileKey(c.fishId, autoSize);
-          G.fishPile[_k] = (G.fishPile[_k] || 0) + 1;
+          const _offQty = Math.min(_offMultiCatch, storageCapacity() - fishPileTotal());
+          G.fishPile[_k] = (G.fishPile[_k] || 0) + _offQty;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
           incrementMastery(c.fishId);
-          _sess.fish[c.fishId] = (_sess.fish[c.fishId] || 0) + 1;
-          _sess.totalFish++;
-          if (c.rarity === 'epic' || c.rarity === 'legendary') _sess.totalEpic++;
-          _sess.totalCaught++;
+          _sess.fish[c.fishId] = (_sess.fish[c.fishId] || 0) + _offQty;
+          _sess.totalFish += _offQty;
+          if (c.rarity === 'epic' || c.rarity === 'legendary') _sess.totalEpic += _offQty;
+          _sess.totalCaught += _offQty;
         }
       }
     }
