@@ -9,6 +9,18 @@
 
 ---
 
+## v0.9.2.2 — Build 56 (July 2026)
+
+### Balance
+- **Ghost Ship spawns more often** — spawn roll now fires every 1 real hour (was 2 hours). 60% spawn chance unchanged — average time between ships roughly halved.
+- **Expedition duration extended** — Ghost Ship expeditions now take 3 real hours (was 1 hour), matching their deeper lore as ocean voyages.
+- **Ghost Busters upgrade expanded** — max level raised from 20 to 50. Each level still reduces expedition time by 1 in-game hour (2.5 real minutes). At max level, expedition time reduces by ~125 real minutes.
+
+### Fix
+- **Guild Orders never request legendary fish** — W1 Legendary fish (1-in-50,000,000 drop rate) were eligible to appear in Guild Orders, making those orders impossible to complete. They are now excluded from all Guild Order generation.
+
+---
+
 ## v0.9.2 — Build 54 (July 2026)
 
 ### Fix
