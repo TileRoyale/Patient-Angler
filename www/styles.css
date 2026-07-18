@@ -852,20 +852,30 @@ html, body {
   align-self: center;
   min-width: 0;
   flex: 1;
+  overflow: hidden;
 }
 .shop-item-name-row {
   display: flex;
   align-items: baseline;
   gap: 3px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.shop-item-name-row::-webkit-scrollbar { display: none; }
 .shop-item-pip-row {
   display: flex;
   align-items: center;
   gap: 5px;
   flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.shop-item-pip-row::-webkit-scrollbar { display: none; }
 .shop-item-name {
   font-size: calc((clamp(8px,2.2vw,11px)) * var(--font-scale, 1));
   font-weight: bold;
@@ -885,7 +895,12 @@ html, body {
   font-size: calc((clamp(9px,2vw,11px)) * var(--font-scale, 1));
   color: #90c890;
   white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.shop-item-effect::-webkit-scrollbar { display: none; }
 .shop-item-count {
   font-size: calc((clamp(7px,1.8vw,9px)) * var(--font-scale, 1));
   color: var(--color-gold);
@@ -2256,7 +2271,7 @@ html, body {
   overflow-y: auto;
   display: flex;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
   width: 100%;
   height: 100%;
   -webkit-overflow-scrolling: touch;
@@ -2264,8 +2279,8 @@ html, body {
 .sea-comic-wrap {
   position: relative;
   display: inline-block;
-  height: 100%;
   flex-shrink: 0;
+  margin: auto;
 }
 .sea-comic-img {
   max-height: 100%;
