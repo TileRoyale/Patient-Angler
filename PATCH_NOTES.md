@@ -2,15 +2,6 @@
 
 ---
 
-## v0.9.3 — Build 55 (July 2026)
-
-### Fix
-- **W1 Legendary multi-catch bug** — when Electronic Bobber or Hauling Nets upgrade gave a multi-catch bonus (>1 catch per tick), automation was incorrectly storing that many copies of each legendary fish per catch event instead of exactly 1. Legendary fish now always store exactly 1 copy regardless of multi-catch level.
-- **Offline legendary rate scaling with multi-catch** — offline simulation was counting `multiCatch × iterations` instead of `iterations` (with `multiCatch` fish per iteration), causing the W1 Legendary 1-in-50,000,000 pre-roll to fire `multiCatch×` more often than intended. The iteration count is now correct; regular non-legendary offline catches still yield `multiCatch` fish per iteration as expected.
-- **Dead debug code removed** — `debugCatchAllLegendary()` function (button previously removed) is now fully removed from the codebase.
-
----
-
 ## v0.9.2 — Build 54 (July 2026)
 
 ### Fix
