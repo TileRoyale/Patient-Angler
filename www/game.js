@@ -5034,6 +5034,17 @@ function calculateOfflineProgress() {
   let phaseStartSec = 0;
   const _phaseEnds = [..._sellTimesRelSec, elapsedSec]; // last entry is always elapsedSec
 
+  // Cache expensive recalculations that are constant or maintained as running counters.
+  // fishPileTotal() and storageCapacity() are called twice per iteration — at 200k iters this
+  // adds up to millions of Object.values reduce ops without caching.
+  const _offStorageCap = storageCapacity(); // stable for the whole offline sim
+  let   _offTotal      = fishPileTotal();   // maintained as a running counter below
+
+  // Pre-build item lookup map so mastery batch at end avoids 3×FISH_DB linear scans per catch.
+  const _offItemMap = {};
+  [...FISH_DB, ...PLANT_DB, ...TRASH_DB].forEach(function(it) { _offItemMap[it.id] = it; });
+  const _offMasteryBatch = {}; // accumulated mastery increments, flushed after loop
+
   for (let pi = 0; pi < _phaseEnds.length; pi++) {
     if (itersUsed >= OFFLINE_ITER_BUDGET) break;
 
@@ -5041,14 +5052,14 @@ function calculateOfflineProgress() {
     const phaseSec = Math.max(0, phaseEndSec - phaseStartSec);
 
     if (phaseSec > 0) {
-      if (fishPileTotal() >= storageCapacity() && !_autoSellOn) break; // full, no future sales
+      if (_offTotal >= _offStorageCap && !_autoSellOn) break; // full, no future sales
 
       const phaseCatches = _catchesInSec(phaseSec);
       const toProcess = Math.min(phaseCatches, OFFLINE_ITER_BUDGET - itersUsed);
       itersUsed += toProcess;
 
       for (let i = 0; i < toProcess; i++) {
-        if (fishPileTotal() >= storageCapacity()) break; // storage full — wait for next sell event
+        if (_offTotal >= _offStorageCap) break; // storage full — wait for next sell event
         const _offZone = _offRandZone();
 
         // W1 Legendary independent pre-roll (same 1/50M probability as online)
@@ -5061,8 +5072,9 @@ function calculateOfflineProgress() {
           const _isFirstOff = !G.fishdex.includes(_w1legCaught.id);
           const _legKey = fishPileKey(_w1legCaught.id, 'Large');
           G.fishPile[_legKey] = (G.fishPile[_legKey] || 0) + 1;
+          _offTotal += 1;
           if (!G.fishdex.includes(_w1legCaught.id)) G.fishdex.push(_w1legCaught.id);
-          incrementMastery(_w1legCaught.id);
+          incrementMastery(_w1legCaught.id); // rare event — individual call fine
           // Queue popup to show when player returns (in-session queue, not persisted)
           _queueLegendaryPopup({ fishId:_w1legCaught.id, name:_w1legCaught.name, img:_w1legCaught.img, zone:_offZone, isFirst:_isFirstOff });
           _sess.totalCaught++;
@@ -5074,14 +5086,14 @@ function calculateOfflineProgress() {
         if (c.rarity === 'trash') {
           G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + _offMultiCatch;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-          incrementMastery(c.fishId);
+          _offMasteryBatch[c.fishId] = (_offMasteryBatch[c.fishId] || 0) + 1;
           _sess.trash[c.fishId] = (_sess.trash[c.fishId] || 0) + _offMultiCatch;
           _sess.totalTrash += _offMultiCatch;
           _sess.totalCaught += _offMultiCatch;
         } else if (c.rarity === 'plant') {
           G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + _offMultiCatch;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-          incrementMastery(c.fishId);
+          _offMasteryBatch[c.fishId] = (_offMasteryBatch[c.fishId] || 0) + 1;
           _sess.plants[c.fishId] = (_sess.plants[c.fishId] || 0) + _offMultiCatch;
           _sess.totalPlant += _offMultiCatch;
           _sess.totalCaught += _offMultiCatch;
@@ -5089,10 +5101,11 @@ function calculateOfflineProgress() {
           // Automation cannot catch trophies — treat as Large
           const autoSize = c.isTrophy ? 'Large' : c.size;
           const _k = fishPileKey(c.fishId, autoSize);
-          const _offQty = Math.min(_offMultiCatch, storageCapacity() - fishPileTotal());
+          const _offQty = Math.min(_offMultiCatch, _offStorageCap - _offTotal);
           G.fishPile[_k] = (G.fishPile[_k] || 0) + _offQty;
+          _offTotal += _offQty;
           if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-          incrementMastery(c.fishId);
+          _offMasteryBatch[c.fishId] = (_offMasteryBatch[c.fishId] || 0) + 1;
           _sess.fish[c.fishId] = (_sess.fish[c.fishId] || 0) + _offQty;
           _sess.totalFish += _offQty;
           if (c.rarity === 'epic' || c.rarity === 'legendary') _sess.totalEpic += _offQty;
@@ -5108,8 +5121,19 @@ function calculateOfflineProgress() {
       const coinsBefore = G.coins;
       doAutoSell();
       _sess.coins += Math.max(0, G.coins - coinsBefore);
+      _offTotal = fishPileTotal(); // resync running counter — sell clears fishPile
     }
   }
+
+  // Flush batched mastery increments from the inner loop (avoids FISH_DB.find() per iteration)
+  if (!G.masteryData) G.masteryData = {};
+  for (const id in _offMasteryBatch) {
+    const item = _offItemMap[id];
+    if (item && isMasteryEligible(item)) {
+      G.masteryData[id] = (G.masteryData[id] || 0) + _offMasteryBatch[id];
+    }
+  }
+  if (Object.keys(_offMasteryBatch).length) _invalidateMasteryCache();
 
   // Abyss offline catches — proportional share of total production for active Abyss biomes
   if (_offAbyssZones.length > 0 && typeof processAbyssAutoBatch === 'function') {
@@ -8560,6 +8584,8 @@ function triggerSpecialEvent() {
   }
   if (_eventExpireTimeout) clearTimeout(_eventExpireTimeout);
   _eventExpireTimeout = setTimeout(expireSpecialEvent, 5 * 60 * 1000); // 5 min window (foreground)
+  // Pre-load ad now so it's ready when player taps claim (not when they tap — that's too late)
+  if (typeof prepareRewardedAd === 'function' && !G.removeAds) prepareRewardedAd();
 }
 
 function expireSpecialEvent() {
@@ -8621,25 +8647,18 @@ function closeSpecialEventPopup() {
 function simulateAdWatch(onReward) {
   const adNote = document.getElementById('se-ad-note');
   const btn    = document.getElementById('se-claim-btn');
-  let   _tries = 0;
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading ad…'; }
+  if (adNote) adNote.textContent = 'Loading ad…';
 
-  function attempt() {
-    _tries++;
-    if (btn) { btn.disabled = true; btn.textContent = _tries === 1 ? 'Loading ad…' : 'Retrying…'; }
-    showRewardedAd(onReward, () => {
-      if (_tries < 3) {
-        // Auto-retry silently up to 3 attempts total
-        if (adNote) adNote.textContent = 'Loading ad…';
-        attempt();
-      } else {
-        // Give up — let player decide to retry manually or skip
-        if (adNote) adNote.textContent = 'Ad not available. Try again or skip.';
-        if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; btn.onclick = () => { _tries = 0; attempt(); }; }
-      }
-    });
-  }
-
-  attempt();
+  showRewardedAd(onReward, () => {
+    // Ad unavailable or dismissed — let player retry or skip manually
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Try Again';
+      btn.onclick = () => simulateAdWatch(onReward);
+    }
+    if (adNote) adNote.textContent = 'Ad not available. Tap Try Again or skip.';
+  });
 }
 
 function updatePremiumBaitHUD() {
