@@ -5174,7 +5174,8 @@ function _evMaxAffordable() {
   const remaining = EXPEDITION_VESSEL_MAX - count;
   let total = 0, n = 0;
   while (n < remaining) {
-    total += EXPEDITION_VESSEL_BASE_COST * Math.pow(2, count + n);
+    const idx = Math.min(count + n, EXPEDITION_VESSEL_PRICES.length - 1);
+    total += EXPEDITION_VESSEL_PRICES[idx];
     if (total > (G.coins || 0)) break;
     n++;
   }
@@ -5305,7 +5306,7 @@ async function _loadGifOnce(url) {
 }
 
 const GS_ELIGIBLE_ZONES    = ['sea', 'ocean'];
-const GS_IDLE_MS           = Math.round(8 / 24 * 3600000);  // 8 in-game h = 20 real min
+const GS_IDLE_MS           = 1 * 3600000;                    // 24 in-game h = 1 real hour
 const GS_EXPEDITION_MS     = 3 * 3600000;                    // 72 in-game h = 3 real hours
 const GS_SPAWN_INTERVAL_MS = 1 * 3600000;                   // roll every 1 real hour
 const GS_SPAWN_CHANCE      = 0.60;

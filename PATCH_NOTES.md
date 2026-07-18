@@ -2,6 +2,16 @@
 
 ---
 
+## v0.9.3.2 — Build 59 (July 2026)
+
+### Fix
+- **Expedition Vessels and Ancient units visible again** — a leftover reference to the old pricing constant caused a JavaScript error that hid the entire Boats shop section. Fixed.
+
+### Balance
+- **Ghost Ship stays longer** — idle time extended from 20 real minutes to 1 real hour (24 in-game hours). Players have more time to notice and send the ship on expedition.
+
+---
+
 ## v0.9.3.1 — Build 58 (July 2026)
 
 ### Fix
