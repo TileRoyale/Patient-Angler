@@ -607,6 +607,7 @@ const DEFAULT_STATE = {
   autoSellPermanent: false,
   autoSellEnabled: true,
   autoSellNextAt: 0,
+  w1legBugCleaned: false,
   fishdex: [],
   trashPile: {},   // { trashId: quantity }
   plantPile: {},   // { plantId: quantity }
@@ -2159,6 +2160,7 @@ function initQuests() {
     if (_top) G.stats.recHighestZone = _top.id;
   }
   migrateManualFishdex();
+  migrateW1LegendaryBug();
 
   const today  = todayStr();
   const monday = mondayStr();
@@ -2584,6 +2586,20 @@ function migrateManualFishdex() {
   }
 }
 
+// One-time cleanup: remove W1 legendary fish that were incorrectly caught via the epic loot-table
+// fallback bug (v0.9.0–v0.9.1). W1 legendary fish should only be catchable at 1/50M probability;
+// the bug caused them to appear at ~0.23% in Pond zone for automation/offline.
+function migrateW1LegendaryBug() {
+  if (G.w1legBugCleaned) return;
+  const w1ids = new Set(FISH_DB.filter(f => f.w1legendary).map(f => f.id));
+  Object.keys(G.fishPile || {}).forEach(key => {
+    const fishId = key.split('|')[0];
+    if (w1ids.has(fishId)) delete G.fishPile[key];
+  });
+  if (G.fishdex) G.fishdex = G.fishdex.filter(id => !w1ids.has(id));
+  G.w1legBugCleaned = true;
+}
+
 function finalizeQuestUpdate() {
   const hasClaimable =
     (G.quests.dailyIds || []).some(id => {
@@ -2871,9 +2887,9 @@ function rollCatch(zone, isManual) {
     return { fishId:t.id, name:t.name, rarity:'trash', size:null, sizeMult:1, value:1, caughtAt:Date.now(), img:t.img || null, autoSell:true };
   }
 
-  let pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && isTimeAvailable(f) && (isManual || !isManualOnlyFish(f)));
-  if (!pool.length) pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && (isManual || !isManualOnlyFish(f)));
-  if (!pool.length) pool = FISH_DB.filter(f => f.zones.includes(zone) && (isManual || !isManualOnlyFish(f)));
+  let pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && isTimeAvailable(f) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
+  if (!pool.length) pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
+  if (!pool.length) pool = FISH_DB.filter(f => f.zones.includes(zone) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
   if (!pool.length) return rollCatch('pond', isManual); // ultimate fallback
   const fish = _pickFromPool(pool);
   const trophyMult = (isCompetitionActive() ? 2 : 1) * (1 + getPearlFishWhispererBonus() * 10 + getMasteryTrophyBonus() * 10);
@@ -4940,8 +4956,8 @@ function calculateOfflineProgress() {
   _zonesToCache.forEach(function(zone) {
     _offLootTables[zone] = (LOOT_TABLES[zone] || LOOT_TABLES.pond).filter(function(e) { return e.type !== 'legendary'; });
     ['common','uncommon','rare','epic'].forEach(function(rarity) {
-      let pool = FISH_DB.filter(function(f) { return f.rarity === rarity && f.zones.includes(zone) && !isManualOnlyFish(f); });
-      if (!pool.length) pool = FISH_DB.filter(function(f) { return f.zones.includes(zone) && !isManualOnlyFish(f); });
+      let pool = FISH_DB.filter(function(f) { return f.rarity === rarity && f.zones.includes(zone) && !isManualOnlyFish(f) && !f.w1legendary; });
+      if (!pool.length) pool = FISH_DB.filter(function(f) { return f.zones.includes(zone) && !isManualOnlyFish(f) && !f.w1legendary; });
       _offPools[zone + '|' + rarity] = pool;
     });
     _offPools[zone + '|trash'] = TRASH_DB.filter(function(t) { return t.zones.includes(zone); });
