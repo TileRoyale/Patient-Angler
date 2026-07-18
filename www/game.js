@@ -5643,10 +5643,10 @@ function _renderMasteryPanel(zone, container) {
   const w1Caught  = w1Pool.filter(f => G.fishdex.includes(f.id)).length;
   const w1Total   = w1Pool.length;
   const legBonus  = w1Caught; // +1% each
-  const legColor  = w1Caught === w1Total && w1Total > 0 ? '#f4c430' : '#c0a0ff';
+  const legComplete = w1Caught === w1Total && w1Total > 0;
   const legHtml   = w1Total > 0 ? `
-    <div class="mastery-zone-title" style="margin-top:8px;padding-top:8px;border-top:1px solid #333;margin-bottom:0">
-      <span style="color:${legColor}">&#9733; Legendary Fish: ${w1Caught} / ${w1Total}</span>
+    <div class="mastery-zone-title" style="margin-top:8px;padding-top:8px;border-top:1px solid #333;margin-bottom:0${legComplete ? ';color:#f4c430' : ''}">
+      &#9733; Legendary Fish: ${w1Caught} / ${w1Total}
       <span class="mastery-zone-pts" style="margin-left:8px">Prestige Pearl Bonus: +${legBonus}%</span>
     </div>` : '';
 
