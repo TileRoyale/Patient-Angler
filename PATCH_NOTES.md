@@ -2,6 +2,16 @@
 
 ---
 
+## v0.9.3.1 — Build 58 (July 2026)
+
+### Fix
+- **Ghost Ship coin reward now in in-game hours** — reward was calculated as 24–48 real hours of automation income. Now correctly 24–48 in-game hours (1–2 real hours), making it proportional to actual expedition duration.
+
+### Balance
+- **Ghost Ship smaller** — sprite reduced another 25% (now 125×169px, down from original 221×300px). Takes up less screen space while fishing.
+
+---
+
 ## v0.9.3.0 — Build 57 (July 2026)
 
 ### Balance — Late-game economy overhaul

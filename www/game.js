@@ -5319,8 +5319,8 @@ const GS_FALLBACK_POSITIONS = [{ x:18, y:18 }, { x:76, y:16 }, { x:84, y:58 }, {
 let _gsSpawnTimeout = null;
 
 const GS_COLS    = 8;
-const GS_FRAME_W = 166;  // 221 × 0.75
-const GS_FRAME_H = 225;  // 300 × 0.75
+const GS_FRAME_W = 125;  // 221 × 0.75 × 0.75
+const GS_FRAME_H = 169;  // 300 × 0.75 × 0.75
 const GS_FPS     = 10;
 
 // Per-ship flap tracking (unused for GIF sprites, kept for compat)
@@ -5600,8 +5600,8 @@ function _gsOnTap(shipId) {
 
 function _gsGenerateReward(zone) {
   const hourly    = estimateAutoHourlyIncome();
-  const multHours = 24 + Math.floor(Math.random() * 25);
-  const coins     = Math.max(50, Math.round(hourly * multHours));
+  const multHours = 24 + Math.floor(Math.random() * 25); // in-game hours (1 real hour = 24 ig hours)
+  const coins     = Math.max(50, Math.round(hourly * multHours / 24));
   const r = Math.random();
   const automationId = r < 0.50 ? 'river_net'
                      : r < 0.80 ? 'ancient_fisherman'
