@@ -3129,8 +3129,7 @@ function _isSeaViewZone() {
   return G.currentZone === 'sea' || G.currentZone === 'ocean';
 }
 function _showSeaView() {
-  const el = document.getElementById('sea-view-bg');
-  if (el) el.classList.add('visible');
+  // Sea/Ocean bobber view panel removed by design
 }
 function _hideSeaView() {
   const el = document.getElementById('sea-view-bg');
