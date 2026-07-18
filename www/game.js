@@ -5556,11 +5556,15 @@ function _gsSpawnRoll() {
   _gsScheduleNext();
 
   if (!G.sunkenTreasureUnlocked) return;
-  if (!GS_ELIGIBLE_ZONES.includes(G.currentZone)) return;
+  // Spawn in any unlocked eligible zone — not just the one the player is currently viewing.
+  // Previously this check used G.currentZone, which caused ships to never spawn when the
+  // player was in Pond/River/Lake/Bay, even with Sea/Ocean fully unlocked.
+  const _gsUnlockedEligible = GS_ELIGIBLE_ZONES.filter(z => isZoneUnlocked(z));
+  if (!_gsUnlockedEligible.length) return;
   if (G.ghostShips.length >= _gsMaxShips()) return;
   if (Math.random() >= GS_SPAWN_CHANCE) return;
 
-  const zone      = G.currentZone;
+  const zone      = _gsUnlockedEligible[Math.floor(Math.random() * _gsUnlockedEligible.length)];
   const positions = GS_SPAWN_POSITIONS[zone] || GS_FALLBACK_POSITIONS;
   const usedIdx   = _gsUsedPositions(zone);
   const available = positions.map((_,i) => i).filter(i => !usedIdx.has(i));
@@ -5574,7 +5578,9 @@ function _gsSpawnRoll() {
   saveState();
   syncAch('h_gs_spotted', 1);
   _gsRenderShip(ship);
-  showStatus('A Ghost Ship was spotted nearby!', 3000);
+  const _gsZoneName = (ZONE_DATA.find(z => z.id === zone) || {}).name || zone;
+  const _gsMsg = G.currentZone === zone ? 'A Ghost Ship was spotted nearby!' : 'A Ghost Ship was spotted at the ' + _gsZoneName + '!';
+  showStatus(_gsMsg, 3500);
 }
 
 function _gsScheduleNext() {
