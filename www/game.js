@@ -5578,9 +5578,7 @@ function _gsSpawnRoll() {
   saveState();
   syncAch('h_gs_spotted', 1);
   _gsRenderShip(ship);
-  const _gsZoneName = (ZONE_DATA.find(z => z.id === zone) || {}).name || zone;
-  const _gsMsg = G.currentZone === zone ? 'A Ghost Ship was spotted nearby!' : 'A Ghost Ship was spotted at the ' + _gsZoneName + '!';
-  showStatus(_gsMsg, 3500);
+  showStatus('A Ghost Ship was spotted nearby!', 3000);
 }
 
 function _gsScheduleNext() {
