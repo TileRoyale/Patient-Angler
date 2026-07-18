@@ -5591,8 +5591,8 @@ const GS_FALLBACK_POSITIONS = [{ x:18, y:18 }, { x:76, y:16 }, { x:84, y:58 }, {
 let _gsSpawnTimeout = null;
 
 const GS_COLS    = 8;
-const GS_FRAME_W = 221;
-const GS_FRAME_H = 300;
+const GS_FRAME_W = 166;  // 221 × 0.75
+const GS_FRAME_H = 225;  // 300 × 0.75
 const GS_FPS     = 10;
 
 // Per-ship flap tracking (unused for GIF sprites, kept for compat)
@@ -5738,7 +5738,7 @@ function _gsRenderShip(gs) {
 
   const el = document.createElement('div');
   el.id = elId;
-  el.style.cssText = 'position:absolute;left:' + pos.x + '%;top:' + pos.y + '%;transform:translate(-50%,-50%);z-index:15;cursor:pointer;text-align:center;pointer-events:auto;user-select:none;-webkit-user-select:none;background:transparent;';
+  el.style.cssText = 'position:absolute;left:' + pos.x + '%;top:' + pos.y + '%;transform:translate(-50%,-50%);z-index:5;cursor:pointer;text-align:center;pointer-events:auto;user-select:none;-webkit-user-select:none;background:transparent;';
   el.addEventListener('click', () => _gsOnTap(gs.id));
 
   const sprite = document.createElement('img');
