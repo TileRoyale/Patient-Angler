@@ -2,6 +2,13 @@
 
 ---
 
+## v0.9.2 — Build 54 (July 2026)
+
+### Fix
+- **Legendary fish drop rate** — Crimson Crown Perch, Golden Veil Carp, Silver Ribbon Loach and other W1 Legendary fish were appearing far too frequently for Pond zone automation and offline catches (roughly 1 per 430 catches instead of the intended 1 per 50,000,000). Root cause: the epic loot-table fallback incorrectly included W1 Legendary fish when no non-manual epic existed in a zone. Fixed by excluding W1 Legendary fish from all regular loot-table paths — they now only appear via the dedicated 1-in-50-million roll. A one-time save migration removes any W1 Legendary fish caught via this bug from existing inventories and Fishdex on first launch.
+
+---
+
 ## v0.9.1 — Build 53 (July 2026)
 
 ### Fix
