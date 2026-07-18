@@ -4788,7 +4788,8 @@ function updateHUD() {
   document.getElementById('hud-coins').textContent = formatCoins(G.coins);
   document.getElementById('hud-storage').textContent =
     formatCoins(fishPileTotal()) + '/' + formatCoins(storageCapacity());
-  document.getElementById('shop-coins').textContent = formatCoins(G.coins);
+  const _scEl = document.getElementById('shop-coins');
+  if (_scEl) _scEl.textContent = activeShopTab === 'jeweler' ? (G.blackPearls || 0) : formatCoins(G.coins);
 
   const diamEl = document.getElementById('hud-diamonds');
   if (diamEl) diamEl.textContent = G.diamonds || 0;
