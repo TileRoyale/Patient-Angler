@@ -8269,7 +8269,7 @@ function showSpecialEventPopup(ev) {
       ev.claim();
       closeSpecialEventPopup();
     } else {
-      simulateAdWatch(() => {
+      showSpecialEventAd(() => {
         ev.claim();
         closeSpecialEventPopup();
       });
@@ -8289,7 +8289,7 @@ function closeSpecialEventPopup() {
   scheduleNextSpecialEvent();
 }
 
-function simulateAdWatch(onReward) {
+function showSpecialEventAd(onReward) {
   const adNote = document.getElementById('se-ad-note');
   const btn    = document.getElementById('se-claim-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Loading ad…'; }
@@ -8300,7 +8300,7 @@ function simulateAdWatch(onReward) {
     if (btn) {
       btn.disabled = false;
       btn.textContent = 'Try Again';
-      btn.onclick = () => simulateAdWatch(onReward);
+      btn.onclick = () => showSpecialEventAd(onReward);
     }
     if (adNote) adNote.textContent = 'Ad not available. Tap Try Again or skip.';
   });
