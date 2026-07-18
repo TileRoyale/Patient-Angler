@@ -317,11 +317,11 @@ const RODS = [
   { id:'river_rod',  name:'River Rod',  clicks:18, cost:9000,        zone:'river', baseTierCost:5000,    tierDesc:'+10% Net automation speed / tier',        img:'img/icons/Shop/Rods/River Rod.png' },
   { id:'lake_rod',   name:'Lake Rod',   clicks:16, cost:90000,       zone:'lake',  baseTierCost:25000,   tierDesc:'+10% Fisherman speed / tier',             img:'img/icons/Shop/Rods/Lake Rod.png' },
   { id:'bay_rod',    name:'Bay Rod',    clicks:14, cost:900000,      zone:'bay',   baseTierCost:100000,  tierDesc:'+12% storage capacity / tier',            img:'img/icons/Shop/Rods/Bay Rod.png' },
-  { id:'sea_rod',    name:'Sea Rod',    clicks:12, cost:125000000,   zone:'sea',   baseTierCost:500000,  tierDesc:'+10% Boat automation speed / tier',       img:'img/icons/Shop/Rods/Sea Rod.png' },
-  { id:'ocean_rod',  name:'Ocean Rod',  clicks:10, cost:6250000000,  zone:'ocean', baseTierCost:2500000, tierDesc:'+10% Fleet speed / tier',                 img:'img/icons/Shop/Rods/Ocean Rod.png' },
-  { id:'carbon_rod', name:'Carbon Rod', clicks:8,  cost:1000000000,  zone:'all',   baseTierCost:10000000,tierDesc:'+3% Legendary catch chance / tier',       img:'img/icons/Shop/Rods/Carbon Rod.png' },
-  { id:'mythic_rod', name:'Mythic Rod', clicks:6,  cost:2500000000,  zone:'abyss', baseTierCost:50000000,tierDesc:'+8% Diamond earnings / tier',             img:'img/icons/Shop/Rods/Mythic Rod.png' },
-  { id:'abyss_rod',  name:'Abyss Rod',  clicks:4,  cost:7500000000,  zone:'abyss', baseTierCost:200000000,tierDesc:'+8% Abyss fish sell value / tier',      img:'img/icons/Shop/Rods/Abyss Rod.png' },
+  { id:'sea_rod',    name:'Sea Rod',    clicks:12, cost:125000000,   zone:'sea',   baseTierCost:500000,   tierCosts:[250000000,2500000000,25000000000],          tierDesc:'+10% Boat automation speed / tier',       img:'img/icons/Shop/Rods/Sea Rod.png' },
+  { id:'ocean_rod',  name:'Ocean Rod',  clicks:10, cost:6250000000,  zone:'ocean', baseTierCost:2500000,  tierCosts:[12500000000,125000000000,1250000000000],    tierDesc:'+10% Fleet speed / tier',                 img:'img/icons/Shop/Rods/Ocean Rod.png' },
+  { id:'carbon_rod', name:'Carbon Rod', clicks:8,  cost:1000000000,  zone:'all',   baseTierCost:10000000, tierCosts:[2000000000,20000000000,200000000000],       tierDesc:'+3% Legendary catch chance / tier',       img:'img/icons/Shop/Rods/Carbon Rod.png' },
+  { id:'mythic_rod', name:'Mythic Rod', clicks:6,  cost:2500000000,  zone:'abyss', baseTierCost:50000000, tierCosts:[5000000000,50000000000,500000000000],       tierDesc:'+8% Diamond earnings / tier',             img:'img/icons/Shop/Rods/Mythic Rod.png' },
+  { id:'abyss_rod',  name:'Abyss Rod',  clicks:4,  cost:7500000000,  zone:'abyss', baseTierCost:200000000,tierCosts:[15000000000,150000000000,1500000000000],    tierDesc:'+8% Abyss fish sell value / tier',        img:'img/icons/Shop/Rods/Abyss Rod.png' },
 ];
 
 const STORAGE_ITEMS = [
@@ -926,7 +926,9 @@ function getRodTier(id) { return ((G.rodTiers || {})[id]) || 0; }
 function getRodNextCost(id) {
   const r = RODS.find(x => x.id === id);
   if (!r) return 0;
-  return Math.floor(r.baseTierCost * Math.pow(10, getRodTier(id)));
+  const tier = getRodTier(id);
+  if (r.tierCosts) return r.tierCosts[tier] ?? null; // null = max tier reached
+  return Math.floor(r.baseTierCost * Math.pow(10, tier));
 }
 
 // Effect getters — each returns a multiplier or additive value
@@ -943,8 +945,8 @@ function getRodAbyssSellBonus()      { return 1 + getRodTier('abyss_rod')  * 0.0
 function buyRodTier(id) {
   if (!(G.ownedRods || []).includes(id)) { showStatus('Buy this rod first!', 1500); return; }
   const curTier = getRodTier(id);
-  if (curTier >= 15) { showStatus('Max tier reached!', 1500); return; }
   const cost = getRodNextCost(id);
+  if (cost === null || curTier >= 15) { showStatus('Max tier reached!', 1500); return; }
   if (G.coins < cost) { showStatus('Not enough coins!', 1500); return; }
   _spendCoins(cost);
   if (!G.rodTiers) G.rodTiers = {};
@@ -3718,7 +3720,7 @@ function makeRodTierItem(rod) {
   const equipped = G.currentRod === rod.id;
   const tier     = getRodTier(rod.id);
   const cost     = getRodNextCost(rod.id);
-  const maxed    = tier >= 15;
+  const maxed    = cost === null || tier >= 15;
 
   const div = document.createElement('div');
   div.className = 'shop-item shop-item-flex';
