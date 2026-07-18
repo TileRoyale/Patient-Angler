@@ -2,6 +2,13 @@
 
 ---
 
+## v0.9.2.1 — Build 55 (July 2026)
+
+### Performance
+- **Offline calculation instant** — offline progress calculation now runs analytically instead of simulating up to 200,000 individual catches. Loading time on return from a 12-hour offline session drops from several seconds to near-instant on all devices.
+
+---
+
 ## v0.9.2 — Build 54 (July 2026)
 
 ### Fix
