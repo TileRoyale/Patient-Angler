@@ -2,6 +2,61 @@
 
 ---
 
+## v0.9.2 — Build 54 (July 2026)
+
+### Fix
+- **Legendary fish drop rate** — Crimson Crown Perch, Golden Veil Carp, Silver Ribbon Loach and other W1 Legendary fish were appearing far too frequently for Pond zone automation and offline catches (roughly 1 per 430 catches instead of the intended 1 per 50,000,000). Root cause: the epic loot-table fallback incorrectly included W1 Legendary fish when no non-manual epic existed in a zone. Fixed by excluding W1 Legendary fish from all regular loot-table paths — they now only appear via the dedicated 1-in-50-million roll. A one-time save migration removes any W1 Legendary fish caught via this bug from existing inventories and Fishdex on first launch.
+
+---
+
+## v0.9.1 — Build 53 (July 2026)
+
+### Fix
+- **Legendary catch popup scrollable** — on small or landscape screens the golden legendary catch popup now scrolls vertically so all content (fish image, name, description, first-discovery bonus, sell button) is always reachable.
+
+---
+
+## v0.9.0 — Build 52 (July 2026)
+
+### New
+- **World 1 Legendary Fish** — 18 ultra-rare legendary fish hidden across all 6 zones (3 per zone). Each has a 1-in-50,000,000 chance per cast, catchable by manual fishing, automation, and offline progress. Catching a new species for the first time grants a permanent +1% Prestige Black Pearl bonus (up to +18% total across all 18 fish). Legendary fish sell for 10 Black Pearls each — never auto-sold, must be sold manually from the Market.
+- **Golden Legendary catch popup** — a special full-screen golden popup appears on every legendary catch, showing the fish, zone, lore description, and first-discovery bonus if applicable. Automation and offline catches queue their popups and show them one-by-one.
+- **Legendary Fishdex section** — each zone's mastery panel now shows legendary fish progress (X / 3) and your current Prestige Pearl bonus from legendary discoveries.
+
+---
+
+## v0.8.12 — Build 51 (July 2026)
+
+### Fix
+- **Auto-Seller interval corrected** — Auto-Seller now fires every 1 real hour (24 in-game hours) instead of every 3 real hours.
+- **Storage-full stops automation correctly** — when storage is full, automation no longer converts excess catches into average-value coins. Catches stop until the next scheduled Auto-Seller sale frees space, matching the intended storage/spoilage design.
+- **Offline simulation uses sell timeline** — offline progress is now simulated in phases between scheduled Auto-Seller events. Automation pauses at storage-full and resumes after each scheduled sale, so offline catch results are consistent with what the game would have produced in real time.
+
+---
+
+## v0.8.11 — Build 50 (July 2026)
+
+### Fix
+- **Hauling Nets no longer boosts manual fishing** — Hauling Nets (pearl upgrade) was incorrectly multiplying catches during active fishing as well as automation. It now only affects automation catches as intended. Electric Bobber continues to give +1 catch to manual fishing.
+
+---
+
+## v0.8.10 — Build 49 (July 2026)
+
+### Fix
+- **Offline progress loading delay** — large offline windows (4 h+) no longer cause a 20–25 second freeze on app launch. Fish catch pools are now pre-cached per zone before the processing loop instead of filtering the full database on every iteration.
+- **Storage not filling on resume** — app returning from background now correctly recalculates offline catches. Previously the background/foreground handlers were registered but never defined, so the offline timer was never applied when the app resumed without a cold restart.
+- **Jeweler tab shows coins** — the currency counter in the shop header now displays Black Pearls (with pearl icon) when the Jeweler tab is open, and switches back to coins for all other tabs.
+
+---
+
+## v0.8.9 — Build 48 (July 2026)
+
+### Fix
+- **Diamond Store** — Automation Upgrade and Storage Upgrade moved from the Jeweler tab to the Diamond Store under a dedicated Permanent Upgrades section. Buy button style now matches Premium Bait and Auto-Seller.
+
+---
+
 ## v0.8.8 — Build 47 (July 2026)
 
 ### New
