@@ -82,7 +82,7 @@ const FISH_DB = [
   { id:'eel',                name:'Eel',                 rarity:'rare',     baseValue:53,      zone:'lake',  zones:['lake','bay'], img:'img/fish/Eel.png' },
   { id:'carp',               name:'Carp',                rarity:'common',   baseValue:10,      zone:'lake',  zones:['lake'], img:'img/fish/Carp.png' },
   { id:'catfish',            name:'European Catfish',    rarity:'epic',     baseValue:140,     zone:'lake',  zones:['lake'], img:'img/fish/European Catfish.png' },
-  // ── Bay (unique: flounder, garfish, smelt, sprat) ──
+  // ── Bay (unique: flounder, garfish, smelt, sprat, seahorse, monk_fish) ──
   { id:'baltic_herring',     name:'Baltic Herring',      rarity:'common',   baseValue:11,      zone:'bay',   zones:['bay','sea'], img:'img/fish/Baltic Herring.png' },
   { id:'flounder',           name:'Flounder',            rarity:'uncommon', baseValue:32,      zone:'bay',   zones:['bay'], img:'img/fish/Flounder.png' },
   { id:'garfish',            name:'Garfish',             rarity:'rare',     baseValue:77,      zone:'bay',   zones:['bay'], img:'img/fish/Garfish.png' },
@@ -91,22 +91,26 @@ const FISH_DB = [
   { id:'mackerel',           name:'Mackerel',            rarity:'uncommon', baseValue:25,      zone:'bay',   zones:['bay','sea'], img:'img/fish/Mackerel.png' },
   { id:'smelt',              name:'Smelt',               rarity:'common',   baseValue:8,       zone:'bay',   zones:['bay'], img:'img/fish/Smelt.png' },
   { id:'sprat',              name:'Sprat',               rarity:'common',   baseValue:6,       zone:'bay',   zones:['bay'], img:'img/fish/Sprat.png' },
-  // ── Sea (unique: salmon, haddock, redfish, wolffish) ──
+  { id:'monk_fish',          name:'Monk Fish',           rarity:'epic',     baseValue:196,     zone:'bay',   zones:['bay'], img:'img/fish/Monk Fish.png', timeWindow:{from:20,to:0}, manualOnly:true },
+  { id:'seahorse',           name:'Seahorse',            rarity:'legendary', baseValue:320,    zone:'bay',   zones:['bay'], img:'img/fish/Seahorse.png', timeWindow:{from:7,to:11}, manualOnly:true },
+  // ── Sea (unique: salmon, haddock, redfish, wolffish, coelacanth, mola_mola) ──
   { id:'cod',                name:'Cod',                 rarity:'uncommon', baseValue:56,      zone:'sea',   zones:['sea','ocean'], img:'img/fish/Cod.png' },
   { id:'salmon',             name:'Salmon',              rarity:'rare',     baseValue:133,     zone:'sea',   zones:['sea'], img:'img/fish/Salmon.png' },
   { id:'halibut',            name:'Halibut',             rarity:'epic',     baseValue:385,     zone:'sea',   zones:['sea','ocean'], img:'img/fish/Halibut.png' },
   { id:'haddock',            name:'Haddock',             rarity:'uncommon', baseValue:53,      zone:'sea',   zones:['sea'], img:'img/fish/Haddock.png' },
   { id:'redfish',            name:'Redfish',             rarity:'uncommon', baseValue:55,      zone:'sea',   zones:['sea'], img:'img/fish/Redfish.png' },
   { id:'wolffish',           name:'Wolffish',            rarity:'epic',     baseValue:350,     zone:'sea',   zones:['sea'], img:'img/fish/Wolffish.png' },
-  // ── Ocean (unique: atlantic_mackerel, tuna, swordfish, marlin, mahi_mahi, giant_squid, oarfish, coelacanth) ──
+  { id:'coelacanth',         name:'Coelacanth',          rarity:'legendary', baseValue:500,    zone:'sea',   zones:['sea'], img:'img/fish/Coelacanth.png', timeWindow:{from:1,to:3}, manualOnly:true },
+  { id:'mola_mola',          name:'Mola-mola',           rarity:'legendary', baseValue:500,    zone:'sea',   zones:['sea'], img:'img/fish/Mola-mola.png', timeWindow:{from:10,to:14}, manualOnly:true },
+  // ── Ocean (unique: atlantic_mackerel, tuna, swordfish, marlin, mahi_mahi, giant_squid, oarfish, blue_whale) ──
   { id:'atlantic_mackerel',  name:'Atlantic Mackerel',   rarity:'common',   baseValue:46,      zone:'ocean', zones:['ocean'], img:'img/fish/Atlantic Mackerel.png' },
   { id:'tuna',               name:'Tuna',                rarity:'common',   baseValue:56,      zone:'ocean', zones:['ocean'], img:'img/fish/Tuna.png' },
   { id:'swordfish',          name:'Swordfish',           rarity:'uncommon', baseValue:154,     zone:'ocean', zones:['ocean'], img:'img/fish/Swordfish.png' },
   { id:'marlin',             name:'Marlin',              rarity:'rare',     baseValue:336,     zone:'ocean', zones:['ocean'], img:'img/fish/Marlin.png' },
   { id:'mahi_mahi',          name:'Mahi-Mahi',           rarity:'common',   baseValue:46,      zone:'ocean', zones:['ocean'], img:'img/fish/Mahi-Mahi.png' },
-  { id:'giant_squid',        name:'Giant Squid',         rarity:'legendary', baseValue:392,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2}, manualOnly:true },
+  { id:'giant_squid',        name:'Giant Squid',         rarity:'legendary', baseValue:960,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2}, manualOnly:true },
   { id:'oarfish',            name:'Oarfish',             rarity:'rare',     baseValue:294,     zone:'ocean', zones:['ocean'], img:'img/fish/Oarfish.png' },
-  { id:'coelacanth',         name:'Coelacanth',          rarity:'legendary', baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Coelacanth.png', timeWindow:{from:1,to:3}, manualOnly:true },
+  { id:'blue_whale',         name:'Blue Whale',          rarity:'legendary', baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Blue Whale.png', timeWindow:{from:1,to:3}, manualOnly:true },
   // ── Time-specific (special = not in base Excel table, shown separately in Fishdex) ──
   { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:4,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
   { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:3,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
@@ -1475,8 +1479,8 @@ const LOOT_TABLES = {
   pond:  [{type:'trash',weight:30},{type:'plant',weight:20},{type:'common',weight:35},{type:'uncommon',weight:10},{type:'rare',weight:4},{type:'epic',weight:1}],
   river: [{type:'trash',weight:25},{type:'plant',weight:18},{type:'common',weight:36},{type:'uncommon',weight:13},{type:'rare',weight:6},{type:'epic',weight:2}],
   lake:  [{type:'trash',weight:20},{type:'plant',weight:15},{type:'common',weight:37},{type:'uncommon',weight:16},{type:'rare',weight:9},{type:'epic',weight:3}],
-  bay:   [{type:'trash',weight:18},{type:'plant',weight:12},{type:'common',weight:35},{type:'uncommon',weight:20},{type:'rare',weight:12},{type:'epic',weight:3}],
-  sea:   [{type:'trash',weight:15},{type:'plant',weight:10},{type:'common',weight:33},{type:'uncommon',weight:22},{type:'rare',weight:15},{type:'epic',weight:5}],
+  bay:   [{type:'trash',weight:18},{type:'plant',weight:12},{type:'common',weight:35},{type:'uncommon',weight:20},{type:'rare',weight:12},{type:'epic',weight:3},{type:'legendary',weight:4}],
+  sea:   [{type:'trash',weight:15},{type:'plant',weight:10},{type:'common',weight:33},{type:'uncommon',weight:22},{type:'rare',weight:15},{type:'epic',weight:5},{type:'legendary',weight:4}],
   ocean: [{type:'trash',weight:12},{type:'plant',weight:8}, {type:'common',weight:28},{type:'uncommon',weight:22},{type:'rare',weight:18},{type:'epic',weight:8},{type:'legendary',weight:4}],
 };
 

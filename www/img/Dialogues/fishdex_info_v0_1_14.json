@@ -1729,7 +1729,7 @@
     "coelacanth": {
       "name": "Coelacanth",
       "category": "fish",
-      "primaryZone": "Ocean",
+      "primaryZone": "Sea",
       "rarity": "Legendary",
       "baseValue": 1800,
       "weightRange": "30 kg – 95 kg",
@@ -1738,6 +1738,58 @@
       "manualOnly": true,
       "howToCatch": "Manual fishing only. Appears from 01:00–03:00.",
       "description": "A living fossil once thought extinct, still hiding in the dark like it missed the memo."
+    },
+    "blue_whale": {
+      "name": "Blue Whale",
+      "category": "fish",
+      "primaryZone": "Ocean",
+      "rarity": "Legendary",
+      "baseValue": 1800,
+      "weightRange": "100 t – 200 t",
+      "alsoCatchableIn": [],
+      "timeWindow": "01:00–03:00",
+      "manualOnly": true,
+      "howToCatch": "Manual fishing only. Appears from 01:00–03:00.",
+      "description": "The largest creature to ever inhabit the Earth, glimpsed only in the deepest ocean hours before dawn."
+    },
+    "seahorse": {
+      "name": "Seahorse",
+      "category": "fish",
+      "primaryZone": "Bay",
+      "rarity": "Legendary",
+      "baseValue": 460,
+      "weightRange": "2 g – 35 g",
+      "alsoCatchableIn": [],
+      "timeWindow": "07:00–11:00",
+      "manualOnly": true,
+      "howToCatch": "Manual fishing only. Appears from 07:00–11:00.",
+      "description": "A tiny armoured wanderer that drifts with the morning current. Patient anglers who arrive at first light sometimes spot one drifting past the dock."
+    },
+    "monk_fish": {
+      "name": "Monk Fish",
+      "category": "fish",
+      "primaryZone": "Bay",
+      "rarity": "Epic",
+      "baseValue": 280,
+      "weightRange": "2 kg – 18 kg",
+      "alsoCatchableIn": [],
+      "timeWindow": "20:00–00:00",
+      "manualOnly": true,
+      "howToCatch": "Manual fishing only. Appears from 20:00–00:00.",
+      "description": "A grotesque ambush predator that lurks along the bay floor after dark, luring prey with the light above its jaws."
+    },
+    "mola_mola": {
+      "name": "Mola-mola",
+      "category": "fish",
+      "primaryZone": "Sea",
+      "rarity": "Legendary",
+      "baseValue": 1000,
+      "weightRange": "250 kg – 2.3 t",
+      "alsoCatchableIn": [],
+      "timeWindow": "10:00–14:00",
+      "manualOnly": true,
+      "howToCatch": "Manual fishing only. Appears from 10:00–14:00.",
+      "description": "The heaviest bony fish alive, rising to the surface at midday to bask and let seabirds clean its parasites. Catching one is less a test of skill than of disbelief."
     },
     "deep_sea_coral": {
       "name": "Deep Sea Coral",
