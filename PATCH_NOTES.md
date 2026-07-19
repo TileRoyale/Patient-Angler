@@ -2,6 +2,48 @@
 
 ---
 
+## v0.9.3.7 — Build 64 (July 2026)
+
+### Fix
+- **Ad loading after long background sessions** — replaced unreliable `visibilitychange` event with Capacitor's `App.appStateChange` for proper foreground detection on Android. Ads now reload correctly when returning to the game after hours in the background.
+- **Claim button stuck on "Loading ad…"** — fixed a bug where `removeAllListeners()` could hang after a long background session, permanently stalling the button. The promise now resolves immediately; a 15-second safety timer also unblocks the button if anything else hangs.
+- **Stale ad prepare guard** — if an ad prepare has been running for over 10 seconds when the app resumes, it is now force-reset before starting a fresh load.
+
+---
+
+## v0.9.3.6 — Build 63 (July 2026)
+
+### Feature
+- **Redeem codes can now grant multiple rewards** — a single code can give both automation income and Diamonds at the same time.
+
+---
+
+## v0.9.3.5 — Build 62 (July 2026)
+
+### Balance
+- **Diamond pack sizes increased** — Starter Pack 80→200, Angler's Pouch 200→400, Fisher's Chest 550→1100, Captain's Vault 1200→2500.
+
+---
+
+## v0.9.3.4 — Build 61 (July 2026)
+
+### Fix
+- **Expedition Vessel chest no longer held** — when Treasure Hold is full, expedition chests now sink immediately (same as manual/automation/Ghost Ship chests) instead of being stored and delivered later.
+- **Chest storage full popup** — a dismissible popup now appears when a chest sinks due to a full Treasure Hold. Includes a "Do not show again" option that switches to a quiet toast notification instead.
+
+### Polish
+- **Status notifications wrap** — long toast messages (e.g. chest capacity warning) now wrap to multiple lines instead of overflowing off-screen.
+- **Ancient Frozen Storage icon** — image resized from 1029×900 px (1.93 MB) to 256×224 px (128 KB), matching other Storage shop icons.
+
+---
+
+## v0.9.3.3 — Build 60 (July 2026)
+
+### Fix
+- **Sunken Treasure Chest reward now in in-game hours** — coin reward was calculated as 24–48 real hours of automation income (Sea) / 24–72 real hours (Ocean). Now correctly uses in-game hours (÷24), matching the same fix applied to Ghost Ship rewards in v0.9.3.1.
+
+---
+
 ## v0.9.3.2 — Build 59 (July 2026)
 
 ### Fix

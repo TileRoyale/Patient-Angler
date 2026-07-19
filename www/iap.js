@@ -21,10 +21,10 @@ const NON_CONSUMABLES = [
 // FIX #10: single source of truth for diamond amounts — DIAMOND_PACKS in game.js
 // reads from this map so both files stay in sync automatically.
 const DIAMOND_PACK_MAP = {
-  starter: 80,
-  pouch:   200,
-  chest:   550,
-  vault:   1200,
+  starter: 200,
+  pouch:   400,
+  chest:   1100,
+  vault:   2500,
 };
 
 let _billing = null;

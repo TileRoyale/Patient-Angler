@@ -14,7 +14,8 @@ let _adMob         = null;
 let _rewardedReady = false;
 let _preparePromise = null; // shared promise so concurrent callers all wait on the same load
 let _retryTimer    = null;  // background retry — re-attempts prepare every 30s if not ready
-let _quickRetry    = null;  // one-shot 10s retry after a failed load
+let _quickRetry    = null;  // one-shot 3s retry after a failed load
+let _prepareStart  = 0;     // timestamp when current prepare began (stale-promise guard)
 
 function getAdMob() {
   if (!_adMob) _adMob = window.Capacitor?.Plugins?.AdMob || null;
@@ -48,18 +49,37 @@ async function initAdMob() {
       maxAdContentRating: 'General',
     });
     await _prepareRewarded();
+
     // Retry every 15s so there's minimal gap after a failed load
     if (!_retryTimer) {
       _retryTimer = setInterval(() => {
         if (!_rewardedReady && !_preparePromise) _prepareRewarded();
       }, 15 * 1000);
     }
-    // Re-try whenever app comes back to foreground (e.g. after phone lock)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && !_rewardedReady && !_preparePromise) {
-        _prepareRewarded();
-      }
-    });
+
+    // Use Capacitor App plugin for reliable foreground detection on Android.
+    // document.visibilitychange is not reliably fired by the Android WebView after
+    // long background sessions; App.appStateChange always fires on resume.
+    const AppPlugin = window.Capacitor?.Plugins?.App;
+    if (AppPlugin) {
+      AppPlugin.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          // If a prepare has been running for >10s it's stale — force-reset it.
+          if (_preparePromise && _prepareStart && (Date.now() - _prepareStart) > 10000) {
+            _preparePromise = null;
+            _rewardedReady  = false;
+          }
+          if (!_rewardedReady && !_preparePromise) _prepareRewarded();
+        }
+      });
+    } else {
+      // Fallback for browser / non-Capacitor environments
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !_rewardedReady && !_preparePromise) {
+          _prepareRewarded();
+        }
+      });
+    }
   } catch (e) {
     console.warn('AdMob init failed:', e);
   }
@@ -72,23 +92,28 @@ function _prepareRewarded() {
   if (_preparePromise) return _preparePromise; // already loading — share the promise
 
   _rewardedReady = false;
+  _prepareStart  = Date.now();
   _preparePromise = new Promise((resolve) => {
     let settled = false;
 
     function done(loaded) {
       if (settled) return;
       settled = true;
-      _rewardedReady = loaded;
+      _rewardedReady  = loaded;
       _preparePromise = null;
       if (!loaded) {
-        // Quick retry after 10s — don't wait for the 30s interval
+        // Quick retry after 3s — don't wait for the 15s interval
         if (_quickRetry) clearTimeout(_quickRetry);
         _quickRetry = setTimeout(() => {
           _quickRetry = null;
           if (!_rewardedReady && !_preparePromise) _prepareRewarded();
         }, 3000);
       }
-      AM.removeAllListeners().then(resolve).catch(resolve);
+      // FIX: resolve immediately — do NOT block on removeAllListeners().
+      // On Android, removeAllListeners() can hang after long background sessions,
+      // which permanently stalls any awaiter (e.g. the claim button).
+      resolve();
+      AM.removeAllListeners().catch(() => {});
     }
 
     // Timeout — if no event within 8s, give up and quick-retry
@@ -131,20 +156,35 @@ async function showRewardedAd(onReward, onDismiss) {
   const adNote = document.getElementById('se-ad-note');
   if (btn) { btn.disabled = true; btn.textContent = 'Loading ad…'; }
 
+  // Safety net — if the whole flow hangs for any reason, unblock the button after 15s.
+  let _safetyFired = false;
+  const _safetyTimer = setTimeout(() => {
+    _safetyFired    = true;
+    _rewardedReady  = false;
+    _preparePromise = null;
+    if (btn)    { btn.disabled = false; btn.textContent = 'Try Again'; }
+    if (adNote) adNote.textContent = 'Ad not available. Tap Try Again or skip.';
+    if (onDismiss) onDismiss();
+  }, 15000);
+
   if (!_rewardedReady) {
     if (adNote) adNote.textContent = 'Loading ad, please wait…';
     await _prepareRewarded(); // waits for any in-progress load to finish
+    if (_safetyFired) return;
     if (!_rewardedReady) {
-      if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || 'Watch Ad'; }
+      clearTimeout(_safetyTimer);
+      if (btn)    { btn.disabled = false; btn.textContent = btn.dataset.label || 'Watch Ad'; }
       if (adNote) adNote.textContent = 'Ad not available right now. Try again later.';
       if (onDismiss) onDismiss();
       return;
     }
   }
 
+  if (_safetyFired) return;
   if (btn) btn.textContent = 'Ad loading…';
 
   try {
+    clearTimeout(_safetyTimer);
     await AM.removeAllListeners();
     let _rewarded = false;
 

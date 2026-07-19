@@ -331,7 +331,9 @@ const STORAGE_ITEMS = [
   { id:'fridge',        name:'Portable Fridge',      cost:2000,   capacity:150,   unlocksAt:'river', desc:'+150 fish slots',    img:'img/icons/Shop/Storage/Portable Fridge.png' },
   { id:'freezer',       name:'Chest Freezer',        cost:10000,  capacity:500,   unlocksAt:'bay',   desc:'+500 fish slots',    img:'img/icons/Shop/Storage/Chest Freezer.png' },
   { id:'walkinfreezer', name:'Walk-in Freezer',      cost:50000000,  capacity:2000,  unlocksAt:'sea',   desc:'+2000 fish slots',   img:'img/icons/Shop/Storage/Walk-in Freezer.png' },
-  { id:'harborcs',      name:'Harbor Cold Storage',  cost:250000000, capacity:10000, unlocksAt:'sea',   desc:'+10000 fish slots',  img:'img/icons/Shop/Storage/Harbor Cold Storage.png' },
+  { id:'harborcs',             name:'Harbor Cold Storage',   cost:250000000, capacity:10000, unlocksAt:'sea', desc:'+10000 fish slots',  img:'img/icons/Shop/Storage/Harbor Cold Storage.png' },
+  // Ghost Ship expedition reward — cannot be purchased
+  { id:'ancient_frozen_storage', name:'Ancient Frozen Storage', cost:0,         capacity:2500,  unlocksAt:'sea', desc:'+2500 fish slots',   img:'img/icons/Shop/Storage/Ancient Frozen Storage.png', ghostOnly:true },
 ];
 
 const BOBBERS = [
@@ -574,7 +576,7 @@ const DEFAULT_STATE = {
   hofLastReset: 0,
   blackPearls: 0,
   prestigeCount: 0,
-  pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0, startingcapital:0 },
+  pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0, startingcapital:0, ghostwhisperer:0 },
   seaComicSeen:                    false,
   sunkenTreasureUnlocked:          false,
   sunkenChests:                    [],
@@ -582,6 +584,7 @@ const DEFAULT_STATE = {
   expeditionVessels:               [],
   sunkenTreasureStats: { foundTotal:0, foundManual:0, foundAutomation:0, foundExpedition:0, opened:0, diamondsEarned:0, coinsEarned:0 },
   removeAds: false,
+  chestFullPopupSuppressed: false,
   devSupportOwned: false,
   rapidWatersEnd: 0,
   adSpeedBoostEnd: 0,
@@ -975,7 +978,8 @@ const PEARL_UPGRADES = [
   { id:'fishwhisperer',name:'Fish Whisperer',      desc:'Higher chance to catch Trophy fish (+0.5% per level).',                         costs:[6,10,16,25,38,58,88,132,198,297],               growthRate:1.50, maxLevel:null },
   { id:'treasurehold',  name:'Treasure Hold',       desc:'Carry 1 extra Sunken Treasure Chest per level. Requires Sea zone.',               costs:[10], growthRate:5, maxLevel:null, requiresSunkenTreasure:true },
   { id:'ghostbusters',  name:'Ghost Busters',        desc:'Ghost Ship returns 1 in-game hour faster per level (−1h/level, max 50 levels).',   costs:[10,20,40,80,160,320,640,1280,2560,5120,10240,20480,40960,81920,163840,327680,655360,1310720,2621440,5242880,10485760,20971520,41943040,83886080,167772160,335544320,671088640,1342177280,2684354560,5368709120,10737418240,21474836480,42949672960,85899345920,171798691840,343597383680,687194767360,1374389534720,2748779069440,5497558138880,10995116277760,21990232555520,43980465111040,87960930222080,175921860444160,351843720888320,703687441776640,1407374883553280,2814749767106560,5629499534213120], maxLevel:50 },
-  { id:'startingcapital', name:'Starting Capital',    desc:'Start each prestige run with +2000 coins per level.',                                  linearStep:2,  maxLevel:null },
+  { id:'startingcapital',  name:'Starting Capital',   desc:'Start each prestige run with +2000 coins per level.',                                  linearStep:2,  maxLevel:null },
+  { id:'ghostwhisperer',   name:'Ghost Whisperer',    desc:'Ghost Ship appears 5% more often per level.',                                           costs:[50],    growthRate:2,  maxLevel:15 },
 ];
 
 const PEARL_IMG = `<img src="img/icons/Black pearl icon.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px">`;
@@ -1016,7 +1020,11 @@ function getPearlCompSpiritMult() {
   return 1 + p1 + p2;
 }
 function getPearlFishWhispererBonus()   { return ((G.pearlUpgrades||{}).fishwhisperer||0) * 0.005; }
-function getPearlGhostBustersReduceMs() { return ((G.pearlUpgrades||{}).ghostbusters||0) * (3600000/24); }
+function getPearlGhostBustersReduceMs()   { return ((G.pearlUpgrades||{}).ghostbusters||0) * (3600000/24); }
+function getPearlGhostWhispererInterval() {
+  const lvl = (G.pearlUpgrades||{}).ghostwhisperer||0;
+  return Math.round(GS_SPAWN_INTERVAL_MS * Math.max(0.25, 1 - lvl * 0.05));
+}
 function getPearlStartingCapital()      { return ((G.pearlUpgrades||{}).startingcapital||0) * 2000; }
 function getGsExpeditionMs()            { return Math.max(3600000/24, GS_EXPEDITION_MS - getPearlGhostBustersReduceMs()); }
 
@@ -1240,9 +1248,9 @@ function buyTargetedLure() {
 const MASTERY_TIERS = [
   { name:'Bronze',   threshold:200,     pts:1, medal:'B', color:'#cd7f32' },
   { name:'Silver',   threshold:2000,    pts:2, medal:'S', color:'#c0c0c0' },
-  { name:'Gold',     threshold:20000,   pts:3, medal:'G', color:'#f4c430' },
-  { name:'Platinum', threshold:200000,  pts:4, medal:'P', color:'#7ecfff' },
-  { name:'Diamond',  threshold:2000000, pts:5, medal:'D', color:'#a8f4ff' },
+  { name:'Gold',     threshold:200000,   pts:3, medal:'G', color:'#f4c430' },
+  { name:'Platinum', threshold:2000000,  pts:4, medal:'P', color:'#7ecfff' },
+  { name:'Diamond',  threshold:20000000, pts:5, medal:'D', color:'#a8f4ff' },
 ];
 const MASTERY_THRESHOLDS = [25, 50, 75, 100, 125, 150];
 
@@ -3528,11 +3536,29 @@ function renderShop(tab) {
   }
 
   if (tab === 'storage') {
-    STORAGE_ITEMS.filter(s => isZoneUnlocked(s.unlocksAt)).forEach(s => {
+    STORAGE_ITEMS.filter(s => isZoneUnlocked(s.unlocksAt) && !s.ghostOnly).forEach(s => {
       const count = G.ownedStorage.filter(o => o.id === s.id).length;
       el.appendChild(makeBulkBuyItem(s.name, s.desc, s.cost, s.img,
         count, qty => buyStorage(s.id, qty)
       ));
+    });
+    // Ghost Ship storage rewards — shown but cannot be purchased
+    STORAGE_ITEMS.filter(s => isZoneUnlocked(s.unlocksAt) && s.ghostOnly).forEach(s => {
+      const count = G.ownedStorage.filter(o => o.id === s.id).length;
+      const row = document.createElement('div');
+      row.className = 'shop-item';
+      row.innerHTML = `
+        <img class="shop-item-icon" src="${s.img}" alt="">
+        <div class="shop-item-info">
+          <div class="shop-item-name-row">
+            <span class="shop-item-name">${s.name}${count > 0 ? ' <span style="color:#f5c842">×'+count+'</span>' : ''}</span>
+            <span class="shop-item-desc">${s.desc}</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#7ecfff;text-align:center;padding:4px 8px;background:rgba(0,100,180,0.18);border:1px solid rgba(126,207,255,0.3);border-radius:6px;white-space:nowrap;">
+          Ghost Ship reward
+        </div>`;
+      el.appendChild(row);
     });
   }
 
@@ -3551,15 +3577,6 @@ function renderShop(tab) {
       const atMax    = evCount >= EXPEDITION_VESSEL_MAX;
       const maxBuy   = _evMaxAffordable();
       const now      = Date.now();
-
-      let timerHtml = '';
-      if (evCount > 0) {
-        const soonest = Math.min(...(G.expeditionVessels || []).map(v => v.nextChestAt));
-        const remMs   = Math.max(0, soonest - now);
-        const remH    = Math.floor(remMs / 3600000);
-        const remM    = Math.floor((remMs % 3600000) / 60000);
-        timerHtml = `<div style="font-size:11px;color:#f5c842;margin-top:4px">Next chest: ${remH}h ${remM}m</div>`;
-      }
 
       const makeEvBtn = (qty) => {
         let n, label, canAfford;
@@ -3581,9 +3598,9 @@ function renderShop(tab) {
         <div class="shop-item-info">
           <div class="shop-item-name-row">
             <span class="shop-item-name">Expedition Vessel${evCount > 0 ? ' <span class="shop-item-count">×'+evCount+'</span>' : ''}</span>
+            <span class="shop-item-desc">Each vessel raises your Ghost Ship capacity.</span>
+            <button class="guild-help-btn" onclick="openEvInfo()" style="margin-left:4px;">?</button>
           </div>
-          <span class="shop-item-desc">1 Sunken Treasure Chest every 30 in-game days. Each vessel also raises your Ghost Ship capacity.</span>
-          ${timerHtml}
           <div class="shop-item-bulk-actions">${makeEvBtn(1)}${makeEvBtn(10)}${makeEvBtn(100)}${makeEvBtn('all')}</div>
         </div>
         <div class="shop-item-price">
@@ -3602,11 +3619,11 @@ function renderShop(tab) {
         <div class="shop-item-info">
           <div class="shop-item-name-row">
             <span class="shop-item-name">${a.name}${count > 0 ? ' <span style="color:#f5c842">×'+count+'</span>' : ''}</span>
+            <span class="shop-item-desc">${a.desc}</span>
           </div>
-          <span class="shop-item-desc">${a.desc}</span>
         </div>
-        <div style="font-size:11px;color:#7ecfff;text-align:center;line-height:1.4;padding:4px 8px;background:rgba(0,100,180,0.18);border:1px solid rgba(126,207,255,0.3);border-radius:6px;white-space:nowrap;">
-          Ghost Ship<br>reward
+        <div style="font-size:11px;color:#7ecfff;text-align:center;padding:4px 8px;background:rgba(0,100,180,0.18);border:1px solid rgba(126,207,255,0.3);border-radius:6px;white-space:nowrap;">
+          Ghost Ship reward
         </div>`;
       el.appendChild(row);
     });
@@ -4140,7 +4157,7 @@ function renderMarket() {
     mkHeader('Sunken Treasure');
     chests.forEach(chest => {
       const tierLabel = chest.rewardTier === 'ocean' ? 'Ocean Tier' : 'Sea Tier';
-      const srcLabel  = chest.source.charAt(0).toUpperCase() + chest.source.slice(1);
+      const srcLabel  = (chest.source.charAt(0).toUpperCase() + chest.source.slice(1)).replace(/_/g, ' ');
       const div = document.createElement('div');
       div.className = 'storage-item';
       div.innerHTML = `
@@ -4706,23 +4723,12 @@ function calculateOfflineProgress() {
     elapsedMs,
   };
 
-  // Expedition vessel offline catch-up (max one chest per vessel, never lost)
+  // Expedition vessel offline catch-up (one chest per vessel; lost if hold full)
   if (G.expeditionVessels && G.expeditionVessels.length) {
     for (const v of G.expeditionVessels) {
-      if (v.awaitingDelivery) {
-        if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-          addSunkenChest('expedition', 'sea');
-          v.awaitingDelivery = false;
-          v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        }
-      } else if (now >= v.nextChestAt) {
-        if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-          addSunkenChest('expedition', 'sea');
-          v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        } else {
-          v.awaitingDelivery = true;
-          v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        }
+      if (now >= v.nextChestAt) {
+        addSunkenChest('expedition', 'sea');
+        v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
       }
     }
   }
@@ -5042,22 +5048,44 @@ function closeOfflineSummary() {
 
 function sunkenChestCapacity() { return 1 + ((G.pearlUpgrades || {}).treasurehold || 0); }
 
+function _showChestFullPopup(capacity) {
+  const msg = document.getElementById('chest-full-msg');
+  if (msg) msg.textContent = 'Chest sank back to the deep — chest storage (' + capacity + ') was at max capacity.';
+  const cb = document.getElementById('chest-full-suppress-cb');
+  if (cb) cb.checked = false;
+  document.getElementById('chest-full-overlay').classList.remove('hidden');
+}
+function closeChestFullPopup() {
+  document.getElementById('chest-full-overlay').classList.add('hidden');
+}
+function toggleChestFullSuppress(checked) {
+  G.chestFullPopupSuppressed = !!checked;
+  saveState();
+}
+
 function _chestRewardTier(zone) { return zone === 'ocean' ? 'ocean' : 'sea'; }
 
 function _generateChestReward(tier) {
   const hourly = estimateAutoHourlyIncome();
   if (tier === 'ocean') {
     const diamonds = Math.random() < 0.5 ? 1 : 2;
-    const mult     = 24 + Math.floor(Math.random() * 49); // 24–72
-    return { diamonds, coins: Math.round(hourly * mult) };
+    const mult     = 24 + Math.floor(Math.random() * 49); // 24–72 in-game hours
+    return { diamonds, coins: Math.max(50, Math.round(hourly * mult / 24)) };
   }
-  const mult = 24 + Math.floor(Math.random() * 25); // 24–48
-  return { diamonds: 1, coins: Math.round(hourly * mult) };
+  const mult = 24 + Math.floor(Math.random() * 25); // 24–48 in-game hours
+  return { diamonds: 1, coins: Math.max(50, Math.round(hourly * mult / 24)) };
 }
 
 function addSunkenChest(source, zone, pregenReward) {
   if (!G.sunkenChests) G.sunkenChests = [];
-  if (G.sunkenChests.length >= sunkenChestCapacity()) return false;
+  if (G.sunkenChests.length >= sunkenChestCapacity()) {
+    if (G.chestFullPopupSuppressed) {
+      showStatus('Chest sank back to the deep — chest storage (' + sunkenChestCapacity() + ') was at max capacity.', 3500);
+    } else {
+      _showChestFullPopup(sunkenChestCapacity());
+    }
+    return false;
+  }
   const tier   = pregenReward ? (pregenReward.tier || _chestRewardTier(zone || G.currentZone)) : _chestRewardTier(zone || G.currentZone);
   const reward = pregenReward ? { diamonds: pregenReward.diamonds, coins: pregenReward.coins } : _generateChestReward(tier);
   const id     = 'chest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
@@ -5089,7 +5117,6 @@ function openSunkenChest(chestId) {
   syncAch('h_chest_diamonds', sts.diamondsEarned || 0);
   if ((sts.coinsEarned || 0) >= 10000000) syncAch('h_chest_coins', 1);
   saveState(); updateHUD();
-  _tryDeliverPendingEV(); // space freed — deliver any waiting expedition chest
   _showChestOpenPopup(chest, r);
 }
 
@@ -5111,13 +5138,13 @@ function _showChestOpenPopup(chest, reward) {
   const rewardEl = document.getElementById('chest-open-reward');
   if (rewardEl) {
     const tierLabel = chest.rewardTier === 'ocean' ? 'Ocean Tier' : 'Sea Tier';
-    const srcLabel  = chest.source.charAt(0).toUpperCase() + chest.source.slice(1);
+    const srcLabel  = (chest.source.charAt(0).toUpperCase() + chest.source.slice(1)).replace(/_/g, ' ');
     rewardEl.innerHTML =
       `<div style="font-size:16px;margin-bottom:8px;color:#f5c842;font-weight:bold">Treasure Found!</div>` +
       `<div style="font-size:13px;color:#e0e0e0;margin-bottom:4px">` +
         `+${reward.diamonds} <img src="img/icons/Diamond icon.png" class="diamond-icon-sm" alt=""> Diamond${reward.diamonds>1?'s':''}</div>` +
       `<div style="font-size:15px;color:#f5c842;font-weight:bold">+${formatCoins(reward.coins)}c</div>` +
-      `<div style="font-size:11px;color:#888;margin-top:6px">${tierLabel} · Found by ${srcLabel}</div>`;
+      `<div style="font-size:11px;color:#888;margin-top:6px">Found by ${srcLabel}</div>`;
   }
   setTimeout(() => { if (rewWrap) rewWrap.classList.remove('hidden'); }, 1500);
 }
@@ -5136,6 +5163,9 @@ function closeSeaComicPopup() {
   const overlay = document.getElementById('sea-comic-overlay');
   if (overlay) overlay.classList.add('hidden');
 }
+
+function openEvInfo()  { document.getElementById('ev-info-overlay').classList.remove('hidden'); }
+function closeEvInfo() { document.getElementById('ev-info-overlay').classList.add('hidden'); }
 
 // ── Expedition Vessel ─────────────────────────────────────────────────────────
 
@@ -5193,7 +5223,7 @@ function buyExpeditionVessel(qty) {
   _spendCoins(cost);
   if (!G.expeditionVessels) G.expeditionVessels = [];
   for (let i = 0; i < canBuy; i++) {
-    G.expeditionVessels.push({ id: 'ev_' + Date.now() + i, purchasedAt: Date.now(), nextChestAt: Date.now() + EXPEDITION_VESSEL_INTERVAL, awaitingDelivery: false });
+    G.expeditionVessels.push({ id: 'ev_' + Date.now() + i, purchasedAt: Date.now(), nextChestAt: Date.now() + EXPEDITION_VESSEL_INTERVAL });
   }
   saveState(); updateHUD();
   renderShop('automation');
@@ -5215,23 +5245,9 @@ function _checkExpeditionVessels() {
   const now = Date.now();
   let changed = false;
   for (const v of G.expeditionVessels) {
-    if (v.awaitingDelivery) {
-      // Hold is now free — deliver the stored chest
-      if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-        addSunkenChest('expedition', 'sea');
-        v.awaitingDelivery = false;
-        v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        changed = true;
-        showStatus('Expedition delivered a stored Treasure Chest!', 3000);
-      }
-    } else if (now >= v.nextChestAt) {
-      if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-        addSunkenChest('expedition', 'sea');
+    if (now >= v.nextChestAt) {
+      if (addSunkenChest('expedition', 'sea')) {
         showStatus('Expedition returned with a Sunken Treasure Chest!', 3000);
-      } else {
-        // Store chest for delivery when hold has space
-        v.awaitingDelivery = true;
-        showStatus('Treasure Hold full — expedition chest is waiting!', 3000);
       }
       v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
       changed = true;
@@ -5241,24 +5257,6 @@ function _checkExpeditionVessels() {
     saveState(); updateHUD();
     if (document.getElementById('screen-market').classList.contains('active')) renderMarket();
   }
-}
-
-// Called after opening a chest — immediately try to deliver any waiting EV chests
-function _tryDeliverPendingEV() {
-  if (!G.expeditionVessels || !G.expeditionVessels.length) return;
-  let changed = false;
-  const now = Date.now();
-  for (const v of G.expeditionVessels) {
-    if (v.awaitingDelivery && (G.sunkenChests || []).length < sunkenChestCapacity()) {
-      addSunkenChest('expedition', 'sea');
-      v.awaitingDelivery = false;
-      v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-      changed = true;
-      showStatus('Expedition delivered a stored Treasure Chest!', 3000);
-      break; // deliver one at a time so the player sees each notification
-    }
-  }
-  if (changed) { saveState(); updateHUD(); }
 }
 
 // ─── GHOST SHIP ───────────────────────────────────────────────────────────────
@@ -5397,9 +5395,10 @@ function _gsSpawnRoll() {
 
 function _gsScheduleNext() {
   if (_gsSpawnTimeout) clearTimeout(_gsSpawnTimeout);
-  G.ghostShipNextSpawnAt = Date.now() + GS_SPAWN_INTERVAL_MS;
+  const interval = getPearlGhostWhispererInterval();
+  G.ghostShipNextSpawnAt = Date.now() + interval;
   _autoSaveDirty = true;
-  _gsSpawnTimeout = setTimeout(_gsSpawnRoll, GS_SPAWN_INTERVAL_MS);
+  _gsSpawnTimeout = setTimeout(_gsSpawnRoll, interval);
 }
 
 // Lightweight timer re-attach — called on foreground resume to recover killed Android setTimeouts.
@@ -5414,7 +5413,7 @@ function _gsReattachTimer() {
     G.ghostShipNextSpawnAt = 0;
     setTimeout(_gsSpawnRoll, 1500);
   } else {
-    const delay = Math.min(G.ghostShipNextSpawnAt - now, GS_SPAWN_INTERVAL_MS);
+    const delay = Math.min(G.ghostShipNextSpawnAt - now, getPearlGhostWhispererInterval());
     _gsSpawnTimeout = setTimeout(_gsSpawnRoll, delay);
   }
 }
@@ -5429,7 +5428,7 @@ function _gsReattachTimer() {
     G.ghostShipNextSpawnAt = 0;
     setTimeout(_gsSpawnRoll, 1500);
   } else {
-    const delay = Math.min(G.ghostShipNextSpawnAt - now, GS_SPAWN_INTERVAL_MS);
+    const delay = Math.min(G.ghostShipNextSpawnAt - now, getPearlGhostWhispererInterval());
     _gsSpawnTimeout = setTimeout(_gsSpawnRoll, delay);
   }
 }
@@ -5482,7 +5481,7 @@ function _gsRenderShip(gs) {
 
   const el = document.createElement('div');
   el.id = elId;
-  el.style.cssText = 'position:absolute;left:' + pos.x + '%;top:' + pos.y + '%;transform:translate(-50%,-50%);z-index:5;cursor:pointer;text-align:center;pointer-events:auto;user-select:none;-webkit-user-select:none;background:transparent;';
+  el.style.cssText = 'position:absolute;left:' + pos.x + '%;top:' + pos.y + '%;transform:translate(-50%,-50%);z-index:0;cursor:pointer;text-align:center;pointer-events:auto;user-select:none;-webkit-user-select:none;background:transparent;';
   el.addEventListener('click', () => _gsOnTap(gs.id));
 
   const sprite = document.createElement('img');
@@ -5610,7 +5609,8 @@ function _gsGenerateReward(zone) {
   // Pre-generate chest so reward never rerolls on popup re-open or save reload
   const chestTier = _chestRewardTier(zone || G.currentZone);
   const chest = Object.assign({ tier: chestTier }, _generateChestReward(chestTier));
-  return { coins, chest, automation: { id: automationId } };
+  const storage = Math.random() < 0.10 ? { id: 'ancient_frozen_storage' } : null;
+  return { coins, chest, automation: { id: automationId }, storage };
 }
 
 function _gsShowRewardPopup(gs) {
@@ -5639,8 +5639,18 @@ function _gsShowRewardPopup(gs) {
       + '</div>'
     : '';
 
+  const storageDef = r.storage ? STORAGE_ITEMS.find(s => s.id === r.storage.id) : null;
+  const storageLine = storageDef
+    ? '<div style="margin-bottom:10px;padding:9px 10px;background:rgba(126,207,255,0.08);border-radius:8px;display:flex;align-items:center;gap:10px">'
+      + '<img src="' + storageDef.img + '" style="width:36px;height:36px;object-fit:contain;image-rendering:pixelated;" alt="" onerror="this.style.display=\'none\'">'
+      + '<div><div style="font-size:15px;font-weight:bold;color:#7ecfff">' + storageDef.name + '</div>'
+      + '<div style="font-size:11px;color:#aaa;">' + storageDef.desc + ' added!</div></div>'
+      + '</div>'
+    : '';
+
   document.getElementById('ghost-ship-reward-body').innerHTML =
     autoLine
+    + storageLine
     + chestLine
     + '<div style="font-size:20px;font-weight:bold;color:#f5c842">+' + formatCoins(r.coins) + 'c</div>';
 
@@ -5683,6 +5693,11 @@ function gsClaimReward() {
 
   // Add pre-generated chest (never rerolled)
   if (r.chest) addSunkenChest('ghost_ship', zone, r.chest);
+
+  if (r.storage) {
+    if (!G.ownedStorage) G.ownedStorage = [];
+    G.ownedStorage.push({ id: r.storage.id, purchasedAt: Date.now(), source: 'ghost_ship' });
+  }
 
   G.ghostShips = (G.ghostShips || []).filter(s => s.id !== gs.id);
   saveState();
@@ -7386,10 +7401,10 @@ function renderHallOfFame() {
 // ─── DIAMOND STORE ────────────────────────────────────────────────────────────
 
 const DIAMOND_PACKS = [
-  { id:'starter',  name:'Starter Pack',   diamonds:80,   price:'2.99€', tag:'BEST START', starterOnly:true },
-  { id:'pouch',    name:"Angler's Pouch", diamonds:200,  price:'5.99€', tag:'' },
-  { id:'chest',    name:"Fisher's Chest", diamonds:550,  price:'14.99€',tag:'+25% BONUS' },
-  { id:'vault',    name:"Captain's Vault",diamonds:1200, price:'29.99€',tag:'+67% BONUS' },
+  { id:'starter',  name:'Starter Pack',   diamonds:200,  price:'2.99€', tag:'BEST START', starterOnly:true },
+  { id:'pouch',    name:"Angler's Pouch", diamonds:400,  price:'5.99€', tag:'' },
+  { id:'chest',    name:"Fisher's Chest", diamonds:1100, price:'14.99€',tag:'+25% BONUS' },
+  { id:'vault',    name:"Captain's Vault",diamonds:2500, price:'29.99€',tag:'+67% BONUS' },
 ];
 
 function renderDiamondStore() {
@@ -8005,6 +8020,10 @@ async function redeemCode() {
         _earnCoins(income);
         msg += ' +' + formatCoins(income) + ' coins!';
       }
+      if (r.bonusDiamonds > 0) {
+        G.diamonds = (G.diamonds || 0) + r.bonusDiamonds;
+        msg += ' +' + r.bonusDiamonds + ' Diamonds!';
+      }
       saveState(); updateHUD();
       result.textContent = msg;
       result.className   = 'redeem-result redeem-ok';
@@ -8066,6 +8085,7 @@ function init() {
   if (!G.automationTreasureCooldownUntil) G.automationTreasureCooldownUntil = 0;
   if (!G.pearlUpgrades) G.pearlUpgrades = {};
   if (G.pearlUpgrades.treasurehold === undefined) G.pearlUpgrades.treasurehold = 0;
+  if (G.chestFullPopupSuppressed === undefined) G.chestFullPopupSuppressed = false;
   // Diamond Upgrades — migrate old saves (level 0 means no effect, safe default)
   if (G.backgroundAt === undefined) G.backgroundAt = 0;
   if (!G.diamondUpgrades) G.diamondUpgrades = { autoSpeed: 0, storage: 0 };
@@ -8091,8 +8111,6 @@ function init() {
     const _unl = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
     G.activeAutomationZones = _unl.slice(-2);
   }
-  // Ensure EV objects have awaitingDelivery field (old saves)
-  if (G.expeditionVessels) G.expeditionVessels.forEach(v => { if (v.awaitingDelivery === undefined) v.awaitingDelivery = false; });
   if (!G.usedCodes)                       G.usedCodes            = [];
 
   isPremiumBaitActive(); // clears expired bait
