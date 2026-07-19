@@ -364,6 +364,7 @@ html, body {
   transform: translateX(-50%);
   text-align: center;
   pointer-events: none;
+  z-index: 2;
   animation: pulsePrompt 2s ease-in-out infinite;
 }
 @keyframes pulsePrompt {
@@ -402,6 +403,7 @@ html, body {
   top: 30%;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 2;
   font-size: calc((clamp(18px,5vw,28px)) * var(--font-scale, 1));
   font-weight: bold;
   color: #ffeb3b;
@@ -588,7 +590,9 @@ html, body {
   padding: 6px 16px;
   border-radius: 20px;
   font-size: calc((clamp(8px,2vw,10px)) * var(--font-scale, 1));
-  white-space: nowrap;
+  max-width: min(90vw, 360px);
+  text-align: center;
+  word-break: break-word;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
@@ -810,6 +814,7 @@ html, body {
 
 .shop-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: clamp(8px,2vw,10px);
   scrollbar-width: thin;

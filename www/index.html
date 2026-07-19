@@ -690,6 +690,19 @@
     </div>
   </div>
 
+  <!-- Chest storage full popup -->
+  <div class="special-event-overlay hidden" id="chest-full-overlay" onclick="if(event.target===this)closeChestFullPopup()">
+    <div class="special-event-card" style="text-align:center;max-width:300px;">
+      <div class="se-title">Chest Sank!</div>
+      <div class="se-desc" id="chest-full-msg" style="margin-top:8px;"></div>
+      <label style="display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 0;font-size:13px;color:var(--color-text-dim);cursor:pointer;">
+        <input type="checkbox" id="chest-full-suppress-cb" onchange="toggleChestFullSuppress(this.checked)">
+        Do not show again
+      </label>
+      <button class="btn-primary" style="margin-top:12px;width:100%;" onclick="closeChestFullPopup()">OK</button>
+    </div>
+  </div>
+
   <!-- Prestige confirm dialog -->
   <div class="special-event-overlay hidden" id="prestige-confirm-overlay">
     <div class="special-event-card prestige-confirm-card">
@@ -876,6 +889,25 @@
       <div class="pc-btn-row" style="margin-top:14px;">
         <button class="btn-primary pc-ok-btn" onclick="closeFishdexHelp()">Got it</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Expedition Vessel info popup -->
+  <div class="special-event-overlay hidden" id="ev-info-overlay" onclick="if(event.target===this)closeEvInfo()">
+    <div class="special-event-card help-card" style="text-align:left;">
+      <div class="se-title" style="margin-bottom:12px;">Ghost Ship Expeditions</div>
+      <div class="guild-help-body" style="overflow-y:auto;max-height:55vh;">
+        <p>Each <strong>Expedition Vessel</strong> you own increases the maximum number of Ghost Ships that can be active at the same time.</p>
+        <p><strong>How Ghost Ships work:</strong></p>
+        <p>A Ghost Ship spawn is rolled every real-time hour with a <strong>60% chance</strong>. When one appears, you have <strong>1 hour</strong> to send it on an expedition before it disappears.</p>
+        <p>Expeditions take <strong>3 hours</strong> to complete. When you claim the reward you receive:</p>
+        <p>• Coins (24–48 in-game hours of automation income)<br>
+           • An automation unit (River Net, Ancient Fisherman or Ancient Fishing Boat)<br>
+           • A Sunken Treasure Chest (if your Treasure Hold has space)<br>
+           • <strong>10% chance:</strong> Ancient Frozen Storage (+2500 fish slots)</p>
+        <p>Expedition Vessels also independently produce one <strong>Sunken Treasure Chest every 30 hours</strong> each. The chest is lost if your Treasure Hold is full.</p>
+      </div>
+      <button class="btn-primary pc-ok-btn" style="margin-top:14px;" onclick="closeEvInfo()">Got it</button>
     </div>
   </div>
 

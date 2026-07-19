@@ -2,6 +2,106 @@
 
 ---
 
+## v0.9.3.7 — Build 64 (July 2026)
+
+### Fix
+- **Ad loading after long background sessions** — replaced unreliable `visibilitychange` event with Capacitor's `App.appStateChange` for proper foreground detection on Android. Ads now reload correctly when returning to the game after hours in the background.
+- **Claim button stuck on "Loading ad…"** — fixed a bug where `removeAllListeners()` could hang after a long background session, permanently stalling the button. The promise now resolves immediately; a 15-second safety timer also unblocks the button if anything else hangs.
+- **Stale ad prepare guard** — if an ad prepare has been running for over 10 seconds when the app resumes, it is now force-reset before starting a fresh load.
+
+---
+
+## v0.9.3.6 — Build 63 (July 2026)
+
+### Feature
+- **Redeem codes can now grant multiple rewards** — a single code can give both automation income and Diamonds at the same time.
+
+---
+
+## v0.9.3.5 — Build 62 (July 2026)
+
+### Balance
+- **Diamond pack sizes increased** — Starter Pack 80→200, Angler's Pouch 200→400, Fisher's Chest 550→1100, Captain's Vault 1200→2500.
+
+---
+
+## v0.9.3.4 — Build 61 (July 2026)
+
+### Fix
+- **Expedition Vessel chest no longer held** — when Treasure Hold is full, expedition chests now sink immediately (same as manual/automation/Ghost Ship chests) instead of being stored and delivered later.
+- **Chest storage full popup** — a dismissible popup now appears when a chest sinks due to a full Treasure Hold. Includes a "Do not show again" option that switches to a quiet toast notification instead.
+
+### Polish
+- **Status notifications wrap** — long toast messages (e.g. chest capacity warning) now wrap to multiple lines instead of overflowing off-screen.
+- **Ancient Frozen Storage icon** — image resized from 1029×900 px (1.93 MB) to 256×224 px (128 KB), matching other Storage shop icons.
+
+---
+
+## v0.9.3.3 — Build 60 (July 2026)
+
+### Fix
+- **Sunken Treasure Chest reward now in in-game hours** — coin reward was calculated as 24–48 real hours of automation income (Sea) / 24–72 real hours (Ocean). Now correctly uses in-game hours (÷24), matching the same fix applied to Ghost Ship rewards in v0.9.3.1.
+
+---
+
+## v0.9.3.2 — Build 59 (July 2026)
+
+### Fix
+- **Expedition Vessels and Ancient units visible again** — a leftover reference to the old pricing constant caused a JavaScript error that hid the entire Boats shop section. Fixed.
+
+### Balance
+- **Ghost Ship stays longer** — idle time extended from 20 real minutes to 1 real hour (24 in-game hours). Players have more time to notice and send the ship on expedition.
+
+---
+
+## v0.9.3.1 — Build 58 (July 2026)
+
+### Fix
+- **Ghost Ship coin reward now in in-game hours** — reward was calculated as 24–48 real hours of automation income. Now correctly 24–48 in-game hours (1–2 real hours), making it proportional to actual expedition duration.
+
+### Balance
+- **Ghost Ship smaller** — sprite reduced another 25% (now 125×169px, down from original 221×300px). Takes up less screen space while fishing.
+
+---
+
+## v0.9.3.0 — Build 57 (July 2026)
+
+### Balance — Late-game economy overhaul
+- **Sea / Ocean progression significantly slower** — Sea Rod 125M → 625M, Ocean Rod 6.25B → 62.5B. Bay → Sea now takes approximately 5× longer; Sea → Ocean approximately 10× longer.
+- **Transport costs updated** — Fishing Vessel 20M → 100M, Research Vessel 1B → 10B.
+- **Fleets more expensive** — Small Fleet 15M → 125M, Large Fleet 75M → 500M, Deep Sea Fleet 500M → 2.5B. Fleet production rates unchanged.
+- **Sea-tier storage repriced** — Walk-in Freezer 50K → 50M, Harbor Cold Storage 250K → 250M. Capacities unchanged.
+- **Rod hierarchy fixed** — Carbon Rod and Mythic Rod now cost more than Ocean Rod (1B and 2.5B were both cheaper than Ocean Rod). New costs: Carbon Rod 250B, Mythic Rod 1T, Abyss Rod 10T.
+- **Rod upgrade costs updated** — all Sea+ rod tier upgrades repriced to match new rod costs.
+- **Expedition Vessels completely rebalanced** — hand-tuned curve replaces simple ×2 doubling. New prices: 1B / 5B / 20B / 100B / 500B / 2T / 8T / 25T / 75T / 200T. First vessel is now a meaningful Sea investment; last vessels belong to Ocean endgame.
+
+### New
+- **Starting Capital (Jeweler upgrade)** — new pearl upgrade. Each level grants +2000 starting coins after every prestige. Cost: 2 pearls at level 1, +2 pearls per subsequent level.
+
+### Fix
+- **Coin display now shows B / T / Qa** — large coin amounts previously displayed as e.g. "6250.0M" instead of "6.25B". Billions, trillions, and quadrillions now format correctly.
+
+---
+
+## v0.9.2.1 — Build 55 (July 2026)
+
+### Performance
+- **Offline calculation instant** — offline progress calculation now runs analytically instead of simulating up to 200,000 individual catches. Loading time on return from a 12-hour offline session drops from several seconds to near-instant on all devices.
+
+---
+
+## v0.9.2.2 — Build 56 (July 2026)
+
+### Balance
+- **Ghost Ship spawns more often** — spawn roll now fires every 1 real hour (was 2 hours). 60% spawn chance unchanged — average time between ships roughly halved.
+- **Expedition duration extended** — Ghost Ship expeditions now take 3 real hours (was 1 hour), matching their deeper lore as ocean voyages.
+- **Ghost Busters upgrade expanded** — max level raised from 20 to 50. Each level still reduces expedition time by 1 in-game hour (2.5 real minutes). At max level, expedition time reduces by ~125 real minutes.
+
+### Fix
+- **Guild Orders never request legendary fish** — W1 Legendary fish (1-in-50,000,000 drop rate) were eligible to appear in Guild Orders, making those orders impossible to complete. They are now excluded from all Guild Order generation.
+
+---
+
 ## v0.9.2 — Build 54 (July 2026)
 
 ### Fix

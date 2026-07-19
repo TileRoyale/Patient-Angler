@@ -317,11 +317,11 @@ const RODS = [
   { id:'river_rod',  name:'River Rod',  clicks:18, cost:9000,        zone:'river', baseTierCost:5000,    tierDesc:'+10% Net automation speed / tier',        img:'img/icons/Shop/Rods/River Rod.png' },
   { id:'lake_rod',   name:'Lake Rod',   clicks:16, cost:90000,       zone:'lake',  baseTierCost:25000,   tierDesc:'+10% Fisherman speed / tier',             img:'img/icons/Shop/Rods/Lake Rod.png' },
   { id:'bay_rod',    name:'Bay Rod',    clicks:14, cost:900000,      zone:'bay',   baseTierCost:100000,  tierDesc:'+12% storage capacity / tier',            img:'img/icons/Shop/Rods/Bay Rod.png' },
-  { id:'sea_rod',    name:'Sea Rod',    clicks:12, cost:125000000,   zone:'sea',   baseTierCost:500000,   tierCosts:[250000000,2500000000,25000000000],          tierDesc:'+10% Boat automation speed / tier',       img:'img/icons/Shop/Rods/Sea Rod.png' },
-  { id:'ocean_rod',  name:'Ocean Rod',  clicks:10, cost:6250000000,  zone:'ocean', baseTierCost:2500000,  tierCosts:[12500000000,125000000000,1250000000000],    tierDesc:'+10% Fleet speed / tier',                 img:'img/icons/Shop/Rods/Ocean Rod.png' },
-  { id:'carbon_rod', name:'Carbon Rod', clicks:8,  cost:1000000000,  zone:'all',   baseTierCost:10000000, tierCosts:[2000000000,20000000000,200000000000],       tierDesc:'+3% Legendary catch chance / tier',       img:'img/icons/Shop/Rods/Carbon Rod.png' },
-  { id:'mythic_rod', name:'Mythic Rod', clicks:6,  cost:2500000000,  zone:'abyss', baseTierCost:50000000, tierCosts:[5000000000,50000000000,500000000000],       tierDesc:'+8% Diamond earnings / tier',             img:'img/icons/Shop/Rods/Mythic Rod.png' },
-  { id:'abyss_rod',  name:'Abyss Rod',  clicks:4,  cost:7500000000,  zone:'abyss', baseTierCost:200000000,tierCosts:[15000000000,150000000000,1500000000000],    tierDesc:'+8% Abyss fish sell value / tier',        img:'img/icons/Shop/Rods/Abyss Rod.png' },
+  { id:'sea_rod',    name:'Sea Rod',    clicks:12, cost:625000000,        zone:'sea',   baseTierCost:500000,    tierCosts:[1250000000,12500000000,125000000000],                      tierDesc:'+10% Boat automation speed / tier',       img:'img/icons/Shop/Rods/Sea Rod.png' },
+  { id:'ocean_rod',  name:'Ocean Rod',  clicks:10, cost:62500000000,      zone:'ocean', baseTierCost:2500000,   tierCosts:[125000000000,1250000000000,12500000000000],                tierDesc:'+10% Fleet speed / tier',                 img:'img/icons/Shop/Rods/Ocean Rod.png' },
+  { id:'carbon_rod', name:'Carbon Rod', clicks:8,  cost:250000000000,     zone:'all',   baseTierCost:10000000,  tierCosts:[500000000000,5000000000000,50000000000000],               tierDesc:'+3% Legendary catch chance / tier',       img:'img/icons/Shop/Rods/Carbon Rod.png' },
+  { id:'mythic_rod', name:'Mythic Rod', clicks:6,  cost:1000000000000,    zone:'abyss', baseTierCost:50000000,  tierCosts:[2000000000000,20000000000000,200000000000000],            tierDesc:'+8% Diamond earnings / tier',             img:'img/icons/Shop/Rods/Mythic Rod.png' },
+  { id:'abyss_rod',  name:'Abyss Rod',  clicks:4,  cost:10000000000000,   zone:'abyss', baseTierCost:200000000, tierCosts:[20000000000000,200000000000000,2000000000000000],         tierDesc:'+8% Abyss fish sell value / tier',        img:'img/icons/Shop/Rods/Abyss Rod.png' },
 ];
 
 const STORAGE_ITEMS = [
@@ -330,8 +330,10 @@ const STORAGE_ITEMS = [
   { id:'coolerbox',     name:'Cooler Box',           cost:600,    capacity:50,    unlocksAt:'river', desc:'+50 fish slots',     img:'img/icons/Shop/Storage/Cooler Box.png' },
   { id:'fridge',        name:'Portable Fridge',      cost:2000,   capacity:150,   unlocksAt:'river', desc:'+150 fish slots',    img:'img/icons/Shop/Storage/Portable Fridge.png' },
   { id:'freezer',       name:'Chest Freezer',        cost:10000,  capacity:500,   unlocksAt:'bay',   desc:'+500 fish slots',    img:'img/icons/Shop/Storage/Chest Freezer.png' },
-  { id:'walkinfreezer', name:'Walk-in Freezer',      cost:50000,  capacity:2000,  unlocksAt:'sea',   desc:'+2000 fish slots',   img:'img/icons/Shop/Storage/Walk-in Freezer.png' },
-  { id:'harborcs',      name:'Harbor Cold Storage',  cost:250000, capacity:10000, unlocksAt:'sea',   desc:'+10000 fish slots',  img:'img/icons/Shop/Storage/Harbor Cold Storage.png' },
+  { id:'walkinfreezer', name:'Walk-in Freezer',      cost:50000000,  capacity:2000,  unlocksAt:'sea',   desc:'+2000 fish slots',   img:'img/icons/Shop/Storage/Walk-in Freezer.png' },
+  { id:'harborcs',             name:'Harbor Cold Storage',   cost:250000000, capacity:10000, unlocksAt:'sea', desc:'+10000 fish slots',  img:'img/icons/Shop/Storage/Harbor Cold Storage.png' },
+  // Ghost Ship expedition reward — cannot be purchased
+  { id:'ancient_frozen_storage', name:'Ancient Frozen Storage', cost:0,         capacity:2500,  unlocksAt:'sea', desc:'+2500 fish slots',   img:'img/icons/Shop/Storage/Ancient Frozen Storage.png', ghostOnly:true },
 ];
 
 const BOBBERS = [
@@ -368,9 +370,9 @@ const AUTOMATION = [
   { id:'motor_boat',     name:'Motor Boat',     cost:1200000,    rate:3,    desc:'1 catch / 3s',    unlocksAt:'bay',   type:'boat',       img:'img/icons/Shop/Automation/Motor Boat.png' },
   { id:'fishing_boat',   name:'Fishing Boat',   cost:4000000,    rate:1.5,  desc:'1 catch / 1.5s',  unlocksAt:'bay',   type:'boat',       img:'img/icons/Shop/Automation/Fishing Boat.png' },
   // Fleets — unlocks at Sea
-  { id:'small_fleet',    name:'Small Fleet',    cost:15000000,   rate:0.5,  desc:'2 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Small Fleet.png' },
-  { id:'large_fleet',    name:'Large Fleet',    cost:75000000,   rate:0.25, desc:'4 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Large Fleet.png' },
-  { id:'deep_sea_fleet', name:'Deep Sea Fleet', cost:500000000,  rate:0.1,  desc:'10 catches / s',  unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Deep Sea Fleet.png' },
+  { id:'small_fleet',    name:'Small Fleet',    cost:125000000,  rate:0.5,  desc:'2 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Small Fleet.png' },
+  { id:'large_fleet',    name:'Large Fleet',    cost:500000000,  rate:0.25, desc:'4 catches / s',   unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Large Fleet.png' },
+  { id:'deep_sea_fleet', name:'Deep Sea Fleet', cost:2500000000, rate:0.1,  desc:'10 catches / s',  unlocksAt:'sea',   type:'fleet',      img:'img/icons/Shop/Automation/Deep Sea Fleet.png' },
   // Ghost Ship expedition rewards — unlocks at Sea, cannot be purchased
   { id:'ancient_fisherman', name:'Ancient Fisherman',   cost:0, rate:1,   desc:'1 catch / s',     unlocksAt:'sea', type:'fisherman', ghostOnly:true, img:'img/icons/Shop/Automation/Ancient fisherman.png' },
   { id:'ancient_boat',      name:'Ancient Fishing Boat', cost:0, rate:0.5, desc:'2 catches / s',   unlocksAt:'sea', type:'boat',      ghostOnly:true, img:'img/icons/Shop/Automation/Ancient fishing boat.png' },
@@ -526,8 +528,8 @@ const TRANSPORT = [
   { id:'waders',           name:'Waders',           cost:6000,      zone:'river', desc:'Wade into the River' },
   { id:'rowing_boat',      name:'Rowing Boat',       cost:60000,     zone:'lake',  desc:'Row out to the Lake' },
   { id:'speedboat',        name:'Speedboat',         cost:600000,    zone:'bay',   desc:'Speed out to the Bay' },
-  { id:'fishing_vessel',   name:'Fishing Vessel',    cost:20000000,  zone:'sea',   desc:'Sail out to the Sea' },
-  { id:'research_vessel',  name:'Research Vessel',   cost:1000000000, zone:'ocean', desc:'Venture to the Ocean' },
+  { id:'fishing_vessel',   name:'Fishing Vessel',    cost:100000000,  zone:'sea',   desc:'Sail out to the Sea' },
+  { id:'research_vessel',  name:'Research Vessel',   cost:10000000000, zone:'ocean', desc:'Venture to the Ocean' },
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
@@ -574,15 +576,15 @@ const DEFAULT_STATE = {
   hofLastReset: 0,
   blackPearls: 0,
   prestigeCount: 0,
-  pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0 },
+  pearlUpgrades: { discount:0, speed:0, storage:0, multicatch:0, luckywaters:0, masterangler:0, treasure:0, offline:0, compspirit:0, fishwhisperer:0, treasurehold:0, ghostbusters:0, startingcapital:0, ghostwhisperer:0 },
   seaComicSeen:                    false,
-  maelstromComicSeen:              false,
   sunkenTreasureUnlocked:          false,
   sunkenChests:                    [],
   automationTreasureCooldownUntil: 0,
   expeditionVessels:               [],
   sunkenTreasureStats: { foundTotal:0, foundManual:0, foundAutomation:0, foundExpedition:0, opened:0, diamondsEarned:0, coinsEarned:0 },
   removeAds: false,
+  chestFullPopupSuppressed: false,
   devSupportOwned: false,
   rapidWatersEnd: 0,
   adSpeedBoostEnd: 0,
@@ -602,8 +604,6 @@ const DEFAULT_STATE = {
   masteryData: {},
   manualFishdex: {}, // { fishId: { discovered, firstCaughtDate, totalCatches, largestWeight, bestSize, trophyCount } }
   activeAutomationZones: null,  // null = all unlocked zones; array of ≤2 zone IDs when player configures
-  thirdAutoSlotUnlocked: false, // permanent — survives Prestige; unlocked for 1000 Diamonds
-  devCodeUsed: false,
   autoSellEnd: 0,
   autoSellPermanent: false,
   autoSellEnabled: true,
@@ -704,26 +704,6 @@ const DEFAULT_STATE = {
   ghostShips: [],
   ghostShipNextSpawnAt: 0,
   usedCodes: [],
-  currentWorld: 'overworld',
-  abyss: {
-    currentZone:           null,
-    tribeReputation:       {},
-    tribeProgress:         {},
-    tribeBobbers:          [],
-    mythicCatches:         {},
-    tribeInitialCompleted: {},
-    tribeBonusesClaimed:   {},
-    tribeTrialNeeded:      {},
-    tribeTrialProgress:    {},
-    tribeTrialCompleted:   {},
-    fishdex: {
-      fish:     {},
-      crystals: {},
-      insects:  {},
-      mythics:  {},
-      geode:    { discovered: false, foundCount: 0, openedCount: 0 },
-    },
-  },
 };
 
 // Captured before any saveState() calls so loadCloudSave() knows if this is a fresh install
@@ -856,15 +836,14 @@ function formatCoins(n) {
       const coef = n / Math.pow(10, exp);
       return coef.toFixed(2).replace(/\.?0+$/, '') + 'e' + exp;
     }
-    return String(Math.floor(n));
+    return String(n);
   }
-  if (n >= 1e18) return (n/1e18).toFixed(1) + 'Qi';  // Quintillion
-  if (n >= 1e15) return (n/1e15).toFixed(1) + 'Qa';  // Quadrillion
-  if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';   // Trillion
-  if (n >= 1e9)  return (n/1e9).toFixed(1)  + 'B';   // Billion
-  if (n >= 1e6)  return (n/1e6).toFixed(1)  + 'M';   // Million
-  if (n >= 1e3)  return (n/1e3).toFixed(1)  + 'K';   // Thousand
-  return String(Math.floor(n));
+  if (n >= 1e15) return (n/1e15).toFixed(1) + 'Qa';
+  if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';
+  if (n >= 1e9)  return (n/1e9).toFixed(1)  + 'B';
+  if (n >= 1e6)  return (n/1e6).toFixed(1)  + 'M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1)  + 'K';
+  return String(n);
 }
 
 function rarityClass(r) {
@@ -880,10 +859,6 @@ function getBobberSrc() {
   if (cosm && cosm !== 'bc_basic') {
     const cd = BOBBER_COSMETICS.find(c => c.id === cosm);
     if (cd) return cd.img;
-    if (typeof ABYSS_TRIBE_BOBBERS !== 'undefined') {
-      const tb = ABYSS_TRIBE_BOBBERS.find(b => b.id === cosm);
-      if (tb && tb.img) return tb.img;
-    }
   }
   const bob = BOBBERS.find(b => b.id === G.currentBobber);
   return (bob && bob.img) ? bob.img : 'img/icons/Shop/Bait/Basic bobber.png';
@@ -920,23 +895,10 @@ function getSpeedMult() {
     * (G.devSupportOwned ? 1.25 : 1)
     * (G.removeAds ? 1.25 : 1);
 }
-function getRarityBonus()  { return getBobberTier('sensitive_bobber') * 0.01 + (typeof getTribeRareChanceBonus === 'function' ? getTribeRareChanceBonus() : 0); }
+function getRarityBonus()  { return     getBobberTier('sensitive_bobber') * 0.01; }
 function getSizeShift()    { return     getBobberTier('heavy_bobber'); }
 function getMultiCatch()       { return getBobberTier('electronic_bobber') + 1 + ((G.pearlUpgrades||{}).multicatch||0); }
 function getManualMultiCatch() { return getBobberTier('electronic_bobber') + 1; }
-
-function getActiveSlotLimit() { return G.thirdAutoSlotUnlocked ? 3 : 2; }
-
-function buyThirdAutomationSlot() {
-  if (G.thirdAutoSlotUnlocked) { showStatus('Already purchased.', 1500); return; }
-  const cost = 1000;
-  if ((G.diamonds || 0) < cost) { showStatus('Need ' + cost + ' ◆ Diamonds.', 1500); return; }
-  G.diamonds -= cost;
-  G.thirdAutoSlotUnlocked = true;
-  saveState(); updateHUD();
-  showStatus('Third automation zone slot unlocked permanently!', 2500);
-  if (document.getElementById('screen-zones').classList.contains('active')) renderZones();
-}
 
 function buyBobberTier(id) {
   const maxTier = getBobberMaxUnlockedTier();
@@ -1016,6 +978,8 @@ const PEARL_UPGRADES = [
   { id:'fishwhisperer',name:'Fish Whisperer',      desc:'Higher chance to catch Trophy fish (+0.5% per level).',                         costs:[6,10,16,25,38,58,88,132,198,297],               growthRate:1.50, maxLevel:null },
   { id:'treasurehold',  name:'Treasure Hold',       desc:'Carry 1 extra Sunken Treasure Chest per level. Requires Sea zone.',               costs:[10], growthRate:5, maxLevel:null, requiresSunkenTreasure:true },
   { id:'ghostbusters',  name:'Ghost Busters',        desc:'Ghost Ship returns 1 in-game hour faster per level (−1h/level, max 50 levels).',   costs:[10,20,40,80,160,320,640,1280,2560,5120,10240,20480,40960,81920,163840,327680,655360,1310720,2621440,5242880,10485760,20971520,41943040,83886080,167772160,335544320,671088640,1342177280,2684354560,5368709120,10737418240,21474836480,42949672960,85899345920,171798691840,343597383680,687194767360,1374389534720,2748779069440,5497558138880,10995116277760,21990232555520,43980465111040,87960930222080,175921860444160,351843720888320,703687441776640,1407374883553280,2814749767106560,5629499534213120], maxLevel:50 },
+  { id:'startingcapital',  name:'Starting Capital',   desc:'Start each prestige run with +2000 coins per level.',                                  linearStep:2,  maxLevel:null },
+  { id:'ghostwhisperer',   name:'Ghost Whisperer',    desc:'Ghost Ship appears 5% more often per level.',                                           costs:[50],    growthRate:2,  maxLevel:15 },
 ];
 
 const PEARL_IMG = `<img src="img/icons/Black pearl icon.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px">`;
@@ -1056,7 +1020,12 @@ function getPearlCompSpiritMult() {
   return 1 + p1 + p2;
 }
 function getPearlFishWhispererBonus()   { return ((G.pearlUpgrades||{}).fishwhisperer||0) * 0.005; }
-function getPearlGhostBustersReduceMs() { return ((G.pearlUpgrades||{}).ghostbusters||0) * (3600000/24); }
+function getPearlGhostBustersReduceMs()   { return ((G.pearlUpgrades||{}).ghostbusters||0) * (3600000/24); }
+function getPearlGhostWhispererInterval() {
+  const lvl = (G.pearlUpgrades||{}).ghostwhisperer||0;
+  return Math.round(GS_SPAWN_INTERVAL_MS * Math.max(0.25, 1 - lvl * 0.05));
+}
+function getPearlStartingCapital()      { return ((G.pearlUpgrades||{}).startingcapital||0) * 2000; }
 function getGsExpeditionMs()            { return Math.max(3600000/24, GS_EXPEDITION_MS - getPearlGhostBustersReduceMs()); }
 
 // ─── DIAMOND UPGRADES ────────────────────────────────────────────────────────
@@ -1083,6 +1052,7 @@ function buyDiamondUpgrade(type) {
 
 function pearlUpgradeCost(upg) {
   const lvl = (G.pearlUpgrades || {})[upg.id] || 0;
+  if (upg.linearStep !== undefined) return (lvl + 1) * upg.linearStep;
   if (upg.costs) {
     if (lvl < upg.costs.length) return upg.costs[lvl];
     // unlimited upgrades: extrapolate beyond table
@@ -1129,13 +1099,14 @@ function executePrestige() {
   syncAch('h_pearls',   G.blackPearls);
 
   // Reset progression
-  G.coins              = 0;
+  G.coins              = getPearlStartingCapital();
   G.currentZone        = 'pond';
   G.currentRod         = 'basic_rod';
   G.ownedRods          = ['basic_rod'];
   G.ownedStorage       = [];
-  G.ownedTransport     = [];
-  G.ownedAutomation    = [];
+  G.ownedTransport          = [];
+  G.ownedAutomation         = [];
+  G.activeAutomationZones   = ['pond'];
   G.fishPile           = {};
   G.trophyPile         = [];
   G.plantPile          = {};
@@ -1181,9 +1152,6 @@ function executePrestige() {
   G.seaComicSeen = false;
 
   // Keep: fishdex, masteryData, manualFishdex, diamonds, diamondUpgrades, blackPearls, prestigeCount, pearlUpgrades, quests, stats, records, unlockedBobberCosmetics, equippedBobberCosmetic, premiumBait, sunkenChests, sunkenTreasureUnlocked, sunkenTreasureStats
-
-  if (typeof _clearMaelstromMissionsOnPrestige === 'function') _clearMaelstromMissionsOnPrestige();
-  if (typeof _clearAbyssOnPrestige             === 'function') _clearAbyssOnPrestige();
 
   saveState();
   updateZoneBg('pond');
@@ -1280,9 +1248,9 @@ function buyTargetedLure() {
 const MASTERY_TIERS = [
   { name:'Bronze',   threshold:200,     pts:1, medal:'B', color:'#cd7f32' },
   { name:'Silver',   threshold:2000,    pts:2, medal:'S', color:'#c0c0c0' },
-  { name:'Gold',     threshold:20000,   pts:3, medal:'G', color:'#f4c430' },
-  { name:'Platinum', threshold:200000,  pts:4, medal:'P', color:'#7ecfff' },
-  { name:'Diamond',  threshold:2000000, pts:5, medal:'D', color:'#a8f4ff' },
+  { name:'Gold',     threshold:200000,   pts:3, medal:'G', color:'#f4c430' },
+  { name:'Platinum', threshold:2000000,  pts:4, medal:'P', color:'#7ecfff' },
+  { name:'Diamond',  threshold:20000000, pts:5, medal:'D', color:'#a8f4ff' },
 ];
 const MASTERY_THRESHOLDS = [25, 50, 75, 100, 125, 150];
 
@@ -1466,8 +1434,7 @@ function storageCapacity() {
     const s = STORAGE_ITEMS.find(x => x.id === owned.id);
     return s ? sum + s.capacity : sum;
   }, 0);
-  const tribeStorMult = typeof getTribeStorageMultiplier === 'function' ? getTribeStorageMultiplier() : 1;
-  return Math.round(base * getRodStorageCapacityMult() * getPearlStorageMult() * getMasteryStorageMult() * getStorageUpgradeMultiplier() * tribeStorMult * (G.devSupportOwned ? 1.25 : 1));
+  return Math.round(base * getRodStorageCapacityMult() * getPearlStorageMult() * getMasteryStorageMult() * getStorageUpgradeMultiplier() * (G.devSupportOwned ? 1.25 : 1));
 }
 
 function isPremiumBaitActive() {
@@ -1562,7 +1529,7 @@ function buyTransport(id) {
   if (_newZone) {
     if (!G.activeAutomationZones) G.activeAutomationZones = [];
     if (!G.activeAutomationZones.includes(_newZone.id)) {
-      if (G.activeAutomationZones.length >= getActiveSlotLimit()) G.activeAutomationZones.shift();
+      if (G.activeAutomationZones.length >= 2) G.activeAutomationZones.shift();
       G.activeAutomationZones.push(_newZone.id);
     }
   }
@@ -1948,29 +1915,14 @@ function closeZonesHelp() { document.getElementById('zones-help-overlay').classL
 
 function toggleZoneAuto(zoneId) {
   if (!G.activeAutomationZones) G.activeAutomationZones = [];
-  // Gate Abyss biome IDs: must be accessible and unlocked in the current run
-  const isAbyssBiome = typeof ABYSS_ZONES !== 'undefined' && ABYSS_ZONES.some(z => z.id === zoneId);
-  if (isAbyssBiome) {
-    if (typeof canAccessMaelstromAndAbyss !== 'function' || !canAccessMaelstromAndAbyss()) return;
-    const unlockedRun = (G.abyss && G.abyss.currentRun) ? (G.abyss.currentRun.unlockedZones || []) : [];
-    if (!unlockedRun.includes(zoneId)) return;
-  }
-  const limit = getActiveSlotLimit();
   const idx = G.activeAutomationZones.indexOf(zoneId);
   if (idx >= 0) {
     G.activeAutomationZones.splice(idx, 1);
   } else {
-    if (G.activeAutomationZones.length >= limit) return;
+    if (G.activeAutomationZones.length >= 2) return;
     G.activeAutomationZones.push(zoneId);
   }
   saveState();
-  renderZones();
-}
-
-let _zonesActiveTab = 'overworld'; // session only
-
-function _switchZonesTab(tab) {
-  _zonesActiveTab = tab;
   renderZones();
 }
 
@@ -1985,27 +1937,10 @@ function renderZones() {
   if (!el) return;
   el.innerHTML = '';
 
-  const _abyssOk = typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss();
-  if (!_abyssOk && _zonesActiveTab !== 'overworld') _zonesActiveTab = 'overworld';
-
-  if (_abyssOk) {
-    const _tabBar = document.createElement('div');
-    _tabBar.className = 'zones-tab-bar';
-    ['overworld', 'abyss'].forEach(function(t) {
-      const btn = document.createElement('button');
-      btn.className = 'zones-tab' + (t === _zonesActiveTab ? ' zones-tab-active' : '');
-      btn.textContent = t === 'overworld' ? 'Overworld' : 'Abyss';
-      btn.addEventListener('click', function() { _switchZonesTab(t); });
-      _tabBar.appendChild(btn);
-    });
-    el.appendChild(_tabBar);
-  }
-
   // Update header counter
   const _countEl = document.getElementById('zones-auto-count');
   if (_countEl) _countEl.textContent = (G.activeAutomationZones || []).length + ' / 2';
 
-  if (!_abyssOk || _zonesActiveTab === 'overworld') {
   ZONE_DATA.forEach(zone => {
     const unlocked = isZoneUnlocked(zone.id);
     const isCurrent = G.currentZone === zone.id;
@@ -2062,9 +1997,9 @@ function renderZones() {
 
     let autoZoneBtn = '';
     if (unlocked) {
-      const activeZones  = G.activeAutomationZones || [];
+      const activeZones = G.activeAutomationZones || [];
       const isAutoActive = activeZones.includes(zone.id);
-      const isFull       = !isAutoActive && activeZones.length >= getActiveSlotLimit();
+      const isFull = !isAutoActive && activeZones.length >= 2;
       if (isAutoActive) {
         autoZoneBtn = '<button class="btn-zone-auto btn-zone-auto-on js-auto-toggle">Auto ✓</button>';
       } else if (isFull) {
@@ -2106,52 +2041,6 @@ function renderZones() {
 
     el.appendChild(div);
   });
-
-  if (_abyssOk) {
-    const _mz = typeof MAELSTROM_ZONE !== 'undefined' ? MAELSTROM_ZONE : {};
-    const _mzName  = _mz.name       || 'The Maelstrom';
-    const _mzColor = _mz.themeColor || '#8b00ff';
-    const _mzBg = _mz.bg
-      ? '<img class="zone-preview-img" src="' + _mz.bg + '" alt="">'
-      : '<div class="zone-preview-color" style="background:' + _mzColor + '"></div>';
-    const _mzBtn = '<button class="btn-zone btn-zone-switch js-enter-mael">Enter</button>';
-    const _mzComicBtn = G.maelstromComicSeen
-      ? '<button class="btn-zone-comic js-mael-comic" title="View Maelstrom comic">📖</button>'
-      : '';
-    const _mCard = document.createElement('div');
-    _mCard.className = 'zone-card zone-card-abyss';
-    _mCard.style.setProperty('--zc', _mzColor);
-    _mCard.innerHTML =
-      '<div class="zone-color-bar"></div>' +
-      '<div class="zone-card-body">' +
-        '<div class="zone-card-text">' +
-          '<div class="zone-card-head">' +
-            '<span class="zone-card-name">' + _mzName + '</span>' +
-            _mzComicBtn +
-            '<span class="zone-world-badge" style="background:rgba(139,0,255,0.25);color:#d580ff">Maelstrom</span>' +
-            '<span class="zone-depth">Expansion</span>' +
-          '</div>' +
-          '<div class="zone-card-desc">A roiling vortex of dark energy. Something ancient stirs within.</div>' +
-        '</div>' +
-        _mzBg +
-      '</div>' +
-      '<div class="zone-card-right">' + _mzBtn + '</div>';
-    const _mBtn = _mCard.querySelector('.js-enter-mael');
-    if (_mBtn) _mBtn.addEventListener('click', function() { enterMaelstromFromZones(); });
-    const _mComicBtn = _mCard.querySelector('.js-mael-comic');
-    if (_mComicBtn) _mComicBtn.addEventListener('click', function() { showMaelstromComicPopup(); });
-    el.appendChild(_mCard);
-  }
-
-  } else {
-    if (typeof renderAbyssZoneAutoCards === 'function') {
-      let _abyssHtml = renderAbyssZoneAutoCards();
-      _abyssHtml = _abyssHtml.replace('<div class="zone-abyss-divider">Abyss Biomes</div>', '');
-      const _abyssWrap = document.createElement('div');
-      _abyssWrap.innerHTML = _abyssHtml;
-      while (_abyssWrap.firstChild) el.appendChild(_abyssWrap.firstChild);
-    }
-  }
 }
 
 // ─── QUEST SYSTEM ────────────────────────────────────────────────────────────
@@ -2313,8 +2202,6 @@ function onCatchEvent(fishId, rarity) {
     TRASH_DB.filter(t => t.zones.includes('pond') && G.fishdex.includes(t.id)).length;
   syncAch('pondall', pondAll);
   checkFishdexAch();
-
-  if (isFish && typeof recordTribeFishCatch === 'function') recordTribeFishCatch(fishId, 1);
 }
 
 function onSellEvent(fishId, value) {
@@ -2383,10 +2270,8 @@ function onStorageFullEvent() {
 
 function fishPileKey(fishId, size) { return fishId + '|' + size; }
 function fishPileTotal() {
-  const abyssTotal = typeof abyssFishPileTotal === 'function' ? abyssFishPileTotal() : 0;
   return Object.values(G.fishPile || {}).reduce((s, q) => s + q, 0)
-       + (G.trophyPile || []).length
-       + abyssTotal;
+       + (G.trophyPile || []).length;
 }
 function fishPileValue(fishId, size) {
   const f = FISH_DB.find(x => x.id === fishId);
@@ -3127,8 +3012,7 @@ function _ffBarColor(pct) {
 
 function _ffTickCountdown() {
   const elapsed = Date.now() - _ffStartTime;
-  const _dur = (_ffCatch && _ffCatch._ffDuration) || FF_DURATION;
-  const remaining = Math.max(0, _dur - elapsed);
+  const remaining = Math.max(0, FF_DURATION - elapsed);
   const secsLeft = Math.ceil(remaining / 1000);
   const el = document.getElementById('ff-countdown');
   if (el) el.textContent = secsLeft + 's';
@@ -3152,8 +3036,8 @@ function _ffVisibilityHandler() {
 }
 
 function startFishFight(c) {
-  // Safety: only trigger on real fish entries or tagged Abyss Mythic objects
-  if (!c || !c.fishId || (!FISH_DB.find(x => x.id === c.fishId) && !c.isAbyssMythic)) {
+  // Safety: only trigger on real fish entries
+  if (!c || !c.fishId || !FISH_DB.find(x => x.id === c.fishId)) {
     presentCatch(c);
     return;
   }
@@ -3178,8 +3062,7 @@ function startFishFight(c) {
   if (ffUI) {
     document.getElementById('ff-bar-fill').style.width = '0%';
     document.getElementById('ff-bar-fill').style.background = _ffBarColor(0);
-    const _initDur = c._ffDuration || FF_DURATION;
-    document.getElementById('ff-countdown').textContent = Math.ceil(_initDur / 1000) + 's';
+    document.getElementById('ff-countdown').textContent = Math.ceil(FF_DURATION / 1000) + 's';
     ffUI.classList.remove('hidden');
     _ffPositionUI();
   }
@@ -3190,24 +3073,22 @@ function startFishFight(c) {
   // Countdown interval
   _ffCdInterval = setInterval(_ffTickCountdown, 250);
 
-  // Timeout = loss — duration per-catch for Mythic overrides
-  const _dur = c._ffDuration || FF_DURATION;
-  _ffTimer = setTimeout(() => _endFishFight(false), _dur);
+  // Timeout = loss
+  _ffTimer = setTimeout(() => _endFishFight(false), FF_DURATION);
 }
 
 function tapFishFight() {
   if (!_ffActive) return;
   _ffTaps++;
 
-  const _req = (_ffCatch && _ffCatch._ffRequired) || FF_REQUIRED;
-  const pct = _ffTaps / _req;
+  const pct = _ffTaps / FF_REQUIRED;
   const fill = document.getElementById('ff-bar-fill');
   if (fill) {
     fill.style.width = Math.min(100, pct * 100) + '%';
     fill.style.background = _ffBarColor(pct);
   }
 
-  if (_ffTaps >= _req) {
+  if (_ffTaps >= FF_REQUIRED) {
     _endFishFight(true);
   }
 }
@@ -3244,26 +3125,17 @@ function _endFishFight(won) {
     setTimeout(() => {
       if (ffUI) ffUI.classList.add('hidden');
       if (!catchToPresent) { resetFishingState(); return; }
-      if (typeof catchToPresent._abyssOnWin === 'function') {
-        catchToPresent._abyssOnWin();
-      } else {
-        catchToPresent.isFishFight = true;
-        const fishDef = FISH_DB.find(x => x.id === catchToPresent.fishId);
-        catchToPresent.value = Math.round((fishDef ? fishDef.baseValue : catchToPresent.value) * 5);
-        presentCatch(catchToPresent);
-      }
+      catchToPresent.isFishFight = true;
+      const fishDef = FISH_DB.find(x => x.id === catchToPresent.fishId);
+      catchToPresent.value = Math.round((fishDef ? fishDef.baseValue : catchToPresent.value) * 5);
+      presentCatch(catchToPresent);
     }, 500);
   } else {
     G.stats.fishFightLost = (G.stats.fishFightLost || 0) + 1;
     if (ffUI) ffUI.classList.add('hidden');
-    const lostCatch = _ffCatch;
     _ffCatch = null;
-    if (lostCatch && typeof lostCatch._abyssOnLoss === 'function') {
-      lostCatch._abyssOnLoss();
-    } else {
-      resetFishingState();
-      showStatus('Fish Fight lost — fish got away!', 2500);
-    }
+    resetFishingState();
+    showStatus('Fish Fight lost — fish got away!', 2500);
   }
 }
 
@@ -3328,14 +3200,13 @@ function startBite() {
   tapCount = 0;
   document.getElementById('tap-counter').textContent = '0 / ' + tapsRequired;
 
-  const _tribeManualMult = typeof getTribeManualCatchSpeedMultiplier === 'function' ? getTribeManualCatchSpeedMultiplier() : 1;
   biteTimer = setTimeout(() => {
     showStatus('The fish got away…', 2000);
     G.stats.castStreak = 0;
     G.stats.trophyStreak = 0;
     syncAch('h_trophy_streak', 0);
     resetFishingState();
-  }, Math.round(3000 * _tribeManualMult));
+  }, 3000);
 }
 
 function tapBobber() {
@@ -3353,11 +3224,6 @@ function tapBobber() {
     fishingState = 'result';
     document.getElementById('bite-prompt').classList.add('hidden');
     tapCnt.classList.add('hidden');
-    // Route to Abyss resolver when player is fishing inside an Abyss zone
-    if (typeof resolveAbyssCatch === 'function' && G.currentWorld === 'abyss' && G.abyss && G.abyss.currentZone) {
-      resolveAbyssCatch(G.abyss.currentZone);
-      return;
-    }
     const c = rollCatch(G.currentZone, true);
     // Fish Fight: 1% chance on non-trash, non-plant, non-trophy fish only, with 3-min cooldown
     if (c.rarity !== 'trash' && c.rarity !== 'plant' && !c.isTrophy &&
@@ -3367,11 +3233,10 @@ function tapBobber() {
       presentCatch(c);
     }
   } else {
-    const _tribeManualMult2 = typeof getTribeManualCatchSpeedMultiplier === 'function' ? getTribeManualCatchSpeedMultiplier() : 1;
     biteTimer = setTimeout(() => {
       showStatus('The fish got away…', 2000);
       resetFishingState();
-    }, Math.round(3000 * _tribeManualMult2));
+    }, 3000);
 
     const bobber = document.getElementById('bobber');
     bobber.style.transform = 'translateY(' + (tapCount % 2 === 0 ? '0' : '4px') + ')';
@@ -3444,8 +3309,7 @@ function autoTick() {
   let changed = false;
 
   // Pre-compute multipliers once per tick (not per unit)
-  const tribeAutoMult  = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
-  const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * tribeAutoMult;
+  const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
   const multiCatch     = getMultiCatch();
   const extraCatchMult = 1 + getPearlExtraCatchChance();
   const typeMults  = {
@@ -3456,11 +3320,8 @@ function autoTick() {
   };
 
   const _allUnlockedZones = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
-  const _tickZones      = (G.activeAutomationZones || []).filter(z => _allUnlockedZones.includes(z));
-  const _tickAbyssZones = typeof getActiveAbyssZonesForAuto === 'function' ? getActiveAbyssZonesForAuto() : [];
-  const _totalZones     = _tickZones.length + _tickAbyssZones.length;
-  if (!_totalZones) return; // no active zones — skip tick entirely
-  const _owFraction   = _tickZones.length / _totalZones;
+  const _tickZones = (G.activeAutomationZones || []).filter(z => _allUnlockedZones.includes(z));
+  if (!_tickZones.length) return; // no active zones — skip tick entirely
   const _tickRandZone = () => _tickZones[Math.floor(Math.random() * _tickZones.length)];
 
   // Aggregate by automation id only (zone ignored — all units of same type work together)
@@ -3478,7 +3339,6 @@ function autoTick() {
   // Max catches per tick prevents CPU spikes with extreme automation counts
   const MAX_PER_TICK = 150;
   let tickTotal = 0;
-  let _abyssExpectedTotal = 0;
 
   for (const { aDef, count } of Object.values(agg)) {
     if (tickTotal >= MAX_PER_TICK) break;
@@ -3486,73 +3346,51 @@ function autoTick() {
     const spd = speedBase * (typeMults[aDef.type] || 1);
     const ratePerUnit = spd / aDef.rate;
     const expected = count * ratePerUnit * extraCatchMult;
+    let catches = Math.floor(expected);
+    if (Math.random() < (expected - catches)) catches++;
+    catches = Math.min(catches, MAX_PER_TICK - tickTotal);
+    if (catches <= 0) continue;
 
-    // Accumulate expected Abyss share for batch processing after the loop
-    _abyssExpectedTotal += expected * (1 - _owFraction);
+    changed = true;
+    tickTotal += catches;
+    G.stats.autoCatchTotal = (G.stats.autoCatchTotal || 0) + catches * multiCatch;
+    const _atKey = 'autoCatch' + aDef.type.charAt(0).toUpperCase() + aDef.type.slice(1);
+    G.stats[_atKey] = (G.stats[_atKey] || 0) + catches * multiCatch;
 
-    // Overworld portion of this unit's output
-    if (_tickZones.length > 0 && _owFraction > 0) {
-      const owExpected = expected * _owFraction;
-      let catches = Math.floor(owExpected);
-      if (Math.random() < (owExpected - catches)) catches++;
-      catches = Math.min(catches, MAX_PER_TICK - tickTotal);
-      if (catches <= 0) continue;
+    const _firstCatch = rollCatch(_tickRandZone());
 
-      changed = true;
-      tickTotal += catches;
-      G.stats.autoCatchTotal = (G.stats.autoCatchTotal || 0) + catches * multiCatch;
-      const _atKey = 'autoCatch' + aDef.type.charAt(0).toUpperCase() + aDef.type.slice(1);
-      G.stats[_atKey] = (G.stats[_atKey] || 0) + catches * multiCatch;
-
-      const _firstCatch = rollCatch(_tickRandZone());
-
-      for (let i = 0; i < catches; i++) {
-        if (fishPileTotal() >= storageCapacity()) break;
-        const c = (i === 0) ? _firstCatch : rollCatch(_tickRandZone());
-        if (c.rarity === 'trash') {
-          G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + multiCatch;
-          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-        } else if (c.rarity === 'plant') {
-          G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + multiCatch;
-          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-        } else {
-          const space = storageCapacity() - fishPileTotal();
-          if (space <= 0) break;
-          const qty = c.w1legendary ? 1 : Math.min(multiCatch, space);
-          const autoSize = c.isTrophy ? 'Large' : (c.w1legendary ? 'Large' : c.size);
-          const _k = fishPileKey(c.fishId, autoSize);
-          const isFirstW1 = c.w1legendary && !G.fishdex.includes(c.fishId);
-          G.fishPile[_k] = (G.fishPile[_k] || 0) + qty;
-          if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
-          if (c.w1legendary) {
-            _queueLegendaryPopup({ fishId:c.fishId, name:c.name, img:c.img, zone:c.zone || G.currentZone, isFirst:isFirstW1 });
-            setTimeout(_drainLegendaryPopups, 500);
-          }
-          checkStorageFull();
-          _spawnTickForCatch(aDef.type, c.rarity, qty);
-          onCatchEvent(c.fishId, c.rarity);
-          incrementMastery(c.fishId);
-          continue;
+    for (let i = 0; i < catches; i++) {
+      if (fishPileTotal() >= storageCapacity()) break;
+      const c = (i === 0) ? _firstCatch : rollCatch(_tickRandZone());
+      if (c.rarity === 'trash') {
+        G.trashPile[c.fishId] = (G.trashPile[c.fishId] || 0) + multiCatch;
+        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+      } else if (c.rarity === 'plant') {
+        G.plantPile[c.fishId] = (G.plantPile[c.fishId] || 0) + multiCatch;
+        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+      } else {
+        const space = storageCapacity() - fishPileTotal();
+        if (space <= 0) break;
+        const qty = c.w1legendary ? 1 : Math.min(multiCatch, space);
+        const autoSize = c.isTrophy ? 'Large' : (c.w1legendary ? 'Large' : c.size);
+        const _k = fishPileKey(c.fishId, autoSize);
+        const isFirstW1 = c.w1legendary && !G.fishdex.includes(c.fishId);
+        G.fishPile[_k] = (G.fishPile[_k] || 0) + qty;
+        if (!G.fishdex.includes(c.fishId)) G.fishdex.push(c.fishId);
+        if (c.w1legendary) {
+          // Queue golden popup — displayed after current tick (next animation frame)
+          _queueLegendaryPopup({ fishId:c.fishId, name:c.name, img:c.img, zone:c.zone || G.currentZone, isFirst:isFirstW1 });
+          setTimeout(_drainLegendaryPopups, 500);
         }
-        _spawnTickForCatch(aDef.type, c.rarity, multiCatch);
+        checkStorageFull();
+        _spawnTickForCatch(aDef.type, c.rarity, qty);
         onCatchEvent(c.fishId, c.rarity);
         incrementMastery(c.fishId);
+        continue;
       }
-    }
-  }
-
-  // Abyss automation batch — one stochastic batch per tick across all active Abyss biomes
-  if (_tickAbyssZones.length > 0 && _abyssExpectedTotal > 0 && typeof processAbyssAutoBatch === 'function') {
-    let abyssCatches = Math.floor(_abyssExpectedTotal);
-    if (Math.random() < (_abyssExpectedTotal - abyssCatches)) abyssCatches++;
-    if (abyssCatches > 0 && fishPileTotal() < storageCapacity()) {
-      const _abRandZone = _tickAbyssZones[Math.floor(Math.random() * _tickAbyssZones.length)];
-      processAbyssAutoBatch(_abRandZone, abyssCatches * multiCatch);
-      changed = true;
-    }
-    // Time-normalized Geode accumulation — one 1000ms tick per autoTick call
-    if (typeof _advanceAbyssGeodeAutoProgress === 'function') {
-      _advanceAbyssGeodeAutoProgress(1000, _tickAbyssZones, _abyssExpectedTotal * multiCatch);
+      _spawnTickForCatch(aDef.type, c.rarity, multiCatch);
+      onCatchEvent(c.fishId, c.rarity);
+      incrementMastery(c.fishId);
     }
   }
 
@@ -3563,8 +3401,8 @@ function autoTick() {
     if (document.getElementById('screen-market').classList.contains('active')) renderMarket();
   }
 
-  // Automation Sunken Treasure Chest roll — Overworld zones only, once per tick
-  if (G.sunkenTreasureUnlocked && tickTotal > 0 && _tickZones.length > 0 && Date.now() > (G.automationTreasureCooldownUntil || 0)) {
+  // Automation Sunken Treasure Chest roll — checked once per tick regardless of catch count
+  if (G.sunkenTreasureUnlocked && tickTotal > 0 && Date.now() > (G.automationTreasureCooldownUntil || 0)) {
     const p = 1.16e-9; // 0.000000116% per catch
     if (Math.random() < 1 - Math.pow(1 - p, tickTotal)) {
       const randZone = _tickRandZone();
@@ -3625,9 +3463,7 @@ function showScreen(id) {
   if (id === 'zones')       renderZones();
   if (id === 'competition') renderCompetition();
   if (id === 'halloffame')  renderStatistics();
-  if (id === 'abyss')                renderAbyss();
-  if (id === 'expansion-maelstrom') { if (typeof renderMaelstromDebug === 'function') renderMaelstromDebug(); }
-  if (id === 'expansion-abyss')     { if (typeof renderAbyssDebug     === 'function') renderAbyssDebug(); }
+  if (id === 'abyss')         renderAbyss();
   if (id === 'diamondstore')  renderDiamondStore();
   if (id === 'settings')    renderSettings();
   if (id === 'fishing')     updateHUD();
@@ -3700,11 +3536,29 @@ function renderShop(tab) {
   }
 
   if (tab === 'storage') {
-    STORAGE_ITEMS.filter(s => isZoneUnlocked(s.unlocksAt)).forEach(s => {
+    STORAGE_ITEMS.filter(s => isZoneUnlocked(s.unlocksAt) && !s.ghostOnly).forEach(s => {
       const count = G.ownedStorage.filter(o => o.id === s.id).length;
       el.appendChild(makeBulkBuyItem(s.name, s.desc, s.cost, s.img,
         count, qty => buyStorage(s.id, qty)
       ));
+    });
+    // Ghost Ship storage rewards — shown but cannot be purchased
+    STORAGE_ITEMS.filter(s => isZoneUnlocked(s.unlocksAt) && s.ghostOnly).forEach(s => {
+      const count = G.ownedStorage.filter(o => o.id === s.id).length;
+      const row = document.createElement('div');
+      row.className = 'shop-item';
+      row.innerHTML = `
+        <img class="shop-item-icon" src="${s.img}" alt="">
+        <div class="shop-item-info">
+          <div class="shop-item-name-row">
+            <span class="shop-item-name">${s.name}${count > 0 ? ' <span style="color:#f5c842">×'+count+'</span>' : ''}</span>
+            <span class="shop-item-desc">${s.desc}</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#7ecfff;text-align:center;padding:4px 8px;background:rgba(0,100,180,0.18);border:1px solid rgba(126,207,255,0.3);border-radius:6px;white-space:nowrap;">
+          Ghost Ship reward
+        </div>`;
+      el.appendChild(row);
     });
   }
 
@@ -3723,15 +3577,6 @@ function renderShop(tab) {
       const atMax    = evCount >= EXPEDITION_VESSEL_MAX;
       const maxBuy   = _evMaxAffordable();
       const now      = Date.now();
-
-      let timerHtml = '';
-      if (evCount > 0) {
-        const soonest = Math.min(...(G.expeditionVessels || []).map(v => v.nextChestAt));
-        const remMs   = Math.max(0, soonest - now);
-        const remH    = Math.floor(remMs / 3600000);
-        const remM    = Math.floor((remMs % 3600000) / 60000);
-        timerHtml = `<div style="font-size:11px;color:#f5c842;margin-top:4px">Next chest: ${remH}h ${remM}m</div>`;
-      }
 
       const makeEvBtn = (qty) => {
         let n, label, canAfford;
@@ -3753,9 +3598,9 @@ function renderShop(tab) {
         <div class="shop-item-info">
           <div class="shop-item-name-row">
             <span class="shop-item-name">Expedition Vessel${evCount > 0 ? ' <span class="shop-item-count">×'+evCount+'</span>' : ''}</span>
+            <span class="shop-item-desc">Each vessel raises your Ghost Ship capacity.</span>
+            <button class="guild-help-btn" onclick="openEvInfo()" style="margin-left:4px;">?</button>
           </div>
-          <span class="shop-item-desc">1 Sunken Treasure Chest every 30 in-game days. Each vessel also raises your Ghost Ship capacity.</span>
-          ${timerHtml}
           <div class="shop-item-bulk-actions">${makeEvBtn(1)}${makeEvBtn(10)}${makeEvBtn(100)}${makeEvBtn('all')}</div>
         </div>
         <div class="shop-item-price">
@@ -3774,11 +3619,11 @@ function renderShop(tab) {
         <div class="shop-item-info">
           <div class="shop-item-name-row">
             <span class="shop-item-name">${a.name}${count > 0 ? ' <span style="color:#f5c842">×'+count+'</span>' : ''}</span>
+            <span class="shop-item-desc">${a.desc}</span>
           </div>
-          <span class="shop-item-desc">${a.desc}</span>
         </div>
-        <div style="font-size:11px;color:#7ecfff;text-align:center;line-height:1.4;padding:4px 8px;background:rgba(0,100,180,0.18);border:1px solid rgba(126,207,255,0.3);border-radius:6px;white-space:nowrap;">
-          Ghost Ship<br>reward
+        <div style="font-size:11px;color:#7ecfff;text-align:center;padding:4px 8px;background:rgba(0,100,180,0.18);border:1px solid rgba(126,207,255,0.3);border-radius:6px;white-space:nowrap;">
+          Ghost Ship reward
         </div>`;
       el.appendChild(row);
     });
@@ -3866,7 +3711,7 @@ function renderShop(tab) {
           <div class="prestige-section-title">PRESTIGE</div>
           <div class="prestige-info-row"><span>Times prestiged</span><span>${count}</span></div>
           <div class="prestige-info-row"><span>Required coins</span><span style="color:#d4a0ff">${formatCoins(threshold)}</span></div>
-          <div class="prestige-info-row"><span>Current coins</span><span style="color:${eligible?'#f0c040':'#e0e0e0'}">${formatCoins(currentCoins)}</span></div>
+          <div class="prestige-info-row"><span>Current pearls</span><span style="color:#d4a0ff">${pearls} ${PEARL_IMG}</span></div>
           <div class="prestige-info-row"><span>Est. Pearl reward</span><span style="color:#d4a0ff">+${reward} ${PEARL_IMG}</span></div>
           ${(() => { const lp = getLegendaryPrestigeBonus(); return lp > 0 ? `<div class="prestige-info-row"><span>Legendary bonus</span><span style="color:#f4c430">+${lp}% ${PEARL_IMG}</span></div>` : ''; })()}
           <div style="font-size:11px;color:#888;margin:6px 0 10px;text-align:center">
@@ -4312,7 +4157,7 @@ function renderMarket() {
     mkHeader('Sunken Treasure');
     chests.forEach(chest => {
       const tierLabel = chest.rewardTier === 'ocean' ? 'Ocean Tier' : 'Sea Tier';
-      const srcLabel  = chest.source.charAt(0).toUpperCase() + chest.source.slice(1);
+      const srcLabel  = (chest.source.charAt(0).toUpperCase() + chest.source.slice(1)).replace(/_/g, ' ');
       const div = document.createElement('div');
       div.className = 'storage-item';
       div.innerHTML = `
@@ -4326,61 +4171,6 @@ function renderMarket() {
       `;
       div.querySelector('.btn-sell-one').addEventListener('click', () => openSunkenChest(chest.id));
       inv.appendChild(div);
-    });
-  }
-
-  // ── Abyss Geodes ──────────────────────────────────────────────
-  if (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss() &&
-      typeof getGeodeOwnedCount === 'function') {
-    const geodeCount = getGeodeOwnedCount();
-    if (geodeCount > 0) {
-      mkHeader('Abyss Geodes');
-      const gDiv = document.createElement('div');
-      gDiv.className = 'storage-item';
-      gDiv.innerHTML = `
-        <div class="storage-item-img geode-market-icon">◆</div>
-        <div class="storage-item-info">
-          <div class="storage-item-name">Abyss Geode</div>
-          <div class="storage-item-meta">1–3 Diamonds · Cannot be sold · ×${geodeCount}</div>
-        </div>
-        <div class="storage-item-demand"></div>
-        <button class="btn-sell-one" style="background:#00bcd4;color:#fff">Open</button>
-      `;
-      gDiv.querySelector('.btn-sell-one').addEventListener('click', () => {
-        if (typeof openAbyssGeode === 'function') openAbyssGeode();
-      });
-      inv.appendChild(gDiv);
-    }
-  }
-
-  // ── Abyss Fish section — flat price, no demand system ──────────
-  if (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss() &&
-      typeof abyssFishPileTotal === 'function' && abyssFishPileTotal() > 0) {
-    mkHeader('Abyss Fish');
-    const abyssFishEntries = Object.entries((G.abyss && G.abyss.abyssFishPile) || {}).filter(([,q]) => q > 0);
-    abyssFishEntries.forEach(([id, qty]) => {
-      const abF      = typeof ABYSS_FISH_DB !== 'undefined' ? ABYSS_FISH_DB.find(x => x.id === id) : null;
-      const baseVal  = typeof getAbyssFishBaseValue === 'function' ? getAbyssFishBaseValue(id) : 200;
-      const tribeFV  = typeof getTribeFishValueMultiplier === 'function' ? getTribeFishValueMultiplier() : 1;
-      const sellBns  = typeof getRodSellBonus === 'function' ? getRodSellBonus() : 1;
-      const sellVal  = Math.round(baseVal * tribeFV * sellBns);
-      const aDiv = document.createElement('div');
-      aDiv.className = 'storage-item';
-      aDiv.innerHTML = `
-        <div class="storage-item-img abyss-fish-icon">◆</div>
-        <div class="storage-item-info">
-          <div class="storage-item-name">${abF ? abF.name : id}</div>
-          <div class="storage-item-meta">Abyss Fish · ×${qty}</div>
-        </div>
-        <div class="storage-item-demand">
-          <div class="storage-item-value">${sellVal}c${qty > 1 ? ' <span style="color:var(--color-text-dim)">×' + qty + '</span>' : ''}</div>
-        </div>
-        <button class="btn-sell-one">Sell</button>
-      `;
-      aDiv.querySelector('.btn-sell-one').addEventListener('click', () => {
-        if (typeof sellAbyssFish === 'function') sellAbyssFish(id, qty);
-      });
-      inv.appendChild(aDiv);
     });
   }
 
@@ -4568,11 +4358,6 @@ document.getElementById('btn-sell-all').addEventListener('click', () => {
       G.fishPile[key] = 0;
     }
   });
-  // Sell all Abyss fish (flat price, no demand)
-  if (typeof sellAllAbyssFish === 'function') {
-    const abyssTotal = sellAllAbyssFish();
-    if (abyssTotal) total += abyssTotal;
-  }
   _earnCoins(total);
   if (typeof tutHook === 'function') tutHook('sell', total);
   if (total > 0) showCoinFloat(total);
@@ -4617,11 +4402,6 @@ function doAutoSell() {
     G.diamonds = (G.diamonds || 0) + Math.max(1, Math.round(getRodDiamondMult()));
   });
   G.trophyPile = [];
-  // Sell all Abyss fish (flat price, no demand)
-  if (typeof sellAllAbyssFish === 'function') {
-    const abyssTotal = sellAllAbyssFish() || 0;
-    if (abyssTotal > 0) total += abyssTotal;
-  }
   _earnCoins(total);
   if (total > 0) {
     showCoinFloat(total);
@@ -4689,7 +4469,6 @@ function showCoinFloat(amount, anchorEl) {
 // ─── HUD UPDATE ──────────────────────────────────────────────────────────────
 
 function calcFishRate() {
-  const tribeAutoMult = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
   return G.ownedAutomation.reduce((sum, owned) => {
     const aDef = AUTOMATION.find(x => x.id === owned.id);
     if (!aDef) return sum;
@@ -4698,8 +4477,7 @@ function calcFishRate() {
              : aDef.type === 'boat'      ? getRodBoatSpeedMult()
              : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
              : 1;
-    const _tribeAutoMult = typeof getTribeAutomationSpeedMultiplier === 'function' ? getTribeAutomationSpeedMultiplier() : 1;
-    return sum + (getSpeedMult() * _tribeAutoMult * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * getMultiCatch()) / aDef.rate;
+    return sum + (getSpeedMult() * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * getMultiCatch()) / aDef.rate;
   }, 0);
 }
 
@@ -4904,7 +4682,6 @@ function startClock() {
 function calculateOfflineProgress() {
   const now = Date.now();
   const lastSeen = G.lastSeen || 0;
-  G.lastSeen = now;
 
   // Ghost Ship advance — advance all ships while offline
   if (lastSeen) {
@@ -4920,56 +4697,45 @@ function calculateOfflineProgress() {
     }
   }
 
+  // Save the updated timestamp BEFORE processing catches (idempotency: a crash between
+  // here and the end of processing cannot cause the same interval to replay on next start).
+  G.lastSeen = now;
+  saveState();
+
   if (!lastSeen || !G.ownedAutomation.length) return;
 
-  const elapsedMs = now - lastSeen;
+  const elapsedMs = Math.max(0, now - lastSeen);
   const elapsedSec = Math.min(elapsedMs / 1000, 43200); // cap at 12h
   if (elapsedSec < 10) return;
 
   // Per-session result — freshly created each call, never read from a persistent field.
+  // Discarded after the popup is shown; never accumulated across sessions.
   const _sess = {
-    fish:    {},
-    plants:  {},
-    trash:   {},
+    fish:    {},   // { fishId: count } — items generated this session
+    plants:  {},   // { plantId: count }
+    trash:   {},   // { trashId: count }
     totalFish:   0,
     totalPlant:  0,
     totalTrash:  0,
     totalEpic:   0,
     totalCaught: 0,
-    coins:       0, // coins from scheduled Auto-Seller sales this offline window
+    coins:       0, // coins earned from scheduled Auto-Seller sales this offline window
     elapsedMs,
   };
 
-
-  // Expedition vessel offline catch-up (max one chest per vessel, never lost)
+  // Expedition vessel offline catch-up (one chest per vessel; lost if hold full)
   if (G.expeditionVessels && G.expeditionVessels.length) {
     for (const v of G.expeditionVessels) {
-      if (v.awaitingDelivery) {
-        if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-          addSunkenChest('expedition', 'sea');
-          v.awaitingDelivery = false;
-          v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        }
-      } else if (now >= v.nextChestAt) {
-        if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-          addSunkenChest('expedition', 'sea');
-          v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        } else {
-          v.awaitingDelivery = true;
-          v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        }
+      if (now >= v.nextChestAt) {
+        addSunkenChest('expedition', 'sea');
+        v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
       }
     }
   }
 
-  const _tribeOfflineMult = typeof getTribeOfflineIncomeMultiplier === 'function' ? getTribeOfflineIncomeMultiplier() : 1;
-
   const _offAllUnlocked  = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
-  const _offZones      = (G.activeAutomationZones || []).filter(z => _offAllUnlocked.includes(z));
-  const _offAbyssZones = typeof getActiveAbyssZonesForAuto === 'function' ? getActiveAbyssZonesForAuto() : [];
-  const _offTotalZones = _offZones.length + _offAbyssZones.length;
-  const _owOffFraction = _offTotalZones > 0 ? _offZones.length / _offTotalZones : 1;
-  const _offRandZone   = () => _offZones.length ? _offZones[Math.floor(Math.random() * _offZones.length)] : _offAllUnlocked[0];
+  const _offZones = (G.activeAutomationZones || []).filter(z => _offAllUnlocked.includes(z));
+  const _offRandZone = () => _offZones.length ? _offZones[Math.floor(Math.random() * _offZones.length)] : _offAllUnlocked[0];
 
   // Pre-cache catch pools by zone to avoid repeated FISH_DB.filter() calls inside the 200k-iteration loop.
   // Without this, each rollCatch() does up to 3 × 180-item filter passes → ~108M ops for large offline windows.
@@ -5012,20 +4778,17 @@ function calculateOfflineProgress() {
                    : aDef.type === 'boat'      ? getRodBoatSpeedMult()
                    : aDef.type === 'fleet'     ? getRodFleetSpeedMult()
                    : 1;
-    // _tribeOfflineMult boosts overall offline automation speed
-    const spd = getSpeedMult() * typeMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * _tribeOfflineMult;
+    const spd = getSpeedMult() * typeMult * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
     return { aDef, effectiveRate: aDef.rate / spd };
   }).filter(Boolean);
 
-  // Total overworld catches produced by all units in a given window (seconds).
-  // _owOffFraction reduces the count when Abyss zones are also consuming automation capacity.
+  // Total catches produced by all units in a given window (seconds)
   function _catchesInSec(sec) {
     return _offUnits.reduce((total, u) => {
       return total + Math.floor(
         Math.floor(sec / u.effectiveRate) * 0.75
         * (1 + getPearlExtraCatchChance())
         * getMasteryOfflineMult()
-        * _owOffFraction
       );
     }, 0);
   }
@@ -5219,35 +4982,14 @@ function calculateOfflineProgress() {
   }
   if (Object.keys(_offMasteryBatch).length) _invalidateMasteryCache();
 
-  // Abyss offline catches — proportional share of total production for active Abyss biomes
-  if (_offAbyssZones.length > 0 && typeof processAbyssAutoBatch === 'function') {
-    const _offTotalRate  = typeof calcFishRate === 'function' ? calcFishRate() : 0;
-    const _abFraction    = 1 - _owOffFraction;
-    const _abCatchPerSec = _offTotalRate * _abFraction;
-    const _rawAbCatches  = Math.floor(_abCatchPerSec * elapsedSec * 0.75 * _tribeOfflineMult) * getMultiCatch();
-    if (_rawAbCatches > 0 && fishPileTotal() < storageCapacity()) {
-      const _perZone = Math.floor(_rawAbCatches / _offAbyssZones.length);
-      if (_perZone > 0) {
-        _offAbyssZones.forEach(zid => {
-          processAbyssAutoBatch(zid, _perZone);
-          _sess.totalCaught += _perZone;
-        });
-      }
-    }
-    // Advance time-normalized Geode progress for the full offline elapsed duration
-    if (typeof _advanceAbyssGeodeAutoProgress === 'function') {
-      _advanceAbyssGeodeAutoProgress(elapsedMs, _offAbyssZones, _abCatchPerSec);
-    }
-  }
-
-  // Batch-update lifetime stats
+  // Batch-update lifetime stats for parity with online autoTick() (which calls onCatchEvent per catch)
   G.stats.totalFish  = (G.stats.totalFish  || 0) + _sess.totalFish;
   G.stats.totalTrash = (G.stats.totalTrash || 0) + _sess.totalTrash;
   G.stats.totalEpic  = (G.stats.totalEpic  || 0) + _sess.totalEpic;
   G.stats.autoCatchTotal = (G.stats.autoCatchTotal || 0) + _sess.totalCaught;
   if (_sess.totalCaught > 0) G.stats.offlineFishTotal = (G.stats.offlineFishTotal || 0) + _sess.totalCaught;
 
-  // Batch-update daily quest progress
+  // Batch-update daily quest progress for fish and trash (same categories autoTick tracks via onCatchEvent)
   if (_sess.totalCaught > 0) {
     (G.quests.dailyIds || []).forEach(id => {
       const qd = DAILY_QUESTS.find(q => q.id === id);
@@ -5306,22 +5048,44 @@ function closeOfflineSummary() {
 
 function sunkenChestCapacity() { return 1 + ((G.pearlUpgrades || {}).treasurehold || 0); }
 
+function _showChestFullPopup(capacity) {
+  const msg = document.getElementById('chest-full-msg');
+  if (msg) msg.textContent = 'Chest sank back to the deep — chest storage (' + capacity + ') was at max capacity.';
+  const cb = document.getElementById('chest-full-suppress-cb');
+  if (cb) cb.checked = false;
+  document.getElementById('chest-full-overlay').classList.remove('hidden');
+}
+function closeChestFullPopup() {
+  document.getElementById('chest-full-overlay').classList.add('hidden');
+}
+function toggleChestFullSuppress(checked) {
+  G.chestFullPopupSuppressed = !!checked;
+  saveState();
+}
+
 function _chestRewardTier(zone) { return zone === 'ocean' ? 'ocean' : 'sea'; }
 
 function _generateChestReward(tier) {
   const hourly = estimateAutoHourlyIncome();
   if (tier === 'ocean') {
     const diamonds = Math.random() < 0.5 ? 1 : 2;
-    const mult     = 24 + Math.floor(Math.random() * 49); // 24–72
-    return { diamonds, coins: Math.round(hourly * mult) };
+    const mult     = 24 + Math.floor(Math.random() * 49); // 24–72 in-game hours
+    return { diamonds, coins: Math.max(50, Math.round(hourly * mult / 24)) };
   }
-  const mult = 24 + Math.floor(Math.random() * 25); // 24–48
-  return { diamonds: 1, coins: Math.round(hourly * mult) };
+  const mult = 24 + Math.floor(Math.random() * 25); // 24–48 in-game hours
+  return { diamonds: 1, coins: Math.max(50, Math.round(hourly * mult / 24)) };
 }
 
 function addSunkenChest(source, zone, pregenReward) {
   if (!G.sunkenChests) G.sunkenChests = [];
-  if (G.sunkenChests.length >= sunkenChestCapacity()) return false;
+  if (G.sunkenChests.length >= sunkenChestCapacity()) {
+    if (G.chestFullPopupSuppressed) {
+      showStatus('Chest sank back to the deep — chest storage (' + sunkenChestCapacity() + ') was at max capacity.', 3500);
+    } else {
+      _showChestFullPopup(sunkenChestCapacity());
+    }
+    return false;
+  }
   const tier   = pregenReward ? (pregenReward.tier || _chestRewardTier(zone || G.currentZone)) : _chestRewardTier(zone || G.currentZone);
   const reward = pregenReward ? { diamonds: pregenReward.diamonds, coins: pregenReward.coins } : _generateChestReward(tier);
   const id     = 'chest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
@@ -5353,7 +5117,6 @@ function openSunkenChest(chestId) {
   syncAch('h_chest_diamonds', sts.diamondsEarned || 0);
   if ((sts.coinsEarned || 0) >= 10000000) syncAch('h_chest_coins', 1);
   saveState(); updateHUD();
-  _tryDeliverPendingEV(); // space freed — deliver any waiting expedition chest
   _showChestOpenPopup(chest, r);
 }
 
@@ -5375,13 +5138,13 @@ function _showChestOpenPopup(chest, reward) {
   const rewardEl = document.getElementById('chest-open-reward');
   if (rewardEl) {
     const tierLabel = chest.rewardTier === 'ocean' ? 'Ocean Tier' : 'Sea Tier';
-    const srcLabel  = chest.source.charAt(0).toUpperCase() + chest.source.slice(1);
+    const srcLabel  = (chest.source.charAt(0).toUpperCase() + chest.source.slice(1)).replace(/_/g, ' ');
     rewardEl.innerHTML =
       `<div style="font-size:16px;margin-bottom:8px;color:#f5c842;font-weight:bold">Treasure Found!</div>` +
       `<div style="font-size:13px;color:#e0e0e0;margin-bottom:4px">` +
         `+${reward.diamonds} <img src="img/icons/Diamond icon.png" class="diamond-icon-sm" alt=""> Diamond${reward.diamonds>1?'s':''}</div>` +
       `<div style="font-size:15px;color:#f5c842;font-weight:bold">+${formatCoins(reward.coins)}c</div>` +
-      `<div style="font-size:11px;color:#888;margin-top:6px">${tierLabel} · Found by ${srcLabel}</div>`;
+      `<div style="font-size:11px;color:#888;margin-top:6px">Found by ${srcLabel}</div>`;
   }
   setTimeout(() => { if (rewWrap) rewWrap.classList.remove('hidden'); }, 1500);
 }
@@ -5400,6 +5163,9 @@ function closeSeaComicPopup() {
   const overlay = document.getElementById('sea-comic-overlay');
   if (overlay) overlay.classList.add('hidden');
 }
+
+function openEvInfo()  { document.getElementById('ev-info-overlay').classList.remove('hidden'); }
+function closeEvInfo() { document.getElementById('ev-info-overlay').classList.add('hidden'); }
 
 function enterMaelstromFromZones() {
   if (typeof canAccessMaelstromAndAbyss !== 'function' || !canAccessMaelstromAndAbyss()) return;
@@ -5423,19 +5189,32 @@ function closeMaelstromComicPopup() {
 
 // ── Expedition Vessel ─────────────────────────────────────────────────────────
 
-const EXPEDITION_VESSEL_BASE_COST = 50000000;  // 50M; scales ×2 per vessel
-const EXPEDITION_VESSEL_MAX       = 10;
-const EXPEDITION_VESSEL_INTERVAL  = 30 * 3600000; // 30 real hours = 30 in-game days
+const EXPEDITION_VESSEL_PRICES = [
+  1000000000,    //  #1 —   1B  (meaningful first investment at Sea)
+  5000000000,    //  #2 —   5B
+  20000000000,   //  #3 —  20B
+  100000000000,  //  #4 — 100B
+  500000000000,  //  #5 — 500B  (bridge to Ocean)
+  2000000000000, //  #6 —   2T
+  8000000000000, //  #7 —   8T
+  25000000000000,//  #8 —  25T
+  75000000000000,//  #9 —  75T
+  200000000000000,// #10 — 200T  (endgame)
+];
+const EXPEDITION_VESSEL_MAX      = 10;
+const EXPEDITION_VESSEL_INTERVAL = 30 * 3600000; // 30 real hours = 30 in-game days
 
 function expeditionVesselCost() {
-  return EXPEDITION_VESSEL_BASE_COST * Math.pow(2, (G.expeditionVessels || []).length);
+  const idx = (G.expeditionVessels || []).length;
+  return EXPEDITION_VESSEL_PRICES[Math.min(idx, EXPEDITION_VESSEL_PRICES.length - 1)];
 }
 
 function _evBulkCost(qty) {
   const count = (G.expeditionVessels || []).length;
   let total = 0;
   for (let i = 0; i < qty; i++) {
-    total += EXPEDITION_VESSEL_BASE_COST * Math.pow(2, count + i);
+    const idx = Math.min(count + i, EXPEDITION_VESSEL_PRICES.length - 1);
+    total += EXPEDITION_VESSEL_PRICES[idx];
   }
   return applyDiscount(total);
 }
@@ -5445,7 +5224,8 @@ function _evMaxAffordable() {
   const remaining = EXPEDITION_VESSEL_MAX - count;
   let total = 0, n = 0;
   while (n < remaining) {
-    total += EXPEDITION_VESSEL_BASE_COST * Math.pow(2, count + n);
+    const idx = Math.min(count + n, EXPEDITION_VESSEL_PRICES.length - 1);
+    total += EXPEDITION_VESSEL_PRICES[idx];
     if (total > (G.coins || 0)) break;
     n++;
   }
@@ -5463,7 +5243,7 @@ function buyExpeditionVessel(qty) {
   _spendCoins(cost);
   if (!G.expeditionVessels) G.expeditionVessels = [];
   for (let i = 0; i < canBuy; i++) {
-    G.expeditionVessels.push({ id: 'ev_' + Date.now() + i, purchasedAt: Date.now(), nextChestAt: Date.now() + EXPEDITION_VESSEL_INTERVAL, awaitingDelivery: false });
+    G.expeditionVessels.push({ id: 'ev_' + Date.now() + i, purchasedAt: Date.now(), nextChestAt: Date.now() + EXPEDITION_VESSEL_INTERVAL });
   }
   saveState(); updateHUD();
   renderShop('automation');
@@ -5485,23 +5265,9 @@ function _checkExpeditionVessels() {
   const now = Date.now();
   let changed = false;
   for (const v of G.expeditionVessels) {
-    if (v.awaitingDelivery) {
-      // Hold is now free — deliver the stored chest
-      if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-        addSunkenChest('expedition', 'sea');
-        v.awaitingDelivery = false;
-        v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-        changed = true;
-        showStatus('Expedition delivered a stored Treasure Chest!', 3000);
-      }
-    } else if (now >= v.nextChestAt) {
-      if ((G.sunkenChests || []).length < sunkenChestCapacity()) {
-        addSunkenChest('expedition', 'sea');
+    if (now >= v.nextChestAt) {
+      if (addSunkenChest('expedition', 'sea')) {
         showStatus('Expedition returned with a Sunken Treasure Chest!', 3000);
-      } else {
-        // Store chest for delivery when hold has space
-        v.awaitingDelivery = true;
-        showStatus('Treasure Hold full — expedition chest is waiting!', 3000);
       }
       v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
       changed = true;
@@ -5511,24 +5277,6 @@ function _checkExpeditionVessels() {
     saveState(); updateHUD();
     if (document.getElementById('screen-market').classList.contains('active')) renderMarket();
   }
-}
-
-// Called after opening a chest — immediately try to deliver any waiting EV chests
-function _tryDeliverPendingEV() {
-  if (!G.expeditionVessels || !G.expeditionVessels.length) return;
-  let changed = false;
-  const now = Date.now();
-  for (const v of G.expeditionVessels) {
-    if (v.awaitingDelivery && (G.sunkenChests || []).length < sunkenChestCapacity()) {
-      addSunkenChest('expedition', 'sea');
-      v.awaitingDelivery = false;
-      v.nextChestAt = now + EXPEDITION_VESSEL_INTERVAL;
-      changed = true;
-      showStatus('Expedition delivered a stored Treasure Chest!', 3000);
-      break; // deliver one at a time so the player sees each notification
-    }
-  }
-  if (changed) { saveState(); updateHUD(); }
 }
 
 // ─── GHOST SHIP ───────────────────────────────────────────────────────────────
@@ -5576,7 +5324,7 @@ async function _loadGifOnce(url) {
 }
 
 const GS_ELIGIBLE_ZONES    = ['sea', 'ocean'];
-const GS_IDLE_MS           = Math.round(8 / 24 * 3600000);  // 8 in-game h = 20 real min
+const GS_IDLE_MS           = 1 * 3600000;                    // 24 in-game h = 1 real hour
 const GS_EXPEDITION_MS     = 3 * 3600000;                    // 72 in-game h = 3 real hours
 const GS_SPAWN_INTERVAL_MS = 1 * 3600000;                   // roll every 1 real hour
 const GS_SPAWN_CHANCE      = 0.60;
@@ -5590,8 +5338,8 @@ const GS_FALLBACK_POSITIONS = [{ x:18, y:18 }, { x:76, y:16 }, { x:84, y:58 }, {
 let _gsSpawnTimeout = null;
 
 const GS_COLS    = 8;
-const GS_FRAME_W = 166;  // 221 × 0.75
-const GS_FRAME_H = 225;  // 300 × 0.75
+const GS_FRAME_W = 125;  // 221 × 0.75 × 0.75
+const GS_FRAME_H = 169;  // 300 × 0.75 × 0.75
 const GS_FPS     = 10;
 
 // Per-ship flap tracking (unused for GIF sprites, kept for compat)
@@ -5667,9 +5415,10 @@ function _gsSpawnRoll() {
 
 function _gsScheduleNext() {
   if (_gsSpawnTimeout) clearTimeout(_gsSpawnTimeout);
-  G.ghostShipNextSpawnAt = Date.now() + GS_SPAWN_INTERVAL_MS;
+  const interval = getPearlGhostWhispererInterval();
+  G.ghostShipNextSpawnAt = Date.now() + interval;
   _autoSaveDirty = true;
-  _gsSpawnTimeout = setTimeout(_gsSpawnRoll, GS_SPAWN_INTERVAL_MS);
+  _gsSpawnTimeout = setTimeout(_gsSpawnRoll, interval);
 }
 
 // Lightweight timer re-attach — called on foreground resume to recover killed Android setTimeouts.
@@ -5684,7 +5433,22 @@ function _gsReattachTimer() {
     G.ghostShipNextSpawnAt = 0;
     setTimeout(_gsSpawnRoll, 1500);
   } else {
-    const delay = Math.min(G.ghostShipNextSpawnAt - now, GS_SPAWN_INTERVAL_MS);
+    const delay = Math.min(G.ghostShipNextSpawnAt - now, getPearlGhostWhispererInterval());
+    _gsSpawnTimeout = setTimeout(_gsSpawnRoll, delay);
+  }
+}
+
+function _gsReattachTimer() {
+  if (!G.sunkenTreasureUnlocked) return;
+  if (_gsSpawnTimeout) return;
+  const now = Date.now();
+  if (!G.ghostShipNextSpawnAt || G.ghostShipNextSpawnAt <= 0) {
+    _gsScheduleNext();
+  } else if (now >= G.ghostShipNextSpawnAt) {
+    G.ghostShipNextSpawnAt = 0;
+    setTimeout(_gsSpawnRoll, 1500);
+  } else {
+    const delay = Math.min(G.ghostShipNextSpawnAt - now, getPearlGhostWhispererInterval());
     _gsSpawnTimeout = setTimeout(_gsSpawnRoll, delay);
   }
 }
@@ -5737,7 +5501,7 @@ function _gsRenderShip(gs) {
 
   const el = document.createElement('div');
   el.id = elId;
-  el.style.cssText = 'position:absolute;left:' + pos.x + '%;top:' + pos.y + '%;transform:translate(-50%,-50%);z-index:5;cursor:pointer;text-align:center;pointer-events:auto;user-select:none;-webkit-user-select:none;background:transparent;';
+  el.style.cssText = 'position:absolute;left:' + pos.x + '%;top:' + pos.y + '%;transform:translate(-50%,-50%);z-index:0;cursor:pointer;text-align:center;pointer-events:auto;user-select:none;-webkit-user-select:none;background:transparent;';
   el.addEventListener('click', () => _gsOnTap(gs.id));
 
   const sprite = document.createElement('img');
@@ -5856,8 +5620,8 @@ function _gsOnTap(shipId) {
 
 function _gsGenerateReward(zone) {
   const hourly    = estimateAutoHourlyIncome();
-  const multHours = 24 + Math.floor(Math.random() * 25);
-  const coins     = Math.max(50, Math.round(hourly * multHours));
+  const multHours = 24 + Math.floor(Math.random() * 25); // in-game hours (1 real hour = 24 ig hours)
+  const coins     = Math.max(50, Math.round(hourly * multHours / 24));
   const r = Math.random();
   const automationId = r < 0.50 ? 'river_net'
                      : r < 0.80 ? 'ancient_fisherman'
@@ -5865,7 +5629,8 @@ function _gsGenerateReward(zone) {
   // Pre-generate chest so reward never rerolls on popup re-open or save reload
   const chestTier = _chestRewardTier(zone || G.currentZone);
   const chest = Object.assign({ tier: chestTier }, _generateChestReward(chestTier));
-  return { coins, chest, automation: { id: automationId } };
+  const storage = Math.random() < 0.10 ? { id: 'ancient_frozen_storage' } : null;
+  return { coins, chest, automation: { id: automationId }, storage };
 }
 
 function _gsShowRewardPopup(gs) {
@@ -5894,8 +5659,18 @@ function _gsShowRewardPopup(gs) {
       + '</div>'
     : '';
 
+  const storageDef = r.storage ? STORAGE_ITEMS.find(s => s.id === r.storage.id) : null;
+  const storageLine = storageDef
+    ? '<div style="margin-bottom:10px;padding:9px 10px;background:rgba(126,207,255,0.08);border-radius:8px;display:flex;align-items:center;gap:10px">'
+      + '<img src="' + storageDef.img + '" style="width:36px;height:36px;object-fit:contain;image-rendering:pixelated;" alt="" onerror="this.style.display=\'none\'">'
+      + '<div><div style="font-size:15px;font-weight:bold;color:#7ecfff">' + storageDef.name + '</div>'
+      + '<div style="font-size:11px;color:#aaa;">' + storageDef.desc + ' added!</div></div>'
+      + '</div>'
+    : '';
+
   document.getElementById('ghost-ship-reward-body').innerHTML =
     autoLine
+    + storageLine
     + chestLine
     + '<div style="font-size:20px;font-weight:bold;color:#f5c842">+' + formatCoins(r.coins) + 'c</div>';
 
@@ -5939,6 +5714,11 @@ function gsClaimReward() {
   // Add pre-generated chest (never rerolled)
   if (r.chest) addSunkenChest('ghost_ship', zone, r.chest);
 
+  if (r.storage) {
+    if (!G.ownedStorage) G.ownedStorage = [];
+    G.ownedStorage.push({ id: r.storage.id, purchasedAt: Date.now(), source: 'ghost_ship' });
+  }
+
   G.ghostShips = (G.ghostShips || []).filter(s => s.id !== gs.id);
   saveState();
   updateHUD();
@@ -5971,18 +5751,13 @@ function renderFishdexTabs() {
   if (!tabRow) return;
   tabRow.innerHTML = '';
 
-  // ── Mode toggle (Automation / Manual / Abyss) ─────────────────────────────
-  const abyssAccessible = typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss();
-  if (!abyssAccessible && _fishdexMode === 'abyss') _fishdexMode = 'auto';
-
+  // ── Mode toggle (Automation / Manual) ──────────────────────────────────────
   const modeWrap = document.createElement('div');
   modeWrap.className = 'fishdex-mode-toggle';
-  const modes = ['auto', 'manual'];
-  if (abyssAccessible) modes.push('abyss');
-  modes.forEach(mode => {
+  ['auto', 'manual'].forEach(mode => {
     const btn = document.createElement('button');
     btn.className = 'fishdex-mode-btn' + (mode === _fishdexMode ? ' active' : '');
-    btn.textContent = mode === 'auto' ? 'Automation' : mode === 'manual' ? 'Manual' : 'Abyss';
+    btn.textContent = mode === 'auto' ? 'Automation' : 'Manual';
     btn.addEventListener('click', () => {
       _fishdexMode = mode;
       renderFishdexTabs();
@@ -5992,28 +5767,26 @@ function renderFishdexTabs() {
   });
   tabRow.appendChild(modeWrap);
 
-  // ── Zone tabs — only for auto / manual modes ────────────────────────────────
-  if (_fishdexMode !== 'abyss') {
-    const zoneWrap = document.createElement('div');
-    zoneWrap.className = 'fishdex-zone-tabs';
-    ZONE_DATA.forEach(z => {
-      const unlocked = isZoneUnlocked(z.id);
-      const btn = document.createElement('button');
-      btn.className = 'fishdex-tab' +
-        (z.id === _fishdexZone ? ' active' : '') +
-        (!unlocked ? ' locked' : '');
-      btn.textContent = z.name;
-      if (unlocked) {
-        btn.addEventListener('click', () => {
-          _fishdexZone = z.id;
-          renderFishdexTabs();
-          renderFishdex();
-        });
-      }
-      zoneWrap.appendChild(btn);
-    });
-    tabRow.appendChild(zoneWrap);
-  }
+  // ── Zone tabs ───────────────────────────────────────────────────────────────
+  const zoneWrap = document.createElement('div');
+  zoneWrap.className = 'fishdex-zone-tabs';
+  ZONE_DATA.forEach(z => {
+    const unlocked = isZoneUnlocked(z.id);
+    const btn = document.createElement('button');
+    btn.className = 'fishdex-tab' +
+      (z.id === _fishdexZone ? ' active' : '') +
+      (!unlocked ? ' locked' : '');
+    btn.textContent = z.name;
+    if (unlocked) {
+      btn.addEventListener('click', () => {
+        _fishdexZone = z.id;
+        renderFishdexTabs();
+        renderFishdex();
+      });
+    }
+    zoneWrap.appendChild(btn);
+  });
+  tabRow.appendChild(zoneWrap);
 }
 
 function _renderMasteryPanel(zone, container) {
@@ -6162,11 +5935,6 @@ function renderFishdex() {
 
   const zone = _fishdexZone || G.currentZone;
   content.innerHTML = '';
-
-  if (_fishdexMode === 'abyss') {
-    if (typeof renderAbyssFishdex === 'function') renderAbyssFishdex();
-    return;
-  }
 
   if (_fishdexMode === 'manual') {
     _renderManualFishdex(zone, content, progress);
@@ -7653,10 +7421,10 @@ function renderHallOfFame() {
 // ─── DIAMOND STORE ────────────────────────────────────────────────────────────
 
 const DIAMOND_PACKS = [
-  { id:'starter',  name:'Starter Pack',   diamonds:80,   price:'2.99€', tag:'BEST START', starterOnly:true },
-  { id:'pouch',    name:"Angler's Pouch", diamonds:200,  price:'5.99€', tag:'' },
-  { id:'chest',    name:"Fisher's Chest", diamonds:550,  price:'14.99€',tag:'+25% BONUS' },
-  { id:'vault',    name:"Captain's Vault",diamonds:1200, price:'29.99€',tag:'+67% BONUS' },
+  { id:'starter',  name:'Starter Pack',   diamonds:200,  price:'2.99€', tag:'BEST START', starterOnly:true },
+  { id:'pouch',    name:"Angler's Pouch", diamonds:400,  price:'5.99€', tag:'' },
+  { id:'chest',    name:"Fisher's Chest", diamonds:1100, price:'14.99€',tag:'+25% BONUS' },
+  { id:'vault',    name:"Captain's Vault",diamonds:2500, price:'29.99€',tag:'+67% BONUS' },
 ];
 
 function renderDiamondStore() {
@@ -7997,14 +7765,6 @@ function buyDevSupport() {
 function renderAbyss() {
   const el = document.getElementById('abyss-content');
   if (!el) return;
-  if (typeof canAccessMaelstromAndAbyss === 'function' && canAccessMaelstromAndAbyss() && typeof renderTribeMenu === 'function') {
-    renderTribeMenu();
-    return;
-  }
-  const navBtn = document.querySelector('.hud-nav-btn[data-screen="abyss"] span');
-  if (navBtn) navBtn.textContent = 'Abyss';
-  const screenTitle = document.querySelector('#screen-abyss .panel-header h2');
-  if (screenTitle) screenTitle.textContent = 'The Abyss';
   el.innerHTML = `
     <div class="abyss-screen">
       <img src="img/icons/Abyss mode landscape.png" alt="Abyss Mode Preview" class="abyss-sneak-img">
@@ -8026,7 +7786,6 @@ function applyBobberScale() {
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
 
 function renderSettings() {
-  if (typeof renderAbyssDebugSettings === 'function') renderAbyssDebugSettings();
   const muteBtn = document.getElementById('btn-music-mute');
   if (muteBtn) {
     muteBtn.textContent = G.musicMuted ? 'OFF' : 'ON';
@@ -8224,8 +7983,6 @@ function renderBobberCosmetics() {
     card.appendChild(action);
     grid.appendChild(card);
   });
-
-  if (typeof renderAbyssTribeBobbers === 'function') renderAbyssTribeBobbers();
 }
 
 // ─── CODE REDEEM ──────────────────────────────────────────────────────────────
@@ -8238,22 +7995,6 @@ async function redeemCode() {
   const code = (input.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   input.value = '';
   if (!code) return;
-
-  if (code === 'DEVANGLER') {
-    if (G.devCodeUsed) {
-      result.textContent = 'Code already redeemed.';
-      result.className   = 'redeem-result redeem-fail';
-      setTimeout(() => { if (result) result.textContent = ''; }, 3000);
-      return;
-    }
-    G.coins += 10_000 * 1_000_000_000;
-    G.devCodeUsed = true;
-    saveState(); updateHUD();
-    result.textContent = 'Dev code redeemed! +10,000B coins!';
-    result.className   = 'redeem-result redeem-ok';
-    setTimeout(() => { if (result) result.textContent = ''; }, 4000);
-    return;
-  }
 
   if (!isSignedIn()) {
     result.textContent = 'Sign in with Google first to redeem codes.';
@@ -8298,6 +8039,10 @@ async function redeemCode() {
         const income = estimateAutoHourlyIncome();
         _earnCoins(income);
         msg += ' +' + formatCoins(income) + ' coins!';
+      }
+      if (r.bonusDiamonds > 0) {
+        G.diamonds = (G.diamonds || 0) + r.bonusDiamonds;
+        msg += ' +' + r.bonusDiamonds + ' Diamonds!';
       }
       saveState(); updateHUD();
       result.textContent = msg;
@@ -8360,6 +8105,7 @@ function init() {
   if (!G.automationTreasureCooldownUntil) G.automationTreasureCooldownUntil = 0;
   if (!G.pearlUpgrades) G.pearlUpgrades = {};
   if (G.pearlUpgrades.treasurehold === undefined) G.pearlUpgrades.treasurehold = 0;
+  if (G.chestFullPopupSuppressed === undefined) G.chestFullPopupSuppressed = false;
   // Diamond Upgrades — migrate old saves (level 0 means no effect, safe default)
   if (G.backgroundAt === undefined) G.backgroundAt = 0;
   if (!G.diamondUpgrades) G.diamondUpgrades = { autoSpeed: 0, storage: 0 };
@@ -8385,48 +8131,7 @@ function init() {
     const _unl = ZONE_DATA.filter(z => isZoneUnlocked(z.id)).map(z => z.id);
     G.activeAutomationZones = _unl.slice(-2);
   }
-  // Ensure EV objects have awaitingDelivery field (old saves)
-  if (G.expeditionVessels) G.expeditionVessels.forEach(v => { if (v.awaitingDelivery === undefined) v.awaitingDelivery = false; });
   if (!G.usedCodes)                       G.usedCodes            = [];
-  // Abyss state — ensure all fields exist for saves predating Phase 5
-  if (!G.abyss) G.abyss = JSON.parse(JSON.stringify(DEFAULT_STATE.abyss));
-  if (!G.abyss.tribeReputation)       G.abyss.tribeReputation       = {};
-  if (!G.abyss.tribeProgress)         G.abyss.tribeProgress         = {};
-  if (!G.abyss.tribeBobbers)          G.abyss.tribeBobbers          = [];
-  if (!G.abyss.mythicCatches)         G.abyss.mythicCatches         = {};
-  if (!G.abyss.tribeInitialCompleted) G.abyss.tribeInitialCompleted = {};
-  if (!G.abyss.tribeBonusesClaimed)   G.abyss.tribeBonusesClaimed   = {};
-  if (!G.abyss.tribeTrialNeeded)      G.abyss.tribeTrialNeeded      = {};
-  if (!G.abyss.tribeTrialProgress)    G.abyss.tribeTrialProgress    = {};
-  if (!G.abyss.tribeTrialCompleted)   G.abyss.tribeTrialCompleted   = {};
-  if (!G.abyss.fishdex)               G.abyss.fishdex = { fish:{}, crystals:{}, insects:{}, mythics:{}, geode:{ discovered:false, foundCount:0, openedCount:0 } };
-  const _afd = G.abyss.fishdex;
-  if (!_afd.fish)     _afd.fish     = {};
-  if (!_afd.crystals) _afd.crystals = {};
-  if (!_afd.insects)  _afd.insects  = {};
-  if (!_afd.mythics)  _afd.mythics  = {};
-  if (!_afd.geode)    _afd.geode    = { discovered: false, foundCount: 0, openedCount: 0 };
-  // Phase 8 — Geode inventory (unbounded, persists through Prestige)
-  if (!G.abyss.geodes || typeof G.abyss.geodes !== 'object') G.abyss.geodes = { owned: 0, totalDiamondsEarned: 0 };
-  if (typeof G.abyss.geodes.owned !== 'number'               || !isFinite(G.abyss.geodes.owned)               || G.abyss.geodes.owned < 0)               G.abyss.geodes.owned               = 0;
-  if (typeof G.abyss.geodes.totalDiamondsEarned !== 'number' || !isFinite(G.abyss.geodes.totalDiamondsEarned) || G.abyss.geodes.totalDiamondsEarned < 0) G.abyss.geodes.totalDiamondsEarned = 0;
-  if (!G.abyss.currentRun) G.abyss.currentRun = { unlockedZones: ['emerald_forest'], mythicCaughtThisRun: {} };
-  // Phase 9 — Abyss automation state
-  if (typeof G.thirdAutoSlotUnlocked !== 'boolean') G.thirdAutoSlotUnlocked = false;
-  if (!G.abyss.abyssFishPile || typeof G.abyss.abyssFishPile !== 'object') G.abyss.abyssFishPile = {};
-  if (typeof G.abyss.geodes.automationProgress !== 'number' || !isFinite(G.abyss.geodes.automationProgress) || G.abyss.geodes.automationProgress < 0) G.abyss.geodes.automationProgress = 0;
-  // Sanitize active automation zones: remove Abyss zones not unlocked in current run
-  if (typeof ABYSS_ZONES !== 'undefined' && Array.isArray(G.activeAutomationZones) && G.abyss.currentRun) {
-    const _validAbyssZones = new Set(G.abyss.currentRun.unlockedZones || ['emerald_forest']);
-    const _abyssIds        = new Set(ABYSS_ZONES.map(z => z.id));
-    G.activeAutomationZones = G.activeAutomationZones.filter(id => !_abyssIds.has(id) || _validAbyssZones.has(id));
-  }
-  // Clamp array to slot limit (catches saves written before 3rd-slot purchase)
-  const _slotLimitMig = G.thirdAutoSlotUnlocked ? 3 : 2;
-  if (Array.isArray(G.activeAutomationZones) && G.activeAutomationZones.length > _slotLimitMig) {
-    G.activeAutomationZones = G.activeAutomationZones.slice(-_slotLimitMig);
-  }
-  G.currentWorld = 'overworld'; // always start on overworld; expansion screens restored manually
 
   isPremiumBaitActive(); // clears expired bait
   applyFontScale();
@@ -8488,49 +8193,63 @@ function init() {
     } catch(e) { console.warn('[Lifecycle] appStateChange listener failed:', e); }
   }
   // Optional subsystems — failures are non-fatal and must not block loading
-  try { if (typeof initAdMob          === 'function') initAdMob();          } catch(e) { console.warn('[Init] AdMob failed:', e); }
-  try { if (typeof initIAP            === 'function') initIAP();            } catch(e) { console.warn('[Init] IAP failed:', e); }
-  try { if (typeof initAuth           === 'function') initAuth();           } catch(e) { console.warn('[Init] Auth failed:', e); }
-  try { if (typeof initAnalytics      === 'function') initAnalytics();      } catch(e) { console.warn('[Init] Analytics failed:', e); }
-  try { if (typeof initAbyssFramework === 'function') initAbyssFramework(); } catch(e) { console.warn('[Init] Abyss framework failed:', e); }
+  try { if (typeof initAdMob     === 'function') initAdMob();     } catch(e) { console.warn('[Init] AdMob failed:', e); }
+  try { if (typeof initIAP       === 'function') initIAP();       } catch(e) { console.warn('[Init] IAP failed:', e); }
+  try { if (typeof initAuth      === 'function') initAuth();       } catch(e) { console.warn('[Init] Auth failed:', e); }
+  try { if (typeof initAnalytics === 'function') initAnalytics();  } catch(e) { console.warn('[Init] Analytics failed:', e); }
   try { loadDialogueData(); } catch(e) { console.warn('[Init] Dialogue load failed:', e); }
-  // Show debug tools on localhost only
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    const dbgBtn = document.getElementById('debug-legendary-btn');
-    if (dbgBtn) dbgBtn.style.display = 'block';
-  }
   console.log('[Init] startup complete');
 }
 
-function debugCatchAllLegendary() {
-  const legendaries = FISH_DB.filter(f => f.w1legendary);
-  let added = 0;
-  for (const fish of legendaries) {
-    const key = fishPileKey(fish.id, 'Large');
-    const alreadyHave = G.fishPile[key] || 0;
-    G.fishPile[key] = alreadyHave + 1;
-    const isFirst = !G.fishdex.includes(fish.id);
-    if (isFirst) G.fishdex.push(fish.id);
-    incrementMastery(fish.id);
-    _queueLegendaryPopup({ fishId: fish.id, name: fish.name, img: fish.img, zone: fish.zone, isFirst });
-    added++;
-  }
-  saveState();
-  updateHUD();
-  renderMarket();
-  showStatus('DEBUG: ' + added + ' legendary fish added to storage.', 3000);
-  setTimeout(_drainLegendaryPopups, 300);
-}
+// ─── BACKGROUND / FOREGROUND LIFECYCLE ───────────────────────────────────────
+
+let _appInBackground = false;
+let _resumeHandled   = false;
 
 function _onAppBackground() {
-  G.lastSeen   = Date.now();
-  G.backgroundAt = Date.now();
+  if (_appInBackground) return;
+  _appInBackground = true;
+  _resumeHandled   = false;
+  const now = Date.now();
+  G.backgroundAt = now;
+  G.lastSeen     = now;
+  // Pause special event timer — don't fire while app is backgrounded
+  if (_specialEventTimeout) { clearTimeout(_specialEventTimeout); _specialEventTimeout = null; }
+  if ((G.stats.lastFishAt || 0) > 0 && now - G.stats.lastFishAt < 120000) {
+    if (typeof syncAch === 'function')             syncAch('h_last_fish', 1);
+    if (typeof finalizeQuestUpdate === 'function') finalizeQuestUpdate();
+  }
   saveState();
+  bgMusic.pause();
+  console.log('[Lifecycle] backgrounded');
 }
 
 function _onAppForeground() {
+  if (!_appInBackground) return;  // not returning from background — ignore
+  if (_resumeHandled)    return;  // already handled this foreground cycle
+  _resumeHandled   = true;
+  _appInBackground = false;
+  const elapsed = Math.round((Date.now() - (G.backgroundAt || Date.now())) / 1000);
+  console.log('[Lifecycle] foregrounded, elapsed ' + elapsed + 's');
+  if (!G.musicMuted && _musicStarted) bgMusic.play().catch(() => {});
   calculateOfflineProgress();
   updateHUD();
+  // Special event: timer was paused on background — resolve on return
+  if (_pendingEvent) {
+    if (_eventStartedAt && Date.now() - _eventStartedAt > 5 * 60 * 1000) {
+      expireSpecialEvent(); // window expired while backgrounded
+    }
+    // else event still valid — leave it visible
+  } else if (G.specialEventNextAt && Date.now() >= G.specialEventNextAt) {
+    G.specialEventNextAt = 0;
+    setTimeout(triggerSpecialEvent, 1500); // one event after settling
+  } else if (G.specialEventNextAt && Date.now() < G.specialEventNextAt) {
+    const remaining = G.specialEventNextAt - Date.now();
+    _nextEventAt = G.specialEventNextAt;
+    _specialEventTimeout = setTimeout(triggerSpecialEvent, remaining);
+  } else {
+    scheduleNextSpecialEvent();
+  }
   // Re-attach GS spawn timer — Android kills long setTimeouts while backgrounded, so the timer
   // may be gone even when the spawn deadline hasn't passed yet. Reattach without re-rendering ships.
   _gsReattachTimer();
