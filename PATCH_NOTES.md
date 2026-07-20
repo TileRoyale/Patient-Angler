@@ -2,6 +2,15 @@
 
 ---
 
+## v0.9.3.9 — Build 66 (July 2026)
+
+### Balance
+- **Pond fish sell values doubled** — all Pond fish baseValues ×2 (Giant Crucian Carp unchanged at 39c): Stickleback 1→2, Crucian Carp / Roach / Small Perch 2→4, Common Bream / Afternoon Roach 3→6, Morning Perch 4→8, Stone Loach 6→12, Tench 7→14, Goldfish 8→16, Pumpkinseed 11→22, Weatherfish 13→26
+- **Net costs reduced** — Fishing Net base 100→60c (1st purchase still 10c), Reinforced Net 3 000→1 000c, River Net 15 000→5 000c
+- **River Net faster** — catch interval 30s → 25s
+
+---
+
 ## v0.9.3.8 — Build 65 (July 2026)
 
 ### New
