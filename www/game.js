@@ -56,16 +56,16 @@ function applyMusicState() {
 
 const FISH_DB = [
   // ── Pond (unique: crucian_carp, goldfish, stone_loach, stickleback, pumpkinseed, weatherfish) ──
-  { id:'crucian_carp',       name:'Crucian Carp',       rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond'], img:'img/fish/Crucian Carp.png' },
-  { id:'roach',              name:'Roach',               rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond','river'], img:'img/fish/Roach.png' },
-  { id:'tench',              name:'Tench',               rarity:'uncommon', baseValue:7,       zone:'pond',  zones:['pond','river','lake'], img:'img/fish/Tench.png' },
-  { id:'goldfish',           name:'Goldfish',             rarity:'uncommon', baseValue:8,       zone:'pond',  zones:['pond'], img:'img/fish/Goldfish.png' },
-  { id:'small_perch',        name:'Small Perch',         rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond','river'], img:'img/fish/Small Perch.png' },
-  { id:'stone_loach',        name:'Stone Loach',         rarity:'uncommon', baseValue:6,       zone:'pond',  zones:['pond'], img:'img/fish/Stone Loach.png' },
-  { id:'stickleback',        name:'Stickleback',         rarity:'common',   baseValue:1,       zone:'pond',  zones:['pond'], img:'img/fish/Stickleback.png' },
-  { id:'pumpkinseed',        name:'Pumpkinseed',         rarity:'rare',     baseValue:11,      zone:'pond',  zones:['pond'], img:'img/fish/Pumpkinseed.png' },
-  { id:'weatherfish',        name:'Weatherfish',         rarity:'rare',     baseValue:13,      zone:'pond',  zones:['pond'], img:'img/fish/Weatherfish.png' },
-  { id:'common_bream',       name:'Common Bream',        rarity:'common',   baseValue:3,       zone:'pond',  zones:['pond','river'], img:'img/fish/Common Bream.png' },
+  { id:'crucian_carp',       name:'Crucian Carp',       rarity:'common',   baseValue:4,       zone:'pond',  zones:['pond'], img:'img/fish/Crucian Carp.png' },
+  { id:'roach',              name:'Roach',               rarity:'common',   baseValue:4,       zone:'pond',  zones:['pond','river'], img:'img/fish/Roach.png' },
+  { id:'tench',              name:'Tench',               rarity:'uncommon', baseValue:14,      zone:'pond',  zones:['pond','river','lake'], img:'img/fish/Tench.png' },
+  { id:'goldfish',           name:'Goldfish',             rarity:'uncommon', baseValue:16,      zone:'pond',  zones:['pond'], img:'img/fish/Goldfish.png' },
+  { id:'small_perch',        name:'Small Perch',         rarity:'common',   baseValue:4,       zone:'pond',  zones:['pond','river'], img:'img/fish/Small Perch.png' },
+  { id:'stone_loach',        name:'Stone Loach',         rarity:'uncommon', baseValue:12,      zone:'pond',  zones:['pond'], img:'img/fish/Stone Loach.png' },
+  { id:'stickleback',        name:'Stickleback',         rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond'], img:'img/fish/Stickleback.png' },
+  { id:'pumpkinseed',        name:'Pumpkinseed',         rarity:'rare',     baseValue:22,      zone:'pond',  zones:['pond'], img:'img/fish/Pumpkinseed.png' },
+  { id:'weatherfish',        name:'Weatherfish',         rarity:'rare',     baseValue:26,      zone:'pond',  zones:['pond'], img:'img/fish/Weatherfish.png' },
+  { id:'common_bream',       name:'Common Bream',        rarity:'common',   baseValue:6,       zone:'pond',  zones:['pond','river'], img:'img/fish/Common Bream.png' },
   { id:'giant_crucian_carp', name:'Giant Crucian Carp',  rarity:'epic',     baseValue:39,      zone:'pond',  zones:['pond'], img:'img/fish/Giant Crucian Carp.png', special:true },
   // ── River (unique: grayling, barbel, chub, burbot) ──
   { id:'brown_trout',        name:'Brown Trout',         rarity:'rare',     baseValue:32,      zone:'river', zones:['river','lake'], img:'img/fish/Brown Trout.png' },
@@ -112,8 +112,8 @@ const FISH_DB = [
   { id:'oarfish',            name:'Oarfish',             rarity:'rare',     baseValue:294,     zone:'ocean', zones:['ocean'], img:'img/fish/Oarfish.png' },
   { id:'blue_whale',         name:'Blue Whale',          rarity:'legendary', baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Blue Whale.png', timeWindow:{from:1,to:3}, manualOnly:true },
   // ── Time-specific (special = not in base Excel table, shown separately in Fishdex) ──
-  { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:4,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
-  { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:3,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
+  { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:8,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
+  { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:6,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
   { id:'dawn_trout',      name:'Dawn Trout',      rarity:'rare',     baseValue:35,   zone:'river', zones:['river'], img:'img/fish/Dawn Trout.png',      timeWindow:{from:4,to:7},   special:true },
   { id:'midnight_eel',    name:'Midnight Eel',    rarity:'epic',     baseValue:112,  zone:'river', zones:['river'], img:'img/fish/Midnight Eel.png',    timeWindow:{from:0,to:3},   special:true },
   { id:'evening_catfish', name:'Evening Catfish', rarity:'uncommon', baseValue:25,   zone:'lake',  zones:['lake'],  img:'img/fish/Evening Catfish.png', timeWindow:{from:18,to:22}, special:true },
@@ -362,9 +362,9 @@ const BOBBER_COSMETICS = [
 
 const AUTOMATION = [
   // Nets — unlocks at Pond
-  { id:'fishing_net',    name:'Fishing Net',    cost:100, firstCost:10, rate:60,   desc:'1 catch / 60s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Fishing Net.png' },
-  { id:'reinforced_net', name:'Reinforced Net', cost:3000,       rate:45,   desc:'1 catch / 45s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Reinforced Net.png' },
-  { id:'river_net',      name:'River Net',      cost:15000,      rate:30,   desc:'1 catch / 30s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/River Net.png' },
+  { id:'fishing_net',    name:'Fishing Net',    cost:60, firstCost:10, rate:60,   desc:'1 catch / 60s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Fishing Net.png' },
+  { id:'reinforced_net', name:'Reinforced Net', cost:1000,        rate:45,   desc:'1 catch / 45s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Reinforced Net.png' },
+  { id:'river_net',      name:'River Net',      cost:5000,        rate:25,   desc:'1 catch / 25s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/River Net.png' },
   // Fishermen — unlocks at River
   { id:'local_fisher',   name:'Local Fisher',   cost:3000,       rate:30,   desc:'1 catch / 30s',   unlocksAt:'river', type:'fisherman',  img:'img/icons/Shop/Automation/Local Fisher.png' },
   { id:'skilled_fisher', name:'Skilled Fisher', cost:30000,      rate:15,   desc:'1 catch / 15s',   unlocksAt:'river', type:'fisherman',  img:'img/icons/Shop/Automation/Skilled Fisher.png' },
