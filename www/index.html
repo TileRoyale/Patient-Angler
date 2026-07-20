@@ -737,12 +737,12 @@
 
   <!-- Ghost Ship reward popup -->
   <div class="special-event-overlay hidden" id="ghost-ship-reward-overlay" onclick="if(event.target===this)gsClaimReward()">
-    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px">
-      <div class="se-title" style="color:#c8e8ff;margin-bottom:6px">Ghost Ship</div>
-      <div style="font-size:13px;color:var(--color-text-dim);margin-bottom:14px">Expedition returned with salvage and a Treasure Chest!</div>
-      <img src="img/icons/Ghost ship animation2.gif" id="ghost-ship-reward-img" style="width:221px;display:block;margin:0 auto 14px;image-rendering:pixelated;" alt="">
-      <div id="ghost-ship-reward-body" style="margin-bottom:16px"></div>
-      <button class="btn-primary pc-ok-btn" onclick="gsClaimReward()">Claim Salvage</button>
+    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px;max-height:88vh;">
+      <div class="se-title" style="color:#c8e8ff;margin-bottom:6px;flex-shrink:0">Ghost Ship</div>
+      <div style="font-size:13px;color:var(--color-text-dim);margin-bottom:14px;flex-shrink:0">Expedition returned with salvage and a Treasure Chest!</div>
+      <img src="img/icons/Ghost ship animation2.gif" id="ghost-ship-reward-img" style="width:221px;display:block;margin:0 auto 14px;image-rendering:pixelated;flex-shrink:0" alt="">
+      <div id="ghost-ship-reward-body" style="margin-bottom:16px;overflow-y:auto;min-height:0;width:100%;"></div>
+      <button class="btn-primary pc-ok-btn" onclick="gsClaimReward()" style="flex-shrink:0">Claim Salvage</button>
     </div>
   </div>
 

@@ -2,6 +2,34 @@
 
 ---
 
+## v0.9.3.8 — Build 65 (July 2026)
+
+### New
+- **4 new manual-only fish** — catch them only by active fishing during specific in-game hours:
+  - **Seahorse** (Bay, Legendary, 07:00–11:00) — earns 320 coins base
+  - **Monk Fish** (Bay, Epic, 20:00–00:00) — earns 196 coins base
+  - **Mola-mola** (Sea, Legendary, 10:00–14:00) — earns 500 coins base
+  - **Blue Whale** (Ocean, Legendary, 01:00–03:00) — earns 1 260 coins base
+- **Coelacanth moved to Sea** — previously Ocean-only, now a Sea Legendary (01:00–03:00, 500 coins base)
+- **Bay and Sea loot tables** now include a Legendary weight slot — manual fishing in these zones can roll Legendary fish
+
+### Balance
+- **Giant Squid baseValue** 392 → 960 (Ocean Legendary rebalance)
+- **Coelacanth baseValue** 1 260 → 500 (moved to Sea; reflects zone)
+- **Mola-mola baseValue** set to 500 (matches Coelacanth at Sea tier)
+
+### Fix
+- **Mastery help overlay** — Gold / Platinum / Diamond catch thresholds were showing outdated values; now match the actual thresholds in code (200 K / 2 M / 20 M)
+- **Ghost Ship reward popup** — on small screens the reward list can now scroll; title, image and Claim button always stay visible
+- **Jeweler — pearl upgrade bonus display** — multiple upgrades showed incorrect current/next bonus text:
+  - Lucky Waters: was showing ×5 the real value (+5% per level shown, +1% actual)
+  - Fish Whisperer: was showing ×6 the real value (+3% per level shown, +0.5% actual)
+  - Market Discount / Empire Boost / Offline Expert / Competition Spirit / Treasure Hunter: bonus display did not account for the rate change after the upgrade's breakpoint level, showing inflated numbers at high levels
+  - Ghost Busters, Starting Capital, Ghost Whisperer: now show a current bonus label (were blank before)
+- **Lucky Waters description** updated to reflect that Uncommon and Legendary fish also benefit (not just Rare and Epic)
+
+---
+
 ## v0.9.3.7 — Build 64 (July 2026)
 
 ### Fix
