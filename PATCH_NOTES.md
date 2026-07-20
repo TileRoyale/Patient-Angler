@@ -2,6 +2,18 @@
 
 ---
 
+## v0.9.4.2 — Build 69 (July 2026)
+
+### Fix
+- **Jeweler display** — removed redundant Fish Sell Multiplier line; only the percentage bonus is shown now
+- **Competition rewards** — rewards now correctly scale to 1 in-game hour of automation income (was 1 real hour = 24× too high)
+- **Competition end screen** — reward shown in K/M/B/T or scientific notation instead of raw number
+
+### UI
+- **Jeweler help (?)** — added explanation of Black Pearl diminishing returns with examples
+
+---
+
 ## v0.9.4.1 — Build 68 (July 2026)
 
 ### Balance
