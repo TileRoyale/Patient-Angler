@@ -510,7 +510,7 @@ let _grandWinnersMode = false;    // true while grand-winners screen is showing
 function getCompBaseReward(rank, zone) {
   if (rank < 1 || rank > 3) return 0;
   const z      = zone || (G.competition && G.competition.zone) || G.currentZone;
-  const hourly = estimateAutoHourlyIncome();
+  const hourly = estimateAutoHourlyIncome() / 24;
   if (z === 'pond') {
     const fixed = [500,  250,  100 ][rank - 1];
     const pct   = [0.05, 0.03, 0.01][rank - 1];
@@ -3720,7 +3720,6 @@ function renderShop(tab) {
     const currentCoins = G.coins || 0;
     const coinsNeeded  = Math.max(0, threshold - currentCoins);
     const pearlBonusPct = getBlackPearlBonusPct();
-    const sellMult      = getBlackPearlBonus().toFixed(3);
     const upgrades     = G.pearlUpgrades || {};
 
 
@@ -3792,7 +3791,6 @@ function renderShop(tab) {
           <div class="prestige-pearl-label">Black Pearls</div>
           <div style="font-size:12px;color:#d4a0ff;margin-top:4px">Unspent Black Pearls increase fish sell value. Each additional Pearl provides a smaller bonus.</div>
           <div style="font-size:13px;color:#e0e0e0;margin-top:6px">Current Fish Sell Bonus: <span style="color:#f0c040">+${pearlBonusPct.toFixed(1)}%</span></div>
-          <div style="font-size:13px;color:#e0e0e0;margin-top:2px">Fish Sell Multiplier: <span style="color:#f0c040">${sellMult}×</span></div>
         </div>
         <div class="prestige-section">
           <div class="prestige-section-title">PRESTIGE</div>
@@ -6939,7 +6937,7 @@ function renderCompetition() {
       <div class="comp-series-name" style="text-align:center;margin-bottom:4px">${c.seriesName || ''}</div>
       <div class="comp-result-title">Competition Ended!</div>
       <div class="comp-result-rank">Your rank: #${c.myRank}</div>
-      <div class="comp-result-reward${c.myReward > 0 ? '' : ' dim'}">${c.myReward > 0 ? '+' + c.myReward + 'c reward earned!' : 'No reward this time.'}</div>
+      <div class="comp-result-reward${c.myReward > 0 ? '' : ' dim'}">${c.myReward > 0 ? '+' + formatCoins(c.myReward) + 'c reward earned!' : 'No reward this time.'}</div>
       <div class="comp-leaderboard-title">Final Leaderboard</div>
       <div class="comp-leaderboard">${renderLeaderboardRows(board, 0)}</div>
       ${standing}
@@ -7814,6 +7812,12 @@ const SHOP_HELP_CONTENT = {
     body: `<p>Spend <strong>Black Pearls</strong> here on permanent upgrades that apply across the whole game and <em>survive every Prestige reset</em>.</p>
 <p>Pearl upgrades stack with each Prestige — the more you prestige, the more you can invest here.</p>
 <p>Black Pearls are earned by Prestiging. The more progress you've made, the more Pearls you receive.</p>
+<div style="margin-top:10px;padding:8px 10px;background:rgba(180,130,255,0.08);border-left:3px solid #b47fff;border-radius:4px;font-size:12px;line-height:1.7;">
+  <strong style="color:#d4a0ff;">Unspent Pearl Bonus — Diminishing Returns</strong><br>
+  Every unspent Black Pearl increases your fish sell value, but each additional Pearl adds a smaller bonus than the last.<br>
+  <span style="color:#aaa;">Examples: 10 pearls → +9.5% · 100 → +69% · 500 → +179% · 1 000 → +240% · 5 000 → +393%</span><br>
+  Spending pearls on upgrades reduces this bonus — so there is a trade-off between passive sell value and permanent upgrades.
+</div>
 <div style="margin-top:10px;font-size:12px;line-height:1.6;">
   <div style="color:#c55;margin-bottom:3px;"><strong>Resets on Prestige:</strong> coins, rods, storage, automation, transport, zones.</div>
   <div style="color:#5c5;"><strong>Kept after Prestige:</strong> Fishdex, mastery, diamonds, Black Pearls, Pearl upgrades, cosmetics.</div>
