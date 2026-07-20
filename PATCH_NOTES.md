@@ -2,6 +2,21 @@
 
 ---
 
+## v0.9.4.0 — Build 67 (July 2026)
+
+### Feature
+- **20 numerical fish size ranges** — replaces the 5 named sizes (Tiny / Small / Medium / Large / Trophy). Fish are now Size 1–20, with a bell-curve weight distribution. Sizes 18–20 are Trophy-class (earn a Diamond).
+- **Heavy Bobber reworked** — instead of a hard index shift (capping at Large), each tier now adds weighted bias toward larger size ranges. All 15 tiers provide distinct improvement. Trophy chance grows from ~0.3% (no bobber) to ~2.5% (Tier 15 max).
+
+### Balance
+- **Basic Bobber** — fishing speed bonus increased from +1% to **+3% per tier** (Tier 15 = +45% total)
+- **Electronic Bobber** — changed from guaranteed +1 extra fish per tier to **+50% extra catch chance per tier** (stacks: Tier 2 = 100% = guaranteed +1; Tier 3 = guaranteed +1 + 50% chance of +2; etc.)
+
+### Fix
+- **Save migration** — existing fish pile entries and FishDex best-size records are automatically converted from the old named-size format to the new numeric format on first load
+
+---
+
 ## v0.9.3.9 — Build 66 (July 2026)
 
 ### Balance
