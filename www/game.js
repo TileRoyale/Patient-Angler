@@ -3731,34 +3731,40 @@ function renderShop(tab) {
       const canAfford = !atCap && pearls >= cost;
 
       const currentEffect = (() => {
-        if (u.id === 'discount')     { if (!lvl) return 'None'; const d = Math.min(Math.min(lvl,5)*0.05+Math.max(0,lvl-5)*0.02,0.90); return `-${(d*100).toFixed(0)}% cheaper shop prices`; }
-        if (u.id === 'speed')        return lvl ? `Automation ${lvl*25}% faster` : 'None';
-        if (u.id === 'storage')      return lvl ? `+${lvl*50}% storage capacity` : 'None';
-        if (u.id === 'multicatch')   return lvl ? `+${lvl} extra item${lvl>1?'s':''} per catch` : 'None';
-        if (u.id === 'luckywaters')  return lvl ? `+${lvl*5}% Rare & Epic fish chance` : 'None';
-        if (u.id === 'masterangler') return lvl ? `-${lvl} tap${lvl>1?'s':''} to catch a fish` : 'None';
-        if (u.id === 'treasure')     return lvl ? `+${lvl*5}% Lost Treasure chance` : 'None';
-        if (u.id === 'offline')      return lvl ? `+${lvl*10}% chance for extra fish per catch` : 'None';
-        if (u.id === 'compspirit')   return lvl ? `+${lvl*10}% competition coins` : 'None';
-        if (u.id === 'fishwhisperer')return lvl ? `+${lvl*3}% Trophy fish chance` : 'None';
-        if (u.id === 'treasurehold') return lvl ? `+${lvl} Treasure Chest slot${lvl>1?'s':''} (capacity ${1+lvl})` : 'None';
+        if (u.id === 'discount')       { if (!lvl) return 'None'; const d = Math.min(Math.min(lvl,5)*0.05+Math.max(0,lvl-5)*0.02,0.90); return `-${(d*100).toFixed(0)}% cheaper shop prices`; }
+        if (u.id === 'speed')          { const s = Math.min(lvl,8)*25 + Math.max(0,lvl-8)*10; return lvl ? `Automation ${s}% faster` : 'None'; }
+        if (u.id === 'storage')        return lvl ? `+${lvl*50}% storage capacity` : 'None';
+        if (u.id === 'multicatch')     return lvl ? `+${lvl} extra item${lvl>1?'s':''} per catch` : 'None';
+        if (u.id === 'luckywaters')    return lvl ? `+${lvl}% Uncommon–Legendary fish chance` : 'None';
+        if (u.id === 'masterangler')   return lvl ? `-${lvl} tap${lvl>1?'s':''} to catch a fish` : 'None';
+        if (u.id === 'treasure')       { const t = Math.min(lvl,10)*5 + Math.max(0,lvl-10)*1; return lvl ? `+${t}% Lost Treasure chance` : 'None'; }
+        if (u.id === 'offline')        { const o = Math.min(lvl,10)*10 + Math.max(0,lvl-10)*2; return lvl ? `+${o}% chance for extra fish per catch` : 'None'; }
+        if (u.id === 'compspirit')     { const c = Math.min(lvl,10)*10 + Math.max(0,lvl-10)*2; return lvl ? `+${c}% competition coins` : 'None'; }
+        if (u.id === 'fishwhisperer')  return lvl ? `+${lvl*0.5}% Trophy fish chance` : 'None';
+        if (u.id === 'treasurehold')   return lvl ? `+${lvl} Treasure Chest slot${lvl>1?'s':''} (capacity ${1+lvl})` : 'None';
+        if (u.id === 'ghostbusters')   return lvl ? `-${lvl} in-game hour${lvl>1?'s':''} expedition time` : 'None';
+        if (u.id === 'startingcapital')return lvl ? `+${(lvl*2000).toLocaleString()} coins on prestige` : 'None';
+        if (u.id === 'ghostwhisperer') return lvl ? `-${lvl*5}% Ghost Ship spawn interval` : 'None';
         return '';
       })();
 
       const nextEffect = (() => {
         if (atCap) return '';
         const nl = lvl + 1;
-        if (u.id === 'discount')     { const d = Math.min(Math.min(nl,5)*0.05+Math.max(0,nl-5)*0.02,0.90); return `-${(d*100).toFixed(0)}% cheaper shop prices`; }
-        if (u.id === 'speed')        return `Automation ${nl*25}% faster`;
-        if (u.id === 'storage')      return `+${nl*50}% storage capacity`;
-        if (u.id === 'multicatch')   return `+${nl} extra item${nl>1?'s':''} per catch`;
-        if (u.id === 'luckywaters')  return `+${nl*5}% Rare & Epic fish chance`;
-        if (u.id === 'masterangler') return `-${nl} tap${nl>1?'s':''} to catch a fish`;
-        if (u.id === 'treasure')     return `+${nl*5}% Lost Treasure chance`;
-        if (u.id === 'offline')      return `+${nl*10}% chance for extra fish per catch`;
-        if (u.id === 'compspirit')   return `+${nl*10}% competition coins`;
-        if (u.id === 'fishwhisperer')return `+${nl*3}% Trophy fish chance`;
-        if (u.id === 'treasurehold') return `+${nl} Treasure Chest slot${nl>1?'s':''} (capacity ${1+nl})`;
+        if (u.id === 'discount')       { const d = Math.min(Math.min(nl,5)*0.05+Math.max(0,nl-5)*0.02,0.90); return `-${(d*100).toFixed(0)}% cheaper shop prices`; }
+        if (u.id === 'speed')          { const s = Math.min(nl,8)*25 + Math.max(0,nl-8)*10; return `Automation ${s}% faster`; }
+        if (u.id === 'storage')        return `+${nl*50}% storage capacity`;
+        if (u.id === 'multicatch')     return `+${nl} extra item${nl>1?'s':''} per catch`;
+        if (u.id === 'luckywaters')    return `+${nl}% Uncommon–Legendary fish chance`;
+        if (u.id === 'masterangler')   return `-${nl} tap${nl>1?'s':''} to catch a fish`;
+        if (u.id === 'treasure')       { const t = Math.min(nl,10)*5 + Math.max(0,nl-10)*1; return `+${t}% Lost Treasure chance`; }
+        if (u.id === 'offline')        { const o = Math.min(nl,10)*10 + Math.max(0,nl-10)*2; return `+${o}% chance for extra fish per catch`; }
+        if (u.id === 'compspirit')     { const c = Math.min(nl,10)*10 + Math.max(0,nl-10)*2; return `+${c}% competition coins`; }
+        if (u.id === 'fishwhisperer')  return `+${nl*0.5}% Trophy fish chance`;
+        if (u.id === 'treasurehold')   return `+${nl} Treasure Chest slot${nl>1?'s':''} (capacity ${1+nl})`;
+        if (u.id === 'ghostbusters')   return `-${nl} in-game hour${nl>1?'s':''} expedition time`;
+        if (u.id === 'startingcapital')return `+${(nl*2000).toLocaleString()} coins on prestige`;
+        if (u.id === 'ghostwhisperer') return `-${nl*5}% Ghost Ship spawn interval`;
         return '';
       })();
 

@@ -2,6 +2,15 @@
 
 ---
 
+## v0.9.4.1 — Build 68 (July 2026)
+
+### Balance
+- **Black Pearl sell bonus — diminishing returns** — bonus is now logarithmic instead of linear. At low counts the feel is similar (10 pearls ≈ +9.5%), but high stacks are significantly reduced (100 pearls → +69% instead of +100%; 5 000 pearls → +393% instead of +5 000%).
+- **Market Discount reworked** — early levels nerfed from −10% to **−5% per level** (Lv1–5); Lv6+ stays at −2% per level. Maximum discount hard-capped at **−90%** (minimum 0.10× price).
+- **Competition rewards now zone-scaled** — rewards are based on estimated automation income multiplied by a zone factor (River 1.25×/0.75×/0.375×; Lake 2×/1.2×/0.6×; Bay 3×/1.8×/0.9×; Sea 5×/3×/1.5×; Ocean 10×/6×/3×). Pond keeps its fixed base + small % bonus.
+
+---
+
 ## v0.9.4.0 — Build 67 (July 2026)
 
 ### Feature
