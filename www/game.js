@@ -92,7 +92,7 @@ const FISH_DB = [
   { id:'smelt',              name:'Smelt',               rarity:'common',   baseValue:8,       zone:'bay',   zones:['bay'], img:'img/fish/Smelt.png' },
   { id:'sprat',              name:'Sprat',               rarity:'common',   baseValue:6,       zone:'bay',   zones:['bay'], img:'img/fish/Sprat.png' },
   { id:'monk_fish',          name:'Monk Fish',           rarity:'epic',     baseValue:196,     zone:'bay',   zones:['bay'], img:'img/fish/Monk Fish.png', timeWindow:{from:20,to:0}, manualOnly:true },
-  { id:'seahorse',           name:'Seahorse',            rarity:'legendary', baseValue:320,    zone:'bay',   zones:['bay'], img:'img/fish/Seahorse.png', timeWindow:{from:7,to:11}, manualOnly:true },
+  { id:'seahorse',           name:'Seahorse',            rarity:'epic',      baseValue:320,    zone:'bay',   zones:['bay'], img:'img/fish/Seahorse.png', timeWindow:{from:7,to:11}, manualOnly:true },
   // ── Sea (unique: salmon, haddock, redfish, wolffish, coelacanth, mola_mola) ──
   { id:'cod',                name:'Cod',                 rarity:'uncommon', baseValue:56,      zone:'sea',   zones:['sea','ocean'], img:'img/fish/Cod.png' },
   { id:'salmon',             name:'Salmon',              rarity:'rare',     baseValue:133,     zone:'sea',   zones:['sea'], img:'img/fish/Salmon.png' },
@@ -100,17 +100,17 @@ const FISH_DB = [
   { id:'haddock',            name:'Haddock',             rarity:'uncommon', baseValue:53,      zone:'sea',   zones:['sea'], img:'img/fish/Haddock.png' },
   { id:'redfish',            name:'Redfish',             rarity:'uncommon', baseValue:55,      zone:'sea',   zones:['sea'], img:'img/fish/Redfish.png' },
   { id:'wolffish',           name:'Wolffish',            rarity:'epic',     baseValue:350,     zone:'sea',   zones:['sea'], img:'img/fish/Wolffish.png' },
-  { id:'coelacanth',         name:'Coelacanth',          rarity:'legendary', baseValue:500,    zone:'sea',   zones:['sea'], img:'img/fish/Coelacanth.png', timeWindow:{from:1,to:3}, manualOnly:true },
-  { id:'mola_mola',          name:'Mola-mola',           rarity:'legendary', baseValue:500,    zone:'sea',   zones:['sea'], img:'img/fish/Mola-mola.png', timeWindow:{from:10,to:14}, manualOnly:true },
+  { id:'coelacanth',         name:'Coelacanth',          rarity:'epic',      baseValue:500,    zone:'sea',   zones:['sea'], img:'img/fish/Coelacanth.png', timeWindow:{from:1,to:3}, manualOnly:true },
+  { id:'mola_mola',          name:'Mola-mola',           rarity:'epic',      baseValue:500,    zone:'sea',   zones:['sea'], img:'img/fish/Mola-mola.png', timeWindow:{from:10,to:14}, manualOnly:true },
   // ── Ocean (unique: atlantic_mackerel, tuna, swordfish, marlin, mahi_mahi, giant_squid, oarfish, blue_whale) ──
   { id:'atlantic_mackerel',  name:'Atlantic Mackerel',   rarity:'common',   baseValue:46,      zone:'ocean', zones:['ocean'], img:'img/fish/Atlantic Mackerel.png' },
   { id:'tuna',               name:'Tuna',                rarity:'common',   baseValue:56,      zone:'ocean', zones:['ocean'], img:'img/fish/Tuna.png' },
   { id:'swordfish',          name:'Swordfish',           rarity:'uncommon', baseValue:154,     zone:'ocean', zones:['ocean'], img:'img/fish/Swordfish.png' },
   { id:'marlin',             name:'Marlin',              rarity:'rare',     baseValue:336,     zone:'ocean', zones:['ocean'], img:'img/fish/Marlin.png' },
   { id:'mahi_mahi',          name:'Mahi-Mahi',           rarity:'common',   baseValue:46,      zone:'ocean', zones:['ocean'], img:'img/fish/Mahi-Mahi.png' },
-  { id:'giant_squid',        name:'Giant Squid',         rarity:'legendary', baseValue:960,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2}, manualOnly:true },
+  { id:'giant_squid',        name:'Giant Squid',         rarity:'epic',      baseValue:960,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2}, manualOnly:true },
   { id:'oarfish',            name:'Oarfish',             rarity:'rare',     baseValue:294,     zone:'ocean', zones:['ocean'], img:'img/fish/Oarfish.png' },
-  { id:'blue_whale',         name:'Blue Whale',          rarity:'legendary', baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Blue Whale.png', timeWindow:{from:1,to:3}, manualOnly:true },
+  { id:'blue_whale',         name:'Blue Whale',          rarity:'epic',      baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Blue Whale.png', timeWindow:{from:1,to:3}, manualOnly:true },
   // ── Time-specific (special = not in base Excel table, shown separately in Fishdex) ──
   { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:4,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
   { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:3,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
@@ -507,12 +507,24 @@ const _COMP_NAME_FALLBACK = [
 ];
 let _competitionNamesData = null; // patient_angler_competition_names_v0_1_14.json
 let _grandWinnersMode = false;    // true while grand-winners screen is showing
-function getCompBaseReward(rank) {
-  const hourly = getEstimatedHourlyIncome();
-  if (rank === 1) return 500 + Math.round(hourly * 0.05);
-  if (rank === 2) return 250 + Math.round(hourly * 0.03);
-  if (rank === 3) return 100 + Math.round(hourly * 0.01);
-  return 0;
+function getCompBaseReward(rank, zone) {
+  if (rank < 1 || rank > 3) return 0;
+  const z      = zone || (G.competition && G.competition.zone) || G.currentZone;
+  const hourly = estimateAutoHourlyIncome();
+  if (z === 'pond') {
+    const fixed = [500,  250,  100 ][rank - 1];
+    const pct   = [0.05, 0.03, 0.01][rank - 1];
+    return fixed + Math.round(hourly * pct);
+  }
+  const ZONE_MULTS = {
+    river: [1.25, 0.75,  0.375],
+    lake:  [2,    1.2,   0.6  ],
+    bay:   [3,    1.8,   0.9  ],
+    sea:   [5,    3,     1.5  ],
+    ocean: [10,   6,     3    ],
+  };
+  const m = (ZONE_MULTS[z] || ZONE_MULTS.river)[rank - 1];
+  return Math.round(hourly * m);
 }
 const HOF_SEEDED = {
   pond:  {fishName:'Giant Crucian Carp', value:2850,   rarity:'epic',      size:20, player:'MasterAngler'},
@@ -994,7 +1006,7 @@ function buyRodTier(id) {
 function prestigeThreshold() { return Math.floor(15000 * Math.pow(1.20, G.prestigeCount || 0)); }
 
 const PEARL_UPGRADES = [
-  { id:'discount',     name:'Market Discount',   desc:'Shop prices cheaper per level (−10% up to Lv5, then −2% per level).',          costs:[4,7,11,17,26],                                  growthRate:1.53, maxLevel:null },
+  { id:'discount',     name:'Market Discount',   desc:'Shop prices cheaper per level (−5% up to Lv5, then −2% per level, max −90%).',  costs:[4,7,11,17,26],                                  growthRate:1.53, maxLevel:null },
   { id:'speed',        name:'Empire Boost',       desc:'Automation faster per level (+25% up to Lv8, then +10% per level).',            costs:[5,8,12,18,27,40,60,90],                         growthRate:1.50, maxLevel:null },
   { id:'storage',      name:'Expanded Holds',     desc:'Storage holds 50% more items per level.',                                        costs:[3,5,7,10,14,20,28,39,55,77],  growthRate:1.40,  maxLevel:null },
   { id:'multicatch',   name:'Hauling Nets',        desc:'Automation collects 1 extra item per cycle per level.',                          costs:[50,75,110,160,230,330,470,670,950,1350], growthRate:1.42, maxLevel:null },
@@ -1012,12 +1024,13 @@ const PEARL_UPGRADES = [
 
 const PEARL_IMG = `<img src="img/icons/Black pearl icon.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px">`;
 
-function getBlackPearlBonus()         { return 1 + ((G.blackPearls || 0) * 0.01); }
+function getBlackPearlBonus()         { const p = Math.max(0, G.blackPearls || 0); return 1 + Math.log(1 + p / 100); }
+function getBlackPearlBonusPct()      { const p = Math.max(0, G.blackPearls || 0); return 100 * Math.log(1 + p / 100); }
 function getPearlDiscountMult() {
-  const lvl = (G.pearlUpgrades||{}).discount||0;
-  const p1 = Math.min(lvl, 5) * 0.10;
+  const lvl = Math.max(0, (G.pearlUpgrades||{}).discount||0);
+  const p1 = Math.min(lvl, 5) * 0.05;
   const p2 = Math.max(0, lvl - 5) * 0.02;
-  return Math.max(0.01, 1 - p1 - p2);
+  return Math.max(0.10, 1 - Math.min(p1 + p2, 0.90));
 }
 function getPearlSpeedMult() {
   const lvl = (G.pearlUpgrades||{}).speed||0;
@@ -1143,6 +1156,7 @@ function executePrestige() {
   G.rodTiers           = { basic_rod:0, river_rod:0, lake_rod:0, bay_rod:0, sea_rod:0, ocean_rod:0, carbon_rod:0, mythic_rod:0, abyss_rod:0 };
   G.bobberTiers        = { basic_bobber:0, sensitive_bobber:0, heavy_bobber:0, electronic_bobber:0 };
   G.currentBobber      = 'basic_bobber';
+  G.seagullBaitCount   = 0;
   G.targetedLureLevel  = 0;
   G.targetedLureTargets= [];
 
@@ -3638,8 +3652,8 @@ function renderShop(tab) {
       ));
     });
 
-    // Expedition Vessel — unlocks after first Sea unlock
-    if (G.sunkenTreasureUnlocked) {
+    // Expedition Vessel — requires Sea zone to be currently unlocked (sunkenTreasureUnlocked persists across prestiges)
+    if (G.sunkenTreasureUnlocked && isZoneUnlocked('sea')) {
       const evCount  = (G.expeditionVessels || []).length;
       const atMax    = evCount >= EXPEDITION_VESSEL_MAX;
       const maxBuy   = _evMaxAffordable();
@@ -3705,8 +3719,8 @@ function renderShop(tab) {
     const threshold    = prestigeThreshold();
     const currentCoins = G.coins || 0;
     const coinsNeeded  = Math.max(0, threshold - currentCoins);
-    const passiveBonus = pearls;
-    const sellMult     = (1 + pearls * 0.01).toFixed(2);
+    const pearlBonusPct = getBlackPearlBonusPct();
+    const sellMult      = getBlackPearlBonus().toFixed(3);
     const upgrades     = G.pearlUpgrades || {};
 
 
@@ -3717,7 +3731,7 @@ function renderShop(tab) {
       const canAfford = !atCap && pearls >= cost;
 
       const currentEffect = (() => {
-        if (u.id === 'discount')     return lvl ? `-${lvl*10}% cheaper shop prices` : 'None';
+        if (u.id === 'discount')     { if (!lvl) return 'None'; const d = Math.min(Math.min(lvl,5)*0.05+Math.max(0,lvl-5)*0.02,0.90); return `-${(d*100).toFixed(0)}% cheaper shop prices`; }
         if (u.id === 'speed')        return lvl ? `Automation ${lvl*25}% faster` : 'None';
         if (u.id === 'storage')      return lvl ? `+${lvl*50}% storage capacity` : 'None';
         if (u.id === 'multicatch')   return lvl ? `+${lvl} extra item${lvl>1?'s':''} per catch` : 'None';
@@ -3734,7 +3748,7 @@ function renderShop(tab) {
       const nextEffect = (() => {
         if (atCap) return '';
         const nl = lvl + 1;
-        if (u.id === 'discount')     return `-${nl*10}% cheaper shop prices`;
+        if (u.id === 'discount')     { const d = Math.min(Math.min(nl,5)*0.05+Math.max(0,nl-5)*0.02,0.90); return `-${(d*100).toFixed(0)}% cheaper shop prices`; }
         if (u.id === 'speed')        return `Automation ${nl*25}% faster`;
         if (u.id === 'storage')      return `+${nl*50}% storage capacity`;
         if (u.id === 'multicatch')   return `+${nl} extra item${nl>1?'s':''} per catch`;
@@ -3770,8 +3784,8 @@ function renderShop(tab) {
         <div class="prestige-pearl-banner">
           <div class="prestige-pearl-count"><img src="img/icons/Black pearl icon.png" style="width:36px;height:36px;vertical-align:middle;margin-right:6px">${pearls}</div>
           <div class="prestige-pearl-label">Black Pearls</div>
-          <div style="font-size:12px;color:#d4a0ff;margin-top:4px">Each unspent Black Pearl increases fish sell value by 1%.</div>
-          <div style="font-size:13px;color:#e0e0e0;margin-top:6px">Current Fish Sell Bonus: <span style="color:#f0c040">+${passiveBonus}%</span></div>
+          <div style="font-size:12px;color:#d4a0ff;margin-top:4px">Unspent Black Pearls increase fish sell value. Each additional Pearl provides a smaller bonus.</div>
+          <div style="font-size:13px;color:#e0e0e0;margin-top:6px">Current Fish Sell Bonus: <span style="color:#f0c040">+${pearlBonusPct.toFixed(1)}%</span></div>
           <div style="font-size:13px;color:#e0e0e0;margin-top:2px">Fish Sell Multiplier: <span style="color:#f0c040">${sellMult}×</span></div>
         </div>
         <div class="prestige-section">
@@ -6638,7 +6652,7 @@ function _getSeriesRanking() {
 }
 
 function _calcGrandReward(rank) {
-  const base = getCompBaseReward(rank) * 5;
+  const base = getCompBaseReward(rank, G.competition && G.competition.zone) * 5;
   return Math.round(base * getPearlCompSpiritMult() * getMasteryCompMult());
 }
 
@@ -6798,7 +6812,7 @@ function finishCompetition() {
     ...c.bots.map(b => ({ name: b.name, value: b.best ? b.best.value : 0 })),
   ].sort((a, b) => b.value - a.value);
   const myRank = sorted.findIndex(e => e.isPlayer) + 1;
-  let reward = Math.round(getCompBaseReward(myRank) * getPearlCompSpiritMult() * getMasteryCompMult());
+  let reward = Math.round(getCompBaseReward(myRank, c.zone) * getPearlCompSpiritMult() * getMasteryCompMult());
   c.finished = true; c.myRank = myRank; c.myReward = reward; c.active = false;
   if (reward > 0) _earnCoins(reward);
   if (myRank === 1) {
