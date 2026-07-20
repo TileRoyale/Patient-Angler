@@ -2,6 +2,58 @@
 
 ---
 
+## v0.9.4.0 — Build 67 (July 2026)
+
+### Feature
+- **20 numerical fish size ranges** — replaces the 5 named sizes (Tiny / Small / Medium / Large / Trophy). Fish are now Size 1–20, with a bell-curve weight distribution. Sizes 18–20 are Trophy-class (earn a Diamond).
+- **Heavy Bobber reworked** — instead of a hard index shift (capping at Large), each tier now adds weighted bias toward larger size ranges. All 15 tiers provide distinct improvement. Trophy chance grows from ~0.3% (no bobber) to ~2.5% (Tier 15 max).
+
+### Balance
+- **Basic Bobber** — fishing speed bonus increased from +1% to **+3% per tier** (Tier 15 = +45% total)
+- **Electronic Bobber** — changed from guaranteed +1 extra fish per tier to **+50% extra catch chance per tier** (stacks: Tier 2 = 100% = guaranteed +1; Tier 3 = guaranteed +1 + 50% chance of +2; etc.)
+
+### Fix
+- **Save migration** — existing fish pile entries and FishDex best-size records are automatically converted from the old named-size format to the new numeric format on first load
+
+---
+
+## v0.9.3.9 — Build 66 (July 2026)
+
+### Balance
+- **Pond fish sell values doubled** — all Pond fish baseValues ×2 (Giant Crucian Carp unchanged at 39c): Stickleback 1→2, Crucian Carp / Roach / Small Perch 2→4, Common Bream / Afternoon Roach 3→6, Morning Perch 4→8, Stone Loach 6→12, Tench 7→14, Goldfish 8→16, Pumpkinseed 11→22, Weatherfish 13→26
+- **Net costs reduced** — Fishing Net base 100→60c (1st purchase still 10c), Reinforced Net 3 000→1 000c, River Net 15 000→5 000c
+- **River Net faster** — catch interval 30s → 25s
+
+---
+
+## v0.9.3.8 — Build 65 (July 2026)
+
+### New
+- **4 new manual-only fish** — catch them only by active fishing during specific in-game hours:
+  - **Seahorse** (Bay, Legendary, 07:00–11:00) — earns 320 coins base
+  - **Monk Fish** (Bay, Epic, 20:00–00:00) — earns 196 coins base
+  - **Mola-mola** (Sea, Legendary, 10:00–14:00) — earns 500 coins base
+  - **Blue Whale** (Ocean, Legendary, 01:00–03:00) — earns 1 260 coins base
+- **Coelacanth moved to Sea** — previously Ocean-only, now a Sea Legendary (01:00–03:00, 500 coins base)
+- **Bay and Sea loot tables** now include a Legendary weight slot — manual fishing in these zones can roll Legendary fish
+
+### Balance
+- **Giant Squid baseValue** 392 → 960 (Ocean Legendary rebalance)
+- **Coelacanth baseValue** 1 260 → 500 (moved to Sea; reflects zone)
+- **Mola-mola baseValue** set to 500 (matches Coelacanth at Sea tier)
+
+### Fix
+- **Mastery help overlay** — Gold / Platinum / Diamond catch thresholds were showing outdated values; now match the actual thresholds in code (200 K / 2 M / 20 M)
+- **Ghost Ship reward popup** — on small screens the reward list can now scroll; title, image and Claim button always stay visible
+- **Jeweler — pearl upgrade bonus display** — multiple upgrades showed incorrect current/next bonus text:
+  - Lucky Waters: was showing ×5 the real value (+5% per level shown, +1% actual)
+  - Fish Whisperer: was showing ×6 the real value (+3% per level shown, +0.5% actual)
+  - Market Discount / Empire Boost / Offline Expert / Competition Spirit / Treasure Hunter: bonus display did not account for the rate change after the upgrade's breakpoint level, showing inflated numbers at high levels
+  - Ghost Busters, Starting Capital, Ghost Whisperer: now show a current bonus label (were blank before)
+- **Lucky Waters description** updated to reflect that Uncommon and Legendary fish also benefit (not just Rare and Epic)
+
+---
+
 ## v0.9.3.7 — Build 64 (July 2026)
 
 ### Fix

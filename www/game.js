@@ -309,11 +309,26 @@ const PLANT_DB = [
 const FISHDEX_TOTAL = FISH_DB.length + TRASH_DB.length + PLANT_DB.length;
 
 const SIZE_TABLE = [
-  { size:'Tiny',   weight:200, mult:0.5 },
-  { size:'Small',  weight:300, mult:0.8 },
-  { size:'Medium', weight:340, mult:1.0 },
-  { size:'Large',  weight:150, mult:1.5 },
-  { size:'Trophy', weight:1,   mult:3.0 },  // ~0.1% — 10× rarer than original 1%
+  { size:1,  weight:70,  mult:0.30 },
+  { size:2,  weight:100, mult:0.36 },
+  { size:3,  weight:120, mult:0.43 },
+  { size:4,  weight:135, mult:0.51 },
+  { size:5,  weight:140, mult:0.60 },
+  { size:6,  weight:135, mult:0.68 },
+  { size:7,  weight:120, mult:0.76 },
+  { size:8,  weight:100, mult:0.84 },
+  { size:9,  weight:80,  mult:0.92 },
+  { size:10, weight:62,  mult:1.00 },
+  { size:11, weight:46,  mult:1.10 },
+  { size:12, weight:33,  mult:1.22 },
+  { size:13, weight:22,  mult:1.36 },
+  { size:14, weight:14,  mult:1.52 },
+  { size:15, weight:8,   mult:1.72 },
+  { size:16, weight:4,   mult:1.96 },
+  { size:17, weight:2,   mult:2.25 },
+  { size:18, weight:2,   mult:2.60, trophy:true },
+  { size:19, weight:1,   mult:3.00, trophy:true },
+  { size:20, weight:1,   mult:3.50, trophy:true },
 ];
 
 const RODS = [
@@ -341,10 +356,10 @@ const STORAGE_ITEMS = [
 ];
 
 const BOBBERS = [
-  { id:'basic_bobber',      name:'Basic Bobber',      baseCost:800,  desc:'+1% fishing speed per tier (all methods)', img:'img/icons/Shop/Bait/Basic bobber.png' },
+  { id:'basic_bobber',      name:'Basic Bobber',      baseCost:800,  desc:'+3% fishing speed per tier (all methods)', img:'img/icons/Shop/Bait/Basic bobber.png' },
   { id:'sensitive_bobber',  name:'Sensitive Bobber',  baseCost:1200, desc:'+1% rare fish chance per tier',            img:'img/icons/Shop/Bait/Sensitive Bobber.png' },
   { id:'heavy_bobber',      name:'Heavy Bobber',      baseCost:2000, desc:'+1 fish size tier per tier',               img:'img/icons/Shop/Bait/Heavy Bobber.png' },
-  { id:'electronic_bobber', name:'Electronic Bobber', baseCost:5000, desc:'+1 extra fish caught per tier',            img:'img/icons/Shop/Bait/Electronic Bobber.png' },
+  { id:'electronic_bobber', name:'Electronic Bobber', baseCost:5000, desc:'+50% extra catch chance per tier (stacks)', img:'img/icons/Shop/Bait/Electronic Bobber.png' },
   { id:'premium_bait',      name:'Premium Bait',      baseCost:0,    desc:'+100% rare chance, 30 min (Diamonds)',     img:'img/icons/Shop/Bait/Premium Bait.png', diamondCost:5 },
 ];
 
@@ -500,12 +515,12 @@ function getCompBaseReward(rank) {
   return 0;
 }
 const HOF_SEEDED = {
-  pond:  {fishName:'Giant Crucian Carp', value:2850,   rarity:'epic',      size:'Trophy', player:'MasterAngler'},
-  river: {fishName:'Brown Trout',        value:1560,   rarity:'rare',      size:'Trophy', player:'TroutHunter'},
-  lake:  {fishName:'Catfish',            value:31500,  rarity:'epic',      size:'Trophy', player:'BigGameFisher'},
-  bay:   {fishName:'Sea Trout',          value:54000,  rarity:'epic',      size:'Trophy', player:'BayMaster'},
-  sea:   {fishName:'Halibut',            value:135000, rarity:'epic',      size:'Trophy', player:'DeepSeaDave'},
-  ocean: {fishName:'Coelacanth',         value:432000, rarity:'epic',      size:'Trophy', player:'OceanKing'},
+  pond:  {fishName:'Giant Crucian Carp', value:2850,   rarity:'epic',      size:20, player:'MasterAngler'},
+  river: {fishName:'Brown Trout',        value:1560,   rarity:'rare',      size:20, player:'TroutHunter'},
+  lake:  {fishName:'Catfish',            value:31500,  rarity:'epic',      size:20, player:'BigGameFisher'},
+  bay:   {fishName:'Sea Trout',          value:54000,  rarity:'epic',      size:20, player:'BayMaster'},
+  sea:   {fishName:'Halibut',            value:135000, rarity:'epic',      size:20, player:'DeepSeaDave'},
+  ocean: {fishName:'Coelacanth',         value:432000, rarity:'epic',      size:20, player:'OceanKing'},
 };
 
 const ZONE_TITLES = {
@@ -812,7 +827,7 @@ function _rollW1Legendary(zone) {
     if (Math.random() < 1 / 50000000) {
       return {
         fishId: fish.id, name: fish.name, rarity: 'legendary', w1legendary: true,
-        size: 'Large', sizeMult: 1.5, value: 0, caughtAt: Date.now(),
+        size: 15, sizeMult: 1.72, value: 0, caughtAt: Date.now(),
         img: fish.img, autoSell: false, isTrophy: false, zone,
       };
     }
@@ -893,7 +908,7 @@ function getRapidWatersMult()   { return isRapidWatersActive() ? 1.5 : 1; }
 function isAdSpeedBoostActive() { return Date.now() < (G.adSpeedBoostEnd || 0); }
 function getAdSpeedMult()       { return isAdSpeedBoostActive() ? 1.25 : 1; }
 function getSpeedMult() {
-  return (1 + getBobberTier('basic_bobber') * 0.01)
+  return (1 + getBobberTier('basic_bobber') * 0.03)
     * getRapidWatersMult()
     * getAdSpeedMult()
     * (G.devSupportOwned ? 1.25 : 1)
@@ -901,8 +916,17 @@ function getSpeedMult() {
 }
 function getRarityBonus()  { return     getBobberTier('sensitive_bobber') * 0.01; }
 function getSizeShift()    { return     getBobberTier('heavy_bobber'); }
-function getMultiCatch()       { return getBobberTier('electronic_bobber') + 1 + ((G.pearlUpgrades||{}).multicatch||0); }
-function getManualMultiCatch() { return getBobberTier('electronic_bobber') + 1; }
+function getMultiCatch() {
+  // Expected value (float) for rate calculations and offline phase
+  return 1 + getBobberTier('electronic_bobber') * 0.5 + ((G.pearlUpgrades||{}).multicatch||0);
+}
+function rollMultiCatch() {
+  // Probabilistic integer for actual per-catch quantities (auto tick)
+  const tier = getBobberTier('electronic_bobber');
+  const pearl = (G.pearlUpgrades||{}).multicatch||0;
+  return 1 + pearl + Math.floor(tier / 2) + (tier % 2 === 1 && Math.random() < 0.5 ? 1 : 0);
+}
+function getManualMultiCatch() { return 1 + Math.floor(getBobberTier('electronic_bobber') / 2); }
 
 function buyBobberTier(id) {
   const maxTier = getBobberMaxUnlockedTier();
@@ -2072,6 +2096,7 @@ function initQuests() {
   }
   migrateManualFishdex();
   migrateW1LegendaryBug();
+  migrateSizeStringsToNumbers();
 
   const today  = todayStr();
   const monday = mondayStr();
@@ -2281,7 +2306,8 @@ function fishPileValue(fishId, size) {
   const f = FISH_DB.find(x => x.id === fishId);
   if (!f) return 0;
   if (size === 'FishFight') return f.baseValue * 5; // exact 5× base, no multipliers
-  const s = SIZE_TABLE.find(x => x.size === size);
+  const sizeKey = isNaN(Number(size)) ? size : Number(size); // keys from split() are strings; SIZE_TABLE uses numbers
+  const s = SIZE_TABLE.find(x => x.size === sizeKey);
   if (!s) return 0;
   const abyssBonus = f.zone === 'abyss' ? getRodAbyssSellBonus() : 1;
   return Math.round(f.baseValue * s.mult * getRodSellBonus() * abyssBonus * getBlackPearlBonus() * getMasteryFishSellMult() * (G.devSupportOwned ? 1.25 : 1));
@@ -2435,7 +2461,7 @@ function _updateSaleRecords(fishId, size, val) {
   }
 }
 
-const _SIZE_ORDER = ['Tiny', 'Small', 'Medium', 'Large', 'Trophy'];
+// bestSize is now a number 1–20; comparison is numeric
 
 function trackManualFishdexEntry(c) {
   const fish = FISH_DB.find(f => f.id === c.fishId);
@@ -2449,9 +2475,9 @@ function trackManualFishdexEntry(c) {
   prev.discovered = true;
   if (!prev.firstCaughtDate) prev.firstCaughtDate = todayStr();
   prev.totalCatches = (prev.totalCatches || 0) + 1;
-  const sz = c.isTrophy ? 'Trophy' : (c.size || null);
+  const sz = c.size || null;
   if (sz) {
-    if (!prev.bestSize || _SIZE_ORDER.indexOf(sz) > _SIZE_ORDER.indexOf(prev.bestSize))
+    if (!prev.bestSize || sz > prev.bestSize)
       prev.bestSize = sz;
   }
   if (c.weightG && c.weightG > (prev.largestWeight || 0)) prev.largestWeight = c.weightG;
@@ -2483,7 +2509,7 @@ function migrateManualFishdex() {
       if ((G.trophyRecords || {})[f.id]) {
         G.manualFishdex[f.id].largestWeight = G.trophyRecords[f.id].weight || 0;
         G.manualFishdex[f.id].trophyCount   = 1;
-        G.manualFishdex[f.id].bestSize       = 'Trophy';
+        G.manualFishdex[f.id].bestSize       = 20;
       }
     }
   });
@@ -2505,6 +2531,35 @@ function migrateW1LegendaryBug() {
   });
   if (G.fishdex) G.fishdex = G.fishdex.filter(id => !w1ids.has(id));
   G.w1legBugCleaned = true;
+}
+
+// Migrate fishPile string-size keys and manualFishdex bestSize strings → numeric sizes (v0.9.4+)
+function migrateSizeStringsToNumbers() {
+  if (G.sizesMigrated) return;
+  const _strToNum = { Tiny:4, Small:8, Medium:10, Large:14, Trophy:20 };
+  if (G.fishPile) {
+    const newPile = {};
+    Object.entries(G.fishPile).forEach(([key, qty]) => {
+      const parts = key.split('|');
+      const fishId = parts[0], sizeStr = parts[1];
+      if (sizeStr && isNaN(Number(sizeStr))) {
+        const numSize = _strToNum[sizeStr] || 10;
+        const newKey = fishId + '|' + numSize;
+        newPile[newKey] = (newPile[newKey] || 0) + qty;
+      } else {
+        newPile[key] = (newPile[key] || 0) + qty;
+      }
+    });
+    G.fishPile = newPile;
+  }
+  if (G.manualFishdex) {
+    Object.values(G.manualFishdex).forEach(entry => {
+      if (entry.bestSize && isNaN(Number(entry.bestSize))) {
+        entry.bestSize = _strToNum[entry.bestSize] || 10;
+      }
+    });
+  }
+  G.sizesMigrated = true;
 }
 
 function finalizeQuestUpdate() {
@@ -2800,16 +2855,19 @@ function rollCatch(zone, isManual) {
   if (!pool.length) return rollCatch('pond', isManual); // ultimate fallback
   const fish = _pickFromPool(pool);
   const trophyMult = (isCompetitionActive() ? 2 : 1) * (1 + getPearlFishWhispererBonus() * 10 + getMasteryTrophyBonus() * 10);
-  const sizePool = trophyMult !== 1
-    ? SIZE_TABLE.map(e => e.size === 'Trophy' ? { ...e, weight: e.weight * trophyMult } : e)
-    : SIZE_TABLE;
-  const rolledSize = weightedRandom(sizePool);
-  let sizeIdx = SIZE_TABLE.findIndex(e => e.size === rolledSize.size);
-  if (rolledSize.size !== 'Trophy') {
-    sizeIdx = Math.min(SIZE_TABLE.length - 2, sizeIdx + getSizeShift()); // size shift caps at Large; Trophy only from natural roll
-  }
-  const sizeRow = SIZE_TABLE[sizeIdx];
-  const isTrophy = sizeRow.size === 'Trophy';
+  const bobberShift = getSizeShift(); // 0–5+; each tier adds weight bias toward larger ranges
+  const sizePool = SIZE_TABLE.map((e, i) => {
+    // Trophy ranges (i=17-19) use a much smaller scale so Tier 15 ≈ 2.5% trophy max.
+    // Non-trophy ranges use /4 for a strong per-tier distribution shift.
+    const bonus = e.trophy
+        ? Math.floor(bobberShift * (i - 16) * 9 / 20)
+        : Math.floor(bobberShift * i / 4);
+    let w = e.weight + bonus;
+    if (e.trophy && trophyMult !== 1) w = Math.round(w * trophyMult);
+    return w !== e.weight ? { ...e, weight: w } : e;
+  });
+  const sizeRow = weightedRandom(sizePool);
+  const isTrophy = !!sizeRow.trophy;
   const weightG  = isTrophy ? (() => {
     const [wMin, wMax] = FISH_WEIGHTS[fish.id] || [100, 1000];
     return Math.round(wMin + Math.random() * (wMax - wMin));
@@ -2861,12 +2919,18 @@ function presentCatch(c) {
   img.src = c.img || '';
   img.style.display = c.img ? 'block' : 'none';
   name.textContent = c.name;
-  const _multi = getManualMultiCatch();
+  const _eTier = getBobberTier('electronic_bobber');
+  const _pearlMC = (G.pearlUpgrades||{}).multicatch||0;
+  const _exc = getPearlExtraCatchChance();
+  const _multi = 1 + _pearlMC + Math.floor(_eTier / 2)
+               + (_eTier % 2 === 1 && Math.random() < 0.5 ? 1 : 0)
+               + (_exc > 0 && Math.random() < _exc ? 1 : 0);
+  c._preMulti = _multi;
   if (isFishFight)   size.textContent = 'Fish Fight Catch' + (_multi > 1 ? ' ×' + _multi : '');
   else if (c.isTrophy) size.textContent = 'Trophy · ' + formatWeight(c.weightG);
   else if (isTrash)  size.textContent = 'Goes to Market' + (_multi > 1 ? ' ×' + _multi : '');
   else if (isPlant)  size.textContent = 'Goes to Market' + (_multi > 1 ? ' ×' + _multi : '');
-  else               size.textContent = c.size + ' size' + (_multi > 1 ? ' ×' + _multi : '');
+  else               size.textContent = 'Size ' + c.size + (_multi > 1 ? ' ×' + _multi : '');
   if (isFishFight)   val.textContent = '+' + (c.value * _multi) + 'c (base ×5' + (_multi > 1 ? ' ×' + _multi + ' multi' : '') + ')';
   else if (c.isTrophy) val.innerHTML = '+1 <img src="img/icons/Diamond icon.png" class="diamond-icon-sm" alt="◆" style="vertical-align:middle">';
   else if (isTrash)  val.textContent = '+' + _multi + 'c';
@@ -2905,8 +2969,7 @@ function presentCatch(c) {
 document.getElementById('btn-catch-ok').addEventListener('click', () => {
   if (!currentCatch) return;
   const c = currentCatch;
-  const _exc  = getPearlExtraCatchChance();
-  const multi = getManualMultiCatch() + (_exc > 0 && Math.random() < _exc ? 1 : 0);
+  const multi = c._preMulti || (1 + getBobberTier('electronic_bobber') + ((G.pearlUpgrades||{}).multicatch||0));
   c._multi = multi;
 
   trackManualCatch(c);
@@ -3314,7 +3377,7 @@ function autoTick() {
 
   // Pre-compute multipliers once per tick (not per unit)
   const speedBase      = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier();
-  const multiCatch     = getMultiCatch();
+  const multiCatch     = rollMultiCatch();
   const extraCatchMult = 1 + getPearlExtraCatchChance();
   const typeMults  = {
     net:       getRodNetSpeedMult(),
@@ -3376,7 +3439,7 @@ function autoTick() {
         const space = storageCapacity() - fishPileTotal();
         if (space <= 0) break;
         const qty = c.w1legendary ? 1 : Math.min(multiCatch, space);
-        const autoSize = c.isTrophy ? 'Large' : (c.w1legendary ? 'Large' : c.size);
+        const autoSize = c.isTrophy ? 14 : (c.w1legendary ? 15 : c.size);
         const _k = fishPileKey(c.fishId, autoSize);
         const isFirstW1 = c.w1legendary && !G.fishdex.includes(c.fishId);
         G.fishPile[_k] = (G.fishPile[_k] || 0) + qty;
@@ -3834,10 +3897,10 @@ function makeBobberTierItem(bob) {
     return `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;margin:1px;background:${filled?color:'#333'};border:1px solid #555;"></span>`;
   }).join('');
 
-  const effectValue = bob.id === 'basic_bobber'    ? `+${tier}% speed`
+  const effectValue = bob.id === 'basic_bobber'    ? `+${tier * 3}% speed`
                     : bob.id === 'sensitive_bobber' ? `+${tier}% rarity`
                     : bob.id === 'heavy_bobber'     ? `+${tier} size tier`
-                    : bob.id === 'electronic_bobber'? `+${tier} extra fish`
+                    : bob.id === 'electronic_bobber'? `+${tier * 50}% catch chance`
                     : '';
 
   const disabled  = maxed || locked || G.coins < cost;
@@ -4769,7 +4832,7 @@ function calculateOfflineProgress() {
     if (type === 'trash') return { fishId: item.id, name: item.name, rarity: 'trash' };
     if (type === 'plant') return { fishId: item.id, name: item.name, rarity: 'plant' };
     const sizeRow = weightedRandom(SIZE_TABLE);
-    const size = sizeRow.size === 'Trophy' ? 'Large' : sizeRow.size;
+    const size = sizeRow.trophy ? 17 : sizeRow.size;
     return { fishId: item.id, rarity: type, size, isTrophy: false };
   }
 
@@ -4827,11 +4890,11 @@ function calculateOfflineProgress() {
   [...FISH_DB, ...PLANT_DB, ...TRASH_DB].forEach(function(it) { _offItemMap[it.id] = it; });
   const _offMasteryBatch = {};
 
-  // Pre-compute size distribution for automation (Trophy → Large). Built once, reused per catch.
+  // Pre-compute size distribution for automation (trophy entries → size 14). Built once, reused per catch.
   const _offSizeDist = [];
   const _stTotalW = SIZE_TABLE.reduce(function(s, e) { return s + e.weight; }, 0);
   SIZE_TABLE.forEach(function(e) {
-    const sz = e.size === 'Trophy' ? 'Large' : e.size;
+    const sz = e.trophy ? 14 : e.size; // trophy catches stored as size 14 in auto pile
     const ex = _offSizeDist.find(function(x) { return x.sz === sz; });
     if (ex) ex.prob += e.weight / _stTotalW;
     else _offSizeDist.push({ sz: sz, prob: e.weight / _stTotalW });
@@ -4860,7 +4923,7 @@ function calculateOfflineProgress() {
           : (Math.random() < expected ? 1 : 0);
         if (n > 0) {
           const qty = Math.min(n, _offStorageCap - _offTotal);
-          const key = fishPileKey(lf.id, 'Large');
+          const key = fishPileKey(lf.id, 15);
           const isFirst = !_offFishdexSet.has(lf.id);
           G.fishPile[key] = (G.fishPile[key] || 0) + qty;
           _offTotal += qty;
@@ -6679,7 +6742,7 @@ function tickCompetitionBots() {
     const pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone));
     if (!pool.length) return;
     const fish = pool[randInt(0, pool.length - 1)];
-    const sizeRow = weightedRandom(SIZE_TABLE.filter(s => s.size !== 'Trophy'));
+    const sizeRow = weightedRandom(SIZE_TABLE.filter(s => !s.trophy));
     const value = Math.round(fish.baseValue * sizeRow.mult);
     if (!bot.best || value > bot.best.value) {
       bot.best = { name: fish.name, value, rarity: fish.rarity, size: sizeRow.size };
@@ -7188,8 +7251,8 @@ function _renderBonusesTab() {
       src('Base speed',            fmtX(baseSpeed)),
       src('Ocean Rod tier',        fmtX(getRodFleetSpeedMult())),
     ]),
-    bon('Multi-Catch', getMultiCatch() + 'x catches', [
-      src('Electronic Bobber tier', '+' + getBobberTier('electronic_bobber')),
+    bon('Multi-Catch', getMultiCatch().toFixed(1) + 'x avg', [
+      src('Electronic Bobber tier', '+' + (getBobberTier('electronic_bobber') * 50) + '% catch chance'),
       src('Hauling Nets pearl',     '+' + ((G.pearlUpgrades||{}).multicatch||0)),
     ]),
     bon('Extra Catch Chance', Math.round(getPearlExtraCatchChance() * 100) + '%', [
@@ -7207,7 +7270,7 @@ function _renderBonusesTab() {
       src('Minimum',                     '4 taps'),
     ]),
     bon('Bite Speed', fmtX(getSpeedMult()), [
-      src('Basic Bobber tier',       fmtX(1 + getBobberTier('basic_bobber') * 0.01)),
+      src('Basic Bobber tier',       fmtX(1 + getBobberTier('basic_bobber') * 0.03)),
       ...(isRapidWatersActive()  ? [src('Rapid Waters (active)',  '1.50x')] : []),
       ...(isAdSpeedBoostActive() ? [src('Ad Speed Boost (active)','1.25x')] : []),
       ...(G.devSupportOwned      ? [src('Dev Support',            '1.25x')] : []),
@@ -8091,7 +8154,7 @@ function init() {
   // Migrate old inventory array → fishPile
   if (G.inventory && G.inventory.length) {
     G.inventory.forEach(item => {
-      const k = fishPileKey(item.fishId, item.size || 'Medium');
+      const k = fishPileKey(item.fishId, item.size || 10);
       G.fishPile[k] = (G.fishPile[k] || 0) + 1;
     });
     G.inventory = [];
