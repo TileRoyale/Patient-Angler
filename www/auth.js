@@ -1,8 +1,9 @@
 // ─── Firebase Auth + Railway Cloud Save ────────────────────────────────────────
 // Auth:  @capacitor-firebase/authentication (Google Sign-In)
 // Save:  Railway backend (anti-cheat validated, PostgreSQL storage)
-//        POST /pa/save  { uid, save }
-//        GET  /pa/load/:uid
+//        POST /pa/save  { save }  — Authorization: Bearer <firebase_id_token>
+//        GET  /pa/load/:uid       — Authorization: Bearer <firebase_id_token>
+//        Server extracts uid from verified token; body uid is ignored.
 
 const PA_SERVER       = 'https://tile-royale-eu-production.up.railway.app';
 const CLOUD_SYNC_MS   = 5 * 60 * 1000; // 5 min auto-sync
@@ -87,14 +88,29 @@ function getCurrentUser() { return _currentUser; }
 function isSignedIn()     { return !!_currentUser; }
 
 // ── Cloud Save (Railway) ──────────────────────────────────────────────────────
+
+async function _getPAToken() {
+  const FA = getFirebaseAuth();
+  if (!FA || !_currentUser) return null;
+  try {
+    const result = await FA.getIdToken();
+    return result.token || null;
+  } catch (e) {
+    console.warn('[Auth] getIdToken failed:', e);
+    return null;
+  }
+}
+
 async function saveCloudSave() {
   if (!_currentUser) return;
   try {
+    const token = await _getPAToken();
+    if (!token) return;
     const snapshot = { ...G, _savedAt: Date.now() };
     const res = await fetch(PA_SERVER + '/pa/save', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: _currentUser.uid, save: snapshot }),
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ save: snapshot }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -131,7 +147,11 @@ async function loadCloudSave() {
   if (!_currentUser) return;
 
   try {
-    const res = await fetch(PA_SERVER + '/pa/load/' + encodeURIComponent(_currentUser.uid));
+    const token = await _getPAToken();
+    if (!token) return;
+    const res = await fetch(PA_SERVER + '/pa/load/' + encodeURIComponent(_currentUser.uid), {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
     if (!res.ok) return;
     const body = await res.json();
     if (!body.ok || !body.save) return;
