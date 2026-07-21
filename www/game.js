@@ -8391,6 +8391,7 @@ function _onAppBackground() {
   }
   saveState();
   bgMusic.pause();
+  if (typeof onAdBackground === 'function') onAdBackground();
   console.log('[Lifecycle] backgrounded');
 }
 
@@ -8408,8 +8409,10 @@ function _onAppForeground() {
   if (_pendingEvent) {
     if (_eventStartedAt && Date.now() - _eventStartedAt > 5 * 60 * 1000) {
       expireSpecialEvent(); // window expired while backgrounded
+    } else {
+      // Event still valid — pre-load the ad now so it's ready when the player taps claim
+      if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
     }
-    // else event still valid — leave it visible
   } else if (G.specialEventNextAt && Date.now() >= G.specialEventNextAt) {
     G.specialEventNextAt = 0;
     _foregroundEventTimeout = setTimeout(triggerSpecialEvent, 10000); // 10s: player settles + AdMob reconnects

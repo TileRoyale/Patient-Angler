@@ -2,6 +2,13 @@
 
 ---
 
+## v0.9.4.5 — Build 72 (July 2026)
+
+### Fix
+- **Rewarded ad after background** — "Grab the Treasure" button could get permanently stuck on "Loading ad…" after returning from a background session. Android can invalidate a loaded rewarded ad while the app is backgrounded; the ad-ready flag is now reset on every background event so AdMob always performs a fresh reload on foreground. If a special event was already showing before the player backgrounded, a reload is also triggered immediately on return so the ad is ready by the time the player taps claim.
+
+---
+
 ## v0.9.4.4 — Build 71 (July 2026)
 
 ### Feature
