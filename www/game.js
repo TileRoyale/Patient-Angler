@@ -588,6 +588,8 @@ const DEFAULT_STATE = {
   musicVolume: 50,
   fontScale: 100,
   bobberScale: 100,
+  fontScaleCustomized: false,
+  bobberScaleCustomized: false,
   playerName: '',
   currentZone: 'pond',
   currentRod: 'basic_rod',
@@ -2336,7 +2338,7 @@ function fishPileValue(fishId, size) {
   const s = SIZE_TABLE.find(x => x.size === sizeKey);
   if (!s) return 0;
   const abyssBonus = f.zone === 'abyss' ? getRodAbyssSellBonus() : 1;
-  return Math.round(f.baseValue * s.mult * getRodSellBonus() * abyssBonus * getBlackPearlBonus() * getMasteryFishSellMult() * (G.devSupportOwned ? 1.25 : 1));
+  return Math.round(f.baseValue * s.mult * getRodSellBonus() * abyssBonus * getBlackPearlBonus() * getMasteryFishSellMult() * (G.devSupportOwned ? 1.25 : 1) * getRemoteFishSellMult());
 }
 
 function checkStorageFull() {
@@ -7974,6 +7976,7 @@ function renderSettings() {
     if (fontValue) fontValue.textContent = (G.fontScale || 100) + '%';
     fontSlider.oninput = () => {
       G.fontScale = parseInt(fontSlider.value);
+      G.fontScaleCustomized = true;
       if (fontValue) fontValue.textContent = G.fontScale + '%';
       applyFontScale();
       saveState();
@@ -7986,6 +7989,7 @@ function renderSettings() {
     if (bobberValue) bobberValue.textContent = (G.bobberScale || 100) + '%';
     bobberSlider.oninput = () => {
       G.bobberScale = parseInt(bobberSlider.value);
+      G.bobberScaleCustomized = true;
       if (bobberValue) bobberValue.textContent = G.bobberScale + '%';
       applyBobberScale();
       saveState();
@@ -8166,6 +8170,67 @@ async function redeemCode() {
   if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') redeemCode(); });
 })();
 
+// ─── REMOTE CONFIG ────────────────────────────────────────────────────────────
+
+const PA_CONFIG_URL = 'https://tile-royale-eu-production.up.railway.app/pa/config';
+
+let _remoteConfig = {};
+
+function _rcNum(key, fallback) { const v = _remoteConfig[key]; return (typeof v === 'number' && isFinite(v)) ? v : fallback; }
+function _rcBool(key, fallback) { const v = _remoteConfig[key]; return typeof v === 'boolean' ? v : fallback; }
+function _rcStr(key, fallback)  { const v = _remoteConfig[key]; return (typeof v === 'string' && v) ? v : fallback; }
+
+// Accessor functions used throughout the game
+function getRemoteFishSellMult()        { return _rcNum('fishSellMult',            1.0); }
+function getRemoteEventIntervalMin()    { return _rcNum('specialEventIntervalMin', 15);  }
+function getRemoteEventIntervalMax()    { return _rcNum('specialEventIntervalMax', 30);  }
+function isRemoteCompetitionEnabled()   { return _rcBool('competitionEnabled',     true); }
+function isRemoteGhostShipEnabled()     { return _rcBool('ghostShipEnabled',       true); }
+
+function _applyRemoteConfig() {
+  const cfg = _remoteConfig;
+
+  // Font/bobber scale — only if the player hasn't manually customised them
+  const defaultFont   = _rcNum('defaultFontScale',   100);
+  const defaultBobber = _rcNum('defaultBobberScale',  100);
+  if (!G.fontScaleCustomized   && defaultFont   !== 100) { G.fontScale   = defaultFont;   applyFontScale(); }
+  if (!G.bobberScaleCustomized && defaultBobber !== 100) { G.bobberScale = defaultBobber; applyBobberScale(); }
+
+  // MOTD banner
+  const motd     = typeof cfg.motd === 'string' && cfg.motd ? cfg.motd : null;
+  const motdType = _rcStr('motdType', 'info');
+  const motdEl   = document.getElementById('pa-motd-banner');
+  if (motdEl) {
+    if (motd) {
+      const seen = localStorage.getItem('pa_motd_seen');
+      if (seen !== motd) {
+        document.getElementById('pa-motd-text').textContent = motd;
+        motdEl.className = 'pa-motd-banner pa-motd-' + motdType;
+        motdEl.classList.remove('hidden');
+      }
+    } else {
+      motdEl.classList.add('hidden');
+    }
+  }
+}
+
+function dismissMotd() {
+  const motdEl = document.getElementById('pa-motd-banner');
+  if (motdEl) {
+    const text = document.getElementById('pa-motd-text');
+    if (text) localStorage.setItem('pa_motd_seen', text.textContent);
+    motdEl.classList.add('hidden');
+  }
+}
+
+async function loadRemoteConfig() {
+  try {
+    const res = await fetch(PA_CONFIG_URL, { cache: 'no-store' });
+    if (res.ok) _remoteConfig = await res.json();
+  } catch { /* offline — use defaults */ }
+  _applyRemoteConfig();
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 function init() {
@@ -8241,6 +8306,7 @@ function init() {
   applyBobberScale();
   calculateOfflineProgress();
   initQuests();
+  loadRemoteConfig(); // async — applies when resolved, game continues with defaults
   if (!G.stats.highestCoins) G.stats.highestCoins = G.coins || 0;
   resetFishingState();
   updateBobberImg();
@@ -8496,8 +8562,10 @@ let _nextEventAt = 0;
 
 function scheduleNextSpecialEvent() {
   if (_specialEventTimeout) clearTimeout(_specialEventTimeout);
-  const now = Date.now();
-  const delayMs = (15 + Math.random() * 15) * 60000; // 15–30 min
+  const now    = Date.now();
+  const minMs  = getRemoteEventIntervalMin() * 60000;
+  const rangeMs = Math.max(0, getRemoteEventIntervalMax() - getRemoteEventIntervalMin()) * 60000;
+  const delayMs = minMs + Math.random() * rangeMs;
   _nextEventAt = now + delayMs;
   G.specialEventNextAt = _nextEventAt;
   saveState();

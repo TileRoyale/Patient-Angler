@@ -2,6 +2,13 @@
 
 ---
 
+## v0.9.4.4 — Build 71 (July 2026)
+
+### Feature
+- **Remote config** — balance values, UI defaults, event timing, and feature flags can now be updated server-side without a new app build. Font/bobber scale defaults, fish sell multiplier, special event frequency, competition and Ghost Ship toggles, and a server message banner are all live-configurable.
+
+---
+
 ## v0.9.4.3 — Build 70 (July 2026)
 
 ### Fix

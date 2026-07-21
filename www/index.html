@@ -8,7 +8,7 @@
   <title>Patient Angler</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0a1628">
-  <link rel="stylesheet" href="styles.css?v=38">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
 
@@ -713,6 +713,12 @@
     </div>
   </div>
 
+  <!-- MOTD banner (server-controlled message of the day) -->
+  <div id="pa-motd-banner" class="pa-motd-banner pa-motd-info hidden">
+    <span id="pa-motd-text"></span>
+    <button class="pa-motd-dismiss" onclick="dismissMotd()" aria-label="Dismiss">✕</button>
+  </div>
+
   <!-- Prestige confirm dialog -->
   <div class="special-event-overlay hidden" id="prestige-confirm-overlay">
     <div class="special-event-card prestige-confirm-card">
@@ -972,18 +978,18 @@
   </div>
 
   <script src="https://js-de.sentry-cdn.com/97476106dd8bed706f08c624e9262fc5.min.js" crossorigin="anonymous"></script>
-  <script src="version.js?v=38"></script>
-  <script src="sentry.js?v=38"></script>
-  <script src="admob.js?v=38"></script>
-  <script src="iap.js?v=38"></script>
-  <script src="auth.js?v=38"></script>
+  <script src="version.js?v=39"></script>
+  <script src="sentry.js?v=39"></script>
+  <script src="admob.js?v=39"></script>
+  <script src="iap.js?v=39"></script>
+  <script src="auth.js?v=39"></script>
   <!-- Status message — outside all screens so it's visible from any screen -->
   <div class="status-msg" id="status-msg"></div>
 
-  <script src="analytics.js?v=38"></script>
-  <script src="game.js?v=38"></script>
-  <script src="abyss.js?v=38"></script>
-  <script src="tutorial.js?v=38"></script>
-  <script src="dadjokes.js?v=38"></script>
+  <script src="analytics.js?v=39"></script>
+  <script src="game.js?v=39"></script>
+  <script src="abyss.js?v=39"></script>
+  <script src="tutorial.js?v=39"></script>
+  <script src="dadjokes.js?v=39"></script>
 </body>
 </html>

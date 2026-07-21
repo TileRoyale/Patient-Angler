@@ -5166,3 +5166,33 @@ html, body {
   border-left: 3px solid #f4c430;
   background: rgba(244,196,48,0.06);
 }
+
+/* ─── MOTD Banner ──────────────────────────────────────────────────────────── */
+.pa-motd-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: calc(13px * var(--font-scale, 1));
+  font-weight: 500;
+  line-height: 1.4;
+}
+.pa-motd-banner.hidden { display: none; }
+.pa-motd-banner span   { flex: 1; }
+.pa-motd-dismiss {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.pa-motd-dismiss:active { opacity: 1; }
+.pa-motd-info    { background: #1a3a5c; color: #a0d0ff; }
+.pa-motd-event   { background: #3a2800; color: #f4c430; }
+.pa-motd-warning { background: #3a1a00; color: #ffaa44; }
