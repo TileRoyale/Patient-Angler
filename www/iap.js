@@ -38,6 +38,55 @@ function isAndroid() {
   return window.Capacitor?.getPlatform() === 'android';
 }
 
+// ── IAP Price Cache ───────────────────────────────────────────────────────────
+// Prices are fetched once after billing init and refreshed on every app launch.
+// In-memory only — never persisted — so country/account changes are safe.
+
+const _ALL_PRODUCT_IDS = [
+  PRODUCT.REMOVE_ADS,
+  PRODUCT.PERMANENT_AUTOSELLER,
+  PRODUCT.DEV_SUPPORT,
+  PRODUCT.STARTER,
+  PRODUCT.POUCH,
+  PRODUCT.CHEST,
+  PRODUCT.VAULT,
+];
+
+let _iapPrices    = {};    // productId → Google Play formatted price string
+let _iapPricesReady = false;
+
+async function loadProductPrices() {
+  const B = getBilling();
+  if (!B) return;
+  try {
+    const result   = await B.getProducts({ productIds: _ALL_PRODUCT_IDS });
+    const products = result?.products || [];
+    const fresh    = {};
+    for (const p of products) {
+      fresh[p.productId] = p.price || 'Unavailable';
+      if (!p.price) console.warn('[IAP] No price returned for:', p.productId);
+    }
+    for (const id of _ALL_PRODUCT_IDS) {
+      if (!(id in fresh)) {
+        console.warn('[IAP] Product not returned by Play Store:', id);
+        fresh[id] = 'Unavailable';
+      }
+    }
+    _iapPrices      = fresh;
+    _iapPricesReady = true;
+  } catch (e) {
+    console.error('[IAP] loadProductPrices failed:', e);
+    for (const id of _ALL_PRODUCT_IDS) _iapPrices[id] = 'Unavailable';
+    _iapPricesReady = true;
+  }
+  if (typeof renderDiamondStore === 'function') renderDiamondStore();
+}
+
+function getProductPrice(productId) {
+  if (!_iapPricesReady) return '…';
+  return _iapPrices[productId] || 'Unavailable';
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 async function initIAP() {
@@ -49,6 +98,7 @@ async function initIAP() {
   } catch (e) {
     console.warn('[IAP] init restore failed:', e);
   }
+  loadProductPrices(); // fire-and-forget; calls renderDiamondStore() when ready
 }
 
 // ── Public purchase entry points (called from game.js) ────────────────────────

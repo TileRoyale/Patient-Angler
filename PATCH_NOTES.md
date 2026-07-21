@@ -2,6 +2,24 @@
 
 ---
 
+## v0.9.4.6 — Build 73 (July 2026)
+
+### Fix
+- **Monk Fish / Blue Whale images broken** — Android filesystem is case-sensitive; image paths were `Monk Fish.png` and `Blue Whale.png` while actual files are `Monk fish.png` and `Blue whale.png`. Both paths corrected.
+- **Automation speed display wrong** — HUD showed lower catch-per-second than actual automation rate because `getAutomationUpgradeMultiplier()` was applied to catches but not to the display calculation. Both `_calcZoneAutoRate()` and `_calcTypeRate()` now include the multiplier.
+- **Legendary fish confusion** — game hint said legendary fish could only be caught manually. Only the 3 Black Pearl legendaries per zone are true legendaries; the manual-only Seahorse, Monk Fish, Coelacanth, Giant Squid, Blue Whale, and Mola-mola are Epic rarity. Manual Fishdex header text clarified; rarity values corrected in fishdex data.
+- **Trophy Catches stat resets on sell** — stat was reading from `trophyPile.length` which empties after selling. Replaced with cumulative `stats.trophyCatches` counter; old saves are migrated automatically from trophy records.
+- **Legendary catch popup** — removed stale line "It does not award Black Pearls now."
+
+### Feature
+- **Dynamic IAP prices** — diamond packs and premium features now show the real localized price fetched from Google Play Billing on every launch. No hardcoded prices remain; buttons show "…" while loading and "Unavailable" if a product cannot be queried.
+- **Font size slider** — minimum reduced from 70% to 40% for players who need smaller text.
+
+### Balance
+- **Diamond purchase confirmation** — all three diamond-spend actions (Automation Upgrade, Premium Bait, Auto-Seller) now show a confirmation dialog before deducting diamonds.
+
+---
+
 ## v0.9.4.5 — Build 72 (July 2026)
 
 ### Fix
