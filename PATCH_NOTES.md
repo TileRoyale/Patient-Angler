@@ -2,6 +2,20 @@
 
 ---
 
+## v0.9.4.3 — Build 70 (July 2026)
+
+### Fix
+- **Full House daily quest** — quest was not completing when storage was already at capacity from a previous session. The fill-detection logic only triggers on a not-full → full transition; added a startup check so the quest is credited immediately if storage is full when the game loads.
+- **Rewarded ad / special event after background** — special event could fire while the app was backgrounded (the foreground-resume timer was not tracked and therefore not cancellable). Event now waits 10 seconds after the player returns to the foreground, giving AdMob time to reconnect and preventing a popup the player can't act on.
+
+### Security
+- **Crash logging** — Sentry integrated (EU data residency); captures unhandled errors with game context (zone, progress, user id). Helps catch issues players would otherwise just uninstall over.
+- **Cloud save auth** — cloud save and load now require a valid Firebase ID token; server derives the player UID from the token instead of trusting the client.
+- **IAP hardening** — purchases and non-consumable restores are server-verified before items are granted; network errors no longer silently grant items.
+- **Save anti-cheat** — server now validates coin rate, diamond/black pearl gain, bobber tier, prestige rate, and non-consumable ownership against purchase receipts on every save.
+
+---
+
 ## v0.9.4.2 — Build 69 (July 2026)
 
 ### Fix
