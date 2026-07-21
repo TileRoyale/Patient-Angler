@@ -2181,6 +2181,18 @@ function initQuests() {
   if (ZONE_DATA.every(z => isZoneUnlocked(z.id)))   syncAch('h_empire', 1);
   checkFishdexAch();
 
+  // Sync storefull quest in case storage was already at capacity when the game loaded.
+  // checkStorageFull() only fires on a not-full → full transition, so it never triggers
+  // for storage that was already full in a previous session.
+  _storageFull = fishPileTotal() >= storageCapacity();
+  if (_storageFull) {
+    (G.quests.dailyIds || []).forEach(id => {
+      const qd = DAILY_QUESTS.find(q => q.id === id);
+      if (qd && qd.type === 'storefull' && G.quests.dp[id] && !G.quests.dp[id].claimed)
+        G.quests.dp[id].prog = 1;
+    });
+  }
+
   updateQuestBadge();
   checkGuildOrder();
   updateGuildBadge();
@@ -8304,8 +8316,9 @@ function _onAppBackground() {
   const now = Date.now();
   G.backgroundAt = now;
   G.lastSeen     = now;
-  // Pause special event timer — don't fire while app is backgrounded
-  if (_specialEventTimeout) { clearTimeout(_specialEventTimeout); _specialEventTimeout = null; }
+  // Pause special event timers — don't fire while app is backgrounded
+  if (_specialEventTimeout)    { clearTimeout(_specialEventTimeout);    _specialEventTimeout    = null; }
+  if (_foregroundEventTimeout) { clearTimeout(_foregroundEventTimeout); _foregroundEventTimeout = null; }
   if ((G.stats.lastFishAt || 0) > 0 && now - G.stats.lastFishAt < 120000) {
     if (typeof syncAch === 'function')             syncAch('h_last_fish', 1);
     if (typeof finalizeQuestUpdate === 'function') finalizeQuestUpdate();
@@ -8333,7 +8346,7 @@ function _onAppForeground() {
     // else event still valid — leave it visible
   } else if (G.specialEventNextAt && Date.now() >= G.specialEventNextAt) {
     G.specialEventNextAt = 0;
-    setTimeout(triggerSpecialEvent, 1500); // one event after settling
+    _foregroundEventTimeout = setTimeout(triggerSpecialEvent, 10000); // 10s: player settles + AdMob reconnects
   } else if (G.specialEventNextAt && Date.now() < G.specialEventNextAt) {
     const remaining = G.specialEventNextAt - Date.now();
     _nextEventAt = G.specialEventNextAt;
@@ -8476,7 +8489,8 @@ const SPECIAL_EVENTS = [
   },
 ];
 
-let _specialEventTimeout = null;
+let _specialEventTimeout   = null;
+let _foregroundEventTimeout = null; // tracked separately so background cancels it
 let _pendingEvent = null;
 let _nextEventAt = 0;
 
