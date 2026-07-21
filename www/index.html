@@ -703,6 +703,16 @@
     </div>
   </div>
 
+  <!-- Offline gains summary popup -->
+  <div class="special-event-overlay hidden" id="offline-summary-overlay" onclick="if(event.target===this)closeOfflineSummary()">
+    <div class="special-event-card" style="text-align:center;max-width:300px;">
+      <div style="font-size:2.2em;margin-bottom:4px;">🎣</div>
+      <div class="se-title">Welcome Back!</div>
+      <div class="se-desc" id="offline-summary-body" style="margin-top:10px;line-height:1.7;"></div>
+      <button class="btn-primary" style="margin-top:16px;width:100%;" onclick="closeOfflineSummary()">Continue</button>
+    </div>
+  </div>
+
   <!-- Prestige confirm dialog -->
   <div class="special-event-overlay hidden" id="prestige-confirm-overlay">
     <div class="special-event-card prestige-confirm-card">
