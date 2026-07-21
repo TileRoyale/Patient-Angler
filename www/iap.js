@@ -38,6 +38,55 @@ function isAndroid() {
   return window.Capacitor?.getPlatform() === 'android';
 }
 
+// ── IAP Price Cache ───────────────────────────────────────────────────────────
+// Prices are fetched once after billing init and refreshed on every app launch.
+// In-memory only — never persisted — so country/account changes are safe.
+
+const _ALL_PRODUCT_IDS = [
+  PRODUCT.REMOVE_ADS,
+  PRODUCT.PERMANENT_AUTOSELLER,
+  PRODUCT.DEV_SUPPORT,
+  PRODUCT.STARTER,
+  PRODUCT.POUCH,
+  PRODUCT.CHEST,
+  PRODUCT.VAULT,
+];
+
+let _iapPrices    = {};    // productId → Google Play formatted price string
+let _iapPricesReady = false;
+
+async function loadProductPrices() {
+  const B = getBilling();
+  if (!B) return;
+  try {
+    const result   = await B.getProducts({ productIds: _ALL_PRODUCT_IDS });
+    const products = result?.products || [];
+    const fresh    = {};
+    for (const p of products) {
+      fresh[p.productId] = p.price || 'Unavailable';
+      if (!p.price) console.warn('[IAP] No price returned for:', p.productId);
+    }
+    for (const id of _ALL_PRODUCT_IDS) {
+      if (!(id in fresh)) {
+        console.warn('[IAP] Product not returned by Play Store:', id);
+        fresh[id] = 'Unavailable';
+      }
+    }
+    _iapPrices      = fresh;
+    _iapPricesReady = true;
+  } catch (e) {
+    console.error('[IAP] loadProductPrices failed:', e);
+    for (const id of _ALL_PRODUCT_IDS) _iapPrices[id] = 'Unavailable';
+    _iapPricesReady = true;
+  }
+  if (typeof renderDiamondStore === 'function') renderDiamondStore();
+}
+
+function getProductPrice(productId) {
+  if (!_iapPricesReady) return '…';
+  return _iapPrices[productId] || 'Unavailable';
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 async function initIAP() {
@@ -49,6 +98,7 @@ async function initIAP() {
   } catch (e) {
     console.warn('[IAP] init restore failed:', e);
   }
+  loadProductPrices(); // fire-and-forget; calls renderDiamondStore() when ready
 }
 
 // ── Public purchase entry points (called from game.js) ────────────────────────
@@ -140,15 +190,14 @@ async function _purchase(productId, onSuccess) {
       return;
     }
 
-    // Server-side receipt validation — grant only on server confirmation
-    const uid = (typeof getCurrentUser === 'function' && getCurrentUser()?.uid) || '';
+    // Server-side receipt validation — grant ONLY on server confirmation, never locally
+    const token = await _getPAToken();
     let serverOk = false;
     try {
       const vRes = await fetch(PA_IAP_VERIFY_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
-          uid,
           productId,
           purchaseToken: result.purchaseToken,
           orderId: result.orderId || '',
@@ -166,10 +215,10 @@ async function _purchase(productId, onSuccess) {
         }
       }
     } catch (netErr) {
-      // Network error — server unreachable. Grant locally and log for manual review.
-      // This is the only path where a grant happens without server confirmation.
-      console.error('[IAP] Server verify network error — granting locally:', netErr);
-      serverOk = true;
+      // Network error — do NOT grant without server confirmation.
+      // Google Play has already charged the user — they can restore via "Restore Purchases" once reconnected.
+      console.error('[IAP] Server verify network error — purchase not granted:', netErr);
+      showStatus('Purchase verified by Google Play but could not reach server. Please reconnect and use Restore Purchases.', 5000);
     }
 
     if (serverOk) onSuccess(result);
@@ -197,9 +246,25 @@ async function _restoreNonConsumables() {
   const B = getBilling();
   if (!B) return;
   const { purchases } = await B.restoreTransactions();
+  const token = await _getPAToken();
   let changed = false;
   for (const p of (purchases || [])) {
     for (const pid of (p.productIds || [])) {
+      if (!NON_CONSUMABLES.includes(pid)) continue;
+      // Verify each non-consumable with server before granting (same flow as initial purchase)
+      if (token && p.purchaseToken) {
+        try {
+          const vRes = await fetch(PA_IAP_VERIFY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ productId: pid, purchaseToken: p.purchaseToken, orderId: p.orderId || '' }),
+          });
+          const vData = await vRes.json();
+          if (!vData.ok) continue; // Server rejected — skip this product
+        } catch {
+          continue; // Network error — skip, do not grant without verification
+        }
+      }
       if (_grantNonConsumable(pid)) changed = true;
     }
   }

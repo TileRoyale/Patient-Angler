@@ -8,7 +8,7 @@
   <title>Patient Angler</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0a1628">
-  <link rel="stylesheet" href="styles.css?v=37">
+  <link rel="stylesheet" href="styles.css?v=40">
 </head>
 <body>
 
@@ -200,6 +200,9 @@
           <div class="co-warning hidden" id="co-warning">Left competition zone — catches not counted</div>
         </div>
       </div>
+
+      <!-- DEBUG: catch all W1 legendaries — localhost only -->
+      <button id="debug-legendary-btn" onclick="debugCatchAllLegendary()" style="display:none;position:absolute;bottom:80px;left:8px;z-index:800;background:#7b1fa2;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:bold;cursor:pointer;opacity:0.85;">★ All Leg.</button>
 
       <!-- Tap prompt -->
       <div class="cast-prompt" id="cast-prompt">
@@ -460,6 +463,35 @@
     <div id="abyss-content" class="abyss-scroll"></div>
   </div>
 
+  <!-- SCREEN: EXPANSION — MAELSTROM (full-screen fishing overlay) -->
+  <div id="screen-expansion-maelstrom" class="screen screen-expansion">
+    <img src="img/backgrounds/Maelstrom_beginning.png" id="maelstrom-bg" class="maelstrom-bg" alt="">
+    <div class="expansion-back-row">
+      <button class="btn-back" onclick="leaveExpansionWorld()"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <span class="expansion-title">Maelstrom</span>
+    </div>
+    <div id="expansion-maelstrom-content"></div>
+  </div>
+
+  <!-- SCREEN: EXPANSION — ABYSS (full-screen abyss fishing overlay) -->
+  <div id="screen-expansion-abyss" class="screen screen-expansion">
+    <div class="expansion-back-row">
+      <button class="expansion-exit-btn" onclick="leaveExpansionWorld()"><img src="img/icons/Menu exit icon.png" alt="Close" class="exit-icon"></button>
+      <span class="expansion-title" id="expansion-abyss-title">Abyss</span>
+    </div>
+    <div id="expansion-abyss-content"></div>
+  </div>
+
+  <!-- ABYSS CATCH POPUP -->
+  <div id="abyss-catch-popup" class="abyss-catch-popup hidden">
+    <div class="acp-inner">
+      <div id="acp-badge" class="acp-badge"></div>
+      <div id="acp-name" class="acp-name"></div>
+      <div id="acp-zone" class="acp-zone"></div>
+      <button id="acp-ok" class="btn-primary acp-ok-btn" onclick="dismissAbyssCatchPopup()">Continue</button>
+    </div>
+  </div>
+
   <!-- SCREEN: DIAMOND STORE -->
   <div id="screen-diamondstore" class="screen">
     <div class="panel-header">
@@ -523,7 +555,7 @@
         <div class="settings-section-title">Display</div>
         <div class="settings-row">
           <span class="settings-label">Font Size <span id="font-size-value" class="dim">100%</span></span>
-          <input type="range" id="font-size-slider" min="70" max="100" value="100" class="volume-slider">
+          <input type="range" id="font-size-slider" min="40" max="100" value="100" class="volume-slider">
         </div>
         <div class="settings-row">
           <span class="settings-label">Bobber Size <span id="bobber-size-value" class="dim">100%</span></span>
@@ -618,6 +650,9 @@
         <div class="settings-info-row dim">Developer: Henly Games</div>
       </div>
 
+      <!-- Abyss / Maelstrom debug panel — only visible on localhost -->
+      <div id="abyss-debug-settings"></div>
+
     </div>
 
   </div><!-- /screen-settings -->
@@ -666,6 +701,22 @@
       </label>
       <button class="btn-primary" style="margin-top:12px;width:100%;" onclick="closeChestFullPopup()">OK</button>
     </div>
+  </div>
+
+  <!-- Offline gains summary popup -->
+  <div class="special-event-overlay hidden" id="offline-summary-overlay" onclick="if(event.target===this)closeOfflineSummary()">
+    <div class="special-event-card" style="text-align:center;max-width:300px;">
+      <div style="font-size:2.2em;margin-bottom:4px;">🎣</div>
+      <div class="se-title">Welcome Back!</div>
+      <div class="se-desc" id="offline-summary-body" style="margin-top:10px;line-height:1.7;"></div>
+      <button class="btn-primary" style="margin-top:16px;width:100%;" onclick="closeOfflineSummary()">Continue</button>
+    </div>
+  </div>
+
+  <!-- MOTD banner (server-controlled message of the day) -->
+  <div id="pa-motd-banner" class="pa-motd-banner pa-motd-info hidden">
+    <span id="pa-motd-text"></span>
+    <button class="pa-motd-dismiss" onclick="dismissMotd()" aria-label="Dismiss">✕</button>
   </div>
 
   <!-- Prestige confirm dialog -->
@@ -726,23 +777,29 @@
     </div>
   </div>
 
-  <!-- Offline session summary popup -->
-  <div class="special-event-overlay hidden" id="offline-summary-overlay" onclick="if(event.target===this)closeOfflineSummary()">
-    <div class="special-event-card" style="text-align:center;padding:20px 18px;max-width:280px">
-      <div class="se-title" style="margin-bottom:10px">Welcome Back!</div>
-      <div id="offline-summary-body" style="width:100%;margin-bottom:16px;font-size:13px;display:flex;flex-direction:column;gap:5px;align-items:center"></div>
-      <button class="btn-primary pc-ok-btn" onclick="closeOfflineSummary()">OK</button>
+  <!-- Abyss Geode opening popup -->
+  <div class="special-event-overlay hidden" id="geode-open-overlay">
+    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:280px">
+      <div class="se-title" style="color:#00e5ff;margin-bottom:12px">Abyss Geode</div>
+      <div class="geode-open-visual">
+        <div class="geode-placeholder-icon">◆</div>
+        <div class="geode-opening-label">Opening...</div>
+      </div>
+      <div id="geode-reward-reveal" class="hidden">
+        <div id="geode-reward-content" style="margin-bottom:12px"></div>
+        <button class="btn-primary pc-ok-btn" onclick="dismissGeodeOpenPopup()">Collect!</button>
+      </div>
     </div>
   </div>
 
   <!-- Ghost Ship reward popup -->
   <div class="special-event-overlay hidden" id="ghost-ship-reward-overlay" onclick="if(event.target===this)gsClaimReward()">
-    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px;max-height:88vh;">
-      <div class="se-title" style="color:#c8e8ff;margin-bottom:6px;flex-shrink:0">Ghost Ship</div>
-      <div style="font-size:13px;color:var(--color-text-dim);margin-bottom:14px;flex-shrink:0">Expedition returned with salvage and a Treasure Chest!</div>
-      <img src="img/icons/Ghost ship animation2.gif" id="ghost-ship-reward-img" style="width:221px;display:block;margin:0 auto 14px;image-rendering:pixelated;flex-shrink:0" alt="">
-      <div id="ghost-ship-reward-body" style="margin-bottom:16px;overflow-y:auto;min-height:0;width:100%;"></div>
-      <button class="btn-primary pc-ok-btn" onclick="gsClaimReward()" style="flex-shrink:0">Claim Salvage</button>
+    <div class="special-event-card" style="text-align:center;padding:20px 16px;max-width:300px">
+      <div class="se-title" style="color:#c8e8ff;margin-bottom:6px">Ghost Ship</div>
+      <div style="font-size:13px;color:var(--color-text-dim);margin-bottom:14px">Expedition returned with salvage and a Treasure Chest!</div>
+      <img src="img/icons/Ghost ship animation2.gif" id="ghost-ship-reward-img" style="width:221px;display:block;margin:0 auto 14px;image-rendering:pixelated;" alt="">
+      <div id="ghost-ship-reward-body" style="margin-bottom:16px"></div>
+      <button class="btn-primary pc-ok-btn" onclick="gsClaimReward()">Claim Salvage</button>
     </div>
   </div>
 
@@ -755,6 +812,28 @@
           <img src="img/icons/Menu exit icon.png" alt="Close">
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Maelstrom entry comic popup -->
+  <div class="sea-comic-overlay hidden" id="maelstrom-comic-overlay">
+    <div class="sea-comic-scroll">
+      <div class="sea-comic-wrap">
+        <img src="img/icons/comic pages/Maelstrom_comic.png" class="sea-comic-img" alt="The Maelstrom">
+        <button class="sea-comic-close" onclick="closeMaelstromComicPopup()">
+          <img src="img/icons/Menu exit icon.png" alt="Close">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maelstrom expedition loot popup -->
+  <div class="special-event-overlay hidden" id="mael-loot-overlay" onclick="if(event.target===this)collectExpeditionLoot()">
+    <div class="special-event-card" style="padding:20px 18px;max-width:300px">
+      <div class="se-title" style="color:#c080ff;margin-bottom:4px">Expedition Returned</div>
+      <div style="font-size:12px;color:var(--color-text-dim);margin-bottom:14px">Your expedition has returned with crystals.</div>
+      <div id="mael-loot-body" style="width:100%;margin-bottom:16px"></div>
+      <button class="btn-primary pc-ok-btn" onclick="collectExpeditionLoot()">Collect</button>
     </div>
   </div>
 
@@ -878,7 +957,7 @@
       <div id="legendary-first-disc" class="legendary-first-disc hidden">
         <div class="legendary-fd-title">NEW LEGENDARY FISH!</div>
         <div class="legendary-fd-body">Permanent Prestige Pearl Bonus +1%</div>
-        <div class="legendary-fd-note">This bonus increases your Pearl reward the next time you Prestige.<br>It does not award Black Pearls now.</div>
+        <div class="legendary-fd-note">This bonus increases your Pearl reward the next time you Prestige.</div>
       </div>
       <button class="btn-primary legendary-catch-btn" onclick="closeLegendaryCatchPopup()">Amazing!</button>
     </div>
@@ -898,16 +977,19 @@
     </div>
   </div>
 
-  <script src="version.js?v=37"></script>
-  <script src="admob.js?v=37"></script>
-  <script src="iap.js?v=37"></script>
-  <script src="auth.js?v=37"></script>
+  <script src="https://js-de.sentry-cdn.com/97476106dd8bed706f08c624e9262fc5.min.js" crossorigin="anonymous"></script>
+  <script src="version.js?v=39"></script>
+  <script src="sentry.js?v=39"></script>
+  <script src="admob.js?v=40"></script>
+  <script src="iap.js?v=42"></script>
+  <script src="auth.js?v=39"></script>
   <!-- Status message — outside all screens so it's visible from any screen -->
   <div class="status-msg" id="status-msg"></div>
 
-  <script src="analytics.js?v=37"></script>
-  <script src="game.js?v=37"></script>
-  <script src="tutorial.js?v=37"></script>
-  <script src="dadjokes.js?v=37"></script>
+  <script src="analytics.js?v=39"></script>
+  <script src="game.js?v=42"></script>
+  <script src="abyss.js?v=39"></script>
+  <script src="tutorial.js?v=39"></script>
+  <script src="dadjokes.js?v=39"></script>
 </body>
 </html>

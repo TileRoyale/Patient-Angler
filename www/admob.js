@@ -226,6 +226,15 @@ function prepareRewardedAd() {
   if (!G?.removeAds && !_rewardedReady && !_preparePromise) _prepareRewarded();
 }
 
+// Called by game.js when app goes to background — forces a fresh load on next foreground.
+// Android can invalidate a loaded rewarded ad during a background session; resetting here
+// ensures appStateChange always triggers a reload rather than relying on a stale flag.
+function onAdBackground() {
+  _rewardedReady  = false;
+  _preparePromise = null;
+  if (_quickRetry) { clearTimeout(_quickRetry); _quickRetry = null; }
+}
+
 // Web fallback — 5s countdown (only used in browser, never on Android)
 function _webAdFallback(onReward, onDismiss) {
   const btn    = document.getElementById('se-claim-btn');

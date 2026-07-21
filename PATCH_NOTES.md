@@ -2,6 +2,52 @@
 
 ---
 
+## v0.9.4.6 — Build 73 (July 2026)
+
+### Fix
+- **Monk Fish / Blue Whale images broken** — Android filesystem is case-sensitive; image paths were `Monk Fish.png` and `Blue Whale.png` while actual files are `Monk fish.png` and `Blue whale.png`. Both paths corrected.
+- **Automation speed display wrong** — HUD showed lower catch-per-second than actual automation rate because `getAutomationUpgradeMultiplier()` was applied to catches but not to the display calculation. Both `_calcZoneAutoRate()` and `_calcTypeRate()` now include the multiplier.
+- **Legendary fish confusion** — game hint said legendary fish could only be caught manually. Only the 3 Black Pearl legendaries per zone are true legendaries; the manual-only Seahorse, Monk Fish, Coelacanth, Giant Squid, Blue Whale, and Mola-mola are Epic rarity. Manual Fishdex header text clarified; rarity values corrected in fishdex data.
+- **Trophy Catches stat resets on sell** — stat was reading from `trophyPile.length` which empties after selling. Replaced with cumulative `stats.trophyCatches` counter; old saves are migrated automatically from trophy records.
+- **Legendary catch popup** — removed stale line "It does not award Black Pearls now."
+
+### Feature
+- **Dynamic IAP prices** — diamond packs and premium features now show the real localized price fetched from Google Play Billing on every launch. No hardcoded prices remain; buttons show "…" while loading and "Unavailable" if a product cannot be queried.
+- **Font size slider** — minimum reduced from 70% to 40% for players who need smaller text.
+
+### Balance
+- **Diamond purchase confirmation** — all three diamond-spend actions (Automation Upgrade, Premium Bait, Auto-Seller) now show a confirmation dialog before deducting diamonds.
+
+---
+
+## v0.9.4.5 — Build 72 (July 2026)
+
+### Fix
+- **Rewarded ad after background** — "Grab the Treasure" button could get permanently stuck on "Loading ad…" after returning from a background session. Android can invalidate a loaded rewarded ad while the app is backgrounded; the ad-ready flag is now reset on every background event so AdMob always performs a fresh reload on foreground. If a special event was already showing before the player backgrounded, a reload is also triggered immediately on return so the ad is ready by the time the player taps claim.
+
+---
+
+## v0.9.4.4 — Build 71 (July 2026)
+
+### Feature
+- **Remote config** — balance values, UI defaults, event timing, and feature flags can now be updated server-side without a new app build. Font/bobber scale defaults, fish sell multiplier, special event frequency, competition and Ghost Ship toggles, and a server message banner are all live-configurable.
+
+---
+
+## v0.9.4.3 — Build 70 (July 2026)
+
+### Fix
+- **Full House daily quest** — quest was not completing when storage was already at capacity from a previous session. The fill-detection logic only triggers on a not-full → full transition; added a startup check so the quest is credited immediately if storage is full when the game loads.
+- **Rewarded ad / special event after background** — special event could fire while the app was backgrounded (the foreground-resume timer was not tracked and therefore not cancellable). Event now waits 10 seconds after the player returns to the foreground, giving AdMob time to reconnect and preventing a popup the player can't act on.
+
+### Security
+- **Crash logging** — Sentry integrated (EU data residency); captures unhandled errors with game context (zone, progress, user id). Helps catch issues players would otherwise just uninstall over.
+- **Cloud save auth** — cloud save and load now require a valid Firebase ID token; server derives the player UID from the token instead of trusting the client.
+- **IAP hardening** — purchases and non-consumable restores are server-verified before items are granted; network errors no longer silently grant items.
+- **Save anti-cheat** — server now validates coin rate, diamond/black pearl gain, bobber tier, prestige rate, and non-consumable ownership against purchase receipts on every save.
+
+---
+
 ## v0.9.4.2 — Build 69 (July 2026)
 
 ### Fix

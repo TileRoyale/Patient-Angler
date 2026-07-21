@@ -56,16 +56,16 @@ function applyMusicState() {
 
 const FISH_DB = [
   // ── Pond (unique: crucian_carp, goldfish, stone_loach, stickleback, pumpkinseed, weatherfish) ──
-  { id:'crucian_carp',       name:'Crucian Carp',       rarity:'common',   baseValue:4,       zone:'pond',  zones:['pond'], img:'img/fish/Crucian Carp.png' },
-  { id:'roach',              name:'Roach',               rarity:'common',   baseValue:4,       zone:'pond',  zones:['pond','river'], img:'img/fish/Roach.png' },
-  { id:'tench',              name:'Tench',               rarity:'uncommon', baseValue:14,      zone:'pond',  zones:['pond','river','lake'], img:'img/fish/Tench.png' },
-  { id:'goldfish',           name:'Goldfish',             rarity:'uncommon', baseValue:16,      zone:'pond',  zones:['pond'], img:'img/fish/Goldfish.png' },
-  { id:'small_perch',        name:'Small Perch',         rarity:'common',   baseValue:4,       zone:'pond',  zones:['pond','river'], img:'img/fish/Small Perch.png' },
-  { id:'stone_loach',        name:'Stone Loach',         rarity:'uncommon', baseValue:12,      zone:'pond',  zones:['pond'], img:'img/fish/Stone Loach.png' },
-  { id:'stickleback',        name:'Stickleback',         rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond'], img:'img/fish/Stickleback.png' },
-  { id:'pumpkinseed',        name:'Pumpkinseed',         rarity:'rare',     baseValue:22,      zone:'pond',  zones:['pond'], img:'img/fish/Pumpkinseed.png' },
-  { id:'weatherfish',        name:'Weatherfish',         rarity:'rare',     baseValue:26,      zone:'pond',  zones:['pond'], img:'img/fish/Weatherfish.png' },
-  { id:'common_bream',       name:'Common Bream',        rarity:'common',   baseValue:6,       zone:'pond',  zones:['pond','river'], img:'img/fish/Common Bream.png' },
+  { id:'crucian_carp',       name:'Crucian Carp',       rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond'], img:'img/fish/Crucian Carp.png' },
+  { id:'roach',              name:'Roach',               rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond','river'], img:'img/fish/Roach.png' },
+  { id:'tench',              name:'Tench',               rarity:'uncommon', baseValue:7,       zone:'pond',  zones:['pond','river','lake'], img:'img/fish/Tench.png' },
+  { id:'goldfish',           name:'Goldfish',             rarity:'uncommon', baseValue:8,       zone:'pond',  zones:['pond'], img:'img/fish/Goldfish.png' },
+  { id:'small_perch',        name:'Small Perch',         rarity:'common',   baseValue:2,       zone:'pond',  zones:['pond','river'], img:'img/fish/Small Perch.png' },
+  { id:'stone_loach',        name:'Stone Loach',         rarity:'uncommon', baseValue:6,       zone:'pond',  zones:['pond'], img:'img/fish/Stone Loach.png' },
+  { id:'stickleback',        name:'Stickleback',         rarity:'common',   baseValue:1,       zone:'pond',  zones:['pond'], img:'img/fish/Stickleback.png' },
+  { id:'pumpkinseed',        name:'Pumpkinseed',         rarity:'rare',     baseValue:11,      zone:'pond',  zones:['pond'], img:'img/fish/Pumpkinseed.png' },
+  { id:'weatherfish',        name:'Weatherfish',         rarity:'rare',     baseValue:13,      zone:'pond',  zones:['pond'], img:'img/fish/Weatherfish.png' },
+  { id:'common_bream',       name:'Common Bream',        rarity:'common',   baseValue:3,       zone:'pond',  zones:['pond','river'], img:'img/fish/Common Bream.png' },
   { id:'giant_crucian_carp', name:'Giant Crucian Carp',  rarity:'epic',     baseValue:39,      zone:'pond',  zones:['pond'], img:'img/fish/Giant Crucian Carp.png', special:true },
   // ── River (unique: grayling, barbel, chub, burbot) ──
   { id:'brown_trout',        name:'Brown Trout',         rarity:'rare',     baseValue:32,      zone:'river', zones:['river','lake'], img:'img/fish/Brown Trout.png' },
@@ -91,7 +91,7 @@ const FISH_DB = [
   { id:'mackerel',           name:'Mackerel',            rarity:'uncommon', baseValue:25,      zone:'bay',   zones:['bay','sea'], img:'img/fish/Mackerel.png' },
   { id:'smelt',              name:'Smelt',               rarity:'common',   baseValue:8,       zone:'bay',   zones:['bay'], img:'img/fish/Smelt.png' },
   { id:'sprat',              name:'Sprat',               rarity:'common',   baseValue:6,       zone:'bay',   zones:['bay'], img:'img/fish/Sprat.png' },
-  { id:'monk_fish',          name:'Monk Fish',           rarity:'epic',     baseValue:196,     zone:'bay',   zones:['bay'], img:'img/fish/Monk Fish.png', timeWindow:{from:20,to:0}, manualOnly:true },
+  { id:'monk_fish',          name:'Monk Fish',           rarity:'epic',     baseValue:196,     zone:'bay',   zones:['bay'], img:'img/fish/Monk fish.png', timeWindow:{from:20,to:0}, manualOnly:true },
   { id:'seahorse',           name:'Seahorse',            rarity:'epic',      baseValue:320,    zone:'bay',   zones:['bay'], img:'img/fish/Seahorse.png', timeWindow:{from:7,to:11}, manualOnly:true },
   // ── Sea (unique: salmon, haddock, redfish, wolffish, coelacanth, mola_mola) ──
   { id:'cod',                name:'Cod',                 rarity:'uncommon', baseValue:56,      zone:'sea',   zones:['sea','ocean'], img:'img/fish/Cod.png' },
@@ -110,10 +110,10 @@ const FISH_DB = [
   { id:'mahi_mahi',          name:'Mahi-Mahi',           rarity:'common',   baseValue:46,      zone:'ocean', zones:['ocean'], img:'img/fish/Mahi-Mahi.png' },
   { id:'giant_squid',        name:'Giant Squid',         rarity:'epic',      baseValue:960,    zone:'ocean', zones:['ocean'], img:'img/fish/Giant Squid.png', timeWindow:{from:0,to:2}, manualOnly:true },
   { id:'oarfish',            name:'Oarfish',             rarity:'rare',     baseValue:294,     zone:'ocean', zones:['ocean'], img:'img/fish/Oarfish.png' },
-  { id:'blue_whale',         name:'Blue Whale',          rarity:'epic',      baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Blue Whale.png', timeWindow:{from:1,to:3}, manualOnly:true },
+  { id:'blue_whale',         name:'Blue Whale',          rarity:'epic',      baseValue:1260,   zone:'ocean', zones:['ocean'], img:'img/fish/Blue whale.png', timeWindow:{from:1,to:3}, manualOnly:true },
   // ── Time-specific (special = not in base Excel table, shown separately in Fishdex) ──
-  { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:8,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
-  { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:6,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
+  { id:'morning_perch',   name:'Morning Perch',   rarity:'uncommon', baseValue:4,    zone:'pond',  zones:['pond'],  img:'img/fish/Morning Perch.png',   timeWindow:{from:7,to:10},  special:true },
+  { id:'afternoon_roach', name:'Afternoon Roach', rarity:'common',   baseValue:3,    zone:'pond',  zones:['pond'],  img:'img/fish/Afternoon Roach.png', timeWindow:{from:12,to:15}, special:true },
   { id:'dawn_trout',      name:'Dawn Trout',      rarity:'rare',     baseValue:35,   zone:'river', zones:['river'], img:'img/fish/Dawn Trout.png',      timeWindow:{from:4,to:7},   special:true },
   { id:'midnight_eel',    name:'Midnight Eel',    rarity:'epic',     baseValue:112,  zone:'river', zones:['river'], img:'img/fish/Midnight Eel.png',    timeWindow:{from:0,to:3},   special:true },
   { id:'evening_catfish', name:'Evening Catfish', rarity:'uncommon', baseValue:25,   zone:'lake',  zones:['lake'],  img:'img/fish/Evening Catfish.png', timeWindow:{from:18,to:22}, special:true },
@@ -377,9 +377,9 @@ const BOBBER_COSMETICS = [
 
 const AUTOMATION = [
   // Nets — unlocks at Pond
-  { id:'fishing_net',    name:'Fishing Net',    cost:60, firstCost:10, rate:60,   desc:'1 catch / 60s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Fishing Net.png' },
-  { id:'reinforced_net', name:'Reinforced Net', cost:1000,        rate:45,   desc:'1 catch / 45s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Reinforced Net.png' },
-  { id:'river_net',      name:'River Net',      cost:5000,        rate:25,   desc:'1 catch / 25s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/River Net.png' },
+  { id:'fishing_net',    name:'Fishing Net',    cost:100, firstCost:10, rate:60,   desc:'1 catch / 60s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Fishing Net.png' },
+  { id:'reinforced_net', name:'Reinforced Net', cost:3000,       rate:45,   desc:'1 catch / 45s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/Reinforced Net.png' },
+  { id:'river_net',      name:'River Net',      cost:15000,      rate:30,   desc:'1 catch / 30s',   unlocksAt:'pond',  type:'net',        img:'img/icons/Shop/Automation/River Net.png' },
   // Fishermen — unlocks at River
   { id:'local_fisher',   name:'Local Fisher',   cost:3000,       rate:30,   desc:'1 catch / 30s',   unlocksAt:'river', type:'fisherman',  img:'img/icons/Shop/Automation/Local Fisher.png' },
   { id:'skilled_fisher', name:'Skilled Fisher', cost:30000,      rate:15,   desc:'1 catch / 15s',   unlocksAt:'river', type:'fisherman',  img:'img/icons/Shop/Automation/Skilled Fisher.png' },
@@ -588,6 +588,8 @@ const DEFAULT_STATE = {
   musicVolume: 50,
   fontScale: 100,
   bobberScale: 100,
+  fontScaleCustomized: false,
+  bobberScaleCustomized: false,
   playerName: '',
   currentZone: 'pond',
   currentRod: 'basic_rod',
@@ -650,6 +652,7 @@ const DEFAULT_STATE = {
     totalFish: 0,
     totalTrash: 0,
     totalEpic: 0,
+    trophyCatches: 0,
     totalSeagull: 0,
     storageFills: 0,
     hourFish: 0,
@@ -1010,7 +1013,7 @@ const PEARL_UPGRADES = [
   { id:'speed',        name:'Empire Boost',       desc:'Automation faster per level (+25% up to Lv8, then +10% per level).',            costs:[5,8,12,18,27,40,60,90],                         growthRate:1.50, maxLevel:null },
   { id:'storage',      name:'Expanded Holds',     desc:'Storage holds 50% more items per level.',                                        costs:[3,5,7,10,14,20,28,39,55,77],  growthRate:1.40,  maxLevel:null },
   { id:'multicatch',   name:'Hauling Nets',        desc:'Automation collects 1 extra item per cycle per level.',                          costs:[50,75,110,160,230,330,470,670,950,1350], growthRate:1.42, maxLevel:null },
-  { id:'luckywaters',  name:'Lucky Waters',        desc:'Higher chance to catch Uncommon, Rare, Epic and Legendary fish (+1% per level).',  costs:[5,8,12,18,26,38,55,80,115,165],                 growthRate:1.43, maxLevel:null },
+  { id:'luckywaters',  name:'Lucky Waters',        desc:'Higher chance to catch Rare and Epic fish (+1% per level).',                    costs:[5,8,12,18,26,38,55,80,115,165],                 growthRate:1.43, maxLevel:null },
   { id:'masterangler', name:'Master Angler',       desc:'Manual fishing requires 1 fewer tap per level (minimum 4).',                    costs:[12,20,35,60],                                   maxLevel:4    },
   { id:'treasure',     name:'Treasure Hunter',     desc:'Lost Treasure events appear more often (+5% per level, +1% after Lv10).',       costs:[5,8,12,18,27,40,58,84,120,170],                 growthRate:1.42, maxLevel:null },
   { id:'offline',      name:'Offline Expert',      desc:'Chance to catch an extra fish per catch (+10% per level, +2% after Lv10).',     costs:[4,6,9,13,19,28,40,58,84,120],                   growthRate:1.43, maxLevel:null },
@@ -1084,11 +1087,13 @@ function buyDiamondUpgrade(type) {
   if (lvl >= maxLvl) { showStatus('Maximum level reached!', 1500); return; }
   const COST = 100;
   if ((G.diamonds || 0) < COST) { showStatus('Not enough Diamonds!', 1500); return; }
-  G.diamonds = (G.diamonds || 0) - COST;
-  G.diamondUpgrades[type] = lvl + 1;
-  saveState(); updateHUD(); renderShop(activeShopTab); renderDiamondStore();
-  const label = type === 'autoSpeed' ? 'Automation Upgrade' : 'Storage Upgrade';
-  showStatus(label + ' → Level ' + (lvl + 1), 1800);
+  const label = type === 'autoSpeed' ? 'Automation Speed Upgrade' : 'Storage Upgrade';
+  confirmDiamondPurchase(label + ' (Lv ' + (lvl + 1) + ')', COST, () => {
+    G.diamonds = (G.diamonds || 0) - COST;
+    G.diamondUpgrades[type] = lvl + 1;
+    saveState(); updateHUD(); renderShop(activeShopTab); renderDiamondStore();
+    showStatus(label + ' → Level ' + (lvl + 1), 1800);
+  });
 }
 
 function pearlUpgradeCost(upg) {
@@ -1493,14 +1498,14 @@ function buyPremiumBait() {
   const COST = 5;
   if ((G.diamonds || 0) < COST) { showStatus('Not enough Diamonds!', 1500); return; }
   if (isPremiumBaitActive()) { showStatus('Premium Bait already active!', 1500); return; }
-  G.diamonds -= COST;
-  G.premiumBaitActive = true;
-  G.premiumBaitEnd = Date.now() + 30 * 60 * 1000;
-  G.stats.evPremiumBaits = (G.stats.evPremiumBaits || 0) + 1;
-  saveState();
-  updateHUD();
-  renderShop(activeShopTab);
-  showStatus('Premium Bait active! +100% rare chance for 30 min', 3000);
+  confirmDiamondPurchase('Premium Bait (30 min)', COST, () => {
+    G.diamonds -= COST;
+    G.premiumBaitActive = true;
+    G.premiumBaitEnd = Date.now() + 30 * 60 * 1000;
+    G.stats.evPremiumBaits = (G.stats.evPremiumBaits || 0) + 1;
+    saveState(); updateHUD(); renderShop(activeShopTab);
+    showStatus('Premium Bait active! +100% rare chance for 30 min', 3000);
+  });
 }
 
 function showStatus(msg, ms = 1800) {
@@ -1670,12 +1675,12 @@ function _calcZoneAutoRate(zone) {
              : def.type === 'fisherman' ? getRodFishermanSpeedMult()
              : def.type === 'boat'      ? getRodBoatSpeedMult()
              : def.type === 'fleet'     ? getRodFleetSpeedMult() : 1;
-    return sum + (getSpeedMult() * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getMultiCatch()) / def.rate;
+    return sum + (getSpeedMult() * tm * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * getMultiCatch()) / def.rate;
   }, 0);
 }
 
 function _calcTypeRate(type) {
-  const speedBase = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getMultiCatch();
+  const speedBase = getSpeedMult() * getPearlSpeedMult() * getMasteryAutoSpeedMult() * getAutomationUpgradeMultiplier() * getMultiCatch();
   const tm = type === 'net'       ? getRodNetSpeedMult()
            : type === 'fisherman' ? getRodFishermanSpeedMult()
            : type === 'boat'      ? getRodBoatSpeedMult()
@@ -2111,6 +2116,10 @@ function initQuests() {
   migrateManualFishdex();
   migrateW1LegendaryBug();
   migrateSizeStringsToNumbers();
+  // Seed trophyCatches for existing saves: use trophyRecords species count as minimum baseline
+  // (trophyRecords is never cleared, so it's the best available lower bound for old saves)
+  if (!G.stats.trophyCatches && Object.keys(G.trophyRecords || {}).length > 0)
+    G.stats.trophyCatches = Object.keys(G.trophyRecords).length;
 
   const today  = todayStr();
   const monday = mondayStr();
@@ -2180,6 +2189,18 @@ function initQuests() {
   if (isZoneUnlocked('ocean'))                       syncAch('h_ocean', 1);
   if (ZONE_DATA.every(z => isZoneUnlocked(z.id)))   syncAch('h_empire', 1);
   checkFishdexAch();
+
+  // Sync storefull quest in case storage was already at capacity when the game loaded.
+  // checkStorageFull() only fires on a not-full → full transition, so it never triggers
+  // for storage that was already full in a previous session.
+  _storageFull = fishPileTotal() >= storageCapacity();
+  if (_storageFull) {
+    (G.quests.dailyIds || []).forEach(id => {
+      const qd = DAILY_QUESTS.find(q => q.id === id);
+      if (qd && qd.type === 'storefull' && G.quests.dp[id] && !G.quests.dp[id].claimed)
+        G.quests.dp[id].prog = 1;
+    });
+  }
 
   updateQuestBadge();
   checkGuildOrder();
@@ -2324,7 +2345,7 @@ function fishPileValue(fishId, size) {
   const s = SIZE_TABLE.find(x => x.size === sizeKey);
   if (!s) return 0;
   const abyssBonus = f.zone === 'abyss' ? getRodAbyssSellBonus() : 1;
-  return Math.round(f.baseValue * s.mult * getRodSellBonus() * abyssBonus * getBlackPearlBonus() * getMasteryFishSellMult() * (G.devSupportOwned ? 1.25 : 1));
+  return Math.round(f.baseValue * s.mult * getRodSellBonus() * abyssBonus * getBlackPearlBonus() * getMasteryFishSellMult() * (G.devSupportOwned ? 1.25 : 1) * getRemoteFishSellMult());
 }
 
 function checkStorageFull() {
@@ -2998,6 +3019,7 @@ document.getElementById('btn-catch-ok').addEventListener('click', () => {
     G.trophyRecords = G.trophyRecords || {};
     if (!G.trophyRecords[c.fishId] || c.weightG > G.trophyRecords[c.fishId].weight)
       G.trophyRecords[c.fishId] = { weight:c.weightG, caughtAt:Date.now() };
+    G.stats.trophyCatches = (G.stats.trophyCatches || 0) + 1;
   } else if (c.isFishFight) {
     const _k = fishPileKey(c.fishId, 'FishFight');
     G.fishPile[_k] = (G.fishPile[_k] || 0) + multi;
@@ -4516,13 +4538,15 @@ function startAutoSellTimer() {
 function buyTempAutoSell() {
   const COST = 10;
   if ((G.diamonds || 0) < COST) { showStatus('Not enough Diamonds!', 1500); return; }
-  G.diamonds -= COST;
-  const _base = Math.max(Date.now(), G.autoSellEnd || 0);
-  G.autoSellEnd = _base + 6 * 3600 * 1000; // stack 6h on top of remaining time
-  if (!isTempAutoSellActive()) G.autoSellNextAt = Date.now() + AUTO_SELL_INTERVAL_MS;
-  saveState(); updateHUD(); renderDiamondStore();
-  showStatus('Auto-Seller active for 6 hours!', 2000);
-  doAutoSell(); // immediate sell on purchase
+  confirmDiamondPurchase('Auto-Seller (6 hours)', COST, () => {
+    G.diamonds -= COST;
+    const _base = Math.max(Date.now(), G.autoSellEnd || 0);
+    G.autoSellEnd = _base + 6 * 3600 * 1000; // stack 6h on top of remaining time
+    if (!isTempAutoSellActive()) G.autoSellNextAt = Date.now() + AUTO_SELL_INTERVAL_MS;
+    saveState(); updateHUD(); renderDiamondStore();
+    showStatus('Auto-Seller active for 6 hours!', 2000);
+    doAutoSell(); // immediate sell on purchase
+  });
 }
 
 function toggleAutoSell() {
@@ -5252,6 +5276,26 @@ function closeSeaComicPopup() {
 function openEvInfo()  { document.getElementById('ev-info-overlay').classList.remove('hidden'); }
 function closeEvInfo() { document.getElementById('ev-info-overlay').classList.add('hidden'); }
 
+function enterMaelstromFromZones() {
+  if (typeof canAccessMaelstromAndAbyss !== 'function' || !canAccessMaelstromAndAbyss()) return;
+  if (!G.maelstromComicSeen) {
+    G.maelstromComicSeen = true;
+    saveState();
+    showMaelstromComicPopup();
+    return;
+  }
+  if (typeof enterMaelstromDebug === 'function') enterMaelstromDebug();
+}
+function showMaelstromComicPopup() {
+  const overlay = document.getElementById('maelstrom-comic-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+}
+function closeMaelstromComicPopup() {
+  const overlay = document.getElementById('maelstrom-comic-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  if (typeof enterMaelstromDebug === 'function') enterMaelstromDebug();
+}
+
 // ── Expedition Vessel ─────────────────────────────────────────────────────────
 
 const EXPEDITION_VESSEL_PRICES = [
@@ -5913,7 +5957,7 @@ function _renderManualFishdex(zone, content, progress) {
   summary.className = 'manual-fishdex-summary';
   summary.innerHTML = `
     <div class="manual-summary-title">Manual Fishdex</div>
-    <div class="manual-summary-sub">Only catchable by active fishing in the correct time window</div>
+    <div class="manual-summary-sub">These fish require active (manual) fishing — automation cannot catch them</div>
     <div class="manual-summary-progress">
       <div class="manual-summary-bar-wrap">
         <div class="manual-summary-bar" style="width:${manualFish.length ? Math.round(discoveredCount/manualFish.length*100) : 0}%"></div>
@@ -7069,7 +7113,7 @@ function _renderStatsContent() {
     1: { title: 'Fishing', rows: [
       row('Total Fish Caught',      String((G.stats.totalFish  || 0).toLocaleString())),
       row('Epic+ Catches',          String((G.stats.totalEpic  || 0).toLocaleString())),
-      row('Trophy Catches',         String(((G.trophyPile || []).length).toLocaleString())),
+      row('Trophy Catches',         String((G.stats.trophyCatches || 0).toLocaleString())),
       row('Trophy Species Recorded',String(trophyKeys.length.toLocaleString())),
       row('Heaviest Catch',         bestFishStr),
       row('Total Trash Collected',  String((G.stats.totalTrash || 0).toLocaleString())),
@@ -7486,10 +7530,10 @@ function renderHallOfFame() {
 // ─── DIAMOND STORE ────────────────────────────────────────────────────────────
 
 const DIAMOND_PACKS = [
-  { id:'starter',  name:'Starter Pack',   diamonds:200,  price:'2.99€', tag:'BEST START', starterOnly:true },
-  { id:'pouch',    name:"Angler's Pouch", diamonds:400,  price:'5.99€', tag:'' },
-  { id:'chest',    name:"Fisher's Chest", diamonds:1100, price:'14.99€',tag:'+25% BONUS' },
-  { id:'vault',    name:"Captain's Vault",diamonds:2500, price:'29.99€',tag:'+67% BONUS' },
+  { id:'starter',  name:'Starter Pack',   diamonds:200,  tag:'BEST START', starterOnly:true },
+  { id:'pouch',    name:"Angler's Pouch", diamonds:400,  tag:'' },
+  { id:'chest',    name:"Fisher's Chest", diamonds:1100, tag:'+25% BONUS' },
+  { id:'vault',    name:"Captain's Vault",diamonds:2500, tag:'+67% BONUS' },
 ];
 
 function renderDiamondStore() {
@@ -7523,7 +7567,7 @@ function renderDiamondStore() {
         <div class="ds-pack-amount"><img src="img/icons/Diamond icon.png" class="ds-inline-icon" alt=""> ${pack.diamonds}</div>
         <div class="ds-pack-name">${pack.name}</div>
         ${starterBadge}
-        <button class="btn-primary ds-pack-btn" onclick="buyDiamondPack('${pack.id}')">${pack.price}</button>
+        <button class="btn-primary ds-pack-btn" onclick="buyDiamondPack('${pack.id}')">${getProductPrice(pack.id)}</button>
       </div>`;
   });
 
@@ -7539,7 +7583,7 @@ function renderDiamondStore() {
           <div class="ds-premium-name">Remove Ads</div>
           <div class="ds-premium-desc">No more ads · +25% fishing speed permanently · Special Catch every 10 min auto</div>
         </div>
-        <button class="btn-primary ds-premium-btn" onclick="buyRemoveAds()">16.99€</button>
+        <button class="btn-primary ds-premium-btn" onclick="buyRemoveAds()">${getProductPrice(PRODUCT.REMOVE_ADS)}</button>
       </div>`;
   } else {
     html += `
@@ -7565,7 +7609,7 @@ function renderDiamondStore() {
           <div class="ds-premium-name">Permanent Auto-Seller</div>
           <div class="ds-premium-desc">Sells all catch once every 24 in-game hours (every 1 real hour) · toggleable on/off</div>
         </div>
-        <button class="btn-primary ds-premium-btn" onclick="buyPermanentAutoSell()">25.99€</button>
+        <button class="btn-primary ds-premium-btn" onclick="buyPermanentAutoSell()">${getProductPrice(PRODUCT.PERMANENT_AUTOSELLER)}</button>
       </div>`;
 
   html += devSupportOwned ? `
@@ -7581,7 +7625,7 @@ function renderDiamondStore() {
           <div class="ds-premium-name">Developer's Support Package</div>
           <div class="ds-premium-desc">Support the dev! +25% fishing speed · +25% sell price · +25% storage capacity — permanently</div>
         </div>
-        <button class="btn-primary ds-premium-btn" onclick="buyDevSupport()">25.99€</button>
+        <button class="btn-primary ds-premium-btn" onclick="buyDevSupport()">${getProductPrice(PRODUCT.DEV_SUPPORT)}</button>
       </div>`;
   html += `</div>`;
 
@@ -7942,6 +7986,7 @@ function renderSettings() {
     if (fontValue) fontValue.textContent = (G.fontScale || 100) + '%';
     fontSlider.oninput = () => {
       G.fontScale = parseInt(fontSlider.value);
+      G.fontScaleCustomized = true;
       if (fontValue) fontValue.textContent = G.fontScale + '%';
       applyFontScale();
       saveState();
@@ -7954,6 +7999,7 @@ function renderSettings() {
     if (bobberValue) bobberValue.textContent = (G.bobberScale || 100) + '%';
     bobberSlider.oninput = () => {
       G.bobberScale = parseInt(bobberSlider.value);
+      G.bobberScaleCustomized = true;
       if (bobberValue) bobberValue.textContent = G.bobberScale + '%';
       applyBobberScale();
       saveState();
@@ -8134,6 +8180,67 @@ async function redeemCode() {
   if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') redeemCode(); });
 })();
 
+// ─── REMOTE CONFIG ────────────────────────────────────────────────────────────
+
+const PA_CONFIG_URL = 'https://tile-royale-eu-production.up.railway.app/pa/config';
+
+let _remoteConfig = {};
+
+function _rcNum(key, fallback) { const v = _remoteConfig[key]; return (typeof v === 'number' && isFinite(v)) ? v : fallback; }
+function _rcBool(key, fallback) { const v = _remoteConfig[key]; return typeof v === 'boolean' ? v : fallback; }
+function _rcStr(key, fallback)  { const v = _remoteConfig[key]; return (typeof v === 'string' && v) ? v : fallback; }
+
+// Accessor functions used throughout the game
+function getRemoteFishSellMult()        { return _rcNum('fishSellMult',            1.0); }
+function getRemoteEventIntervalMin()    { return _rcNum('specialEventIntervalMin', 15);  }
+function getRemoteEventIntervalMax()    { return _rcNum('specialEventIntervalMax', 30);  }
+function isRemoteCompetitionEnabled()   { return _rcBool('competitionEnabled',     true); }
+function isRemoteGhostShipEnabled()     { return _rcBool('ghostShipEnabled',       true); }
+
+function _applyRemoteConfig() {
+  const cfg = _remoteConfig;
+
+  // Font/bobber scale — only if the player hasn't manually customised them
+  const defaultFont   = _rcNum('defaultFontScale',   100);
+  const defaultBobber = _rcNum('defaultBobberScale',  100);
+  if (!G.fontScaleCustomized   && defaultFont   !== 100) { G.fontScale   = defaultFont;   applyFontScale(); }
+  if (!G.bobberScaleCustomized && defaultBobber !== 100) { G.bobberScale = defaultBobber; applyBobberScale(); }
+
+  // MOTD banner
+  const motd     = typeof cfg.motd === 'string' && cfg.motd ? cfg.motd : null;
+  const motdType = _rcStr('motdType', 'info');
+  const motdEl   = document.getElementById('pa-motd-banner');
+  if (motdEl) {
+    if (motd) {
+      const seen = localStorage.getItem('pa_motd_seen');
+      if (seen !== motd) {
+        document.getElementById('pa-motd-text').textContent = motd;
+        motdEl.className = 'pa-motd-banner pa-motd-' + motdType;
+        motdEl.classList.remove('hidden');
+      }
+    } else {
+      motdEl.classList.add('hidden');
+    }
+  }
+}
+
+function dismissMotd() {
+  const motdEl = document.getElementById('pa-motd-banner');
+  if (motdEl) {
+    const text = document.getElementById('pa-motd-text');
+    if (text) localStorage.setItem('pa_motd_seen', text.textContent);
+    motdEl.classList.add('hidden');
+  }
+}
+
+async function loadRemoteConfig() {
+  try {
+    const res = await fetch(PA_CONFIG_URL, { cache: 'no-store' });
+    if (res.ok) _remoteConfig = await res.json();
+  } catch { /* offline — use defaults */ }
+  _applyRemoteConfig();
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 function init() {
@@ -8209,6 +8316,7 @@ function init() {
   applyBobberScale();
   calculateOfflineProgress();
   initQuests();
+  loadRemoteConfig(); // async — applies when resolved, game continues with defaults
   if (!G.stats.highestCoins) G.stats.highestCoins = G.coins || 0;
   resetFishingState();
   updateBobberImg();
@@ -8284,14 +8392,16 @@ function _onAppBackground() {
   const now = Date.now();
   G.backgroundAt = now;
   G.lastSeen     = now;
-  // Pause special event timer — don't fire while app is backgrounded
-  if (_specialEventTimeout) { clearTimeout(_specialEventTimeout); _specialEventTimeout = null; }
+  // Pause special event timers — don't fire while app is backgrounded
+  if (_specialEventTimeout)    { clearTimeout(_specialEventTimeout);    _specialEventTimeout    = null; }
+  if (_foregroundEventTimeout) { clearTimeout(_foregroundEventTimeout); _foregroundEventTimeout = null; }
   if ((G.stats.lastFishAt || 0) > 0 && now - G.stats.lastFishAt < 120000) {
     if (typeof syncAch === 'function')             syncAch('h_last_fish', 1);
     if (typeof finalizeQuestUpdate === 'function') finalizeQuestUpdate();
   }
   saveState();
   bgMusic.pause();
+  if (typeof onAdBackground === 'function') onAdBackground();
   console.log('[Lifecycle] backgrounded');
 }
 
@@ -8309,11 +8419,13 @@ function _onAppForeground() {
   if (_pendingEvent) {
     if (_eventStartedAt && Date.now() - _eventStartedAt > 5 * 60 * 1000) {
       expireSpecialEvent(); // window expired while backgrounded
+    } else {
+      // Event still valid — pre-load the ad now so it's ready when the player taps claim
+      if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
     }
-    // else event still valid — leave it visible
   } else if (G.specialEventNextAt && Date.now() >= G.specialEventNextAt) {
     G.specialEventNextAt = 0;
-    setTimeout(triggerSpecialEvent, 1500); // one event after settling
+    _foregroundEventTimeout = setTimeout(triggerSpecialEvent, 10000); // 10s: player settles + AdMob reconnects
   } else if (G.specialEventNextAt && Date.now() < G.specialEventNextAt) {
     const remaining = G.specialEventNextAt - Date.now();
     _nextEventAt = G.specialEventNextAt;
@@ -8456,14 +8568,17 @@ const SPECIAL_EVENTS = [
   },
 ];
 
-let _specialEventTimeout = null;
+let _specialEventTimeout   = null;
+let _foregroundEventTimeout = null; // tracked separately so background cancels it
 let _pendingEvent = null;
 let _nextEventAt = 0;
 
 function scheduleNextSpecialEvent() {
   if (_specialEventTimeout) clearTimeout(_specialEventTimeout);
-  const now = Date.now();
-  const delayMs = (15 + Math.random() * 15) * 60000; // 15–30 min
+  const now    = Date.now();
+  const minMs  = getRemoteEventIntervalMin() * 60000;
+  const rangeMs = Math.max(0, getRemoteEventIntervalMax() - getRemoteEventIntervalMin()) * 60000;
+  const delayMs = minMs + Math.random() * rangeMs;
   _nextEventAt = now + delayMs;
   G.specialEventNextAt = _nextEventAt;
   saveState();
