@@ -2,6 +2,25 @@
 
 ---
 
+## v0.9.4.7 — Build 74 (July 2026)
+
+### Feature
+- **Ghost Ship expedition failure** — 15% chance the expedition fails; the ship is lost and no loot is awarded. A popup explains what happened and shows the replacement cost. Buy a new Expedition Vessel from the shop to continue sending expeditions.
+- **Settings: Player ID** — Firebase UID is displayed in the Support section so players can share it with the support team when reporting purchase issues.
+- **Settings: Redeem Code** — players can enter promo or support codes to receive diamonds, coins, or other rewards.
+- **IAP purchase recovery** — if the network fails between Google consuming a purchase and server verification, the purchase token is saved locally and retried automatically on the next launch. Prevents diamond purchases from being silently lost due to connectivity issues.
+
+### Fix
+- **Diamond Store not updating after upgrade** — buying an Automation or Storage upgrade showed the old level until the player navigated away and back. A null-reference error was interrupting the UI refresh; the store now updates immediately after purchase.
+- **Shop item description overflow** — long item descriptions in the shop are now scrollable and no longer overlap the buy button.
+- **Monk Fish / Seahorse images** — removed white backgrounds from both fish images.
+- **Mola-mola rarity** — corrected rarity entry in Fishdex data.
+
+### Security
+- **Claude settings excluded from APK** — `.claude/` directory is now gitignored and excluded from Android asset bundling, preventing internal tool configuration from being shipped in release builds.
+
+---
+
 ## v0.9.4.6 — Build 73 (July 2026)
 
 ### Fix

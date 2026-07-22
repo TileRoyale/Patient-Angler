@@ -98,7 +98,8 @@ async function initIAP() {
   } catch (e) {
     console.warn('[IAP] init restore failed:', e);
   }
-  loadProductPrices(); // fire-and-forget; calls renderDiamondStore() when ready
+  _retryPendingTokens(); // fire-and-forget: recover purchases that failed due to network error
+  loadProductPrices();   // fire-and-forget: calls renderDiamondStore() when ready
 }
 
 // ── Public purchase entry points (called from game.js) ────────────────────────
@@ -161,6 +162,8 @@ async function restorePurchases() {
         if (_grantNonConsumable(pid)) restored++;
       }
     }
+    // Also retry consumable purchases that failed server verify due to network error
+    await _retryPendingTokens();
     saveState(); updateHUD(); renderDiamondStore();
     showStatus(restored > 0 ? restored + ' purchase(s) restored!' : 'Nothing to restore.', 2000);
   } catch (e) {
@@ -169,6 +172,70 @@ async function restorePurchases() {
 }
 
 const PA_IAP_VERIFY_URL = 'https://tile-royale-eu-production.up.railway.app/pa/iap/verify';
+
+// ── Pending token recovery ────────────────────────────────────────────────────
+// When a consumable purchase (e.g. vault) is charged by Google Play but the
+// server verify call fails due to a network error, the purchase token is saved
+// here. On next launch or Restore Purchases, the tokens are retried. Google
+// Play's purchases.products.get API accepts consumed tokens, so the server can
+// still verify and grant the diamonds even after the client consumed the SKU.
+
+const _PENDING_TOKENS_KEY = 'pa_pending_tokens';
+
+function _savePendingToken(productId, purchaseToken, orderId) {
+  try {
+    const pending = _loadPendingTokens();
+    if (!pending.find(t => t.purchaseToken === purchaseToken)) {
+      pending.push({ productId, purchaseToken, orderId: orderId || '' });
+      localStorage.setItem(_PENDING_TOKENS_KEY, JSON.stringify(pending));
+      console.log('[IAP] Pending token saved for retry:', productId);
+    }
+  } catch (e) { console.warn('[IAP] Failed to save pending token:', e); }
+}
+
+function _loadPendingTokens() {
+  try { return JSON.parse(localStorage.getItem(_PENDING_TOKENS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function _removePendingToken(purchaseToken) {
+  try {
+    const pending = _loadPendingTokens().filter(t => t.purchaseToken !== purchaseToken);
+    localStorage.setItem(_PENDING_TOKENS_KEY, JSON.stringify(pending));
+  } catch {}
+}
+
+async function _retryPendingTokens() {
+  const pending = _loadPendingTokens();
+  if (!pending.length) return;
+  const token = await _getPAToken().catch(() => null);
+  if (!token) return;
+  let changed = false;
+  for (const { productId, purchaseToken, orderId } of [...pending]) {
+    try {
+      const vRes = await fetch(PA_IAP_VERIFY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ productId, purchaseToken, orderId }),
+      });
+      const vData = await vRes.json();
+      if (vData.ok) {
+        _removePendingToken(purchaseToken);
+        if (!vData.already_processed) {
+          const diamonds = DIAMOND_PACK_MAP[productId];
+          if (diamonds) {
+            G.diamonds = (G.diamonds || 0) + diamonds;
+            if (productId === 'starter') G.starterPackClaimed = true;
+            changed = true;
+            console.log(`[IAP] Pending token recovered: +${diamonds} diamonds for ${productId}`);
+            showStatus(`+${diamonds} Diamonds recovered!`, 3000);
+          }
+        }
+      }
+    } catch { /* still offline — keep pending, will retry next time */ }
+  }
+  if (changed) { saveState(); updateHUD(); if (typeof renderDiamondStore === 'function') renderDiamondStore(); }
+}
 
 // ── Core purchase flow ────────────────────────────────────────────────────────
 
@@ -215,10 +282,11 @@ async function _purchase(productId, onSuccess) {
         }
       }
     } catch (netErr) {
-      // Network error — do NOT grant without server confirmation.
-      // Google Play has already charged the user — they can restore via "Restore Purchases" once reconnected.
-      console.error('[IAP] Server verify network error — purchase not granted:', netErr);
-      showStatus('Purchase verified by Google Play but could not reach server. Please reconnect and use Restore Purchases.', 5000);
+      // Network error — save token for automatic retry on next launch or Restore Purchases.
+      // Google Play already consumed the SKU client-side; the server can still verify the token.
+      _savePendingToken(productId, result.purchaseToken, result.orderId || '');
+      console.error('[IAP] Server verify network error — token saved for retry:', netErr);
+      showStatus('Purchase verified by Google Play but could not reach server. It will be recovered automatically when you reconnect.', 5000);
     }
 
     if (serverOk) onSuccess(result);

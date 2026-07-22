@@ -10,6 +10,10 @@ AnglerKey
 tile-royale-*.json
 create-iap-products.js
 
+# Claude Code settings — contains allowed commands, never in git or APK
+.claude/
+www/.claude/
+
 # Android build output
 android/app/build/
 android/.gradle/

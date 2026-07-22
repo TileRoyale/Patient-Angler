@@ -893,9 +893,12 @@ html, body {
   font-style: italic;
   line-height: 1.3;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.shop-item-desc::-webkit-scrollbar { display: none; }
 .shop-item-effect {
   font-size: calc((clamp(9px,2vw,11px)) * var(--font-scale, 1));
   color: #90c890;

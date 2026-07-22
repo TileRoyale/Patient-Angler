@@ -1091,7 +1091,7 @@ function buyDiamondUpgrade(type) {
   confirmDiamondPurchase(label + ' (Lv ' + (lvl + 1) + ')', COST, () => {
     G.diamonds = (G.diamonds || 0) - COST;
     G.diamondUpgrades[type] = lvl + 1;
-    saveState(); updateHUD(); renderShop(activeShopTab); renderDiamondStore();
+    saveState(); updateHUD(); renderDiamondStore();
     showStatus(label + ' → Level ' + (lvl + 1), 1800);
   });
 }
@@ -2885,8 +2885,10 @@ function rollCatch(zone, isManual) {
   }
 
   let pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && isTimeAvailable(f) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
-  if (!pool.length) pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
-  if (!pool.length) pool = FISH_DB.filter(f => f.zones.includes(zone) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
+  // Fallbacks: time-gated manualOnly/special fish must ALWAYS respect their timeWindow —
+  // only relax the constraint for regular fish that have no timeWindow.
+  if (!pool.length) pool = FISH_DB.filter(f => f.rarity === roll.type && f.zones.includes(zone) && (!isManualOnlyFish(f) || isTimeAvailable(f)) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
+  if (!pool.length) pool = FISH_DB.filter(f => f.zones.includes(zone) && (!isManualOnlyFish(f) || isTimeAvailable(f)) && (isManual || !isManualOnlyFish(f)) && !f.w1legendary);
   if (!pool.length) return rollCatch('pond', isManual); // ultimate fallback
   const fish = _pickFromPool(pool);
   const trophyMult = (isCompetitionActive() ? 2 : 1) * (1 + getPearlFishWhispererBonus() * 10 + getMasteryTrophyBonus() * 10);
@@ -5694,6 +5696,7 @@ function _gsOnTap(shipId) {
     gs.state           = 'expedition';
     gs.expeditionEndAt = now + getGsExpeditionMs();
     gs.despawnAt       = 0;
+    gs.failed          = Math.random() < 0.15;
     gs.reward          = _gsGenerateReward(gs.zone);
     saveState();
     _gsUpdateLabel(gs.id);
@@ -5716,6 +5719,11 @@ function _gsOnTap(shipId) {
   }
 
   if (gs.state === 'complete') {
+    if (gs.failed) {
+      _gsCurrentClaimId = gs.id;
+      _gsShowFailPopup(gs);
+      return;
+    }
     // Block claim if Treasure Hold is full (chest is guaranteed)
     if ((G.sunkenChests || []).length >= sunkenChestCapacity()) {
       showStatus('Treasure Hold is full! Open a chest to make space.', 2500);
@@ -5747,6 +5755,16 @@ function _gsShowRewardPopup(gs) {
   const r       = gs.reward;
   const overlay = document.getElementById('ghost-ship-reward-overlay');
   if (!overlay) return;
+
+  // Reset elements to success state
+  const titleEl = document.getElementById('gs-reward-title');
+  if (titleEl) { titleEl.textContent = 'Ghost Ship'; titleEl.style.color = '#c8e8ff'; }
+  const subtitleEl = document.getElementById('gs-reward-subtitle');
+  if (subtitleEl) subtitleEl.textContent = 'Expedition returned with salvage and a Treasure Chest!';
+  const imgEl = document.getElementById('ghost-ship-reward-img');
+  if (imgEl) imgEl.style.display = '';
+  const btn = document.getElementById('gs-reward-btn');
+  if (btn) { btn.textContent = 'Claim Salvage'; btn.onclick = gsClaimReward; }
 
   const autoDef  = r.automation ? AUTOMATION.find(a => a.id === r.automation.id) : null;
   const autoName = autoDef ? autoDef.name : null;
@@ -5840,6 +5858,56 @@ function gsClaimReward() {
   if (overlay) overlay.classList.add('hidden');
 
   showStatus('Ghost Ship salvage collected!', 2000);
+}
+
+function _gsOverlayBackdropClick() {
+  const gs = _gsCurrentClaimId ? (G.ghostShips || []).find(s => s.id === _gsCurrentClaimId) : null;
+  if (gs && gs.failed) gsClaimFail();
+  else gsClaimReward();
+}
+
+function _gsReplacementCost() {
+  const count = (G.expeditionVessels || []).length;
+  return EXPEDITION_VESSEL_PRICES[Math.min(Math.max(count - 1, 0), EXPEDITION_VESSEL_PRICES.length - 1)];
+}
+
+function _gsShowFailPopup(gs) {
+  const overlay = document.getElementById('ghost-ship-reward-overlay');
+  if (!overlay) return;
+  const cost = _gsReplacementCost();
+
+  const titleEl = document.getElementById('gs-reward-title');
+  if (titleEl) { titleEl.textContent = 'Expedition Failed'; titleEl.style.color = '#ff6b6b'; }
+  const subtitleEl = document.getElementById('gs-reward-subtitle');
+  if (subtitleEl) subtitleEl.textContent = 'Our expedition ship sunk and needs replacement from the shop.';
+  const imgEl = document.getElementById('ghost-ship-reward-img');
+  if (imgEl) imgEl.style.display = 'none';
+
+  document.getElementById('ghost-ship-reward-body').innerHTML =
+    '<div style="font-size:14px;color:var(--color-text-dim);margin-top:8px;margin-bottom:4px">'
+    + 'Replacement cost: <strong style="color:#f5c842">' + formatCoins(cost) + 'c</strong>'
+    + '</div>';
+
+  const btn = document.getElementById('gs-reward-btn');
+  if (btn) {
+    btn.textContent = 'Go to Shop';
+    btn.onclick = function() { gsClaimFail(); showScreen('shop'); };
+  }
+
+  overlay.classList.remove('hidden');
+}
+
+function gsClaimFail() {
+  const shipId = _gsCurrentClaimId;
+  _gsCurrentClaimId = null;
+  const overlay = document.getElementById('ghost-ship-reward-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  G.ghostShips = (G.ghostShips || []).filter(s => s.id !== shipId);
+  saveState();
+  _gsStopFlap(shipId);
+  const el = document.getElementById('ghost-ship-obj-' + shipId);
+  if (el) el.remove();
+  showStatus('Expedition lost. Buy a replacement Expedition Vessel from the shop.', 3500);
 }
 
 // ─── GHOST SHIP DEBUG ─────────────────────────────────────────────────────────
@@ -7900,6 +7968,44 @@ function applyBobberScale() {
 
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
 
+async function redeemCode(rawCode) {
+  const code = (rawCode || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!code) { showStatus('Enter a code first.', 1500); return; }
+  const user = getCurrentUser();
+  if (!user?.uid) { showStatus('Sign in first to redeem a code.', 2000); return; }
+  try {
+    const res  = await fetch('https://tile-royale-eu-production.up.railway.app/pa/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid, code }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      const msgs = { invalid_code: 'Invalid or expired code.', already_redeemed: 'Code already used.', expired: 'Code has expired.', server_error: 'Server error, try again.' };
+      showStatus(msgs[data.error] || 'Invalid code.', 2500);
+      return;
+    }
+    const r = data.reward;
+    if (r.rewardType === 'diamonds' && r.amount) {
+      G.diamonds = (G.diamonds || 0) + r.amount;
+      saveState(); updateHUD();
+      showStatus(`+${r.amount} Diamonds added! ${data.desc || ''}`, 3000);
+    } else if (r.rewardType === 'coins' && r.amount) {
+      G.coins = (G.coins || 0) + r.amount;
+      saveState(); updateHUD();
+      showStatus(`+${formatNumber(r.amount)} coins added! ${data.desc || ''}`, 3000);
+    } else if (r.rewardType === 'autoIncome') {
+      showStatus(data.desc || 'Reward claimed!', 3000);
+    } else {
+      showStatus(data.desc || 'Reward claimed!', 2500);
+    }
+    const input = document.getElementById('redeem-code-input');
+    if (input) input.value = '';
+  } catch (e) {
+    showStatus('Could not reach server. Check your connection.', 2500);
+  }
+}
+
 function renderSettings() {
   const muteBtn = document.getElementById('btn-music-mute');
   if (muteBtn) {
@@ -8017,6 +8123,27 @@ function renderSettings() {
       showStatus(name ? 'Name saved: ' + name : 'Name cleared', 2000);
     };
   }
+  const playerIdDisplay = document.getElementById('player-id-display');
+  const copyPlayerIdBtn  = document.getElementById('btn-copy-player-id');
+  if (playerIdDisplay && copyPlayerIdBtn) {
+    const user = getCurrentUser();
+    const uid  = user?.uid || 'Not signed in';
+    playerIdDisplay.textContent = uid;
+    copyPlayerIdBtn.onclick = () => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(uid).then(() => showStatus('Player ID copied!', 1500));
+      } else {
+        showStatus(uid, 5000);
+      }
+    };
+  }
+
+  const redeemInput = document.getElementById('redeem-code-input');
+  const redeemBtn   = document.getElementById('btn-redeem-code');
+  if (redeemInput && redeemBtn) {
+    redeemBtn.onclick = () => redeemCode(redeemInput.value);
+  }
+
   const resetBtn = document.getElementById('btn-reset-save');
   if (resetBtn) {
     resetBtn.onclick = () => {
@@ -8395,6 +8522,7 @@ function _onAppBackground() {
   // Pause special event timers — don't fire while app is backgrounded
   if (_specialEventTimeout)    { clearTimeout(_specialEventTimeout);    _specialEventTimeout    = null; }
   if (_foregroundEventTimeout) { clearTimeout(_foregroundEventTimeout); _foregroundEventTimeout = null; }
+  if (_eventExpireTimeout)     { clearTimeout(_eventExpireTimeout);     _eventExpireTimeout     = null; }
   if ((G.stats.lastFishAt || 0) > 0 && now - G.stats.lastFishAt < 120000) {
     if (typeof syncAch === 'function')             syncAch('h_last_fish', 1);
     if (typeof finalizeQuestUpdate === 'function') finalizeQuestUpdate();
@@ -8417,15 +8545,21 @@ function _onAppForeground() {
   updateHUD();
   // Special event: timer was paused on background — resolve on return
   if (_pendingEvent) {
-    if (_eventStartedAt && Date.now() - _eventStartedAt > 5 * 60 * 1000) {
+    const elapsed = _eventStartedAt ? Date.now() - _eventStartedAt : 0;
+    if (elapsed > 5 * 60 * 1000) {
       expireSpecialEvent(); // window expired while backgrounded
     } else {
-      // Event still valid — pre-load the ad now so it's ready when the player taps claim
+      // Restart the expire countdown with only the time remaining
+      const remaining = Math.max(10000, 5 * 60 * 1000 - elapsed);
+      _eventExpireTimeout = setTimeout(expireSpecialEvent, remaining);
+      // Pre-load the ad so it's ready when the player taps claim
       if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
     }
   } else if (G.specialEventNextAt && Date.now() >= G.specialEventNextAt) {
     G.specialEventNextAt = 0;
+    _nextEventAt = 0;
     _foregroundEventTimeout = setTimeout(triggerSpecialEvent, 10000); // 10s: player settles + AdMob reconnects
+    if (typeof prepareRewardedAd === 'function') prepareRewardedAd(); // pre-load while player settles
   } else if (G.specialEventNextAt && Date.now() < G.specialEventNextAt) {
     const remaining = G.specialEventNextAt - Date.now();
     _nextEventAt = G.specialEventNextAt;
@@ -8574,7 +8708,8 @@ let _pendingEvent = null;
 let _nextEventAt = 0;
 
 function scheduleNextSpecialEvent() {
-  if (_specialEventTimeout) clearTimeout(_specialEventTimeout);
+  if (_specialEventTimeout)    { clearTimeout(_specialEventTimeout);    _specialEventTimeout    = null; }
+  if (_foregroundEventTimeout) { clearTimeout(_foregroundEventTimeout); _foregroundEventTimeout = null; }
   const now    = Date.now();
   const minMs  = getRemoteEventIntervalMin() * 60000;
   const rangeMs = Math.max(0, getRemoteEventIntervalMax() - getRemoteEventIntervalMin()) * 60000;
