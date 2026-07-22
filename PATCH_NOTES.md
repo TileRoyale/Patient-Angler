@@ -2,6 +2,14 @@
 
 ---
 
+## v0.9.5.0 — Build 77 (July 2026)
+
+### Fix
+- **Cloud save reliability** — Google Sign-In token is now received via native push event (`idTokenChange`) instead of an active fetch call, fixing cloud saves silently failing on Android 16 / WebView 150 devices where `getIdToken()` hangs indefinitely.
+- **Legendary fish popup** — popup is now scrollable so the "Amazing!" button is always reachable on smaller screens.
+
+---
+
 ## v0.9.4.9 — Build 76 (July 2026)
 
 ### Fix

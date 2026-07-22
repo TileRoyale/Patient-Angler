@@ -25,15 +25,21 @@ async function initAuth() {
   const FA = getFirebaseAuth();
   if (!FA) return;
 
+  FA.addListener('idTokenChange', (result) => {
+    if (result?.token) { _cachedToken = result.token; _cachedTokenExp = Date.now() + 55 * 60 * 1000; }
+  });
+
   FA.addListener('authStateChange', async (result) => {
     _currentUser = result.user;
     updateAuthUI();
     if (_currentUser) {
+      await new Promise(r => setTimeout(r, 1500));
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
       setTimeout(() => { if (typeof sendAnalyticsSnapshot === 'function') sendAnalyticsSnapshot('auth_change'); }, 3000);
     } else {
+      _cachedToken = null; _cachedTokenExp = 0;
       _stopCloudSync();
     }
   });
@@ -43,7 +49,7 @@ async function initAuth() {
     _currentUser = result.user || null;
     updateAuthUI();
     if (_currentUser) {
-      await _fetchFreshToken();
+      await new Promise(r => setTimeout(r, 1500));
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
@@ -60,7 +66,7 @@ async function signInWithGoogle() {
     const result = await FA.signInWithGoogle();
     _currentUser = result.user;
     updateAuthUI();
-    await _fetchFreshToken();
+    await new Promise(r => setTimeout(r, 1500));
     await loadCloudSave();
     _startCloudSync();
     showStatus('Signed in as ' + (_currentUser.displayName || 'Player'), 2000);
