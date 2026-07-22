@@ -560,8 +560,8 @@ const TRANSPORT = [
   { id:'waders',           name:'Waders',           cost:6000,      zone:'river', desc:'Wade into the River' },
   { id:'rowing_boat',      name:'Rowing Boat',       cost:60000,     zone:'lake',  desc:'Row out to the Lake' },
   { id:'speedboat',        name:'Speedboat',         cost:600000,    zone:'bay',   desc:'Speed out to the Bay' },
-  { id:'fishing_vessel',   name:'Fishing Vessel',    cost:100000000,  zone:'sea',   desc:'Sail out to the Sea' },
-  { id:'research_vessel',  name:'Research Vessel',   cost:10000000000, zone:'ocean', desc:'Venture to the Ocean' },
+  { id:'fishing_vessel',   name:'Fishing Vessel',    cost:1250000000,  zone:'sea',   desc:'Sail out to the Sea' },
+  { id:'research_vessel',  name:'Research Vessel',   cost:125000000000, zone:'ocean', desc:'Venture to the Ocean' },
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
@@ -7999,6 +7999,10 @@ async function redeemCode(rawCode) {
       _earnCoins(income);
       saveState(); updateHUD();
       showStatus(`+${formatCoins(income)}c! ${data.desc || ''}`, 3000);
+    } else if (r.rewardType === 'save_restore' && r.save) {
+      Object.assign(G, r.save);
+      saveState(); updateHUD();
+      showStatus('Save restored! Welcome back.', 3000);
     } else {
       showStatus(data.desc || 'Reward claimed!', 2500);
     }
