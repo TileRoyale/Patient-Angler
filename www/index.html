@@ -8,7 +8,7 @@
   <title>Patient Angler</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0a1628">
-  <link rel="stylesheet" href="styles.css?v=47">
+  <link rel="stylesheet" href="styles.css?v=48">
 </head>
 <body>
 
@@ -967,6 +967,23 @@
     </div>
   </div>
 
+  <!-- Cloud Save Restore prompt -->
+  <div id="cloud-restore-overlay" class="special-event-overlay hidden">
+    <div class="cloud-restore-card">
+      <div class="cloud-restore-title">☁️ Cloud Save Found</div>
+      <p class="cloud-restore-sub">Your Google account has a previous save:</p>
+      <div class="cloud-restore-stats">
+        <div class="cloud-restore-stat"><span class="cr-label">Zone</span><span id="cr-zone" class="cr-value"></span></div>
+        <div class="cloud-restore-stat"><span class="cr-label">Coins</span><span id="cr-coins" class="cr-value"></span></div>
+        <div class="cloud-restore-stat"><span class="cr-label">Saved</span><span id="cr-date" class="cr-value"></span></div>
+      </div>
+      <div class="cloud-restore-btns">
+        <button id="cr-btn-restore" class="btn-primary">Restore Save</button>
+        <button id="cr-btn-new" class="btn-secondary-sm">Continue New Game</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Dad Jokes help popup -->
   <div class="special-event-overlay hidden" id="dadjokes-help-overlay" onclick="if(event.target===this)closeDadJokesHelp()">
     <div class="special-event-card help-card" style="text-align:left;">
@@ -982,11 +999,11 @@
   </div>
 
   <script src="https://js-de.sentry-cdn.com/97476106dd8bed706f08c624e9262fc5.min.js" crossorigin="anonymous"></script>
-  <script src="version.js?v=40"></script>
+  <script src="version.js?v=41"></script>
   <script src="sentry.js?v=39"></script>
   <script src="admob.js?v=40"></script>
   <script src="iap.js?v=43"></script>
-  <script src="auth.js?v=40"></script>
+  <script src="auth.js?v=41"></script>
   <!-- Status message — outside all screens so it's visible from any screen -->
   <div class="status-msg" id="status-msg"></div>
 

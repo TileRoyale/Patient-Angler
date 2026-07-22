@@ -2,6 +2,14 @@
 
 ---
 
+## v0.9.5.1 — Build 78 (July 2026) [Internal]
+
+### Fix
+- **Cloud save token timing** — replaced fixed 1.5s wait with polling (up to 8s) so cloud saves succeed even when the Firebase token arrives later than expected after sign-in.
+- **Cloud save restore prompt** — when signing in with Google and a previous cloud save is found with local progress present, the player is asked whether to restore the cloud save or continue with the new game.
+
+---
+
 ## v0.9.5.0 — Build 77 (July 2026)
 
 ### Fix

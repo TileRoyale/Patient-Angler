@@ -33,7 +33,7 @@ async function initAuth() {
     _currentUser = result.user;
     updateAuthUI();
     if (_currentUser) {
-      await new Promise(r => setTimeout(r, 1500));
+      await _waitForToken(8000);
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
@@ -49,7 +49,7 @@ async function initAuth() {
     _currentUser = result.user || null;
     updateAuthUI();
     if (_currentUser) {
-      await new Promise(r => setTimeout(r, 1500));
+      await _waitForToken(8000);
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
@@ -66,8 +66,8 @@ async function signInWithGoogle() {
     const result = await FA.signInWithGoogle();
     _currentUser = result.user;
     updateAuthUI();
-    await new Promise(r => setTimeout(r, 1500));
-    await loadCloudSave();
+    await _waitForToken(8000);
+    await loadCloudSave(true);
     _startCloudSync();
     showStatus('Signed in as ' + (_currentUser.displayName || 'Player'), 2000);
     renderSettings();
@@ -98,6 +98,15 @@ function getCurrentUser() { return _currentUser; }
 function isSignedIn()     { return !!_currentUser; }
 
 // ── Cloud Save (Railway) ──────────────────────────────────────────────────────
+
+async function _waitForToken(maxMs = 8000) {
+  const end = Date.now() + maxMs;
+  while (Date.now() < end) {
+    if (_cachedToken && Date.now() < _cachedTokenExp) return _cachedToken;
+    await new Promise(r => setTimeout(r, 250));
+  }
+  return null;
+}
 
 async function _fetchFreshToken() {
   const FA = getFirebaseAuth();
@@ -162,7 +171,33 @@ function _cloudIsRicher(cloud, local) {
   return false;
 }
 
-async function loadCloudSave() {
+function _showCloudRestorePrompt(cloud) {
+  return new Promise(resolve => {
+    const ZONE_LABELS = { pond:'Pond', river:'River', lake:'Lake', bay:'Bay', sea:'Sea', ocean:'Ocean', abyss:'Abyss' };
+    const fmt = n => n >= 1e9 ? (n/1e9).toFixed(1)+'B' : n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(0)+'K' : String(n);
+    const fmtDate = ts => { const d = new Date(ts); return d.toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }); };
+
+    document.getElementById('cr-zone').textContent  = ZONE_LABELS[cloud.currentZone] || cloud.currentZone || '—';
+    document.getElementById('cr-coins').textContent = fmt(cloud.coins || 0);
+    document.getElementById('cr-date').textContent  = cloud._savedAt ? fmtDate(cloud._savedAt) : '—';
+
+    const overlay = document.getElementById('cloud-restore-overlay');
+    overlay.classList.remove('hidden');
+
+    const onRestore = () => { cleanup(); resolve('restore'); };
+    const onNew     = () => { cleanup(); resolve('new'); };
+    const cleanup   = () => {
+      overlay.classList.add('hidden');
+      document.getElementById('cr-btn-restore').removeEventListener('click', onRestore);
+      document.getElementById('cr-btn-new').removeEventListener('click', onNew);
+    };
+
+    document.getElementById('cr-btn-restore').addEventListener('click', onRestore);
+    document.getElementById('cr-btn-new').addEventListener('click', onNew);
+  });
+}
+
+async function loadCloudSave(fromManualLogin = false) {
   if (!_currentUser) return;
 
   try {
@@ -184,12 +219,18 @@ async function loadCloudSave() {
     //    saveState() at startup set localTs=now, making localTs > cloudTs even though
     //    the cloud has the real save and local only has a default/post-reinstall state)
     const freshInstall = typeof _hadLocalSave !== 'undefined' && !_hadLocalSave;
-    if (freshInstall || cloudTs > localTs || _cloudIsRicher(cloud, G)) {
-      Object.assign(G, cloud);
-      saveState();
-      updateHUD();
-      showStatus('Cloud save loaded!', 2000);
+    const shouldLoad   = freshInstall || cloudTs > localTs || _cloudIsRicher(cloud, G);
+    if (!shouldLoad) return;
+
+    if (fromManualLogin && (G.stats?.totalFish > 0 || G.ownedRods.length > 1 || G.currentZone !== 'pond')) {
+      const choice = await _showCloudRestorePrompt(cloud);
+      if (choice !== 'restore') return;
     }
+
+    Object.assign(G, cloud);
+    saveState();
+    updateHUD();
+    showStatus('Cloud save loaded!', 2000);
   } catch (e) {
     console.warn('Cloud load failed:', e);
   }
