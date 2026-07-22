@@ -860,19 +860,6 @@
       "howToCatch": "Manual fishing only. Appears from 22:00–02:00.",
       "description": "A pike that hunts in darkness, because daylight apparently was too easy."
     },
-    "pre_dawn_zander": {
-      "name": "Pre-dawn Zander",
-      "category": "fish",
-      "primaryZone": "Lake",
-      "rarity": "Rare",
-      "baseValue": 40,
-      "weightRange": "200 g – 12 kg",
-      "alsoCatchableIn": [],
-      "timeWindow": "03:00–05:00",
-      "manualOnly": true,
-      "howToCatch": "Manual fishing only. Appears from 03:00–05:00.",
-      "description": "A zander that bites just before sunrise, when only patient anglers are awake."
-    },
     "yellow_water_lily": {
       "name": "Yellow Water Lily",
       "category": "plant",

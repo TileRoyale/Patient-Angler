@@ -12,6 +12,8 @@ let _firebaseAuth      = null;
 let _currentUser       = null;
 let _cloudSyncInterval = null;
 let _saveDebounce      = null;
+let _cachedToken       = null;
+let _cachedTokenExp    = 0;
 
 function getFirebaseAuth() {
   if (!_firebaseAuth) _firebaseAuth = window.Capacitor?.Plugins?.FirebaseAuthentication || null;
@@ -41,6 +43,7 @@ async function initAuth() {
     _currentUser = result.user || null;
     updateAuthUI();
     if (_currentUser) {
+      await _fetchFreshToken();
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
@@ -57,6 +60,7 @@ async function signInWithGoogle() {
     const result = await FA.signInWithGoogle();
     _currentUser = result.user;
     updateAuthUI();
+    await _fetchFreshToken();
     await loadCloudSave();
     _startCloudSync();
     showStatus('Signed in as ' + (_currentUser.displayName || 'Player'), 2000);
@@ -89,16 +93,25 @@ function isSignedIn()     { return !!_currentUser; }
 
 // ── Cloud Save (Railway) ──────────────────────────────────────────────────────
 
-async function _getPAToken() {
+async function _fetchFreshToken() {
   const FA = getFirebaseAuth();
-  if (!FA || !_currentUser) return null;
+  if (!FA) return null;
   try {
-    const result = await FA.getIdToken();
-    return result.token || null;
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('token_timeout')), 8000));
+    const result = await Promise.race([FA.getIdToken({ forceRefresh: false }), timeout]);
+    const token = result?.token || null;
+    if (token) { _cachedToken = token; _cachedTokenExp = Date.now() + 55 * 60 * 1000; }
+    return token;
   } catch (e) {
-    console.warn('[Auth] getIdToken failed:', e);
+    console.warn('[Auth] getIdToken failed:', e.message);
     return null;
   }
+}
+
+async function _getPAToken() {
+  if (!_currentUser) return null;
+  if (_cachedToken && Date.now() < _cachedTokenExp) return _cachedToken;
+  return _fetchFreshToken();
 }
 
 async function saveCloudSave() {

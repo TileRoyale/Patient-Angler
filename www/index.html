@@ -8,7 +8,7 @@
   <title>Patient Angler</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0a1628">
-  <link rel="stylesheet" href="styles.css?v=45">
+  <link rel="stylesheet" href="styles.css?v=46">
 </head>
 <body>
 
@@ -598,7 +598,7 @@
         </div>
         <div class="settings-row" style="margin-top:10px">
           <span class="settings-label">Restore purchases</span>
-          <button class="btn-secondary-sm" onclick="restorePurchases()">Restore</button>
+          <button class="btn-primary" onclick="restorePurchases()">Restore</button>
         </div>
       </div>
 
@@ -631,11 +631,10 @@
         <div class="settings-info-row dim">Share your Player ID with support if you have purchase issues.</div>
         <div class="settings-row">
           <span class="settings-label monospace" id="player-id-display" style="font-size:0.8em;word-break:break-all;flex:1;margin-right:8px;">—</span>
-          <button class="btn-secondary-sm" id="btn-copy-player-id">Copy</button>
+          <button class="btn-primary" id="btn-copy-player-id">Copy</button>
         </div>
         <div class="settings-row" style="margin-top:8px;">
-          <input id="redeem-code-input" type="text" placeholder="Redeem code" maxlength="20"
-            style="flex:1;margin-right:8px;padding:6px 10px;border-radius:6px;border:1px solid var(--color-border);background:var(--color-bg-panel);color:var(--color-text);font-size:0.9em;text-transform:uppercase;">
+          <input id="redeem-code-input" type="text" placeholder="Redeem code" maxlength="20" class="redeem-input" style="text-transform:uppercase;margin-right:8px;" autocomplete="off" autocorrect="off" spellcheck="false">
           <button class="btn-primary" id="btn-redeem-code">Redeem</button>
         </div>
       </div>
@@ -992,7 +991,7 @@
   <div class="status-msg" id="status-msg"></div>
 
   <script src="analytics.js?v=39"></script>
-  <script src="game.js?v=48"></script>
+  <script src="game.js?v=49"></script>
   <script src="abyss.js?v=39"></script>
   <script src="tutorial.js?v=39"></script>
   <script src="dadjokes.js?v=39"></script>

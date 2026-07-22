@@ -306,7 +306,8 @@ const PLANT_DB = [
   { id:'sea_fan',         name:'Sea Fan',                 rarity:'plant', baseValue:0, zone:'ocean', zones:['ocean'], img:'img/Plants/Sea Fan.png' },
 ];
 
-const FISHDEX_TOTAL = FISH_DB.length + TRASH_DB.length + PLANT_DB.length;
+const FISHDEX_TOTAL      = FISH_DB.length + TRASH_DB.length + PLANT_DB.length;
+const FISHDEX_AUTO_TOTAL = FISH_DB.filter(f => !f.special && !f.manualOnly).length + TRASH_DB.length + PLANT_DB.length;
 
 const SIZE_TABLE = [
   { size:1,  weight:70,  mult:0.30 },
@@ -455,7 +456,7 @@ const ACHIEVEMENTS = [
   { id:'ach_h_bigspender',    name:'Big Spender',        desc:'Spend 50,000,000 coins in the shop.',                        type:'h_bigspender',     goal:1,    reward:750  },
   { id:'ach_h_harbor_sell',   name:'Everything Must Go', desc:'Sell a fully packed Harbor Cold Storage.',                   type:'h_harbor_sell',    goal:1,    reward:600  },
   { id:'ach_h_world_dex',     name:'World Explorer',     desc:'Complete the Fishdex for every zone.',                       type:'h_world_dex',      goal:6,    reward:1500 },
-  { id:'ach_h_full_dex',      name:'Master Collector',   desc:'Complete the entire Fishdex.',                               type:'h_fishdex',        goal:FISHDEX_TOTAL,  reward:2000 },
+  { id:'ach_h_full_dex',      name:'Master Collector',   desc:'Complete the entire Fishdex.',                               type:'h_fishdex',        goal:FISHDEX_AUTO_TOTAL, reward:2000 },
   { id:'ach_h_early_bird',    name:'Early Bird',         desc:'Catch a fish between 04:00 and 05:00 in-game.',              type:'h_dawn_first',     goal:1,    reward:200  },
   { id:'ach_h_insomniac',     name:'Insomniac',          desc:'Catch 100 fish between midnight and 04:00 in-game.',         type:'h_midnight_fish',  goal:100,  reward:400  },
   { id:'ach_h_clock',         name:'Around the Clock',   desc:'Catch fish during all 5 time periods in one day.',           type:'h_all_periods',    goal:5,    reward:600  },
@@ -5700,7 +5701,7 @@ function _gsOnTap(shipId) {
     gs.reward          = _gsGenerateReward(gs.zone);
     saveState();
     _gsUpdateLabel(gs.id);
-    showStatus('Ghost Ship expedition started! Returns in 24 in-game hours.', 3000);
+    showStatus('Ghost Ship expedition started! Returns in 72 in-game hours.', 3000);
     return;
   }
 
@@ -5866,26 +5867,20 @@ function _gsOverlayBackdropClick() {
   else gsClaimReward();
 }
 
-function _gsReplacementCost() {
-  const count = (G.expeditionVessels || []).length;
-  return EXPEDITION_VESSEL_PRICES[Math.min(Math.max(count - 1, 0), EXPEDITION_VESSEL_PRICES.length - 1)];
-}
-
 function _gsShowFailPopup(gs) {
   const overlay = document.getElementById('ghost-ship-reward-overlay');
   if (!overlay) return;
-  const cost = _gsReplacementCost();
 
   const titleEl = document.getElementById('gs-reward-title');
   if (titleEl) { titleEl.textContent = 'Expedition Failed'; titleEl.style.color = '#ff6b6b'; }
   const subtitleEl = document.getElementById('gs-reward-subtitle');
-  if (subtitleEl) subtitleEl.textContent = 'Our expedition ship sunk and needs replacement from the shop.';
+  if (subtitleEl) subtitleEl.textContent = 'Expedition failed. Our expedition ship sunk and needs replacement from the shop.';
   const imgEl = document.getElementById('ghost-ship-reward-img');
   if (imgEl) imgEl.style.display = 'none';
 
   document.getElementById('ghost-ship-reward-body').innerHTML =
     '<div style="font-size:14px;color:var(--color-text-dim);margin-top:8px;margin-bottom:4px">'
-    + 'Replacement cost: <strong style="color:#f5c842">' + formatCoins(cost) + 'c</strong>'
+    + 'Your expedition vessel was lost at sea. Buy a replacement from the shop.'
     + '</div>';
 
   const btn = document.getElementById('gs-reward-btn');
@@ -5903,11 +5898,16 @@ function gsClaimFail() {
   const overlay = document.getElementById('ghost-ship-reward-overlay');
   if (overlay) overlay.classList.add('hidden');
   G.ghostShips = (G.ghostShips || []).filter(s => s.id !== shipId);
+  // Remove the expedition vessel that was lost
+  if (G.expeditionVessels && G.expeditionVessels.length > 0) {
+    G.expeditionVessels.splice(G.expeditionVessels.length - 1, 1);
+  }
   saveState();
+  updateHUD();
   _gsStopFlap(shipId);
   const el = document.getElementById('ghost-ship-obj-' + shipId);
   if (el) el.remove();
-  showStatus('Expedition lost. Buy a replacement Expedition Vessel from the shop.', 3500);
+  showStatus('Expedition vessel lost. Buy a replacement from the shop.', 3500);
 }
 
 // ─── GHOST SHIP DEBUG ─────────────────────────────────────────────────────────
@@ -7995,7 +7995,10 @@ async function redeemCode(rawCode) {
       saveState(); updateHUD();
       showStatus(`+${formatNumber(r.amount)} coins added! ${data.desc || ''}`, 3000);
     } else if (r.rewardType === 'autoIncome') {
-      showStatus(data.desc || 'Reward claimed!', 3000);
+      const income = Math.round(estimateAutoHourlyIncome() * (r.amount || 1));
+      _earnCoins(income);
+      saveState(); updateHUD();
+      showStatus(`+${formatCoins(income)}c! ${data.desc || ''}`, 3000);
     } else {
       showStatus(data.desc || 'Reward claimed!', 2500);
     }

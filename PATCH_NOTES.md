@@ -2,6 +2,18 @@
 
 ---
 
+## v0.9.4.9 — Build 76 (July 2026)
+
+### Fix
+- **Cloud save token reliability** — Google Sign-In token is now cached immediately after login and reused for 55 minutes, preventing cloud saves from silently failing on devices where the Firebase token refresh hangs.
+- **Settings UI** — Copy and Restore buttons are now gold to match the rest of the settings buttons.
+- **Settings redeem input** — redeem code input now uses the same style as the player name field.
+
+### Technical
+- Firebase `getIdToken()` wrapped with 8-second timeout to prevent indefinite hang on certain devices; analytics falls back to anonymous device ID if token fetch fails.
+
+---
+
 ## v0.9.4.8 — Build 75 (July 2026)
 
 ### Fix

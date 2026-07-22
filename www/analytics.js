@@ -397,7 +397,8 @@ async function sendAnalyticsSnapshot(trigger, force = false) {
       try {
         const fa = window.Capacitor?.Plugins?.FirebaseAuthentication;
         if (fa) {
-          const tokenResult = await fa.getIdToken({ forceRefresh: false });
+          const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('token_timeout')), 5000));
+          const tokenResult = await Promise.race([fa.getIdToken({ forceRefresh: false }), timeout]);
           if (tokenResult?.token) authHeader = 'Bearer ' + tokenResult.token;
         }
       } catch {}
