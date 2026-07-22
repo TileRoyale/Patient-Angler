@@ -2,6 +2,17 @@
 
 ---
 
+## v0.9.4.8 — Build 75 (July 2026)
+
+### Fix
+- **Settings redeem code duplicate** — the Redeem Code input appeared twice in settings; duplicate section removed.
+- **Ghost Ship expedition failure rate** — reduced from 15% to 5%.
+
+### Technical
+- **Google Play Billing Library v9** — updated from v7.1.1 to v9.0.0 to comply with Google Play requirements (deadline Aug 31, 2026). Migrated `queryProductDetailsAsync` callbacks from `List<ProductDetails>` to `QueryProductDetailsResult` API.
+
+---
+
 ## v0.9.4.7 — Build 74 (July 2026)
 
 ### Feature

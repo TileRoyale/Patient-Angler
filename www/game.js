@@ -5696,7 +5696,7 @@ function _gsOnTap(shipId) {
     gs.state           = 'expedition';
     gs.expeditionEndAt = now + getGsExpeditionMs();
     gs.despawnAt       = 0;
-    gs.failed          = Math.random() < 0.15;
+    gs.failed          = Math.random() < 0.05;
     gs.reward          = _gsGenerateReward(gs.zone);
     saveState();
     _gsUpdateLabel(gs.id);
@@ -8229,82 +8229,10 @@ function renderBobberCosmetics() {
   });
 }
 
-// ─── CODE REDEEM ──────────────────────────────────────────────────────────────
-
-async function redeemCode() {
-  const input  = document.getElementById('redeem-code-input');
-  const result = document.getElementById('redeem-result');
-  if (!input || !result) return;
-
-  const code = (input.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-  input.value = '';
-  if (!code) return;
-
-  if (!isSignedIn()) {
-    result.textContent = 'Sign in with Google first to redeem codes.';
-    result.className   = 'redeem-result redeem-fail';
-    setTimeout(() => { if (result) result.textContent = ''; }, 4000);
-    return;
-  }
-
-  result.textContent = 'Checking…';
-  result.className   = 'redeem-result';
-
-  try {
-    const res  = await fetch(PA_SERVER + '/pa/redeem', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ uid: getCurrentUser().uid, code }),
-    });
-    const data = await res.json();
-
-    if (!data.ok) {
-      const msgs = {
-        invalid_code:     'Unknown code.',
-        already_redeemed: 'Code already redeemed.',
-        expired:          'This code has expired.',
-        server_error:     'Server error — try again later.',
-        missing_uid:      'Sign in with Google first.',
-      };
-      const msg = msgs[data.error] || ('Error: ' + data.error);
-      result.textContent = msg;
-      result.className   = 'redeem-result redeem-fail';
-      showStatus(msg, 2500);
-    } else {
-      const r = data.reward || {};
-      let msg = data.desc || 'Code redeemed!';
-      if (r.rewardType === 'coins') {
-        _earnCoins(r.amount || 0);
-        msg += ' +' + formatCoins(r.amount || 0) + ' coins!';
-      } else if (r.rewardType === 'diamonds') {
-        G.diamonds = (G.diamonds || 0) + (r.amount || 0);
-        msg += ' +' + (r.amount || 0) + ' Diamonds!';
-      } else if (r.rewardType === 'autoIncome') {
-        const income = estimateAutoHourlyIncome();
-        _earnCoins(income);
-        msg += ' +' + formatCoins(income) + ' coins!';
-      }
-      if (r.bonusDiamonds > 0) {
-        G.diamonds = (G.diamonds || 0) + r.bonusDiamonds;
-        msg += ' +' + r.bonusDiamonds + ' Diamonds!';
-      }
-      saveState(); updateHUD();
-      result.textContent = msg;
-      result.className   = 'redeem-result redeem-ok';
-      showStatus(msg, 3000);
-    }
-  } catch (e) {
-    result.textContent = 'Network error — try again.';
-    result.className   = 'redeem-result redeem-fail';
-  }
-
-  setTimeout(() => { if (result) result.textContent = ''; }, 5000);
-}
-
 // Enter key submits the redeem code
 (() => {
   const input = document.getElementById('redeem-code-input');
-  if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') redeemCode(); });
+  if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') redeemCode(input.value); });
 })();
 
 // ─── REMOTE CONFIG ────────────────────────────────────────────────────────────

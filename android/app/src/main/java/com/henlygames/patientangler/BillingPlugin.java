@@ -122,13 +122,13 @@ public class BillingPlugin extends Plugin implements PurchasesUpdatedListener {
             .build();
 
         ensureConnected(
-            () -> billingClient.queryProductDetailsAsync(params, (result, detailsList) -> {
+            () -> billingClient.queryProductDetailsAsync(params, (result, queryResult) -> {
                 if (result.getResponseCode() != BillingClient.BillingResponseCode.OK) {
                     call.reject("getProducts failed: " + result.getDebugMessage());
                     return;
                 }
                 JSArray out = new JSArray();
-                for (ProductDetails pd : detailsList) {
+                for (ProductDetails pd : queryResult.getProductDetailsList()) {
                     productDetailsCache.put(pd.getProductId(), pd);
                     JSObject obj = new JSObject();
                     obj.put("productId", pd.getProductId());
@@ -172,13 +172,14 @@ public class BillingPlugin extends Plugin implements PurchasesUpdatedListener {
                     ));
                     billingClient.queryProductDetailsAsync(
                         QueryProductDetailsParams.newBuilder().setProductList(products).build(),
-                        (result, detailsList) -> {
-                            if (detailsList == null || detailsList.isEmpty()) {
+                        (result, queryResult) -> {
+                            List<ProductDetails> details = queryResult.getProductDetailsList();
+                            if (details == null || details.isEmpty()) {
                                 call.reject("Product not found: " + productId);
                                 return;
                             }
-                            productDetailsCache.put(productId, detailsList.get(0));
-                            launchFlow(call, detailsList.get(0));
+                            productDetailsCache.put(productId, details.get(0));
+                            launchFlow(call, details.get(0));
                         }
                     );
                 } else {
