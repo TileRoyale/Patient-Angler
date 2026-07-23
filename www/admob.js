@@ -116,8 +116,8 @@ function _prepareRewarded() {
       AM.removeAllListeners().catch(() => {});
     }
 
-    // Timeout — if no event within 8s, give up and quick-retry
-    const timeout = setTimeout(() => done(false), 8000);
+    // Timeout — if no event within 30s, give up and quick-retry
+    const timeout = setTimeout(() => done(false), 30000);
 
     AM.addListener('onRewardedVideoAdLoaded', () => {
       clearTimeout(timeout);
@@ -156,7 +156,7 @@ async function showRewardedAd(onReward, onDismiss) {
   const adNote = document.getElementById('se-ad-note');
   if (btn) { btn.disabled = true; btn.textContent = 'Loading ad…'; }
 
-  // Safety net — if the whole flow hangs for any reason, unblock the button after 15s.
+  // Safety net — if the whole flow hangs for any reason, unblock the button after 35s.
   let _safetyFired = false;
   const _safetyTimer = setTimeout(() => {
     _safetyFired    = true;
@@ -165,7 +165,7 @@ async function showRewardedAd(onReward, onDismiss) {
     if (btn)    { btn.disabled = false; btn.textContent = 'Try Again'; }
     if (adNote) adNote.textContent = 'Ad not available. Tap Try Again or skip.';
     if (onDismiss) onDismiss();
-  }, 15000);
+  }, 35000);
 
   if (!_rewardedReady) {
     if (adNote) adNote.textContent = 'Loading ad, please wait…';

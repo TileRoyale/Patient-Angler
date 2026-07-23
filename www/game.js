@@ -4778,9 +4778,12 @@ function updateClock() {
   _gsTick();
 }
 
+let _clockInterval = null;
+
 function startClock() {
+  if (_clockInterval) { clearInterval(_clockInterval); _clockInterval = null; }
   updateClock();
-  setInterval(() => {
+  _clockInterval = setInterval(() => {
     updateClock();
     // Fallback: fire event if setTimeout was throttled (e.g. Android background)
     if (_nextEventAt && !_pendingEvent && Date.now() >= _nextEventAt) {
@@ -7997,12 +8000,16 @@ async function redeemCode(rawCode) {
     } else if (r.rewardType === 'autoIncome') {
       const income = Math.round(estimateAutoHourlyIncome() * (r.amount || 1));
       _earnCoins(income);
+      if (r.bonusDiamonds) G.diamonds = (G.diamonds || 0) + r.bonusDiamonds;
       saveState(); updateHUD();
-      showStatus(`+${formatCoins(income)}c! ${data.desc || ''}`, 3000);
+      const diamondPart = r.bonusDiamonds ? ` +${r.bonusDiamonds} Diamonds!` : '';
+      showStatus(`+${formatCoins(income)} coins!${diamondPart}`, 4000);
     } else if (r.rewardType === 'save_restore' && r.save) {
-      Object.assign(G, r.save);
-      saveState(); updateHUD();
-      showStatus('Save restored! Welcome back.', 3000);
+      const saveData = typeof r.save === 'string' ? JSON.parse(r.save) : r.save;
+      Object.assign(G, saveData);
+      saveState();
+      showStatus('Save restored! Reloading...', 2000);
+      setTimeout(() => location.reload(), 2000);
     } else {
       showStatus(data.desc || 'Reward claimed!', 2500);
     }
@@ -8462,6 +8469,10 @@ function _onAppBackground() {
     if (typeof syncAch === 'function')             syncAch('h_last_fish', 1);
     if (typeof finalizeQuestUpdate === 'function') finalizeQuestUpdate();
   }
+  // Pause automation and clock — calculateOfflineProgress() handles catch-up on resume
+  clearInterval(autoTickInterval);   autoTickInterval  = null;
+  clearInterval(_autoSaveInterval);  _autoSaveInterval = null;
+  clearInterval(_clockInterval);     _clockInterval    = null;
   saveState();
   bgMusic.pause();
   if (typeof onAdBackground === 'function') onAdBackground();
@@ -8478,6 +8489,9 @@ function _onAppForeground() {
   if (!G.musicMuted && _musicStarted) bgMusic.play().catch(() => {});
   calculateOfflineProgress();
   updateHUD();
+  // Restart automation and clock that were paused on background
+  startAutomation();
+  startClock();
   // Special event: timer was paused on background — resolve on return
   if (_pendingEvent) {
     const elapsed = _eventStartedAt ? Date.now() - _eventStartedAt : 0;
@@ -8487,8 +8501,13 @@ function _onAppForeground() {
       // Restart the expire countdown with only the time remaining
       const remaining = Math.max(10000, 5 * 60 * 1000 - elapsed);
       _eventExpireTimeout = setTimeout(expireSpecialEvent, remaining);
-      // Pre-load the ad so it's ready when the player taps claim
+      // Pre-load the ad, then show the icon — gives the ad 8s head-start before player can tap
       if (typeof prepareRewardedAd === 'function') prepareRewardedAd();
+      const _resumeIcon = document.getElementById('event-side-icon');
+      if (_resumeIcon) {
+        _resumeIcon.classList.add('hidden');
+        setTimeout(() => { if (_pendingEvent) _resumeIcon.classList.remove('hidden'); }, 8000);
+      }
     }
   } else if (G.specialEventNextAt && Date.now() >= G.specialEventNextAt) {
     G.specialEventNextAt = 0;

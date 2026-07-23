@@ -14,6 +14,30 @@ let _cloudSyncInterval = null;
 let _saveDebounce      = null;
 let _cachedToken       = null;
 let _cachedTokenExp    = 0;
+let _cachedGoogleCred  = null;
+let _cachedGoogleCredExp = 0;
+
+const _GCRED_LS_KEY = 'pa_gcred_v1';
+
+function _persistGoogleCred(token) {
+  _cachedGoogleCred    = token;
+  _cachedGoogleCredExp = Date.now() + 55 * 60 * 1000;
+  try { localStorage.setItem(_GCRED_LS_KEY, JSON.stringify({ t: token, e: _cachedGoogleCredExp })); } catch {}
+}
+
+function _loadPersistedGoogleCred() {
+  try {
+    const raw = localStorage.getItem(_GCRED_LS_KEY);
+    if (!raw) return;
+    const { t, e } = JSON.parse(raw);
+    if (t && e > Date.now()) { _cachedGoogleCred = t; _cachedGoogleCredExp = e; }
+  } catch {}
+}
+
+function _clearGoogleCred() {
+  _cachedGoogleCred = null; _cachedGoogleCredExp = 0;
+  try { localStorage.removeItem(_GCRED_LS_KEY); } catch {}
+}
 
 function getFirebaseAuth() {
   if (!_firebaseAuth) _firebaseAuth = window.Capacitor?.Plugins?.FirebaseAuthentication || null;
@@ -25,21 +49,19 @@ async function initAuth() {
   const FA = getFirebaseAuth();
   if (!FA) return;
 
-  FA.addListener('idTokenChange', (result) => {
-    if (result?.token) { _cachedToken = result.token; _cachedTokenExp = Date.now() + 55 * 60 * 1000; }
-  });
+  _loadPersistedGoogleCred(); // restore Google credential across restarts
 
   FA.addListener('authStateChange', async (result) => {
     _currentUser = result.user;
     updateAuthUI();
     if (_currentUser) {
-      await _waitForToken(8000);
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
       setTimeout(() => { if (typeof sendAnalyticsSnapshot === 'function') sendAnalyticsSnapshot('auth_change'); }, 3000);
     } else {
       _cachedToken = null; _cachedTokenExp = 0;
+      _clearGoogleCred();
       _stopCloudSync();
     }
   });
@@ -49,7 +71,7 @@ async function initAuth() {
     _currentUser = result.user || null;
     updateAuthUI();
     if (_currentUser) {
-      await _waitForToken(8000);
+      await _fetchFreshToken();
       await loadCloudSave();
       _startCloudSync();
       if (typeof initAnalytics === 'function') initAnalytics();
@@ -66,7 +88,11 @@ async function signInWithGoogle() {
     const result = await FA.signInWithGoogle();
     _currentUser = result.user;
     updateAuthUI();
-    await _waitForToken(8000);
+    // Google credential token — available immediately, persisted for up to 55min across restarts
+    if (result.credential?.idToken) {
+      _persistGoogleCred(result.credential.idToken);
+    }
+    await _fetchFreshToken();
     await loadCloudSave(true);
     _startCloudSync();
     showStatus('Signed in as ' + (_currentUser.displayName || 'Player'), 2000);
@@ -88,6 +114,7 @@ async function signOut() {
   await saveCloudSave();
   await FA.signOut();
   _currentUser = null;
+  _clearGoogleCred();
   _stopCloudSync();
   updateAuthUI();
   renderSettings();
@@ -110,10 +137,10 @@ async function _waitForToken(maxMs = 8000) {
 
 async function _fetchFreshToken() {
   const FA = getFirebaseAuth();
-  if (!FA) return null;
+  if (!FA || !_currentUser) return null;
   try {
-    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('token_timeout')), 8000));
-    const result = await Promise.race([FA.getIdToken({ forceRefresh: false }), timeout]);
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('token_timeout')), 12000));
+    const result = await Promise.race([FA.getIdToken({ forceRefresh: true }), timeout]);
     const token = result?.token || null;
     if (token) { _cachedToken = token; _cachedTokenExp = Date.now() + 55 * 60 * 1000; }
     return token;
@@ -125,6 +152,8 @@ async function _fetchFreshToken() {
 
 async function _getPAToken() {
   if (!_currentUser) return null;
+  // prefer gcred (captured synchronously at sign-in, no bridge delay)
+  if (_cachedGoogleCred && Date.now() < _cachedGoogleCredExp) return 'gcred:' + _cachedGoogleCred;
   if (_cachedToken && Date.now() < _cachedTokenExp) return _cachedToken;
   return _fetchFreshToken();
 }
@@ -142,12 +171,11 @@ async function saveCloudSave() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      if (body.error === 'validation_failed') {
-        console.warn('[PA] Save rejected by anti-cheat:', body.reason);
-      }
+      if (res.status === 401) { _cachedToken = null; _clearGoogleCred(); }
+      console.warn('[CloudSave] save failed', res.status, body.error);
     }
   } catch (e) {
-    console.warn('Cloud save failed:', e);
+    console.warn('[CloudSave] save error:', e.message);
   }
 }
 
@@ -209,22 +237,25 @@ async function loadCloudSave(fromManualLogin = false) {
     if (!res.ok) return;
     const body = await res.json();
     if (!body.ok || !body.save) return;
-    const cloud   = body.save;
+    const cloud = body.save;
     const localTs = G._savedAt || 0;
     const cloudTs = cloud._savedAt || 0;
-    // Prefer cloud when:
-    // 1. No local save existed before init (fresh install / wipe)
-    // 2. Cloud timestamp is newer (normal sync)
-    // 3. Cloud has more game progress (reinstall detection — catches the case where
-    //    saveState() at startup set localTs=now, making localTs > cloudTs even though
-    //    the cloud has the real save and local only has a default/post-reinstall state)
-    const freshInstall = typeof _hadLocalSave !== 'undefined' && !_hadLocalSave;
-    const shouldLoad   = freshInstall || cloudTs > localTs || _cloudIsRicher(cloud, G);
-    if (!shouldLoad) return;
 
-    if (fromManualLogin && (G.stats?.totalFish > 0 || G.ownedRods.length > 1 || G.currentZone !== 'pond')) {
+    const freshInstall    = typeof _hadLocalSave !== 'undefined' && !_hadLocalSave;
+    const hasLocalProgress = G.stats?.totalFish > 0 || (G.ownedRods||[]).length > 1 || G.currentZone !== 'pond';
+
+    if (!freshInstall && hasLocalProgress) {
+      // Local save with real progress is authoritative — cloud must never silently overwrite it.
+      // On manual login the player can still choose to restore from cloud via the prompt.
+      if (!fromManualLogin) return;
       const choice = await _showCloudRestorePrompt(cloud);
       if (choice !== 'restore') return;
+    } else {
+      // Fresh install or no meaningful local progress: load cloud if it has more to offer.
+      const shouldLoad = freshInstall
+        ? (cloudTs > 0 || _cloudIsRicher(cloud, G))
+        : (cloudTs > localTs || _cloudIsRicher(cloud, G));
+      if (!shouldLoad) return;
     }
 
     Object.assign(G, cloud);
