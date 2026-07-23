@@ -229,6 +229,12 @@ async function _retryPendingTokens() {
             changed = true;
             console.log(`[IAP] Pending token recovered: +${diamonds} diamonds for ${productId}`);
             showStatus(`+${diamonds} Diamonds recovered!`, 3000);
+          } else if (NON_CONSUMABLES.includes(productId)) {
+            if (_grantNonConsumable(productId)) {
+              changed = true;
+              console.log(`[IAP] Pending non-consumable recovered: ${productId}`);
+              showStatus('Purchase recovered!', 3000);
+            }
           }
         }
       }
@@ -294,7 +300,8 @@ async function _purchase(productId, onSuccess) {
     const msg = typeof e === 'string' ? e : (e?.message || '');
     if (msg === 'USER_CANCELLED') return;
     if (msg === 'ITEM_ALREADY_OWNED') {
-      showStatus('You already own this. Use Restore Purchases to recover it.', 3500);
+      showStatus('Recovering your purchase…', 2000);
+      restorePurchases();
       return;
     }
     if (msg === 'BILLING_DISCONNECTED') {

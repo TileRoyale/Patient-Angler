@@ -8728,10 +8728,12 @@ function showSpecialEventPopup(ev) {
   title.textContent = ev.name;
   desc.textContent  = ev.desc;
   btn.textContent   = ev.btnLabel;
+  btn.disabled      = false;
 
   if (G.removeAds) {
     adNote.classList.add('hidden');
   } else {
+    adNote.textContent = 'Watch a short ad to claim your reward';
     adNote.classList.remove('hidden');
   }
 
