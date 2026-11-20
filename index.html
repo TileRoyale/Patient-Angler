@@ -3,36 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recapsa OÜ — Mobile games</title>
-  <meta name="description" content="Recapsa OÜ is an Estonian company that develops mobile games, including Patient Angler: Idle Fishing.">
+  <title>Henly Games</title>
+  <meta name="description" content="Henly Games is an independent mobile game studio.">
+  <link rel="icon" type="image/png" href="patient-angler-icon.png">
   <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; color: #222; line-height: 1.6; }
-    h1 { color: #1a3a5c; margin-bottom: 0.2em; }
-    h2 { color: #2a5a8c; margin-top: 2em; }
-    a { color: #2a5a8c; }
-    .meta { color: #555; margin-top: 0; }
-    footer { margin-top: 3em; color: #666; font-size: 0.9em; }
+    :root {
+      --navy: #0e1f33;
+      --navy-2: #16304d;
+      --ink: #1d2733;
+      --muted: #5b6878;
+      --line: #e3e8ee;
+      --bg: #f6f8fa;
+      --accent: #c9a34a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    a { color: var(--navy-2); }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+    header.site {
+      background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%);
+      color: #fff;
+    }
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0;
+    }
+    .brand { font-weight: 700; font-size: 1.15rem; letter-spacing: 0.04em; color: #fff; text-decoration: none; }
+    .brand span { color: var(--accent); }
+    nav ul { list-style: none; display: flex; gap: 22px; margin: 0; padding: 0; }
+    nav ul a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.95rem; }
+    nav ul a:hover { color: #fff; }
+
+    .hero { padding: 64px 0 80px; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 16px; }
+    .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.78); max-width: 560px; margin: 0; }
+
+    section { padding: 64px 0; }
+    section h2 { font-size: 1.6rem; margin: 0 0 8px; color: var(--navy); }
+    section .lead { color: var(--muted); margin: 0 0 32px; }
+
+    .games { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .game {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 24px; display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 0 1px 2px rgba(14,31,51,0.04);
+    }
+    .game-head { display: flex; align-items: center; gap: 16px; }
+    .game-head img { width: 72px; height: 72px; border-radius: 16px; flex-shrink: 0; }
+    .game-head h3 { margin: 0; font-size: 1.15rem; color: var(--navy); }
+    .game-head .genre { margin: 2px 0 0; font-size: 0.9rem; color: var(--muted); }
+    .game p { margin: 0; color: var(--ink); }
+    .stores { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
+    .store {
+      display: inline-block; padding: 9px 16px; border-radius: 10px;
+      background: var(--navy); color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600;
+    }
+    .store:hover { background: var(--navy-2); }
+    .game.soon { align-items: center; justify-content: center; text-align: center; color: var(--muted); border-style: dashed; background: transparent; box-shadow: none; min-height: 200px; }
+
+    .about { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .about p { max-width: 640px; color: var(--ink); margin: 0; }
+
+    .support-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .support-grid a {
+      display: block; background: #fff; border: 1px solid var(--line); border-radius: 12px;
+      padding: 18px 20px; text-decoration: none; color: var(--navy);
+    }
+    .support-grid a strong { display: block; margin-bottom: 4px; }
+    .support-grid a span { color: var(--muted); font-size: 0.9rem; }
+    .support-grid a:hover { border-color: var(--accent); }
+
+    footer.site { padding: 32px 0 40px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
+    footer.site p { margin: 0 0 4px; }
+
+    @media (max-width: 560px) {
+      nav ul { gap: 14px; }
+      .hero { padding: 40px 0 56px; }
+      section { padding: 48px 0; }
+      .game.soon { min-height: 90px; }
+    }
   </style>
 </head>
 <body>
-  <h1>Recapsa OÜ</h1>
-  <p class="meta">Estonian company &middot; registry code 16757521</p>
+  <header class="site">
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="./">HENLY <span>GAMES</span></a>
+        <ul>
+          <li><a href="#games">Games</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#support">Support</a></li>
+        </ul>
+      </nav>
+      <div class="hero">
+        <h1>Calm games you can come back to every day.</h1>
+        <p>Henly Games is an independent mobile game studio making relaxing games built for long-term play.</p>
+      </div>
+    </div>
+  </header>
 
-  <p>Recapsa OÜ develops mobile games. Our games are published under the name Henly Games.</p>
+  <main>
+    <section id="games">
+      <div class="wrap">
+        <h2>Our games</h2>
+        <p class="lead">Available on iPhone, iPad and Android.</p>
+        <div class="games">
+          <article class="game">
+            <div class="game-head">
+              <img src="patient-angler-icon.png" alt="Patient Angler: Idle Fishing app icon">
+              <div>
+                <h3>Patient Angler: Idle Fishing</h3>
+                <p class="genre">Idle fishing</p>
+              </div>
+            </div>
+            <p>Cast, catch and grow your fishing empire from a quiet pond to the deepest waters of the abyss.</p>
+            <div class="stores">
+              <a class="store" href="https://apps.apple.com/app/id6815526962">App Store</a>
+              <a class="store" href="https://play.google.com/store/apps/details?id=com.henlygames.patientangler">Google Play</a>
+            </div>
+          </article>
+          <div class="game soon">More games in development.</div>
+        </div>
+      </div>
+    </section>
 
-  <h2>Games</h2>
-  <p><strong>Patient Angler: Idle Fishing</strong> &mdash; an idle fishing game where you cast, catch, and grow your fishing empire from a quiet pond to the deepest waters.
-  <a href="https://play.google.com/store/apps/details?id=com.henlygames.patientangler">Get it on Google Play</a></p>
+    <section id="about" class="about">
+      <div class="wrap">
+        <h2>About us</h2>
+        <p>We design, build and run our games ourselves, with regular updates shaped by our players' feedback.</p>
+      </div>
+    </section>
 
-  <h2>Support &amp; legal</h2>
-  <ul>
-    <li><a href="privacy.html">Privacy Policy</a></li>
-    <li><a href="delete.html">Delete Account &amp; Data</a></li>
-  </ul>
+    <section id="support">
+      <div class="wrap">
+        <h2>Support</h2>
+        <p class="lead">Questions, feedback or account help.</p>
+        <div class="support-grid">
+          <a href="mailto:henly@recapsa.ee"><strong>Contact</strong><span>henly@recapsa.ee</span></a>
+          <a href="privacy.html"><strong>Privacy Policy</strong><span>How we handle your data</span></a>
+          <a href="delete.html"><strong>Delete Account &amp; Data</strong><span>Remove your game data</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  <h2>Contact</h2>
-  <p>Questions or support requests: <a href="mailto:henly@recapsa.ee">henly@recapsa.ee</a></p>
-
-  <footer>&copy; 2026 Recapsa OÜ</footer>
+  <footer class="site">
+    <div class="wrap">
+      <p>Henly Games is a brand of Recapsa OÜ, Estonia. Registry code 16757521.</p>
+      <p>&copy; 2026 Recapsa OÜ. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>
